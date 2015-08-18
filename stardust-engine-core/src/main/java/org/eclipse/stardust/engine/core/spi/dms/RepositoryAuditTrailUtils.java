@@ -59,7 +59,8 @@ public class RepositoryAuditTrailUtils
 
          // store entry for revision
          if (document.getRevisionId() != null
-               && !RepositoryConstants.VERSION_UNVERSIONED.equals(document.getRevisionId()))
+               && !RepositoryConstants.VERSION_UNVERSIONED.equals(document.getRevisionId())
+               && !RepositoryConstants.VERSION_VERSIONED.equals(document.getRevisionId()))
          {
             storeResource(document.getRevisionId(), document, DmsDocumentBean.class);
          }
@@ -119,7 +120,7 @@ public class RepositoryAuditTrailUtils
    {
       Map legoMap = retrieveResource(folderId, DmsFolderBean.class);
       DmsFolderBean dmsFolderBean = legoMap == null ? null : new DmsFolderBean(
-            legoMap);      
+            legoMap);
       return dmsFolderBean;
    }
 

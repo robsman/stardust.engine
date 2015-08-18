@@ -42,6 +42,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.TimeMeasure;
 import org.eclipse.stardust.common.config.CurrentVersion;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
@@ -326,7 +327,8 @@ public class XpdlUtils
 
    public static void convertCarnot2Xpdl(Source carnotXml, Result result, String encoding)
    {
-      final long tsStart = System.currentTimeMillis();
+      final TimeMeasure conversionTimer = new TimeMeasure();
+      final TimeMeasure stylesheetLoadTimer = new TimeMeasure();
 
       final URL xsltURL = XpdlUtils.class.getResource(WFM_2_XPDL_XSLT);
       if (xsltURL == null)
@@ -386,7 +388,7 @@ public class XpdlUtils
                   BpmRuntimeError.BPMRT_UNABLE_TO_LOAD_XPDL_EXPORT_STYLESHEET.raise(), e);
          }
 
-         final long tsAfterStylesheetLoaded = System.currentTimeMillis();
+         stylesheetLoadTimer.stop();
 
          final ClassLoader cclBackup = Thread.currentThread().getContextClassLoader();
          try
@@ -396,14 +398,14 @@ public class XpdlUtils
             XmlUtils.transform(carnotXml, xpdlTrans, result,
                   DefaultXMLWriter.CDATA_ELEMENTS, 3, encoding);
 
-            final long tsAfterConversion = System.currentTimeMillis();
+            conversionTimer.stop();
 
             if (RuntimeLog.PERFORMANCE.isDebugEnabled())
             {
                RuntimeLog.PERFORMANCE.debug("Converting the model from its CARNOT internal representation to XPDL took "
-                     + (tsAfterConversion - tsStart + 1)
+                     + (conversionTimer.getDurationInMillis() + 1)
                      + "ms (setup took "
-                     + (tsAfterStylesheetLoaded - tsStart + 1) + "ms).");
+                     + (stylesheetLoadTimer.getDurationInMillis() + 1) + "ms).");
             }
          }
          finally
@@ -486,7 +488,8 @@ public class XpdlUtils
 
    public static void convertXpdl2Carnot(Source xpdlSource, Result result, String encoding)
    {
-      final long tsStart = System.currentTimeMillis();
+      final TimeMeasure conversionTimer = new TimeMeasure();
+      final TimeMeasure stylesheetLoadTimer = new TimeMeasure();
 
       final URL xsltURL = XpdlUtils.class.getResource(XPDL_2_WFM_XSLT);
       if (xsltURL == null)
@@ -517,7 +520,7 @@ public class XpdlUtils
                   BpmRuntimeError.BPMRT_UNABLE_TO_LOAD_XPDL_EXPORT_STYLESHEET.raise(), e);
          }
 
-         final long tsAfterStylesheetLoaded = System.currentTimeMillis();
+         stylesheetLoadTimer.stop();
 
          final ClassLoader cclBackup = Thread.currentThread().getContextClassLoader();
          try
@@ -527,14 +530,14 @@ public class XpdlUtils
             XmlUtils.transform(xpdlSource, xpdlTrans, result,
                   DefaultXMLWriter.CDATA_ELEMENTS, 3, encoding);
 
-            final long tsAfterConversion = System.currentTimeMillis();
+            conversionTimer.stop();
 
             if (RuntimeLog.PERFORMANCE.isDebugEnabled())
             {
                RuntimeLog.PERFORMANCE.debug("Converting the model from XPDL to its CARNOT internal representation took "
-                     + (tsAfterConversion - tsStart + 1)
+                     + (conversionTimer.getDurationInMillis() + 1)
                      + "ms (setup took "
-                     + (tsAfterStylesheetLoaded - tsStart + 1) + "ms).");
+                     + (stylesheetLoadTimer.getDurationInMillis() + 1) + "ms).");
             }
          }
          finally

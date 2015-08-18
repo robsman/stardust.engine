@@ -23,7 +23,7 @@ public class DataEndpointTestSuite
    private static ServiceFactoryAccess serviceFactoryAccess;
    private static ServiceFactory sf;
    private static SpringTestUtils testUtils;
-   private static String[] deployedModels = {"BPMTypeConverterTestModel","BpmTypeConverterTestUsingIPPEndpointModel"};
+   private static String[] deployedModels = {"BpmTypeConverterTestModel","BpmTypeConverterTestUsingIPPEndpointModel"};
    
    @BeforeClass
    public static void beforeClass() {

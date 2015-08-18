@@ -1,9 +1,8 @@
 /*
- * Generated from Revision: 60537 
+ * Generated from Revision
  */
 package org.eclipse.stardust.engine.api.ejb3.beans;
 
-import javax.ejb.Local;
 import javax.ejb.Remote;
 
 /**
@@ -20,11 +19,14 @@ import javax.ejb.Remote;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 60537
+ * @version $Revision
  */
 @Remote
 public interface RemoteWorkflowService extends WorkflowService
 {
+
+
+
 
 
 

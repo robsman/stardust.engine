@@ -78,7 +78,7 @@ public class GenericTriggerDataPathTest
       dataMap.put("Content", content);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       sf.getWorkflowService().startProcess("{GenericTriggerDataPathTestModel}TestGenericTriggerDataPath", dataMap, true);
-      Thread.sleep(2000);
+
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery.findAlive("{GenericTriggerDataPathTestModel}ConsumerProcess"));
       ProcessInstance pi = pis.get(0);

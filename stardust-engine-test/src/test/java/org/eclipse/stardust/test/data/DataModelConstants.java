@@ -16,6 +16,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import javax.xml.namespace.QName;
+
 /**
  * <p>
  * This class contains constants related to the model
@@ -23,9 +25,8 @@ import java.util.Locale;
  * </p>
  *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
-/* package-private */ class DataModelConstants
+public class DataModelConstants
 {
    static
    {
@@ -49,23 +50,24 @@ import java.util.Locale;
    /**
     * the name of the model used for process data tests
     */
-   /* package-private */ static final String MODEL_NAME = "DataModel";
+   public static final String MODEL_NAME = "DataModel";
+   public static final String VOLATILE_MODEL_NAME = "VolatileDataModel";
 
 
    /**
     * Process Definition #1
     */
-   /* package-private */ static final String PROCESS_ID_1 = "ProcessDefinition_1";
+   /* package-private */ static final String PROCESS_ID_1 = "{" + MODEL_NAME + "}" + "ProcessDefinition_1";
 
    /**
     * Process Definition #2
     */
-   /* package-private */ static final String PROCESS_ID_2 = "ProcessDefinition_2";
+   /* package-private */ static final String PROCESS_ID_2 = "{" + MODEL_NAME + "}" + "ProcessDefinition_2";
 
    /**
     * Process Definition #3
     */
-   /* package-private */ static final String PROCESS_ID_3 = "ProcessDefinition_3";
+   /* package-private */ static final String PROCESS_ID_3 = "{" + MODEL_NAME + "}" + "ProcessDefinition_3";
 
 
 

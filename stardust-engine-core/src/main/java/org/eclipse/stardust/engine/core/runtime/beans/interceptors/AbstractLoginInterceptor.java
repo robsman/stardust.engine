@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,6 @@ import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import java.lang.reflect.Method;
 import java.security.Principal;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,6 +47,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.LoginServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.ejb.interceptors.SessionBeanLoginInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 import org.eclipse.stardust.engine.core.runtime.internal.SessionManager;
@@ -60,6 +60,7 @@ import org.eclipse.stardust.engine.core.spi.security.PrincipalProvider;
 import org.eclipse.stardust.engine.core.spi.security.PrincipalValidator;
 import org.eclipse.stardust.engine.core.spi.security.PrincipalWithProperties;
 import org.eclipse.stardust.engine.extensions.ejb.utils.J2EEUtils;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 // @todo (france, ub): should be three interceptors (?!)
 // - login interceptor for internal login
@@ -203,12 +204,12 @@ public class AbstractLoginInterceptor implements MethodInterceptor
 
    private void doSecurityCheck(LoggedInUser user)
    {
-      InvokerPrincipal principal = getPrincipal(user);
+      Principal principal = getPrincipal(user);
 
       if (SecurityProperties.isInternalAuthentication())
       {
          // Check principal signature
-         boolean ok = InvokerPrincipalUtils.checkPrincipalSignature(principal);
+         boolean ok = InvokerPrincipalUtils.checkPrincipalSignature((InvokerPrincipal) principal);
          if ( !ok)
          {
             trace.warn("The signature for principal '" + principal + "' is corrupt.");
@@ -227,8 +228,13 @@ public class AbstractLoginInterceptor implements MethodInterceptor
       }
    }
 
-   private InvokerPrincipal getPrincipal(LoggedInUser user)
+   private Principal getPrincipal(LoggedInUser user)
    {
+      if (SecurityProperties.isPrincipalBasedLogin() && this instanceof SessionBeanLoginInterceptor)
+      {
+         return ((SessionBeanLoginInterceptor) this).getPrincipal();
+      }
+
       InvokerPrincipal principal = InvokerPrincipalUtils.getCurrent();
       if (principal == null)
       {
@@ -249,8 +255,13 @@ public class AbstractLoginInterceptor implements MethodInterceptor
    private void doReauthentication(LoggedInUser user)
    {
       // Check if re-authentication properties are present and do login check.
-      InvokerPrincipal principal = getPrincipal(user);
-      Map properties = principal.getProperties();
+      Principal principal = getPrincipal(user);
+      if ( !(principal instanceof InvokerPrincipal))
+      {
+         return;
+      }
+
+      Map<?, ?> properties = ((InvokerPrincipal) principal).getProperties();
       if (properties.containsKey(REAUTH_USER_ID))
       {
          String username = (String) properties.get(REAUTH_USER_ID);
@@ -482,7 +493,7 @@ public class AbstractLoginInterceptor implements MethodInterceptor
                   LoginFailedException.SYSTEM_ERROR);
          }
          user.setPasswordExpired(true);
-         user.setValidTo(new Date());
+         user.setValidTo(TimestampProviderUtils.getTimeStamp());
 
          return null;
       }

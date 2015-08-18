@@ -18,6 +18,7 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonCarrier;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -46,7 +47,7 @@ public class DefaultScheduler implements DaemonScheduler
                public void run()
                {
                   // prevent firing of batch events if the system time is changed on a running engine.
-                  long now = System.currentTimeMillis();
+                  long now = TimestampProviderUtils.getTimeStampValue();
                   if (lastRun == null || now - lastRun > 100 || now < lastRun)
                   {
                      runnable.run();

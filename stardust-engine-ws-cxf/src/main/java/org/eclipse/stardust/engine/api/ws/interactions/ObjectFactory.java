@@ -42,11 +42,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetInputParametersResponse }
+     * Create an instance of {@link GetDefinitionResponse }
      * 
      */
-    public GetInputParametersResponse createGetInputParametersResponse() {
-        return new GetInputParametersResponse();
+    public GetDefinitionResponse createGetDefinitionResponse() {
+        return new GetDefinitionResponse();
     }
 
     /**
@@ -58,14 +58,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetDefinitionResponse }
-     * 
-     */
-    public GetDefinitionResponse createGetDefinitionResponse() {
-        return new GetDefinitionResponse();
-    }
-
-    /**
      * Create an instance of {@link SetOutputParametersResponse }
      * 
      */
@@ -74,19 +66,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetDefinition }
+     * Create an instance of {@link GetInputParametersResponse }
      * 
      */
-    public GetDefinition createGetDefinition() {
-        return new GetDefinition();
-    }
-
-    /**
-     * Create an instance of {@link GetOwner }
-     * 
-     */
-    public GetOwner createGetOwner() {
-        return new GetOwner();
+    public GetInputParametersResponse createGetInputParametersResponse() {
+        return new GetInputParametersResponse();
     }
 
     /**
@@ -103,6 +87,22 @@ public class ObjectFactory {
      */
     public GetInputParameters createGetInputParameters() {
         return new GetInputParameters();
+    }
+
+    /**
+     * Create an instance of {@link GetDefinition }
+     * 
+     */
+    public GetDefinition createGetDefinition() {
+        return new GetDefinition();
+    }
+
+    /**
+     * Create an instance of {@link GetOwner }
+     * 
+     */
+    public GetOwner createGetOwner() {
+        return new GetOwner();
     }
 
     /**

@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.cli.console;
 
 import java.util.Map;
 
+import org.eclipse.stardust.common.TimeMeasure;
 import org.eclipse.stardust.common.utils.console.ConsoleCommand;
 import org.eclipse.stardust.common.utils.console.Options;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
@@ -19,6 +20,7 @@ import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationJobInfo;
 import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 public class MigrateRepositoryCommand extends ConsoleCommand
@@ -68,7 +70,7 @@ public class MigrateRepositoryCommand extends ConsoleCommand
       ServiceFactory serviceFactory = ServiceFactoryLocator.get(globalOptions);
       try
       {
-         long starttime = System.currentTimeMillis();
+         final TimeMeasure timer = new TimeMeasure();
          DocumentManagementService dms = serviceFactory.getDocumentManagementService();
 
          RepositoryMigrationReport report = dms.migrateRepository(0, false);
@@ -143,7 +145,7 @@ public class MigrateRepositoryCommand extends ConsoleCommand
                            + report.getCurrentRepositoryStructureVersion() + ".");
                      currentRepositoryStructureVersion = report.getCurrentRepositoryStructureVersion();
                   }
-                  long runtime = System.currentTimeMillis() - starttime;
+                  long runtime = timer.stop().getDurationInMillis();
                   if (timeLimit > 0 && runtime > timeLimit * 1000 * 60)
                   {
                      cancel = true;

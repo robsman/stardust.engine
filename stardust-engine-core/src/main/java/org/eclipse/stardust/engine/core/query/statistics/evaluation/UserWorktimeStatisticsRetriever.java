@@ -12,49 +12,37 @@ package org.eclipse.stardust.engine.core.query.statistics.evaluation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IParticipant;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.query.QueryServiceUtils;
 import org.eclipse.stardust.engine.api.query.Users;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.persistence.*;
-import org.eclipse.stardust.engine.core.query.statistics.api.CriticalCostPerExecutionPolicy;
-import org.eclipse.stardust.engine.core.query.statistics.api.CriticalProcessingTimePolicy;
-import org.eclipse.stardust.engine.core.query.statistics.api.DateRange;
-import org.eclipse.stardust.engine.core.query.statistics.api.InstancesStoplightHistogram;
-import org.eclipse.stardust.engine.core.query.statistics.api.StatisticsDateRangePolicy;
-import org.eclipse.stardust.engine.core.query.statistics.api.UserWorktimeStatisticsQuery;
 import org.eclipse.stardust.engine.core.query.statistics.api.AbstractStoplightPolicy.Status;
+import org.eclipse.stardust.engine.core.query.statistics.api.*;
 import org.eclipse.stardust.engine.core.query.statistics.api.UserWorktimeStatistics.Contribution;
 import org.eclipse.stardust.engine.core.query.statistics.api.UserWorktimeStatistics.ContributionInInterval;
 import org.eclipse.stardust.engine.core.query.statistics.api.UserWorktimeStatistics.WorktimeStatistics;
 import org.eclipse.stardust.engine.core.query.statistics.utils.IResultSetTemplate;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQueryResult;
 import org.eclipse.stardust.engine.core.spi.query.IUserQueryEvaluator;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -160,8 +148,8 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
                   SecurityProperties.getPartitionOid()));
       }
 
-      final Date tsFrom = new Date();
-      final Date tsUntil = new Date();
+      final Date tsFrom = TimestampProviderUtils.getTimeStamp();
+      final Date tsUntil = TimestampProviderUtils.getTimeStamp();
 
       final Map<Long, WorktimeStatistics> worktimeStatistics = CollectionUtils.newMap();
 
@@ -169,13 +157,12 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
       final Map<ContributionInInterval, Set<Long>> pisPerContribution = CollectionUtils.newMap();
 
       final Map<ContributionInInterval, Set<Long>> aisPerContributionWaiting = CollectionUtils.newMap();
-      final Map<ContributionInInterval, Set<Long>> pisPerContributionWaiting = CollectionUtils.newMap();      
-      
+      final Map<ContributionInInterval, Set<Long>> pisPerContributionWaiting = CollectionUtils.newMap();
+
       final Map<Long, EffortPerExecution> effortPerAi = CollectionUtils.newMap();
       final Map<Long, EffortPerExecution> effortPerPi = CollectionUtils.newMap();
 
-      final AuthorizationContext ctx = AuthorizationContext.create(WorkflowService.class,
-            "getActivityInstance", long.class);
+      final AuthorizationContext ctx = AuthorizationContext.create(ClientPermission.READ_ACTIVITY_INSTANCE_DATA);
       final boolean guarded = Parameters.instance().getBoolean("QueryService.Guarded", true)
             && !ctx.isAdminOverride();
       final AbstractAuthorization2Predicate authPredicate = new AbstractAuthorization2Predicate(ctx) {};
@@ -305,7 +292,7 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
             Date periodEnd = dateRange.getIntervalEnd();
 
             // Interpret non set until timestamp (with 0 milis) as Now for activities that are currently suspended.
-            Date tsUntilWait = tsUntil.equals(new Date(0l))? new Date():tsUntil;
+            Date tsUntilWait = tsUntil.equals(new Date(0l))? TimestampProviderUtils.getTimeStamp():tsUntil;
 
             if (tsUntilWait.after(periodBegin) && tsFrom.before(periodEnd))
             {
@@ -332,8 +319,8 @@ public class UserWorktimeStatisticsRetriever implements IUserQueryEvaluator
                   pis.add(piOid);
                   contributionInInterval.addnPisWaiting(1);
                }
-               
-               
+
+
                Date from = tsFrom.before(periodBegin) ? periodBegin : tsFrom;
                Date until = tsUntilWait.after(periodEnd) ? periodEnd : tsUntilWait;
 

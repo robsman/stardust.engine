@@ -10,35 +10,15 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.repository.jcr;
 
-import static org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils.fromVfs;
-import static org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils.fromVfsDocumentList;
-import static org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils.fromVfsFolderList;
-import static org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils.fromVfsPolicies;
-import static org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils.fromVfsPrivileges;
-import static org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils.hasValidPartitionPrefix;
-import static org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils.isSecurityEnabled;
-import static org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils.toVfs;
+import static org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils.*;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import javax.jcr.AccessDeniedException;
-import javax.jcr.Credentials;
-import javax.jcr.ItemExistsException;
-import javax.jcr.ItemNotFoundException;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.ReferentialIntegrityException;
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.SimpleCredentials;
+import javax.jcr.*;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
@@ -55,55 +35,22 @@ import org.eclipse.stardust.engine.api.query.DocumentQuery;
 import org.eclipse.stardust.engine.api.query.DocumentQueryEvaluator;
 import org.eclipse.stardust.engine.api.query.DocumentQueryPostProcessor;
 import org.eclipse.stardust.engine.api.query.QueryServiceUtils;
-import org.eclipse.stardust.engine.api.runtime.AccessControlPolicy;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils.AccessMode;
-import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
-import org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException;
 import org.eclipse.stardust.engine.api.runtime.Documents;
-import org.eclipse.stardust.engine.api.runtime.Folder;
-import org.eclipse.stardust.engine.api.runtime.FolderInfo;
-import org.eclipse.stardust.engine.api.runtime.Privilege;
-import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport;
-import org.eclipse.stardust.engine.core.extensions.ExtensionService;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
-import org.eclipse.stardust.engine.core.runtime.beans.DocumentTypeUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.EngineRepositoryMigrationManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
-import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.spi.dms.ILegacyRepositoryService;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryConstants;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils;
 import org.eclipse.stardust.engine.core.thirdparty.encoding.ISO9075;
-import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsFolderBean;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsPrivilege;
-import org.eclipse.stardust.engine.extensions.dms.data.DocumentType;
-import org.eclipse.stardust.engine.extensions.dms.data.IPrivilegeAdapter;
-import org.eclipse.stardust.engine.extensions.dms.data.VirtualFolderKey;
-import org.eclipse.stardust.vfs.IAccessControlEntry;
+import org.eclipse.stardust.engine.extensions.dms.data.*;
+import org.eclipse.stardust.vfs.*;
 import org.eclipse.stardust.vfs.IAccessControlEntry.EntryType;
-import org.eclipse.stardust.vfs.IAccessControlPolicy;
-import org.eclipse.stardust.vfs.IDocumentRepositoryService;
-import org.eclipse.stardust.vfs.IFile;
-import org.eclipse.stardust.vfs.IFolder;
-import org.eclipse.stardust.vfs.IMigrationReport;
-import org.eclipse.stardust.vfs.IPrivilege;
-import org.eclipse.stardust.vfs.MetaDataLocation;
-import org.eclipse.stardust.vfs.RepositoryOperationFailedException;
-import org.eclipse.stardust.vfs.VfsUtils;
-import org.eclipse.stardust.vfs.impl.jcr.AuthorizableOrganizationDetails;
-import org.eclipse.stardust.vfs.impl.jcr.JcrDocumentRepositoryService;
-import org.eclipse.stardust.vfs.impl.jcr.JcrVfsAccessControlEntry;
-import org.eclipse.stardust.vfs.impl.jcr.JcrVfsAccessControlPolicy;
-import org.eclipse.stardust.vfs.impl.jcr.JcrVfsPrincipal;
-import org.eclipse.stardust.vfs.impl.jcr.JcrVfsPrivilege;
+import org.eclipse.stardust.vfs.impl.jcr.*;
 import org.eclipse.stardust.vfs.impl.utils.SessionUtils;
 import org.eclipse.stardust.vfs.jcr.ISessionFactory;
 
@@ -584,12 +531,17 @@ public class JcrVfsRepositoryService
                pathWithPrefix += file.getName();
             }
 
-            if (file == null
-                  || hasValidPartitionPrefix(file.getPath(), getPartitionPrefix(),
+            if (file != null
+                  && hasValidPartitionPrefix(file.getPath(), getPartitionPrefix(),
                         AccessMode.Write))
             {
                return fromVfs(vfs.moveFile(documentIdWithPrefix, pathWithPrefix, null),
                      getPartitionPrefix());
+            }
+            else if (file == null)
+            {
+               throw new ObjectNotFoundException(
+                     BpmRuntimeError.DMS_UNKNOWN_FILE_ID.raise(documentId));
             }
             else
             {
@@ -1238,8 +1190,6 @@ public class JcrVfsRepositoryService
          final String extensionId = Modules.class.getName() + "." + Modules.DMS.getId();
          if (!Parameters.instance().getBoolean(extensionId, false))
          {
-            ExtensionService.initializeModuleExtensions(Modules.DMS);
-
             globals.getOrInitialize(extensionId, "true");
          }
 

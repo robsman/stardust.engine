@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2012 SunGard CSA LLC and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SunGard CSA LLC - initial API and implementation and/or initial documentation
+ *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
@@ -7,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.stardust.common.TimeMeasure;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationJobInfo;
@@ -52,7 +63,7 @@ public class PortalMetaDataPropertiesMigrationJob
       long resourcesDone = 0;
       if (batchSize > 0)
       {
-         long startTime = System.currentTimeMillis();
+         final TimeMeasure timer = new TimeMeasure().start();
          long limit = batchSize;
          long offset = 0;
 
@@ -69,7 +80,7 @@ public class PortalMetaDataPropertiesMigrationJob
          List< ? extends IFile> files = result.getResult();
 
          int resultSize = files.size();
-         long time = System.currentTimeMillis() - startTime;
+         long time = timer.stop().getDurationInMillis();
 
          trace.info((result == null ? "0" : resultSize) + " Document(s) found in " + time
                + "ms with query (" + JCR_QUERY + ") limit=" + limit + " offset=" + offset);

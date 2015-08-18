@@ -24,10 +24,37 @@ import org.eclipse.stardust.common.config.Version;
  */
 public interface RuntimeEnvironmentInfo extends Serializable
 {
+   
+   public static final String AUDITTRAIL_UUID = "stardust.audittrail.uuid";
+   public static final String AUDITTRAIL_NAME = "stardust.audittrail.name";
+   public static final String AUDITTRAIL_ARCHIVING_TIMESTAMP = "stardust.audittrail.archivingtimestamp";
+   
    /**
     * The version of the kernel.
     *  
     * @return version of the kernel.
     */
    public Version getVersion();
+   
+   /**
+    * Timestamp of last target archive time.
+    * 
+    * @return timestamp last target archive time 
+    */
+   public Long getLastArchivingTime();
+   
+   /**
+    * The UUID of the AuditTrail.
+    * 
+    * @return
+    */
+   public String getAuditTrailUUID();
+   
+   /**
+    * The name of the AuditTrail.
+    * 
+    * @return
+    */
+   public String getAuditTrailName();
+         
 }

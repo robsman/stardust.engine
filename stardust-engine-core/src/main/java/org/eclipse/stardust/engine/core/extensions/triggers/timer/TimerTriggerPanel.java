@@ -26,6 +26,7 @@ import org.eclipse.stardust.engine.core.compatibility.gui.utils.DateTimeEntry;
 import org.eclipse.stardust.engine.core.compatibility.gui.utils.Mandatory;
 import org.eclipse.stardust.engine.core.compatibility.gui.utils.PeriodEntry;
 import org.eclipse.stardust.engine.core.compatibility.spi.model.gui.TriggerPropertiesPanel;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -115,8 +116,7 @@ public class TimerTriggerPanel extends TriggerPropertiesPanel
             .TIMER_TRIGGER_START_TIMESTAMP_ATT);
       if (null != ts)
       {
-         Calendar startTime = Calendar.getInstance();
-         startTime.setTime(new Date(ts.longValue()));
+         Calendar startTime = TimestampProviderUtils.getCalendar(ts.longValue());
          startTimeEntry.setCalendar(startTime);
       }
       else
@@ -135,8 +135,7 @@ public class TimerTriggerPanel extends TriggerPropertiesPanel
                .TIMER_TRIGGER_STOP_TIMESTAMP_ATT);
          if (null != stopTs)
          {
-            Calendar stopTime = Calendar.getInstance();
-            stopTime.setTime(new Date(stopTs.longValue()));
+            Calendar stopTime = TimestampProviderUtils.getCalendar(stopTs.longValue());
             stopTimeEntry.setCalendar(stopTime);
          }
          else

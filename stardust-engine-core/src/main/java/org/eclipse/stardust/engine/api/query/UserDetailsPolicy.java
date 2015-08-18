@@ -12,6 +12,11 @@ package org.eclipse.stardust.engine.api.query;
 
 import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
 
+/**
+ * Policy for specifying the level of detail for user details. The following level exist
+ * {@link UserDetailsLevel#MINIMAL}, {@link UserDetailsLevel#CORE},
+ * {@link UserDetailsLevel#WITH_PROPERTIES} and {@link UserDetailsLevel#FULL}.
+ */
 public class UserDetailsPolicy implements EvaluationPolicy
 {
    private static final long serialVersionUID = 1L;
@@ -25,11 +30,17 @@ public class UserDetailsPolicy implements EvaluationPolicy
       this.level = level;
    }
 
+   /**
+    * @return The level of details for UserDetailsPolicy.
+    */
    public UserDetailsLevel getLevel()
    {
       return level;
    }
 
+   /**
+    * @return The module ids of the included preferences.
+    */
    public String[] getPreferenceModules()
    {
       return moduleIds;

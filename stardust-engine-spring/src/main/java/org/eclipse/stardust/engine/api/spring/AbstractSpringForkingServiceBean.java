@@ -172,6 +172,8 @@ public abstract class AbstractSpringForkingServiceBean extends AbstractSpringSer
             innerCarrier.getType() + DaemonProperties.DAEMON_PERIODICITY_SUFFIX,
             DaemonFactory.instance().get(innerCarrier.getType()).getDefaultPeriodicity()) * 1000;
 
+      innerCarrier.setTimeToLive(period);
+      
       final Runnable runnable = new Runnable()
       {
          public void run()

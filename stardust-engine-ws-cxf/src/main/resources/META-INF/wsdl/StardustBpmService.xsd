@@ -619,6 +619,58 @@
       </complexType>
    </element>
 
+   <element name="createBusinessObjectInstance">
+      <complexType>
+         <sequence>
+            <element name="qualifiedBusinessObjectId" type="xsd:string" />
+            <element name="initialValue" type="bat:Parameter" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="createBusinessObjectInstanceResponse">
+      <complexType>
+         <sequence>
+            <element name="businessObject" type="bat:BusinessObject"
+               nillable="true" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="updateBusinessObjectInstance">
+      <complexType>
+         <sequence>
+            <element name="qualifiedBusinessObjectId" type="xsd:string" />
+            <element name="newValue" type="bat:Parameter" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="updateBusinessObjectInstanceResponse">
+      <complexType>
+         <sequence>
+            <element name="businessObject" type="bat:BusinessObject"
+               nillable="true" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="deleteBusinessObjectInstance">
+      <complexType>
+         <sequence>
+            <element name="qualifiedBusinessObjectId" type="xsd:string" />
+            <element name="primaryKey" type="bat:Parameter" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="deleteBusinessObjectInstanceResponse">
+      <complexType>
+         <sequence>
+         </sequence>
+      </complexType>
+   </element>
+
    <!-- DocumentManagement -->
 
    <element name="createDocument">
@@ -1146,6 +1198,40 @@
       </complexType>
    </element>
 
+   <element name="moveDocument">
+      <complexType>
+         <sequence>
+            <element name="documentId" type="xsd:string" />
+            <element name="targetPath" type="xsd:string" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="moveDocumentResponse">
+      <complexType>
+         <sequence>
+            <element name="document" type="bat:Document" nillable="true" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="removeDocumentVersion">
+      <complexType>
+         <sequence>
+            <element name="documentId" type="xsd:string" />
+            <element name="documentRevisionId" type="xsd:string" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="removeDocumentVersionResponse">
+      <complexType>
+         <sequence>
+         </sequence>
+      </complexType>
+   </element>
+
+
    <complexType name="BpmFault">
       <sequence>
          <element name="faultCode" type="tns:BpmFaultCode" />
@@ -1570,6 +1656,22 @@
             <element name="queryResult" type="bat:ModelsQueryResult" nillable="true"/>
          </sequence>
       </complexType>
+   </element>
+
+   <element name="getAllBusinessObjects">
+   	   <complexType>
+   	   	<sequence>
+   	   		<element name="businessObjectQuery" type="baqt:BusinessObjectQuery" nillable="true"/>
+   	   	</sequence>
+   	   </complexType>
+   </element>
+
+   <element name="getAllBusinessObjectsResponse">
+   	   <complexType>
+   	   	<sequence>
+   	   		<element name="queryResult" type="bat:BusinessObjects" nillable="true"/>
+   	   	</sequence>
+   	   </complexType>
    </element>
 
    <!-- UserService -->

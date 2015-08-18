@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  * 		either with ascending or descending values.
  *         
  * 
- * <p>Java class for AttributeOrder complex type.
+ * <p>Java-Klasse für AttributeOrder complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="AttributeOrder">
@@ -47,7 +47,7 @@ public class AttributeOrderXto
     protected boolean ascending;
 
     /**
-     * Gets the value of the attribute property.
+     * Ruft den Wert der attribute-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -59,7 +59,7 @@ public class AttributeOrderXto
     }
 
     /**
-     * Sets the value of the attribute property.
+     * Legt den Wert der attribute-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -71,7 +71,7 @@ public class AttributeOrderXto
     }
 
     /**
-     * Gets the value of the ascending property.
+     * Ruft den Wert der ascending-Eigenschaft ab.
      * 
      */
     public boolean isAscending() {
@@ -79,7 +79,7 @@ public class AttributeOrderXto
     }
 
     /**
-     * Sets the value of the ascending property.
+     * Legt den Wert der ascending-Eigenschaft fest.
      * 
      */
     public void setAscending(boolean value) {

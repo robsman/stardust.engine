@@ -44,6 +44,7 @@ import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstanceInfo;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryService;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryManager;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * @author rsauer, roland.stamm
@@ -156,7 +157,7 @@ public class DocumentManagementServiceImpl
       {
          return DmsContentServlet.encodeDmsServletToken(documentId,
                DmsContentServlet.OP_DOWNLOAD, SecurityProperties.getUserOID(),
-               System.currentTimeMillis());
+               TimestampProviderUtils.getTimeStampValue());
       }
       else
       {
@@ -340,7 +341,7 @@ public class DocumentManagementServiceImpl
       {
          return DmsContentServlet.encodeDmsServletToken(documentId,
                DmsContentServlet.OP_UPLOAD, SecurityProperties.getUserOID(),
-               System.currentTimeMillis());
+               TimestampProviderUtils.getTimeStampValue());
       }
       else
       {

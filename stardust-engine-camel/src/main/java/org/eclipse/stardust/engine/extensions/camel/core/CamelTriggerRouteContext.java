@@ -17,7 +17,6 @@ import org.eclipse.stardust.engine.api.model.ITrigger;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 import org.eclipse.stardust.engine.extensions.camel.Util;
-import org.eclipse.stardust.engine.extensions.camel.converter.DataConverter;
 import org.eclipse.stardust.engine.extensions.camel.trigger.AccessPointProperties;
 
 public class CamelTriggerRouteContext extends TriggerRouteContext
@@ -44,15 +43,13 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
    }
 
 
-   private List<DataConverter> dataConverters;
 
    public CamelTriggerRouteContext(ITrigger trigger, String partitionId,
-         String camelContextId, List<DataConverter> dataConverters)
+         String camelContextId)
    {
       this.trigger = trigger;
       this.partitionId = partitionId;
       this.camelContextId = camelContextId;
-      this.dataConverters = dataConverters;
    }
 
    @Override
@@ -87,9 +84,15 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
     * 
     * @return
     */
-   public boolean autoStartRoute()
+   public Boolean autoStartRoute()
    {
-      return true;
+
+	   Boolean startup = true;
+	   if (trigger.getAttribute("carnot:engine:camel::autoStartup") != null){
+		   startup = (Boolean) trigger.getAttribute("carnot:engine:camel::autoStartup");
+	   }
+	  return startup;
+
    }
 
    /**
@@ -184,66 +187,13 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
             if (accessPtProps.getAccessPointType().equals(DOCUMENT_LIST))
             { // Document
               // Lists
-               List<DataConverter> availableConvertersForDocumentType = getConverterForType(
-                     DOCUMENT_LIST, dataConverters);
-               if (availableConvertersForDocumentType == null
-                     || availableConvertersForDocumentType.isEmpty())
-                  logger.warn("No Converters found for Access point of type "
-                        + DOCUMENT_LIST);
-               else if (availableConvertersForDocumentType != null
-                     && availableConvertersForDocumentType.size() > 1)
-                  logger.warn("Multiple Converters found for Access point of type "
-                        + DOCUMENT_LIST);
-               else
-               {
-                  for (DataConverter converter : dataConverters)
-                  {
-                     // if
-                     // (//converter.getFromEndpoint().equals(accessPtProps.getEndPoint().getClass().getCanonicalName())
-                     // //&&
-                     // converter.getTargetType().equals(DOCUMENT_LIST))
-                     // {
-                     mappingExpression.getBeanExpression().add(
-                           "bean:" + converter.getClass().getCanonicalName());
-                     // break;
-                     // }
-                  }
-                  mappingExpression.getBodyExpression().append("body");
-                  mappingExpression.getBodyExpression().append("}");
-                  // return;
-               }
+               logger.warn("Document List Type is not yet supported.");
             }
             else if (accessPtProps.getAccessPointType().equals(DOCUMENT))
             { // Document
-               List<DataConverter> availableConvertersForDocumentType = getConverterForType(
-                     DOCUMENT, dataConverters);
-               if (availableConvertersForDocumentType == null
-                     || availableConvertersForDocumentType.isEmpty())
-                  logger.warn("No Converters found for Access point of type " + DOCUMENT);
-               else if (availableConvertersForDocumentType != null
-                     && availableConvertersForDocumentType.size() > 1)
-                  logger.warn("Multiple Converters found for Access point of type "
-                        + DOCUMENT);
-               else
-               {
-                  for (DataConverter converter : availableConvertersForDocumentType)
-                  {
-                     // if
-                     // (//converter.getFromEndpoint().equals(accessPtProps.getEndPoint().getClass().getCanonicalName())
-                     // //&&
-                     // //converter.getTargetType().equals(DOCUMENT))
-                     // {
-                     mappingExpression.getBeanExpression().add(
-                           "bean:" + converter.getClass().getCanonicalName());
-                     // break;
-                     // }
-                  }
                   mappingExpression.getBodyExpression().append("body");
-                  mappingExpression.setIncludeMoveEndpoint(true);
-
-                  // mappingExpression.getBodyExpression().append("}");
-                  // return;
-               }
+                   mappingExpression.getBodyExpression().append("}");
+                   return;
             }
             if (accessPtProps.getData().getType().getId().equals("struct"))
             {
@@ -277,16 +227,16 @@ public class CamelTriggerRouteContext extends TriggerRouteContext
 
    }
 
-   private static List<DataConverter> getConverterForType(String type,
-         List<DataConverter> converters)
-   {
-      List<DataConverter> selectedConverters = new ArrayList<DataConverter>();
-      for (DataConverter converter : converters)
-      {
-         if (converter.getTargetType().equals(DOCUMENT))
-            selectedConverters.add(converter);
-      }
-      return selectedConverters;
-   }
+//   private static List<DataConverter> getConverterForType(String type,
+//         List<DataConverter> converters)
+//   {
+//      List<DataConverter> selectedConverters = new ArrayList<DataConverter>();
+//      for (DataConverter converter : converters)
+//      {
+//         if (converter.getTargetType().equals(DOCUMENT))
+//            selectedConverters.add(converter);
+//      }
+//      return selectedConverters;
+//   }
 
 }

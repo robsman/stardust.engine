@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,13 @@ package org.eclipse.stardust.engine.api.dto;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,9 +28,23 @@ import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.PropertyLayer;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.Activity;
+import org.eclipse.stardust.engine.api.model.DataPath;
+import org.eclipse.stardust.engine.api.model.EventHandler;
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IConditionalPerformer;
+import org.eclipse.stardust.engine.api.model.IEventHandler;
+import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.IOrganization;
+import org.eclipse.stardust.engine.api.model.IParticipant;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.IRole;
+import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
+import org.eclipse.stardust.engine.api.model.ParticipantInfo;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.HistoricalEventPolicy;
 import org.eclipse.stardust.engine.api.query.HistoricalStatesPolicy;
+import org.eclipse.stardust.engine.api.query.PrefetchConstants;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
@@ -32,10 +52,21 @@ import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
-import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
-import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
+import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
+import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.EventUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.ILogEntry;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.IUserGroup;
+import org.eclipse.stardust.engine.core.runtime.beans.IWorkItem;
+import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.WorkItemAdapter;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
+import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 
 /**
@@ -131,72 +162,14 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       processDefinitionId = processDefinition.getId();
       IProcessInstance processInstance = activityInstance.getProcessInstance();
       processInstanceOID = processInstance.getOID();
-      scopeProcessInstanceNoteAvailable = processInstance.getScopeProcessInstance()
-            .isPropertyAvailable(ProcessInstanceBean.PI_PROPERTY_FLAG_NOTE);
+      scopeProcessInstanceNoteAvailable = ProcessInstanceUtils.hasNotes(processInstance.getScopeProcessInstance());
       criticality = activityInstance.getCriticality();
 
-      // participant means the performer as defined in the model
-      performer = DetailsFactory.create(activityInstance.getCurrentUserPerformer());
-      if (performer == null)
-      {
-         IParticipant currentPerformer = activityInstance.getCurrentPerformer();
-         if (currentPerformer instanceof IModelParticipant)
-         {
-            long runtimeOid = ModelManagerFactory.getCurrent().getRuntimeOid((IModelParticipant) currentPerformer);
-            String qualifiedId = ((IModelParticipant) currentPerformer).getQualifiedId();
-            String name = currentPerformer.getName();
-            boolean isDepartmentScoped = DepartmentUtils.getFirstScopedOrganization(
-                  (IModelParticipant) currentPerformer) != null;
-            boolean definesDepartmentScope = ((IModelParticipant) currentPerformer).getBooleanAttribute(
-                  PredefinedConstants.BINDING_ATT);
-            DepartmentInfo department = DetailsFactory.create(activityInstance.getCurrentDepartment());
-            if (currentPerformer instanceof IOrganization)
-            {
-               performer = new OrganizationInfoDetails(runtimeOid, qualifiedId, name, isDepartmentScoped,
-                     definesDepartmentScope, department);
-            }
-            else if (currentPerformer instanceof IRole)
-            {
-               performer = new RoleInfoDetails(runtimeOid, qualifiedId, name, isDepartmentScoped,
-                     definesDepartmentScope, department);
-            }
-            else if (currentPerformer instanceof IConditionalPerformer)
-            {
-               performer = new ConditionalPerformerInfoDetails(runtimeOid, qualifiedId, name, department);
-            }
-         }
-         else if (currentPerformer instanceof IUserGroup)
-         {
-            performer = DetailsFactory.create((IUserGroup) currentPerformer);
-         }
-      }
+      performer = initPerformer(activityInstance);
 
-      performedBy = DetailsFactory.create(activityInstance.getPerformedBy());
+      performedBy = initPerformedByUser(activityInstance);
 
-      PropertyLayer layer = null;
-      if (activityInstance.getCurrentUserPerformer() != null)
-         try
-         {
-            // Do not overwrite level if explicitly set (not null!).
-            if (parameters.get(UserDetailsLevel.PRP_USER_DETAILS_LEVEL) == null)
-            {
-               Map<String, ?> props = Collections.singletonMap(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core);
-            layer = ParametersFacade.pushLayer(props);
-            }
-
-            userPerformer = DetailsFactory.createUser(activityInstance.getCurrentUserPerformer());
-         }
-         finally
-         {
-            if (null != layer)
-            {
-               ParametersFacade.popLayer();
-            }
-         }
-      else
-      {
-         userPerformer = null;
-      }
+      userPerformer = initUserPerformer(activityInstance, parameters);
 
       HistoricalStatesPolicy historicalStatesPolicy = parameters.getObject(
             HistoricalStatesPolicy.PRP_PROPVIDE_HIST_STATES,
@@ -235,10 +208,22 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
          }
          break;
       case WITH_LAST_USER_PERFORMER:
-         pair = ActivityInstanceHistoryBean
-               .getLastUserPerformerForActivityInstance(activityInstance);
-         performedOnBehalfOf = DetailsFactory.create(pair.getSecond());
-         ActivityInstanceHistoryBean lastUserPerformer = pair.getFirst();
+         // Get from prefetch cache
+         BpmRuntimeEnvironment bpmRuntimeEnv = PropertyLayerProviderInterceptor.getCurrent();
+         Map<Long,ActivityInstanceHistoryBean> lastUserPerformerCache = (Map) bpmRuntimeEnv.get(PrefetchConstants.HIST_STATE_AIH_CACHE);
+
+         ActivityInstanceHistoryBean lastUserPerformer;
+         if (lastUserPerformerCache != null)
+         {
+            lastUserPerformer = lastUserPerformerCache.get(activityInstance.getOID());
+         }
+         else
+         {
+            // Fetch if not in cache
+            pair = ActivityInstanceHistoryBean.getLastUserPerformerForActivityInstance(activityInstance);
+            lastUserPerformer = pair.getFirst();
+         }
+
          if (lastUserPerformer != null)
          {
             historicalStates = Collections.<HistoricalState> singletonList(DetailsFactory.create(
@@ -250,11 +235,11 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
 
       permissions = CollectionUtils.newHashMap();
       PermissionState ps = PermissionState.Denied;
-      AuthorizationContext ctx = AuthorizationContext.create(WorkflowService.class, "abortActivityInstance", long.class);
+      AuthorizationContext ctx = AuthorizationContext.create(ClientPermission.ABORT_ACTIVITY_INSTANCES);
       if (!isTerminated())
       {
          ctx.setActivityInstance(activityInstance);
-         if(Authorization2.hasPermission(ctx))
+         if (Authorization2.hasPermission(ctx))
          {
             ps = PermissionState.Granted;
          }
@@ -262,7 +247,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       permissions.put(ctx.getPermissionId(), ps);
 
       ps = PermissionState.Denied;
-      ctx = AuthorizationContext.create(WorkflowService.class, "delegateToUser", long.class, long.class);
+      ctx = AuthorizationContext.create(ClientPermission.DELEGATE_TO_OTHER);
       if (activity.isInteractive())
       {
          ctx.setActivityInstance(activityInstance);
@@ -273,12 +258,19 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       }
       permissions.put(ctx.getPermissionId(), ps);
 
+      PropertyLayer layer = null;
       try
       {
          // Skip process authorization check here, since it was already checked for the activity instance
          // Do overwrite level explicitly. Otherwise we would end in an infinity loop AI / PI / AI / ...
          Map<String, Object> props = CollectionUtils.newMap();
          props.put(ProcessInstanceDetailsLevel.PRP_PI_DETAILS_LEVEL, ProcessInstanceDetailsLevel.Core);
+
+         if (ProcessInstanceUtils.isLoadNotesEnabled() && ProcessInstanceUtils.hasNotes(processInstance.getScopeProcessInstance())) {
+            // will be fetching activity notes, so it does not harm to ship process notes as well
+            props.put(ProcessInstanceDetailsLevel.PRP_PI_DETAILS_LEVEL, ProcessInstanceDetailsLevel.WithProperties);
+         }
+
          if (parameters.get(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS) == null)
          {
             props.put(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, true);
@@ -583,7 +575,9 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
                         }
 
                         final Serializable descriptionDetails = new HistoricalEventDescriptionStateChangeDetails(
-                              prevHistState.getState(), state, performedByDetails);
+                              prevHistState.getState(), prevHistState.getParticipant(), //
+                              state, performedByDetails, //
+                              histState.getOnBehalfOfParticipant());
                         historicalEvents.add(new HistoricalEventDetails(
                               HistoricalEventType.StateChange, activityInstance
                                     .getLastModificationTime(), HistoricalEventDetails
@@ -620,8 +614,10 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
                   HistoricalEventType.StateChange, //
                   activityInstance.getLastModificationTime(), //
                   performedByDetails, //
-                  new HistoricalEventDescriptionStateChangeDetails(prevHistState
-                        .getState(), state, performedByDetails)));
+                  new HistoricalEventDescriptionStateChangeDetails( //
+                        prevHistState.getState(), prevHistState.getPerfomer(), //
+                        state, performedByDetails, //
+                        null)));
          }
       }
 
@@ -801,5 +797,82 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
    public QualityAssuranceInfo getQualityAssuranceInfo()
    {
       return qcInfo;
+   }
+
+   public static User initUserPerformer(IActivityInstance activityInstance, Parameters parameters)
+   {
+      User result;
+
+      PropertyLayer layer = null;
+      if (activityInstance.getCurrentUserPerformer() != null)
+         try
+         {
+            // Do not overwrite level if explicitly set (not null!).
+            if (parameters.get(UserDetailsLevel.PRP_USER_DETAILS_LEVEL) == null)
+            {
+               Map<String, ?> props = Collections.singletonMap(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core);
+               layer = ParametersFacade.pushLayer(props);
+            }
+
+            result = DetailsFactory.createUser(activityInstance.getCurrentUserPerformer());
+         }
+         finally
+         {
+            if (null != layer)
+            {
+               ParametersFacade.popLayer();
+            }
+         }
+      else
+      {
+         result = null;
+      }
+      return result;
+   }
+
+   public static ParticipantInfo initPerformer(IActivityInstance activityInstance)
+   {
+      ParticipantInfo result = DetailsFactory.create(activityInstance.getCurrentUserPerformer());
+
+      if (result == null)
+      {
+         IParticipant currentPerformer = activityInstance.getCurrentPerformer();
+         if (currentPerformer instanceof IModelParticipant)
+         {
+            long runtimeOid = ModelManagerFactory.getCurrent().getRuntimeOid((IModelParticipant) currentPerformer);
+            String qualifiedId = ((IModelParticipant) currentPerformer).getQualifiedId();
+            String name = currentPerformer.getName();
+            boolean isDepartmentScoped = DepartmentUtils.getFirstScopedOrganization(
+                  (IModelParticipant) currentPerformer) != null;
+            boolean definesDepartmentScope = ((IModelParticipant) currentPerformer).getBooleanAttribute(
+                  PredefinedConstants.BINDING_ATT);
+            DepartmentInfo department = DetailsFactory.create(activityInstance.getCurrentDepartment());
+            if (currentPerformer instanceof IOrganization)
+            {
+               result = new OrganizationInfoDetails(runtimeOid, qualifiedId, name, isDepartmentScoped,
+                     definesDepartmentScope, department);
+            }
+            else if (currentPerformer instanceof IRole)
+            {
+               result = new RoleInfoDetails(runtimeOid, qualifiedId, name, isDepartmentScoped,
+                     definesDepartmentScope, department);
+            }
+            else if (currentPerformer instanceof IConditionalPerformer)
+            {
+               result = new ConditionalPerformerInfoDetails(runtimeOid, qualifiedId, name, department);
+            }
+         }
+         else if (currentPerformer instanceof IUserGroup)
+         {
+            result = DetailsFactory.create((IUserGroup) currentPerformer);
+         }
+      }
+
+      return result;
+   }
+
+   public static UserInfo initPerformedByUser(IActivityInstance activityInstance)
+   {
+      return DetailsFactory.create(activityInstance.getPerformedBy());
    }
 }

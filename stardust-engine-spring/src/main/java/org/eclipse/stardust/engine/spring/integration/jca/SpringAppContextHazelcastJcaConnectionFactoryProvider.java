@@ -30,11 +30,12 @@ import org.springframework.context.ApplicationContext;
  * </p>
  *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
 public class SpringAppContextHazelcastJcaConnectionFactoryProvider implements HazelcastJcaConnectionFactoryProvider
 {
    private static final String HZ_CF_BEAN_ID = "localHazelcastConnectionFactory";
+
+   private static volatile ConnectionFactory connectionFactory;
 
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryProvider#connectionFactory()
@@ -42,42 +43,46 @@ public class SpringAppContextHazelcastJcaConnectionFactoryProvider implements Ha
    @Override
    public ConnectionFactory connectionFactory()
    {
-      try
+      if (connectionFactory == null)
       {
-         return ConnectionFactoryHolder.connectionFactory;
+         synchronized (SpringAppContextHazelcastJcaConnectionFactoryProvider.class)
+         {
+            if (connectionFactory == null)
+            {
+               connectionFactory = getConnectionFactoryFromAppCtx();
+            }
+         }
       }
-      catch (final ExceptionInInitializerError e)
+      return connectionFactory;
+   }
+
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryProvider#reset()
+    */
+   @Override
+   public void reset()
+   {
+      synchronized (SpringAppContextHazelcastJcaConnectionFactoryProvider.class)
       {
-         throw new PublicException(e);
+         connectionFactory = null;
       }
    }
 
-   /**
-    * <p>
-    * This class' only purpose is to ensure both safe publication and lazy initialization
-    * (see 'lazy initialization class holder' idiom).
-    * </p>
-    */
-   private static final class ConnectionFactoryHolder
+   private ConnectionFactory getConnectionFactoryFromAppCtx()
    {
-      public static final ConnectionFactory connectionFactory = getConnectionFactoryFromAppCtx();
-
-      private static ConnectionFactory getConnectionFactoryFromAppCtx()
+      try
       {
-         try
+         ApplicationContext appCtx = SpringUtils.getWebApplicationContext();
+         if (appCtx == null)
          {
-            ApplicationContext appCtx = SpringUtils.getWebApplicationContext();
-            if (appCtx == null)
-            {
-               /* we're not in a web environment */
-               appCtx = SpringUtils.getApplicationContext();
-            }
-            return appCtx.getBean(HZ_CF_BEAN_ID, ConnectionFactory.class);
+            /* we're not in a web environment */
+            appCtx = SpringUtils.getApplicationContext();
          }
-         catch (final BeansException e)
-         {
-            throw new PublicException("Failed retrieving the Hazelcast Connection Factory from Spring's application context.", e);
-         }
+         return appCtx.getBean(HZ_CF_BEAN_ID, ConnectionFactory.class);
+      }
+      catch (final BeansException e)
+      {
+         throw new PublicException("Failed retrieving the Hazelcast Connection Factory from Spring's application context.", e);
       }
    }
 }

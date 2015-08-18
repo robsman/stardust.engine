@@ -19,6 +19,8 @@ import org.eclipse.stardust.common.config.CurrentVersion;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.model.beans.XMLConstants;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -457,7 +459,7 @@ public class NodeFactory implements XMLConstants, INodeFactory
       NodeWriter writer = new NodeWriter(node);
 
       writer.writeAttribute(VENDOR, VENDOR_NAME);
-      writer.writeAttribute(CREATED, new Date());
+      writer.writeAttribute(CREATED, TimestampProviderUtils.getTimeStamp());
       writer.writeAttribute(AUTHOR_ATT, System.getProperty(USER_NAME, "unknown"));
       writer.writeAttribute(CARNOT_VERSION_ATT, CurrentVersion.getVersionName());
       writer.writeAttribute(MODEL_OID, model.getModelOid());

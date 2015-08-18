@@ -908,6 +908,12 @@ public class QueryAdapterUtils
          // *ProcessInstanceLinkFilter.class
          filterTerm.add(unmarshalProcessInstanceLinkFilter((ProcessInstanceLinkFilterXto) filterCriterionXto));
       }
+      else if (filterCriterionXto instanceof HavingDocumentFilterXto)
+      {
+         // *DocumentFilter.class
+         filterTerm.add(unmarshalHavingDocumentFilter((HavingDocumentFilterXto) filterCriterionXto));
+      }
+
       // else if (filterCriterionXto.getDataFilter() != null)
       // {
       // // *DataFilter.class,
@@ -1218,6 +1224,14 @@ public class QueryAdapterUtils
       }
    }
 
+   private static DocumentFilter unmarshalHavingDocumentFilter(
+         HavingDocumentFilterXto havingDocumentFilterXto)
+   {
+      return new DocumentFilter(havingDocumentFilterXto.getDocumentId(),
+            havingDocumentFilterXto.getModelId());
+   }
+
+
    private static WorklistQuery unmarshalUserContribution(
          UserContributionXto userContribution, WorklistQuery query)
    {
@@ -1300,4 +1314,15 @@ public class QueryAdapterUtils
 					+ "'.", e);
 		}
 	}
+
+   public static BusinessObjectQuery unmarshalBusinessObjectQuery(
+         BusinessObjectQueryXto queryXto)
+   {
+      final Class<BusinessObjectQuery> clazz = BusinessObjectQuery.class;
+      BusinessObjectQuery query = BusinessObjectQuery.findAll();
+
+      query = unmarshalQuery(queryXto, query, clazz);
+
+      return query;
+   }
 }

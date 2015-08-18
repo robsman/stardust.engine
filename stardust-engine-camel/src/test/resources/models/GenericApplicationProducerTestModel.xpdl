@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="GenericApplicationProducerTestModel" Name="GenericApplicationProducerTestModel">
+<?xml version="1.0" encoding="UTF-8"?><Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="GenericApplicationProducerTestModel" Name="GenericApplicationProducerTestModel">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
       <Vendor>SunGard CSA LLC</Vendor>
@@ -1537,6 +1536,7 @@
                            <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;direct:outboundvm&quot; /&gt;&#13;&#10;&lt;to uri=&quot;ipp:direct&quot; /&gt; "/>
                            <carnot:Attribute Name="eventClass" Value="message"/>
                            <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true"/>
+                           <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="message" Type="String"/>
                         </carnot:Attributes>
                      </carnot:Trigger>
                   </carnot:Triggers>
@@ -1918,7 +1918,7 @@
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
-         <carnot:Package Oid="0" CarnotVersion="8.0.0" ModelOid="0">
+         <carnot:Package Oid="0" CarnotVersion="8.2.0" ModelOid="0">
             <carnot:MetaTypes>
                <carnot:DataTypes>
                   <carnot:DataType Oid="1" Id="primitive" Name="Primitive Data" IsPredefined="true">

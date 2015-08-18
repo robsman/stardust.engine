@@ -1,10 +1,12 @@
 package org.eclipse.stardust.engine.extensions.camel;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.camel.Message;
 import org.apache.camel.impl.DefaultMessage;
+import org.apache.camel.util.EndpointHelper;
 
 /**
  * Disable CaseSensitive Keys in exchange headers
@@ -52,18 +54,6 @@ public class CamelMessage extends DefaultMessage
    }
 
    @Override
-   public boolean hasAttachments()
-   {
-      return super.hasAttachments();
-   }
-
-   @Override
-   public void setBody(Object body)
-   {
-      super.setBody(body);
-   }
-
-   @Override
    public Object removeHeader(String name)
    {
       if (!hasHeaders())
@@ -72,12 +62,11 @@ public class CamelMessage extends DefaultMessage
       }
       return headers.remove(name);
    }
-
+   
    @Override
-   protected void populateInitialHeaders(Map<String, Object> map)
-   {
-      super.populateInitialHeaders(map);
-   }
+   public boolean removeHeaders(String pattern) {
+      return removeHeaders(pattern, (String[]) null);
+  }
 
    @Override
    public DefaultMessage newInstance()
@@ -100,9 +89,26 @@ public class CamelMessage extends DefaultMessage
    }
 
    @Override
-   public boolean removeHeaders(String pattern)
-   {
-      return super.removeHeaders(pattern);
+   public boolean removeHeaders(String pattern, String... excludePatterns)
+   {  
+      if (!hasHeaders()) {
+         return false;
+     }
+
+     boolean matches = false;
+     // to avoid Concurrent Modification on Headers, use iterator
+     for (Iterator<Map.Entry<String, Object>> it = headers.entrySet().iterator(); it.hasNext();) {
+        Map.Entry<String, Object> entry = it.next(); 
+        String key = entry.getKey();
+        if (EndpointHelper.matchPattern(key, pattern)) {
+           if (excludePatterns != null && isExcludePatternMatch(key, excludePatterns)) {
+               continue;
+           }
+           matches = true;
+           it.remove();
+       }
+     }
+     return matches;
    }
 
    @Override
@@ -122,15 +128,18 @@ public class CamelMessage extends DefaultMessage
    }
 
    @Override
-   public <T> void setBody(Object value, Class<T> type)
-   {
-      super.setBody(value, type);
-   }
-
-   @Override
    protected Map<String, Object> createHeaders()
    {
       Map<String, Object> map = new HashMap<String, Object>();
       return map;
    }
+   
+   private static boolean isExcludePatternMatch(String key, String... excludePatterns) {
+      for (String pattern : excludePatterns) {
+          if (EndpointHelper.matchPattern(key, pattern)) {
+              return true;
+          }
+      }
+      return false;
+  }
 }

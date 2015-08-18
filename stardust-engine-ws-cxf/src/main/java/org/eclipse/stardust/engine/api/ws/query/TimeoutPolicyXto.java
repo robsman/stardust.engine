@@ -7,9 +7,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for TimeoutPolicy complex type.
+ * <p>Java-Klasse für TimeoutPolicy complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="TimeoutPolicy">
@@ -36,7 +36,7 @@ public class TimeoutPolicyXto
     protected int timeout;
 
     /**
-     * Gets the value of the timeout property.
+     * Ruft den Wert der timeout-Eigenschaft ab.
      * 
      */
     public int getTimeout() {
@@ -44,7 +44,7 @@ public class TimeoutPolicyXto
     }
 
     /**
-     * Sets the value of the timeout property.
+     * Legt den Wert der timeout-Eigenschaft fest.
      * 
      */
     public void setTimeout(int value) {

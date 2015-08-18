@@ -26,7 +26,6 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
 import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
-import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.OrderCriteria;
 import org.eclipse.stardust.engine.core.persistence.OrderCriterion;
@@ -39,11 +38,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
-import org.eclipse.stardust.engine.core.runtime.utils.ActivityInstanceAuthorization2Predicate;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
-import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
+import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.vfs.impl.utils.StringUtils;
-
 
 /**
  * Filter evaluator generating SQL from a process or activity instance query.
@@ -73,7 +69,7 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
       if(DataClusterHelper.isDataClusterPresent())
       {
          DataClusterHelper.setRequiredClusterPiStates(query);
-      } 
+      }
    }
 
    public Class getQueriedType()
@@ -153,8 +149,7 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
                   PredefinedConstants.ADMINISTRATOR_ROLE))
       {
          authorizationPredicate = new ActivityInstanceAuthorization2Predicate(
-               AuthorizationContext.create(QueryService.class, "getAllActivityInstances",
-                     ActivityInstanceQuery.class))
+               AuthorizationContext.create(ClientPermission.QUERY_ACTIVITY_INSTANCE_DATA))
          {
          };
 
@@ -259,7 +254,7 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
             int size = isEmpty(selectExtension) ? 0 : -selectExtension.size();
             authPred.setSelectionExtension(size, selectExtension);
          }
-         
+
          long totalCountThreshold = QueryUtils.getTotalCountThreshold(fetchPredicate);
 
          final long totalCount = countImplicitly
@@ -296,7 +291,7 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
                totalCountThreshold);
       }
    }
-   
+
    private static void applyDistinctOnQueryExtension(QueryExtension queryExtension,
          SqlBuilder.ParsedQuery parsedQuery)
    {

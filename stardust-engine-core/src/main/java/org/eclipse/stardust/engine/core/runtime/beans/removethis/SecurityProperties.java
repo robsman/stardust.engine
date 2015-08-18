@@ -82,6 +82,9 @@ public final class SecurityProperties
    public static final String AUTHORIZATION_MODE_INTERNAL = "internal";
    public static final String AUTHORIZATION_MODE_EXTERNAL = "external";
 
+   public static final String AUTHORIZATION_USE_PREFERENCES_STORE_PROPERTY =
+         "Security.Authorization.UsePreferencesStore";
+   
    /**
     *
     */

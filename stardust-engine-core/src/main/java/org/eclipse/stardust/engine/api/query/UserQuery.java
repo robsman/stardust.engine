@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.api.query;
 
 import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * Query for fetching workflow users matching specific criteria. Most common filter
@@ -89,7 +90,7 @@ public class UserQuery extends Query
    {
       UserQuery query = new UserQuery();
 
-      query.getFilter().addOrTerm().or(VALID_TO.greaterThan(System.currentTimeMillis()))
+      query.getFilter().addOrTerm().or(VALID_TO.greaterThan(TimestampProviderUtils.getTimeStampValue()))
             .or(VALID_TO.isEqual(0));
 
       return query;

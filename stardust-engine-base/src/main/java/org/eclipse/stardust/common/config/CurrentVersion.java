@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,8 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import org.eclipse.stardust.common.StringUtils;
+
 
 /**
  * Represents the current version of Infinity including major, minor, micro,
@@ -25,7 +27,7 @@ public class CurrentVersion
    private static final String BUILD_VERSION_NAME = "-buildVersionName";
    private static final String VERSION_NAME = "-versionName";
 
-   public static final String COPYRIGHT_YEARS = "2000-2014";
+   public static final String COPYRIGHT_YEARS = "2000-2015";
    public static final String COPYRIGHT_MESSAGE;
 
    public static final String VERSION;
@@ -48,7 +50,15 @@ public class CurrentVersion
       if(!VERSION.equals(version))
       { 
          // ..put it to the build identifier so that the info isn't lost
-         build.append(" (").append(version.replace(VERSION, "").substring(1)).append(")");
+         String snapshotAlias = version.replace(VERSION, "").replace("-SNAPSHOT", "");
+         if(StringUtils.isNotEmpty(snapshotAlias))
+         {
+            if(snapshotAlias.charAt(0) != '-')
+            {
+               build.append("-");
+            }
+            build.append(snapshotAlias);
+         }
       }
       BUILD = build.toString();
       COPYRIGHT_MESSAGE = versionBundle.getString("copyright.message");

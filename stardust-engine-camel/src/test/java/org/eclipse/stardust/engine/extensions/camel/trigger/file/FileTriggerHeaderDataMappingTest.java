@@ -10,7 +10,6 @@ import javax.annotation.Resource;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
@@ -46,8 +45,8 @@ public class FileTriggerHeaderDataMappingTest
    public void fileTriggerToPrimitiveInHeader() throws Exception
    {
       String fileContent = "primitiveData content from test class";
-      createFile("./target/FileDirectory/PrimitiveInHeader", "messageFile.xml", fileContent);
-      Thread.sleep(5000);
+      createFile("target/FileDirectory/PrimitiveInHeader", "messageFile.xml", fileContent);
+      Thread.sleep(5000);//TODO: remove sleep after forkingService is removed from configuration 
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery.findAlive("{FileTriggerTestModel}FileToPrimitiveInHeader"));

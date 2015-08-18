@@ -1,5 +1,5 @@
 /**********************************************************************************
- * Copyright (c) 2014 SunGard CSA LLC and others.
+ * Copyright (c) 2014, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,6 +36,7 @@ import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
 public class AbstractSpringAuthenticationTest
 {
    protected static final String REGULAR_USER_ID = "hans";
+   protected static final String REGULAR_USER2_ID = "dampf";
 
    protected static InvokerPrincipal currentInvokerPrincipal;
 

@@ -288,11 +288,7 @@ public class MailApplicationReceptionServlet extends HttpServlet
          out.println("<body>");
          out.println("<img src='plugins/common/images/banner.jpg'/>");
          out.println("<h2>E-Mail Confirmation Error</h2>");
-         out.println("<p>You may have answered the request already.</p>");
-         if (StringUtils.isNotEmpty(e.getMessage()))
-         {
-            out.println("<p><b>Error text:</b> " + e.getMessage() + "</p>");
-         }
+         out.println("<p>You may have answered the request already.</p>");       
          out.println("</body>");
          out.println("</html>");
       }

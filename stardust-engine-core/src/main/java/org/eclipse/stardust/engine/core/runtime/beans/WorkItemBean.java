@@ -38,7 +38,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.IActivityExecutio
 /**
  * @author mgille
  */
-public class WorkItemBean extends PersistentBean implements IWorkItem
+public class WorkItemBean extends PersistentBean implements IWorkItem, IProcessInstanceAware
 {
    public static final String FIELD__ACTIVITY_INSTANCE = "activityInstance";
    public static final String FIELD__PROCESS_INSTANCE = ActivityInstanceBean.FIELD__PROCESS_INSTANCE;
@@ -453,6 +453,12 @@ public class WorkItemBean extends PersistentBean implements IWorkItem
    {
       fetch();
       return criticality;
+   }
+
+   @Override
+   public IProcessInstance getProcessInstance()
+   {
+      return ProcessInstanceBean.findByOID(getProcessInstanceOID());
    }
 }
 

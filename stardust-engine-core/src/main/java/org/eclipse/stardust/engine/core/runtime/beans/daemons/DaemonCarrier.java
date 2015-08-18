@@ -16,6 +16,7 @@ import javax.jms.Message;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.rt.IMessageWithTtl;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier;
 
 
@@ -23,7 +24,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier;
  * @author ubirkemeyer
  * @version $Revision$
  */
-public class DaemonCarrier extends ActionCarrier
+public class DaemonCarrier extends ActionCarrier implements IMessageWithTtl
 {
    private static final long serialVersionUID = 1L;
    
@@ -32,6 +33,8 @@ public class DaemonCarrier extends ActionCarrier
 
    private String type;
    private long startTimeStamp;
+   
+   private long timeToLive;
 
    private DaemonCarrier()
    {
@@ -139,5 +142,17 @@ public class DaemonCarrier extends ActionCarrier
       DaemonCarrier carrier = new DaemonCarrier();
       carrier.extract((Message) message);
       return carrier;
+   }
+
+   @Override
+   public void setTimeToLive(long ttl)
+   {
+      this.timeToLive = ttl;      
+   }
+
+   @Override
+   public long getTimeToLive()
+   {
+      return this.timeToLive;
    }
 }

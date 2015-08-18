@@ -36,13 +36,11 @@ public class ConsumerIncludeConverterTest
    @Test
    public void testConsumerWithFromXmlConverter() throws InterruptedException
    {
-      Thread.sleep(1000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       String xmlMessage = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" standalone=\"no\"?><customer><customerId>1</customerId><firstName>FN</firstName><lastName>LN</lastName><salary>5000</salary></customer>";
       ProcessInstance pInstance = sf.getWorkflowService().startProcess("{GenericApplicationConsumerTestModel}TestConsumerIncludeFromXmlConverter", null, true);
       ProducerTemplate producer = camelContext.createProducerTemplate();
       producer.sendBody("direct:startConsumeFromXmlConverter", xmlMessage);
-      Thread.sleep(1000);
       Map< ? , ? > result = (Map< ? , ? >) sf.getWorkflowService().getInDataPath(pInstance.getOID(), "customer");
       assertNotNull(result);
       assertTrue(result instanceof Map);
@@ -59,13 +57,11 @@ public class ConsumerIncludeConverterTest
    @Test
    public void testConsumerWithFromJSONConverter() throws InterruptedException
    {
-      Thread.sleep(1000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       String jsonMessage = "{\"customerId\":\"1\",\"lastName\":\"LN\",\"firstName\":\"FN\",\"salary\":\"5000\"}";
       ProcessInstance pInstance = sf.getWorkflowService().startProcess("{GenericApplicationConsumerTestModel}TestConsumerIncludeFromJsonConverter", null, true);
       ProducerTemplate producer = camelContext.createProducerTemplate();
       producer.sendBody("direct:startConsumeFromJsonConverter", jsonMessage);
-      Thread.sleep(1000);
       Map< ? , ? > result = (Map< ? , ? >) sf.getWorkflowService().getInDataPath(pInstance.getOID(), "customer");
       assertNotNull(result);
       assertTrue(result instanceof Map);
@@ -82,13 +78,11 @@ public class ConsumerIncludeConverterTest
    @Test
    public void testConsumerWithFromCsvConverter() throws InterruptedException
    {
-      Thread.sleep(1000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       String csvMessage = "customerId,firstName,lastName,salary\n1,FN,LN,5000";
       ProcessInstance pInstance = sf.getWorkflowService().startProcess("{GenericApplicationConsumerTestModel}TestConsumerIncludeFromCsvConverter", null, true);
       ProducerTemplate producer = camelContext.createProducerTemplate();
       producer.sendBody("direct:startConsumeFromCsvConverter", csvMessage);
-      Thread.sleep(1000);
       Map< ? , ? > result = (Map< ? , ? >) sf.getWorkflowService().getInDataPath(pInstance.getOID(), "customer");
       assertNotNull(result);
       assertTrue(result instanceof Map);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,22 +13,10 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
-import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.Attribute;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.Direction;
-import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.annotations.SPI;
 import org.eclipse.stardust.common.annotations.Status;
 import org.eclipse.stardust.common.annotations.UseRestriction;
@@ -43,16 +31,9 @@ import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.dto.DeployedModelDescriptionDetails;
 import org.eclipse.stardust.engine.api.dto.EventHandlerBindingDetails;
 import org.eclipse.stardust.engine.api.model.*;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
-import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
-import org.eclipse.stardust.engine.api.runtime.LogCode;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.core.compatibility.el.EvaluationError;
-import org.eclipse.stardust.engine.core.compatibility.el.Interpreter;
-import org.eclipse.stardust.engine.core.compatibility.el.Result;
-import org.eclipse.stardust.engine.core.compatibility.el.SyntaxError;
-import org.eclipse.stardust.engine.core.model.beans.ModelBean;
+import org.eclipse.stardust.engine.api.query.PrefetchConstants;
+import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.javascript.ConditionEvaluator;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
@@ -73,11 +54,7 @@ import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluator;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.*;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
@@ -89,7 +66,7 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
  * @version $Revision$
  */
 public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
-      implements IProcessInstance
+      implements IProcessInstance, IProcessInstanceAware
 {
    private static final JavaAccessPoint JAVA_ENUM_ACCESS_POINT = new JavaAccessPoint("enum", "enum", Direction.IN_OUT);
 
@@ -109,7 +86,14 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    public static final int PI_PROPERTY_FLAG_NOTE = 2;          // second bit
    // PI_ABORTING useful for root process instances only
    public static final int PI_PROPERTY_FLAG_PI_ABORTING = 4;   // third bit
-   private static final int PI_PROPERTY_FLAG_ALL = ~0;         // all bits
+   private static final int PI_PROPERTY_FLAG_ALL = ~(3 << 30); // all bits, but the first two reserved for audit trail persistence mode
+
+   private static final int PI_AUDIT_TRAIL_PROPERTY_FLAG_ENGINE_DEFAULT = 0;
+   private static final int PI_AUDIT_TRAIL_PROPERTY_FLAG_IMMEDIATE = 1 << 30;
+   private static final int PI_AUDIT_TRAIL_PROPERTY_FLAG_DEFERRED = 1 << 31;
+   private static final int PI_AUDIT_TRAIL_PROPERTY_FLAG_TRANSIENT = 3 << 30;
+   private static final int PI_AUDIT_TRAIL_PROPERTY_FLAG_ALL = 3 << 30;
+   private static final int PI_AUDIT_TRAIL_PROPERTY_FLAG_ALL_COMPLEMENT = ~(3 << 30);
 
    public static final String FIELD__OID = IdentifiablePersistentBean.FIELD__OID;
    public static final String FIELD__START_TIME = "startTime";
@@ -248,7 +232,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          IUser user, Map<String, ? > data, boolean isSubprocess)
    {
       return createInstance(processDefinition, null, null, user, data, isSubprocess);
-   }   
+   }
 
    public static ProcessInstanceBean createInstance(IProcessDefinition processDefinition,
          IUser user, Map<String, ? > data)
@@ -393,7 +377,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       {
          processInstance.doBindAutomaticlyBoundEvents();
       }
-         
+
       MonitoringUtils.processExecutionMonitors().processStarted(processInstance);
 
       return processInstance;
@@ -453,10 +437,26 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
    public String toString()
    {
-      ModelBean model = (ModelBean) getProcessDefinition().getModel();
+      IModel model = null;
 
-      return "Process instance = " + getOID() + " (" + getProcessDefinition() + ") "
-            + ModelUtils.getExtendedVersionString(model);
+      StringBuilder sb = new StringBuilder();
+      sb.append("Process instance = ");
+      sb.append(getOID());
+      if (processDefinition == -1)
+      {
+         model = ModelManagerFactory.getCurrent().findModel(getModelOID());
+         sb.append(' ');
+      }
+      else
+      {
+         IProcessDefinition pd = getProcessDefinition();
+         model = (IModel) pd.getModel();
+         sb.append(" (");
+         sb.append(pd);
+         sb.append(") ");
+      }
+      sb.append(ModelUtils.getExtendedVersionString(model));
+      return sb.toString();
    }
 
    public Date getStartTime()
@@ -603,6 +603,13 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       fetch();
 
       return model;
+   }
+
+   public long getProcessDefinitionRuntimeOID()
+   {
+      fetch();
+
+      return processDefinition;
    }
 
    /**
@@ -882,7 +889,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
       else if (dataID.equals(PredefinedConstants.CURRENT_DATE))
       {
-         dataValue.setValue(Calendar.getInstance(), false);
+         dataValue.setValue(TimestampProviderUtils.getCalendar(), false);
       }
       else if (dataID.equals(PredefinedConstants.PROCESS_ID))
       {
@@ -1301,7 +1308,18 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
 
       OutDataMappingValueProvider dvProvider = new OutDataMappingValueProvider(data, path, value, context);
-      IDataValue dataValue = getDataValue(data, dvProvider);
+      ExtendedAccessPathEvaluator evaluator = SpiUtils
+            .createExtendedAccessPathEvaluator(data, path);
+
+      IDataValue dataValue = null;
+      if(evaluator instanceof IHandleGetDataValue)
+      {
+         dataValue = ((IHandleGetDataValue) evaluator).getDataValue(data, dvProvider, context);
+      }
+      else
+      {
+         dataValue = getDataValue(data, dvProvider);
+      }
 
       Assert.isNotNull(dataValue);
 
@@ -1367,20 +1385,24 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          }
       }*/
 
-      IDataValue dataValue = getDataValue(data);
       ExtendedAccessPathEvaluator evaluator = SpiUtils
             .createExtendedAccessPathEvaluator(data, path);
       AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(this,
             targetActivityAccessPoint == null && JavaDataTypeUtils.isJavaEnumeration(data)
                ? JAVA_ENUM_ACCESS_POINT : targetActivityAccessPoint,
             targetPath, activity);
-      return evaluator.evaluate(data, dataValue.getValue(), path, evaluationContext);
+
+      if(!(evaluator instanceof IHandleGetDataValue))
+      {
+         return evaluator.evaluate(data, getDataValue(data).getValue(), path, evaluationContext);
+      }
+      return ((IHandleGetDataValue) evaluator).evaluate(data, path, evaluationContext);
    }
 
    void lockDataValue(IData data) throws PhantomException
    {
       // TODO (fh) hardcoded 1 min, should be configurable
-      long timeout = System.currentTimeMillis() + 60000;
+      long timeout = TimestampProviderUtils.getTimeStampValue() + 60000;
       IDataValue dataValue = getDataValue(data);
       if (dataValue instanceof DataValueBean)
       {
@@ -1398,7 +1420,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
             }
             catch (ConcurrencyException ex)
             {
-               if (System.currentTimeMillis() > timeout)
+               if (TimestampProviderUtils.getTimeStampValue() > timeout)
                {
                   throw ex;
                }
@@ -1425,20 +1447,10 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
     */
    public boolean validateLoopCondition(String condition)
    {
-      try
-      {
-         trace.debug("Validating loop condition '" + condition + "'");
+      trace.debug("Validating loop condition '" + condition + "'");
 
-         return Result.TRUE.equals(Interpreter.evaluate(condition, this));
-      }
-      catch (SyntaxError x)
-      {
-         throw new InternalException(x);
-      }
-      catch (EvaluationError x)
-      {
-         throw new InternalException(x);
-      }
+      final IProcessDefinition processDefinition = getProcessDefinition();
+      return ConditionEvaluator.isEnabled(processDefinition, this, condition, true);
    }
 
    public void addDataValue(IDataValue value)
@@ -1620,7 +1632,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          setPropertyValue(PI_NOTE, buffer.toString());
       }
    }
-   
+
    public void addExistingNote(ProcessInstanceProperty srcNote)
    {
       super.addProperty(srcNote.clone(this.getOID()));
@@ -1630,10 +1642,19 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       propIndexHandler.handleIndexForPiAbortingProperty(abortingPiExists());
    }
 
-   public List/*<Attribute>*/ getNotes()
+   public List/* <Attribute> */getNotes()
    {
-      List noteAttributes = (List) getPropertyValue(PI_NOTE);
-      if(null == noteAttributes)
+      // Lookup prefetch cache.
+      BpmRuntimeEnvironment bpmRuntimeEnv = PropertyLayerProviderInterceptor.getCurrent();
+      Map<Long, List> notesCache = (Map) bpmRuntimeEnv.get(PrefetchConstants.NOTES_PI_CACHE);
+      List noteAttributes = notesCache == null ? null : notesCache.get(this.getOID());
+
+      if (noteAttributes == null)
+      {
+         noteAttributes = (List) getPropertyValue(PI_NOTE);
+      }
+
+      if (null == noteAttributes)
       {
          return Collections.EMPTY_LIST;
       }
@@ -1754,7 +1775,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
 
       final AuditTrailPersistence oldValue = getAuditTrailPersistencePropertyValue();
-      oldValue.assertThatStateChangeIsAllowedTo(newValue);
+      oldValue.assertThatStateChangeIsAllowedTo(newValue, getPersistenceController().isCreated());
 
       final boolean isGlobalOverride = isGlobalAuditTrailPersistenceOverride();
       if (isGlobalOverride)
@@ -1798,18 +1819,67 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
    private void setAuditTrailPersistencePropertyValue(final AuditTrailPersistence value)
    {
-      setPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY, value.name());
+      final int mask = determineAuditTrailPersistenceMaskFrom(value);
+
+      fetch();
+      final int newValue = (propertiesAvailable & PI_AUDIT_TRAIL_PROPERTY_FLAG_ALL_COMPLEMENT) | mask;
+      if (newValue != propertiesAvailable)
+      {
+         propertiesAvailable = newValue;
+         markModified(FIELD__PROPERTIES_AVAILABLE);
+      }
    }
 
    private AuditTrailPersistence getAuditTrailPersistencePropertyValue()
    {
-      final String auditTrailPersistenceName = (String) getPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY);
-      if (auditTrailPersistenceName == null)
+      fetch();
+
+      return determineAuditTrailPersistenceFrom(propertiesAvailable & PI_AUDIT_TRAIL_PROPERTY_FLAG_ALL);
+   }
+
+   private int determineAuditTrailPersistenceMaskFrom(final AuditTrailPersistence value)
+   {
+      switch (value)
+      {
+         case ENGINE_DEFAULT:
+            return PI_AUDIT_TRAIL_PROPERTY_FLAG_ENGINE_DEFAULT;
+
+         case IMMEDIATE:
+            return PI_AUDIT_TRAIL_PROPERTY_FLAG_IMMEDIATE;
+
+         case DEFERRED:
+            return PI_AUDIT_TRAIL_PROPERTY_FLAG_DEFERRED;
+
+         case TRANSIENT:
+            return PI_AUDIT_TRAIL_PROPERTY_FLAG_TRANSIENT;
+
+         default:
+            throw new IllegalArgumentException("Illegal Audit Trail Persistence value '" + value + "'.");
+      }
+   }
+
+   private AuditTrailPersistence determineAuditTrailPersistenceFrom(final int mask)
+   {
+      if (mask == PI_AUDIT_TRAIL_PROPERTY_FLAG_ENGINE_DEFAULT)
       {
          return AuditTrailPersistence.ENGINE_DEFAULT;
       }
-
-      return AuditTrailPersistence.valueOf(auditTrailPersistenceName);
+      else if (mask == PI_AUDIT_TRAIL_PROPERTY_FLAG_IMMEDIATE)
+      {
+         return AuditTrailPersistence.IMMEDIATE;
+      }
+      else if (mask == PI_AUDIT_TRAIL_PROPERTY_FLAG_DEFERRED)
+      {
+         return AuditTrailPersistence.DEFERRED;
+      }
+      else if (mask == PI_AUDIT_TRAIL_PROPERTY_FLAG_TRANSIENT)
+      {
+         return AuditTrailPersistence.TRANSIENT;
+      }
+      else
+      {
+         throw new IllegalArgumentException("Illegal Audit Trail Persistence mask '" + mask + "'.");
+      }
    }
 
    private boolean noteExists()
@@ -1889,12 +1959,16 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
                            && outputParameterId.equals(accessPointId)
                            && parameterContext.equals(context))
                      {
-                        int index = TransitionTokenBean.getMultiInstanceIndex(startingActivityInstance.getOID());
+                        int index = ((ActivityInstanceBean) startingActivityInstance).getIndex();
+                        if (index < 0)
+                        {
+                           index = TransitionTokenBean.getMultiInstanceIndex(startingActivityInstance.getOID());
+                        }
                         if (index >= 0)
                         {
                            try
                            {
-                              lockDataValue(data);
+                              ((ProcessInstanceBean) parentProcessInstance).lockDataValue(data);
                            }
                            catch (PhantomException e)
                            {
@@ -2155,5 +2229,11 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       {
          return ProcessInstanceBean.this;
       }
+   }
+
+   @Override
+   public IProcessInstance getProcessInstance()
+   {
+      return this;
    }
 }

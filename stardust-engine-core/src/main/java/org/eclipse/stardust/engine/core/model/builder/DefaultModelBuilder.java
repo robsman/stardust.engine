@@ -24,7 +24,6 @@ import org.eclipse.stardust.engine.api.runtime.Mail;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.compatibility.el.DataTypeResolver;
 import org.eclipse.stardust.engine.core.compatibility.el.JsConverter;
-import org.eclipse.stardust.engine.core.extensions.ExtensionService;
 import org.eclipse.stardust.engine.core.extensions.actions.delegate.TargetWorklist;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.gui.AccessPointTemplate;
@@ -169,8 +168,6 @@ public class DefaultModelBuilder implements ModelBuilder
          xml.setAttribute(PredefinedConstants.ICON_ATT,
                PredefinedConstants.PLAINXML_ICON_LOCATION);
       }
-
-      ExtensionService.createExtendedDataTypes(model);
    }
 
    public static void createPredefinedApplicationContextTypes(IModel model)
@@ -273,8 +270,6 @@ public class DefaultModelBuilder implements ModelBuilder
          jmsType.setAttribute(PredefinedConstants.ICON_ATT,
                PredefinedConstants.JMS_APPLICATION_ICON_LOCATION);
       }
-
-      ExtensionService.createExtendedApplicationTypes(model);
    }
 
    public static void createPredefinedTriggerTypes(IModel model)

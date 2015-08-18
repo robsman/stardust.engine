@@ -38,6 +38,7 @@ import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 
@@ -152,7 +153,7 @@ public class UserGroupBean extends AttributedIdentifiablePersistentBean implemen
 
       if (true == validOnly)
       {
-         Date now = new Date();
+         Date now = TimestampProviderUtils.getTimeStamp();
 
          Join uJoin = new Join(UserBean.class)
                .on(UserUserGroupLink.FR__USER, UserBean.FIELD__OID);
@@ -324,7 +325,7 @@ public class UserGroupBean extends AttributedIdentifiablePersistentBean implemen
    public boolean isValid()
    {
       fetch();
-      Date now = new Date();
+      Date now = TimestampProviderUtils.getTimeStamp();
 
       return (validFrom == null || validFrom.getTime() <= now.getTime())
             && (validTo == null || validTo.getTime() > now.getTime());

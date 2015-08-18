@@ -33,6 +33,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 import org.eclipse.stardust.engine.core.spi.security.ExternalLoginProvider;
 import org.eclipse.stardust.engine.core.spi.security.ExternalLoginResult;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 
@@ -137,16 +138,16 @@ public class AuditTrailLoginService implements ExternalLoginProvider
                {
                   if (invalidationTime == 0)
                   {
-                     user.setValidTo(new Date());
+                     user.setValidTo(TimestampProviderUtils.getTimeStamp());
                   }
                   else
                   {
                      Date newValidFrom=new Date(
-                           System.currentTimeMillis() + (invalidationTime * 1000 * 60));
+                           TimestampProviderUtils.getTimeStampValue() + (invalidationTime * 1000 * 60));
 
                      if (user.getValidTo() != null && user.getValidTo().before(newValidFrom))
                      {
-                        user.setValidFrom(new Date());
+                        user.setValidFrom(TimestampProviderUtils.getTimeStamp());
                      }
                      else
                      {
@@ -173,7 +174,7 @@ public class AuditTrailLoginService implements ExternalLoginProvider
          {
             if ( !LoginUtils.isLoginUserWithoutTimestamp(user))
             {
-               user.setLastLoginTime(Calendar.getInstance().getTime());
+               user.setLastLoginTime(TimestampProviderUtils.getTimeStamp());
                SecurityUtils.updatePasswordHistory(user, password);
                if(SecurityUtils.isPasswordExpired(user))
                {

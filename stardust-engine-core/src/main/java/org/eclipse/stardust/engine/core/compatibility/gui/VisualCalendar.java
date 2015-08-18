@@ -17,6 +17,8 @@ import java.util.Calendar;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
+
 /**
  * Visual Calendar component.
  */
@@ -432,7 +434,7 @@ public class VisualCalendar extends JDialog
 
       if (entry.getCalendar() == null)
       {
-         calendar = Calendar.getInstance();
+         calendar = TimestampProviderUtils.getCalendar();
       }
       else
       {
@@ -502,9 +504,10 @@ public class VisualCalendar extends JDialog
 
       int i;
 
-      int todaysDay = Calendar.getInstance().get(Calendar.DATE);
-      int _todaysMonth = Calendar.getInstance().get(Calendar.MONTH) + 1;
-      int todaysYear = Calendar.getInstance().get(Calendar.YEAR);
+      Calendar today = TimestampProviderUtils.getCalendar();
+      int todaysDay = today.get(Calendar.DATE);
+      int _todaysMonth = today.get(Calendar.MONTH) + 1;
+      int todaysYear = today.get(Calendar.YEAR);
 
       // Clear front buttons
 

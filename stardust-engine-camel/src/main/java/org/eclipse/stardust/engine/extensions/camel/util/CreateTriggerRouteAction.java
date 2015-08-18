@@ -32,7 +32,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.AbstractLoginInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.extensions.camel.converter.DataConverter;
 import org.eclipse.stardust.engine.extensions.camel.trigger.CamelTriggerRoute;
 
 import org.springframework.context.ApplicationContext;
@@ -51,34 +50,27 @@ public class CreateTriggerRouteAction implements Action<Object>
 
    private ApplicationContext springContext;
 
-   private List<DataConverter> dataConverters;
-
    private ITrigger trigger;
 
-   public CreateTriggerRouteAction(String partition, ApplicationContext springContext,
-         List<DataConverter> dataConverters)
+   public CreateTriggerRouteAction(String partition, ApplicationContext springContext)
    {
 
       this.partition = partition;
       this.springContext = springContext;
-      this.dataConverters = dataConverters;
    }
 
-   public CreateTriggerRouteAction(BpmRuntimeEnvironment bpmRt, String partition, ApplicationContext springContext,
-         List<DataConverter> dataConverters)
+   public CreateTriggerRouteAction(BpmRuntimeEnvironment bpmRt, String partition, ApplicationContext springContext)
    {
 
       this.bpmRt = bpmRt;
       this.partition = partition;
       this.springContext = springContext;
-      this.dataConverters = dataConverters;
    }
 
-   public CreateTriggerRouteAction(BpmRuntimeEnvironment bpmRt, String partition, ApplicationContext springContext,
-         List<DataConverter> dataConverters, ITrigger trigger)
+   public CreateTriggerRouteAction(BpmRuntimeEnvironment bpmRt, String partition, ApplicationContext springContext, ITrigger trigger)
    {
 
-      this(bpmRt, partition, springContext, dataConverters);
+      this(bpmRt, partition, springContext);
       this.trigger = trigger;
    }
 
@@ -172,7 +164,7 @@ public class CreateTriggerRouteAction implements Action<Object>
           
          }
 
-         CamelTriggerRoute route = new CamelTriggerRoute(camelContext, trigger, dataConverters, SecurityProperties
+         CamelTriggerRoute route = new CamelTriggerRoute(camelContext, trigger, SecurityProperties
                .getPartition().getId());
 
          if (route.getRouteDefinition() != null && route.getRouteDefinition().length() > 0)
@@ -186,7 +178,7 @@ public class CreateTriggerRouteAction implements Action<Object>
 
             if (logger.isDebugEnabled())
             {
-               logger.debug(route.getRouteDefinition());
+               logger.debug(route.print());
             }
 
             RoutesDefinition routes = ((ModelCamelContext) camelContext).loadRoutesDefinition(IOUtils

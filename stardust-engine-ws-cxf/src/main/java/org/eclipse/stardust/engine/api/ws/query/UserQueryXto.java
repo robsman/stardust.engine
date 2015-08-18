@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  *         membership by using 'participantAssociation' predicate.
  *         
  * 
- * <p>Java class for UserQuery complex type.
+ * <p>Java-Klasse für UserQuery complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="UserQuery">

@@ -125,18 +125,4 @@
    <amq:queue id="jmsApplicationQueue" physicalName="CarnotApplicationQueue" />
    <amq:queue id="jmsTestQueue" physicalName="CarnotTestQueue" />
 
-   <!-- Carnot Properties -->
-   <bean id="customCarnotProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-      <property name="properties">
-         <map>
-            <entry>
-               <key>
-                  <value>jms/CarnotXAConnectionFactory</value>
-               </key>
-               <ref bean="jmsConnectionFactory" />
-            </entry>
-         </map>
-      </property>
-   </bean>
-
 </beans>

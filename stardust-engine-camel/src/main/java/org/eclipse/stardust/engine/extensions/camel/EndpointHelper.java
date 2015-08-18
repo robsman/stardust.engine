@@ -44,20 +44,4 @@ public class EndpointHelper
          
       return answer;
    }
-   @Deprecated
-   public static String replaceCharacterByHtmlCode(final String input)
-   {
-      String answer = input;
-
-      if (answer.contains("&"))
-         answer = answer.replaceAll("&", "&amp;");
-      if (answer.contains("<"))
-         answer = answer.replaceAll("<", "&lt;");
-      if (answer.contains(">"))
-         answer = answer.replaceAll(">", "&gt;");
-      if (answer.contains("\""))
-         answer = answer.replaceAll("\"", "&quot;");
-
-      return answer;
-   }
 }

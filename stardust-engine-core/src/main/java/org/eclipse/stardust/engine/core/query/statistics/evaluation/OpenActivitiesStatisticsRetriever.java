@@ -12,11 +12,7 @@ package org.eclipse.stardust.engine.core.query.statistics.evaluation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
@@ -25,33 +21,21 @@ import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
-import org.eclipse.stardust.engine.core.persistence.AndTerm;
-import org.eclipse.stardust.engine.core.persistence.Column;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.query.statistics.api.CriticalExecutionTimePolicy;
 import org.eclipse.stardust.engine.core.query.statistics.api.OpenActivitiesStatistics.OpenActivities;
 import org.eclipse.stardust.engine.core.query.statistics.api.OpenActivitiesStatistics.OpenActivitiesDetails;
 import org.eclipse.stardust.engine.core.query.statistics.api.OpenActivitiesStatisticsQuery;
 import org.eclipse.stardust.engine.core.query.statistics.utils.IResultSetTemplate;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.runtime.utils.AbstractAuthorization2Predicate;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
-import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
-import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
+import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQueryResult;
 import org.eclipse.stardust.engine.core.spi.query.IActivityInstanceQueryEvaluator;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -72,11 +56,10 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
 
       final OpenActivitiesStatisticsQuery oasq = (OpenActivitiesStatisticsQuery) query;
 
-      final Date now = new Date();
+      final Date now = TimestampProviderUtils.getTimeStamp();
       final long nowInMilli = now.getTime();
 
-      Calendar cal = Calendar.getInstance();
-      cal.setTime(now);
+      Calendar cal = TimestampProviderUtils.getCalendar(now);
       setTimeToDayEnd(cal);
 
       // history starts one month back
@@ -149,8 +132,7 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
 
       final CriticalExecutionTimePolicy criticalityPolicy = StatisticsQueryUtils.getCriticalExecutionTimePolicy(oasq);
 
-      final AuthorizationContext ctx = AuthorizationContext.create(WorkflowService.class,
-            "getActivityInstance", long.class);
+      final AuthorizationContext ctx = AuthorizationContext.create(ClientPermission.READ_ACTIVITY_INSTANCE_DATA);
       final boolean guarded = Parameters.instance().getBoolean("QueryService.Guarded", true)
             && !ctx.isAdminOverride();
       final AbstractAuthorization2Predicate authPredicate = new AbstractAuthorization2Predicate(ctx) {};
@@ -167,7 +149,7 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
          private long tsFrom;
          private long tsUntil;
 
-         private final Date tsPiStart = new Date();
+         private final Date tsPiStart = TimestampProviderUtils.getTimeStamp();
 
          private final Long[] history = (Long[]) historyTimestamps.toArray(new Long[0]);
 

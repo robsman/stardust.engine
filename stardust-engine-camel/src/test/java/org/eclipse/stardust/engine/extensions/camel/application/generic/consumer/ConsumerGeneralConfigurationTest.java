@@ -37,14 +37,12 @@ public class ConsumerGeneralConfigurationTest
    @Test
    public void testConsumerRouteProcessWithAdditionaBean() throws Exception
    {
-      Thread.sleep(3000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       String message = "{\"creditCard\":{\"creditCardNumber\":411152,\"creditCardType\":\"MasterCard\"},\"lastName\":\"Last Name\",\"firstName\":\"Fist Name\"}";
       ProcessInstance pInstance = sf.getWorkflowService().startProcess("{GenericApplicationConsumerTestModel}TestConsumerRouteProcessWithAdditionalBean",
             null, true);
       ProducerTemplate producer = camelContext.createProducerTemplate();
       producer.sendBody("direct:startConsumeDataWithAdditionalbean", message);
-      Thread.sleep(1000);
       Map< ? , ? > result = (Map< ? , ? >) sf.getWorkflowService().getInDataPath(pInstance.getOID(),
             "ConsumedDataInABP"); // Additional Bean Process
       assertNotNull(result);
@@ -60,20 +58,17 @@ public class ConsumerGeneralConfigurationTest
             .findAlive("{GenericApplicationConsumerTestModel}TestConsumerRouteProcessWithAdditionalBean");
       ActivityInstances activityInstances = sf.getQueryService().getAllActivityInstances(activityInstance);
       sf.getWorkflowService().activateAndComplete(activityInstances.get(0).getOID(), null, null);
-
    }
    
    @Test
    public void testConsumerRouteProcessNonTransacted() throws Exception
    {
-      Thread.sleep(1000);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       String message = "Message content consumed by non transacted Route";
       ProcessInstance pInstance = sf.getWorkflowService().startProcess("{GenericApplicationConsumerTestModel}TestConsumerWithNonTransactedRoute",
             null, true);
       ProducerTemplate producer = camelContext.createProducerTemplate();
       producer.sendBody("direct:startConsumeDataInNonTransactedRoute", message);
-      Thread.sleep(1000);
       Object result = sf.getWorkflowService().getInDataPath(pInstance.getOID(), "messageInNonTransactedRoute");
       assertNotNull(result);
       assertTrue(result instanceof String);
@@ -83,7 +78,6 @@ public class ConsumerGeneralConfigurationTest
       ActivityInstances activityInstancesConsumerRoute = sf.getQueryService().getAllActivityInstances(
             activityInstanceQueryConsumerRoute);
       sf.getWorkflowService().activateAndComplete(activityInstancesConsumerRoute.get(0).getOID(), null, null);
-
    }
 
 }

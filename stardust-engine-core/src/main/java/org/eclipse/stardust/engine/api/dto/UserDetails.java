@@ -25,6 +25,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.Session;
@@ -86,14 +87,14 @@ public class UserDetails implements User
       initDetailsLevel();
 
       init(user); // Minimal
-      
+
       fetchPreviousLoginTime(user); // Core
       fetchUserProperties(user); // WithProperties
       fetchPreferences(user); // moduleId[]
       fetchGrants(user); // Full
 
       List<IModel> activeModels = ModelManagerFactory.getCurrent().findActiveModels();
-      
+
       fetchIsAdministrator(user, activeModels); // Core
       fetchPermissions(user, activeModels); // Core
    }
@@ -160,7 +161,7 @@ public class UserDetails implements User
                newGrants.add(new AddedGrant(grant.getQualifiedId(), null));
             }
          }
-         
+
          for (Iterator i = user.getAllUserGroups(false); i.hasNext();)
          {
             IUserGroup group = (IUserGroup) i.next();
@@ -194,18 +195,15 @@ public class UserDetails implements User
       permissions = CollectionUtils.newHashMap();
       if (UserDetailsLevel.Minimal != detailsLevel)
       {
-         fetchPermission(user, activeModels, Permissions.MODEL_MANAGE_AUTHORIZATION, null);
-         fetchPermission(user, activeModels, null, "modifyUser", User.class);
-         fetchPermission(user, activeModels, null, "getUser", long.class);
+         fetchPermission(user, activeModels, AuthorizationContext.create(ClientPermission.MANAGE_AUTHORIZATION));
+         fetchPermission(user, activeModels, AuthorizationContext.create(ClientPermission.MODIFY_USER_DATA));
+         fetchPermission(user, activeModels, AuthorizationContext.create(ClientPermission.READ_USER_DATA));
       }
    }
 
-   private void fetchPermission(IUser user, List<IModel> activeModels,
-         String name, String method, Class<?>... types)
+   protected void fetchPermission(IUser user, List<IModel> activeModels,
+         AuthorizationContext ctx)
    {
-      AuthorizationContext ctx = name == null
-            ? AuthorizationContext.create(UserService.class, method, types)
-            : AuthorizationContext.create(new ClientPermission(name));
       ctx.setUser(user);
       if (activeModels.isEmpty())
       {
@@ -276,7 +274,32 @@ public class UserDetails implements User
    {
       if (previousLoginTime != null && UserDetailsLevel.Minimal != detailsLevel)
       {
+         UserSessionBean latestSessionAccordingToCache = null;
          Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+
+         // try to leverage a previous resolution's result
+         if(session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
+         {
+            for (PersistenceController usPc : ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getCache(UserSessionBean.class))
+            {
+               UserSessionBean us = (UserSessionBean) usPc.getPersistent();
+               if ((us.getUserOid() == user.getOID()) && (us.getStartTime().before(previousLoginTime)))
+               {
+                  if ((null == latestSessionAccordingToCache) || latestSessionAccordingToCache.getStartTime().before(us.getStartTime()))
+                  {
+                     latestSessionAccordingToCache = us;
+                  }
+               }
+            }
+         }
+
+         if (null != latestSessionAccordingToCache)
+         {
+            previousLoginTime = latestSessionAccordingToCache.getStartTime();
+            return;
+         }
+
+         // nothing cached, have to resolve from DB
          UserSessionBean result = (UserSessionBean) session.findFirst(UserSessionBean.class,
                QueryExtension.where(Predicates.andTerm(
                      Predicates.isEqual(UserSessionBean.FR__USER, user.getOID()),
@@ -775,7 +798,7 @@ public class UserDetails implements User
          throw new InvalidValueException(
                BpmRuntimeError.BPMRT_INVALID_VALUE.raise(probability));
       }
-      
+
       qualityAssurancePropability = probability;
    }
 }

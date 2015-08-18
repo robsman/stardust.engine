@@ -13,7 +13,6 @@ package org.eclipse.stardust.engine.core.persistence.jdbc.transientpi;
 import java.util.Map;
 
 import javax.resource.ResourceException;
-import javax.resource.cci.ConnectionFactory;
 
 import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.error.PublicException;
@@ -36,25 +35,10 @@ import com.hazelcast.core.Transaction;
  * </p>
  *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
 public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectProvider
 {
-   private static final ConnectionFactory HZ_CONNECTION_FACTORY;
-
-   private static final HazelcastInstance HZ_INSTANCE;
-
-   static
-   {
-      final HazelcastJcaConnectionFactoryProvider cfProvider = ExtensionProviderUtils.getFirstExtensionProvider(HazelcastJcaConnectionFactoryProvider.class, KernelTweakingProperties.HZ_JCA_CONNECTION_FACTORY_PROVIDER);
-      if (cfProvider == null)
-      {
-         throw new IllegalStateException("No Hazelcast JCA connection factory provider could be found.");
-      }
-      HZ_CONNECTION_FACTORY = cfProvider.connectionFactory();
-
-      HZ_INSTANCE = HazelcastUtils.getHazelcastInstance();
-   }
+   private static volatile ClusteredEnvHazelcastObjectProviderHolder holder;
 
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#clusterSafeMap(java.lang.String)
@@ -67,7 +51,7 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
          throw new NullPointerException("Map ID for Hazelcast map must not be null.");
       }
 
-      return HZ_INSTANCE.getMap(mapId);
+      return holder().hzInstance.getMap(mapId);
    }
 
    /* (non-Javadoc)
@@ -81,10 +65,10 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
       try
       {
          /* Hazelcast can only cope with one transaction per thread */
-         if (HZ_INSTANCE.getTransaction().getStatus() != Transaction.TXN_STATUS_ACTIVE)
+         if (holder().hzInstance.getTransaction().getStatus() != Transaction.TXN_STATUS_ACTIVE)
          {
             /* enlists Hazelcast objects in the current tx */
-            rtEnv.retrieveJcaConnection(HZ_CONNECTION_FACTORY);
+            rtEnv.retrieveJcaConnection(holder().hzConnectionFactoryProvider.connectionFactory());
          }
       }
       catch (final ResourceException e)
@@ -111,5 +95,57 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
    public void afterAccess()
    {
       /* nothing to do */
+   }
+
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#reset()
+    */
+   @Override
+   public void reset()
+   {
+      synchronized (ClusteredEnvHazelcastObjectProvider.class)
+      {
+         if (holder != null)
+         {
+            holder.hzConnectionFactoryProvider.reset();
+         }
+
+         holder = null;
+      }
+   }
+
+   private ClusteredEnvHazelcastObjectProviderHolder holder()
+   {
+      if (holder == null)
+      {
+         synchronized (ClusteredEnvHazelcastObjectProvider.class)
+         {
+            if (holder == null)
+            {
+               holder = new ClusteredEnvHazelcastObjectProviderHolder();
+            }
+         }
+      }
+      return holder;
+   }
+
+   private static final class ClusteredEnvHazelcastObjectProviderHolder
+   {
+      private final HazelcastJcaConnectionFactoryProvider hzConnectionFactoryProvider;
+
+      private final HazelcastInstance hzInstance;
+
+      public ClusteredEnvHazelcastObjectProviderHolder()
+      {
+         hzConnectionFactoryProvider = ExtensionProviderUtils.getFirstExtensionProvider(HazelcastJcaConnectionFactoryProvider.class, KernelTweakingProperties.HZ_JCA_CONNECTION_FACTORY_PROVIDER);
+         if (hzConnectionFactoryProvider == null)
+         {
+            throw new IllegalStateException("No Hazelcast JCA connection factory provider could be found.");
+         }
+         /* bootstraps the Hazelcast Resource Adapter */
+         hzConnectionFactoryProvider.connectionFactory();
+
+         hzInstance = HazelcastUtils.getHazelcastInstance();
+      }
    }
 }

@@ -11,10 +11,10 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.RouteDefinition;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstances;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
@@ -24,15 +24,16 @@ import org.eclipse.stardust.engine.extensions.camel.util.client.ServiceFactoryAc
 public class ProcessWithExternalXsdTest
 {
    private static ClassPathXmlApplicationContext ctx;
+
    @Resource
    private static CamelContext camelContext;
 
-
    @Resource
    private static ServiceFactoryAccess serviceFactoryAccess;
-   
+
    @BeforeClass
-   public static void beforeClass() {
+   public static void beforeClass()
+   {
       ctx = new ClassPathXmlApplicationContext(
             new String[] {
                   "org/eclipse/stardust/engine/extensions/camel/common/SharedTestContext.xml",
@@ -51,11 +52,13 @@ public class ProcessWithExternalXsdTest
       {
          RouteDefinition routeDefinition = new RouteDefinition();
          routeDefinition.startupOrder(1).autoStartup(true).from("direct:/createFile")
-               .to("file://./target/incoming/customer?fileName=Person.xml");
+               .to("file://target/incoming/customer?fileName=Person.xml");
          ((ModelCamelContext) camelContext).addRouteDefinition(routeDefinition);
          ProducerTemplate fileProducer = camelContext.createProducerTemplate();
-         fileProducer.sendBody("direct:/createFile",
-               "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" standalone=\"no\"?><person><firstname>SG</firstname><lastname>SG</lastname></person>");
+         fileProducer
+               .sendBody(
+                     "direct:/createFile",
+                     "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" standalone=\"no\"?><person><firstname>SG</firstname><lastname>SG</lastname></person>");
 
       }
       catch (Exception e)
@@ -65,10 +68,15 @@ public class ProcessWithExternalXsdTest
 
    }
 
+   @Before
+   public void setup() throws InterruptedException
+   {
+      Thread.sleep(5000);//TODO: remove sleep after forkingService is removed from configuration 
+   }
+
    @Test
    public void testStartPi() throws Exception
    {
-      Thread.sleep(5000);
       while (camelContext.getInflightRepository().size("Consumer200230975") > 0)
       {
          System.out.println("waiting for PI");

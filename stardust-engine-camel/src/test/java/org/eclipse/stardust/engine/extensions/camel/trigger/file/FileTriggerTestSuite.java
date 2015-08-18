@@ -35,7 +35,7 @@ public class FileTriggerTestSuite
       serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");
       testUtils = (SpringTestUtils) ctx.getBean("ippTestUtils");
       sf = serviceFactoryAccess.getDefaultServiceFactory();
-      
+
       try
       {
          for (String deployedModelId : deployedModels)
@@ -43,7 +43,6 @@ public class FileTriggerTestSuite
             ClassPathResource resource = new ClassPathResource("models/" + deployedModelId + ".xpdl");
             testUtils.setModelFile(resource);
             testUtils.deployModel();
-            Thread.sleep(1000);
          }
       }
       catch (Exception e)

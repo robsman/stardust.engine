@@ -40,6 +40,7 @@ import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessIns
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
+import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
 
 /**
  * <p/>
@@ -140,45 +141,10 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       this.terminationTime = processInstance.getTerminationTime();
       this.state = processInstance.getState();
 
-      IUser startingUser = processInstance.getStartingUser();
-
       UserDetailsLevel userDetailsLevel = ProcessInstanceUtils.isTransientExecutionScenario(processInstance)
             ? UserDetailsLevel.Minimal
             : UserDetailsLevel.Core;
-      PropertyLayer layer = null;
-      if (null != startingUser)
-      {
-         try
-         {
-            if (userDetailsLevel.equals(UserDetailsLevel.Core))
-            {
-               // Do not overwrite level if explicitly set (not null!).
-               if (parameters.get(UserDetailsLevel.PRP_USER_DETAILS_LEVEL) == null)
-               {
-                  Map<String, ?> props = Collections.singletonMap(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, userDetailsLevel);
-            layer = ParametersFacade.pushLayer(props);
-               }
-            }
-            else
-            {
-               Map<String, ?> props = Collections.singletonMap(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, userDetailsLevel);
-               layer = ParametersFacade.pushLayer(props);
-            }
-
-            startingUserDetails = DetailsFactory.createUser(startingUser);
-         }
-         finally
-         {
-            if(layer != null)
-            {
-               ParametersFacade.popLayer();
-         }
-      }
-      }
-      else
-      {
-         this.startingUserDetails = null;
-      }
+      startingUserDetails = initStartingUser(processInstance, parameters, userDetailsLevel);
 
       // get the starting AI oid
       startingActivityInstanceOid = UNKNOWN_OID;
@@ -253,25 +219,25 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       initDescriptors(processInstance, descriptorDefinitions, descriptors);
 
       permissions = CollectionUtils.newHashMap();
-      AuthorizationContext ctx = AuthorizationContext.create(AdministrationService.class, "abortProcessInstance", long.class);
+      AuthorizationContext ctx = AuthorizationContext.create(ClientPermission.ABORT_PROCESS_INSTANCES);
       ctx.setProcessInstance(processInstance);
-      PermissionState ps = Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied;
-      permissions.put(ctx.getPermissionId(), ps);
+      permissions.put(ctx.getPermissionId(), Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied);
 
-      ctx = AuthorizationContext.create(AdministrationService.class, "setProcessInstancePriority", long.class, int.class);
+      ctx = AuthorizationContext.create(ClientPermission.MODIFY_PROCESS_INSTANCES);
       ctx.setProcessInstance(processInstance);
-      ps = Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied;
-      permissions.put(ctx.getPermissionId(), ps);
+      permissions.put(ctx.getPermissionId(),
+            Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied);
 
       boolean isCase = processInstance.isCaseProcessInstance();
       if (isCase)
       {
-         ctx = AuthorizationContext.create(WorkflowService.class, "joinCase", long.class, long[].class);
+         ctx = AuthorizationContext.create(ClientPermission.MODIFY_CASE);
          ctx.setProcessInstance(processInstance);
-         ps = Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied;
-         permissions.put(ctx.getPermissionId(), ps);
+         permissions.put(ctx.getPermissionId(),
+               Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied);
       }
 
+      PropertyLayer layer = null;
       try
       {
          // Do not overwrite level if explicitly set (not null!).
@@ -451,6 +417,49 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             }
          }
       }
+   }
+
+   public static User initStartingUser(IProcessInstance processInstance, Parameters parameters, UserDetailsLevel userDetailsLevel)
+   {
+      User result;
+
+      IUser startingUser = processInstance.getStartingUser();
+      PropertyLayer layer = null;
+      if (null != startingUser)
+      {
+         try
+         {
+            if (userDetailsLevel.equals(UserDetailsLevel.Core))
+            {
+               // Do not overwrite level if explicitly set (not null!).
+               if (parameters.get(UserDetailsLevel.PRP_USER_DETAILS_LEVEL) == null)
+               {
+                  Map<String, ?> props = Collections.singletonMap(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, userDetailsLevel);
+                  layer = ParametersFacade.pushLayer(props);
+               }
+            }
+            else
+            {
+               Map<String, ?> props = Collections.singletonMap(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, userDetailsLevel);
+               layer = ParametersFacade.pushLayer(props);
+            }
+
+            result = DetailsFactory.createUser(startingUser);
+         }
+         finally
+         {
+            if(layer != null)
+            {
+               ParametersFacade.popLayer();
+            }
+         }
+      }
+      else
+      {
+         result = null;
+      }
+
+      return result;
    }
 
    /**

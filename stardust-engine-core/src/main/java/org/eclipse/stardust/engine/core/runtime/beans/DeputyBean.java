@@ -38,6 +38,7 @@ import org.eclipse.stardust.engine.api.runtime.Deputy;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.api.runtime.UserInfo;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * Internal class to help with creation and parsing of the deputy information.
@@ -203,7 +204,7 @@ public class DeputyBean
 
    public boolean isActive()
    {
-      return isActive(new Date());
+      return isActive(TimestampProviderUtils.getTimeStamp());
    }
 
    public boolean isActive(Date now)
@@ -214,7 +215,7 @@ public class DeputyBean
 
    public boolean isExpired()
    {
-      return isExpired(new Date());
+      return isExpired(TimestampProviderUtils.getTimeStamp());
    }
 
    public boolean isExpired(Date now)
@@ -224,6 +225,6 @@ public class DeputyBean
 
    /*public static void main(String[] args)
    {
-      System.out.println(new DeputyBean(12345, new Date(), null));
+      System.out.println(new DeputyBean(12345, TimestampProviderUtils.getTimeStamp(), null));
    }*/
 }

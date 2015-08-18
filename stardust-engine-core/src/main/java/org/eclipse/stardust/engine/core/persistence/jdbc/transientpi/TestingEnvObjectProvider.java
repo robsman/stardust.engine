@@ -24,19 +24,19 @@ import com.hazelcast.core.Transaction;
  * A {@link ClusterSafeObjectProvider} implementaion for testing purposes only
  * (simulates a transaction aware object access).
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revisin: $
  */
 public class TestingEnvObjectProvider implements ClusterSafeObjectProvider
 {
    private static final HazelcastInstance hzInstance;
-   
+
    static
    {
       hzInstance = Hazelcast.newHazelcastInstance(new XmlConfigBuilder().build());
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#clusterSafeMap(java.lang.String)
     */
@@ -45,7 +45,7 @@ public class TestingEnvObjectProvider implements ClusterSafeObjectProvider
    {
       return hzInstance.getMap(mapId);
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#beforeAccess()
     */
@@ -54,7 +54,7 @@ public class TestingEnvObjectProvider implements ClusterSafeObjectProvider
    {
       hzInstance.getTransaction().begin();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#exception(java.lang.Exception)
     */
@@ -63,7 +63,7 @@ public class TestingEnvObjectProvider implements ClusterSafeObjectProvider
    {
       hzInstance.getTransaction().rollback();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#afterAccess()
     */
@@ -74,5 +74,14 @@ public class TestingEnvObjectProvider implements ClusterSafeObjectProvider
       {
          hzInstance.getTransaction().commit();
       }
+   }
+
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#reset()
+    */
+   @Override
+   public void reset()
+   {
+      /* nothing to do */
    }
 }

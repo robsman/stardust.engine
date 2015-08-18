@@ -155,7 +155,9 @@ public class RepositoryIdUtils
          if (resource instanceof DmsDocumentBean)
          {
             String revisionId = ((Document) resource).getRevisionId();
-            if (!StringUtils.isEmpty(revisionId) && !RepositoryConstants.VERSION_UNVERSIONED.equals(revisionId))
+            if (!StringUtils.isEmpty(revisionId)
+                  && !RepositoryConstants.VERSION_UNVERSIONED.equals(revisionId)
+                  && !RepositoryConstants.VERSION_VERSIONED.equals(revisionId))
             {
                String prefixedRevisionId = addRepositoryId(revisionId, repositoryId);
                ((DmsDocumentBean) resource).setRevisionId(prefixedRevisionId);
@@ -207,6 +209,76 @@ public class RepositoryIdUtils
          return strippedRepositoryId;
       }
 
+   }
+
+   /**
+    * Compares {@link Resource} Ids considering legacy Ids without repositoryId prefix.<br>
+    * The prefix pointing to the repositoryId
+    * {@link RepositoryManager#SYSTEM_REPOSITORY_ID} is optional.
+    * <p>
+    * <b>Do not confuse with {@link #repositoryIdEquals(String, String)}</b>
+    * <p>
+    * For example: <br>
+    *    '{urn:repository:default}{jcr-uuid}ABC' == '{jcr-uuid}ABC'.<br>
+    * However: <br>
+    *    '{urn:repository:newRepository}{jcr-uuid}ABC' != '{jcr-uuid}ABC' <br>
+    */
+   public static boolean resourceIdEquals(String id1, String id2)
+   {
+      String repositoryId1 = RepositoryIdUtils.extractRepositoryId(id1);
+      String repositoryId2 = RepositoryIdUtils.extractRepositoryId(id2);
+      if (repositoryId1 == null && repositoryId2 != null
+            && RepositoryManager.SYSTEM_REPOSITORY_ID.equals(repositoryId2))
+      {
+         return id1.equals(RepositoryIdUtils.stripRepositoryId(id2));
+      }
+      else if (repositoryId1 != null && repositoryId2 == null
+            && RepositoryManager.SYSTEM_REPOSITORY_ID.equals(repositoryId1))
+      {
+         return RepositoryIdUtils.stripRepositoryId(id1).equals(id2);
+      }
+      else if (repositoryId1 == null && repositoryId2 == null)
+      {
+         return true;
+      }
+      else
+      {
+         return id1.equals(id2);
+      }
+   }
+
+   /**
+    * Compares repositoryIds considering legacy id <code>null</code> which defaults to
+    * {@link RepositoryManager#SYSTEM_REPOSITORY_ID}.
+    * <p>
+    * <b>Do not confuse with {@link #resourceIdEquals(String, String)}.</b>
+    * <p>
+    * For example: <br>
+    *    'default == null'<br>
+    * However: <br>
+    *    'newRepository != null' <br>
+    * <p>
+    */
+   public static boolean repositoryIdEquals(String repositoryId1, String repositoryId2)
+   {
+      if (repositoryId1 == null && repositoryId2 != null
+            && RepositoryManager.SYSTEM_REPOSITORY_ID.equals(repositoryId2))
+      {
+         return true;
+      }
+      else if (repositoryId1 != null && repositoryId2 == null
+            && RepositoryManager.SYSTEM_REPOSITORY_ID.equals(repositoryId1))
+      {
+         return true;
+      }
+      else if (repositoryId1 == null && repositoryId2 == null)
+      {
+         return true;
+      }
+      else
+      {
+         return repositoryId1.equals(repositoryId2);
+      }
    }
 
 }

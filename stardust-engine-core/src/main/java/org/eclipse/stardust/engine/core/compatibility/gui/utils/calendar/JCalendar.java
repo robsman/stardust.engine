@@ -21,6 +21,8 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
 
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
+
 /**
  * @author Claude Duguay
  * @author rsauer
@@ -38,7 +40,7 @@ public class JCalendar extends JPanel implements ActionListener
 
    public JCalendar()
    {
-      this(Calendar.getInstance(), 1, 1,
+      this(TimestampProviderUtils.getCalendar(), 1, 1,
             new DefaultListSelectionModel(),
             new DefaultCalendarRenderer(true),
             new DefaultCalendarRenderer(false));
@@ -54,7 +56,7 @@ public class JCalendar extends JPanel implements ActionListener
 
    public JCalendar(int w, int h)
    {
-      this(Calendar.getInstance(), w, h,
+      this(TimestampProviderUtils.getCalendar(), w, h,
             new DefaultListSelectionModel(),
             new DefaultCalendarRenderer(true),
             new DefaultCalendarRenderer(false));

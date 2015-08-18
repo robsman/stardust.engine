@@ -15,6 +15,9 @@ import org.eclipse.stardust.engine.core.query.statistics.evaluation.StatisticsMo
 
 
 /**
+ * Policy that determines if process instances are considered critical if their execution
+ * costs exceeds a certain limit.
+ * 
  * @author rsauer
  * @version $Revision$
  */

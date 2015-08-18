@@ -24,6 +24,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.DeputyBean.GrantBean;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 public final class UserUtils
@@ -472,7 +473,7 @@ public final class UserUtils
          return null;
       }
       List<String> toRemove = null;      
-      Date now = new Date();
+      Date now = TimestampProviderUtils.getTimeStamp();
       Map<Long/* user */, Map<Long/* participant */, Set<Long/* department */>>> others = CollectionUtils.newMap();
       for (Attribute attr : existing)
       {
@@ -532,7 +533,7 @@ public final class UserUtils
    {
       if (isDeputyOfAny(user))
       {
-         Date now = new Date();
+         Date now = TimestampProviderUtils.getTimeStamp();
 
          List<UserProperty> propertyList = (List<UserProperty>) user.getPropertyValue(UserUtils.IS_DEPUTY_OF);
 

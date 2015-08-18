@@ -97,11 +97,11 @@ public class ProcessDefinitionXto
 
     /**
      * Gets the value of the detailsLevel property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link ProcessDefinitionDetailsLevelXto }
-     *
+     *     
      */
     public ProcessDefinitionDetailsLevelXto getDetailsLevel() {
         return detailsLevel;
@@ -109,11 +109,11 @@ public class ProcessDefinitionXto
 
     /**
      * Sets the value of the detailsLevel property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link ProcessDefinitionDetailsLevelXto }
-     *
+     *     
      */
     public void setDetailsLevel(ProcessDefinitionDetailsLevelXto value) {
         this.detailsLevel = value;
@@ -217,11 +217,11 @@ public class ProcessDefinitionXto
 
     /**
      * Gets the value of the implementedProcessInterface property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link ProcessInterfaceXto }
-     *
+     *     
      */
     public ProcessInterfaceXto getImplementedProcessInterface() {
         return implementedProcessInterface;
@@ -229,11 +229,11 @@ public class ProcessDefinitionXto
 
     /**
      * Sets the value of the implementedProcessInterface property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link ProcessInterfaceXto }
-     *
+     *     
      */
     public void setImplementedProcessInterface(ProcessInterfaceXto value) {
         this.implementedProcessInterface = value;
@@ -241,11 +241,11 @@ public class ProcessDefinitionXto
 
     /**
      * Gets the value of the declaredProcessInterface property.
-     *
+     * 
      * @return
      *     possible object is
      *     {@link ProcessInterfaceXto }
-     *
+     *     
      */
     public ProcessInterfaceXto getDeclaredProcessInterface() {
         return declaredProcessInterface;
@@ -253,11 +253,11 @@ public class ProcessDefinitionXto
 
     /**
      * Sets the value of the declaredProcessInterface property.
-     *
+     * 
      * @param value
      *     allowed object is
      *     {@link ProcessInterfaceXto }
-     *
+     *     
      */
     public void setDeclaredProcessInterface(ProcessInterfaceXto value) {
         this.declaredProcessInterface = value;

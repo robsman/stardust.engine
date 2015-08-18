@@ -33,6 +33,7 @@ import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceLink;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 
@@ -55,9 +56,15 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
    /** lazily created object */
    private String toStringInfo;
 
-   /** lazily created objects */
+   /** lazily created object */
    private List<DataPath> descriptorDefinitions;
+
+   /** lazily created object */
    private Map<String, Object> descriptors;
+
+   private boolean startingUserInitialized = false;
+   /** lazily created object */
+   private User startingUser;
 
    private boolean useFullBlownPiDetailsObject = false;
 
@@ -186,17 +193,12 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
    @Override
    public User getStartingUser()
    {
-      if (useFullBlownPiDetailsObject)
+      if ( !startingUserInitialized)
       {
-         return getProcessInstanceDetails().getStartingUser();
+         startingUser = initStartingUser();
       }
 
-      if (processInstance.getStartingUser() == null)
-      {
-         return null;
-      }
-
-      return getProcessInstanceDetails().getStartingUser();
+      return startingUser;
    }
 
    @Override
@@ -373,6 +375,27 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
       {
          ParametersFacade.popLayer();
       }
+   }
+
+   private User initStartingUser()
+   {
+      final User result;
+
+      ParametersFacade.pushLayer(piDetailsParameters);
+      try
+      {
+         final UserDetailsLevel userDetailsLevel = ProcessInstanceUtils.isTransientExecutionScenario(processInstance)
+               ? UserDetailsLevel.Minimal
+               : UserDetailsLevel.Core;
+         result = ProcessInstanceDetails.initStartingUser(processInstance, Parameters.instance(), userDetailsLevel);
+         startingUserInitialized = true;
+      }
+      finally
+      {
+         ParametersFacade.popLayer();
+      }
+
+      return result;
    }
 
    /* prevent objects of this class from being serialized: they can only used on the server-side */

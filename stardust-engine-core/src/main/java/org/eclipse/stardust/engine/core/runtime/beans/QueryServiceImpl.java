@@ -42,34 +42,7 @@ import org.eclipse.stardust.engine.api.model.OrganizationInfo;
 import org.eclipse.stardust.engine.api.model.Participant;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
-import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
-import org.eclipse.stardust.engine.api.query.ActivityInstanceQueryEvaluator;
-import org.eclipse.stardust.engine.api.query.ActivityInstances;
-import org.eclipse.stardust.engine.api.query.DataQuery;
-import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
-import org.eclipse.stardust.engine.api.query.DocumentQuery;
-import org.eclipse.stardust.engine.api.query.EvaluateByWorkitemsPolicy;
-import org.eclipse.stardust.engine.api.query.EvaluationContext;
-import org.eclipse.stardust.engine.api.query.GenericQueryEvaluator;
-import org.eclipse.stardust.engine.api.query.LogEntries;
-import org.eclipse.stardust.engine.api.query.LogEntryQuery;
-import org.eclipse.stardust.engine.api.query.PreferenceQuery;
-import org.eclipse.stardust.engine.api.query.ProcessDefinitionDetailsPolicy;
-import org.eclipse.stardust.engine.api.query.ProcessDefinitionQuery;
-import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
-import org.eclipse.stardust.engine.api.query.ProcessInstanceQueryEvaluator;
-import org.eclipse.stardust.engine.api.query.ProcessInstances;
-import org.eclipse.stardust.engine.api.query.ProcessQueryPostprocessor;
-import org.eclipse.stardust.engine.api.query.QueryResultFactory;
-import org.eclipse.stardust.engine.api.query.QueryServiceUtils;
-import org.eclipse.stardust.engine.api.query.RawQueryResult;
-import org.eclipse.stardust.engine.api.query.RuntimeInstanceQueryEvaluator;
-import org.eclipse.stardust.engine.api.query.SubsetPolicy;
-import org.eclipse.stardust.engine.api.query.UserGroupQuery;
-import org.eclipse.stardust.engine.api.query.UserGroups;
-import org.eclipse.stardust.engine.api.query.UserQuery;
-import org.eclipse.stardust.engine.api.query.Users;
-import org.eclipse.stardust.engine.api.query.WorkItemQueryEvaluator;
+import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DataQueryResult;
@@ -95,21 +68,17 @@ import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.BusinessObjectUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
-import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
-import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
-import org.eclipse.stardust.engine.core.runtime.utils.WorkItemAuthorizationForAIQuery2Predicate;
+import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryManager;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomQueryUtils;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
-
 import org.eclipse.xsd.util.XSDResourceImpl;
 
 
@@ -152,8 +121,7 @@ public class QueryServiceImpl implements QueryService, Serializable
          if(isFilteringWorkitemsOnly(query))
          {
             rte.setAuthorizationPredicate(new WorkItemAuthorizationForAIQuery2Predicate(
-                  AuthorizationContext.create(QueryService.class,
-                        "getAllActivityInstances", ActivityInstanceQuery.class)));
+                  AuthorizationContext.create(ClientPermission.QUERY_ACTIVITY_INSTANCE_DATA)));
 
             queryEvaluator = new WorkItemQueryEvaluator(query, getDefaultEvaluationContext());
          }
@@ -304,8 +272,7 @@ public class QueryServiceImpl implements QueryService, Serializable
       {
          final BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
          runtimeEnvironment.setAuthorizationPredicate(new WorkItemAuthorizationForAIQuery2Predicate(
-               AuthorizationContext.create(QueryService.class, "getActivityInstancesCount",
-                     ActivityInstanceQuery.class)));
+               AuthorizationContext.create(ClientPermission.QUERY_ACTIVITY_INSTANCE_DATA)));
          // removal of state filters necessary before processing as WorkItemQuery??
          queryEvaluator = new WorkItemQueryEvaluator(query, getDefaultEvaluationContext());
       }
@@ -405,6 +372,12 @@ public class QueryServiceImpl implements QueryService, Serializable
             authorizationPredicate == null ? raw : new FilteringIterator(raw,
                   authorizationPredicate), IActivityInstance.class,
             ActivityInstanceDetails.class);
+   }
+
+   @Override
+   public BusinessObjects getAllBusinessObjects(BusinessObjectQuery query)
+   {
+      return BusinessObjectUtils.getBusinessObjects(query);
    }
 
    public String getModelAsXML(long modelOID) throws ObjectNotFoundException

@@ -16,17 +16,16 @@ package org.eclipse.stardust.test.multimodel;
  * </p>
  *
  * @author Robert.Sauer
- * @version $Revision$
  */
 public class MultiModelConstants
 {
    /**
     * the ID of the provider model
     */
-   /* package-private */ static final String PROVIDER_MODEL_ID = "ProviderModel";
+   public static final String PROVIDER_MODEL_ID = "ProviderModel";
 
    /**
     * the ID of the consumer model
     */
-   /* package-private */ static final String CONSUMER_MODEL_ID = "ConsumerModel";
+   public static final String CONSUMER_MODEL_ID = "ConsumerModel";
 }

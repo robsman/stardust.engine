@@ -52,7 +52,6 @@ public class SqlApplicationTest
    {
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstance pInstance = sf.getWorkflowService().startProcess("{SqlApplicationTestModel}SelectAllProcess", null, true);
-      Thread.sleep(5000);
       Map< ? , ? > result = (Map< ? , ? >) sf.getWorkflowService().getInDataPath(pInstance.getOID(), "projects");
       trace.debug("projects result = " + result);
       assertNotNull(result);
@@ -86,7 +85,6 @@ public class SqlApplicationTest
       dataMap.put("projectParam", projectParams);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstance pInstance = sf.getWorkflowService().startProcess("{SqlApplicationTestModel}SelectWithSdtParamProcess", dataMap, true);
-      Thread.sleep(3000);
       Map< ? , ? > result = (Map< ? , ? >) sf.getWorkflowService().getInDataPath(pInstance.getOID(), "projects");
       trace.debug("projects result = " + result);
       trace.debug("projects result list size = " + ((List) result.get("projects")).size());
@@ -119,7 +117,6 @@ public class SqlApplicationTest
       dataMap.put("licenseParam", licenseParam);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstance pInstance = sf.getWorkflowService().startProcess("{SqlApplicationTestModel}SelectWithPrimitiveParamProcess", dataMap, true);
-      Thread.sleep(3000);
       Map< ? , ? > result = (Map< ? , ? >) sf.getWorkflowService().getInDataPath(pInstance.getOID(),
             "projectsWithPrimitiveParam");
       trace.debug("projects result = " + result);
@@ -152,7 +149,6 @@ public class SqlApplicationTest
       dataMap.put("idParam", idParam);
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstance pInstance = sf.getWorkflowService().startProcess("{SqlApplicationTestModel}SelectAndReturnPrimitiveProcess", dataMap, true);
-      Thread.sleep(3000);
       String result = (String) sf.getWorkflowService().getInDataPath(pInstance.getOID(), "licesne");
       trace.info("get license" + result);
       assertNotNull(result);

@@ -33,6 +33,7 @@ import org.eclipse.stardust.engine.api.model.IAccessPoint;
 import org.eclipse.stardust.engine.api.model.ITrigger;
 import org.eclipse.stardust.engine.api.runtime.Mail;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.TriggerMatch;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -71,8 +72,8 @@ public class MailTriggerMatch implements TriggerMatch
    {
       this.trigger = trigger;
 
-      sentDate = Calendar.getInstance();
-      receivedDate = Calendar.getInstance();
+      sentDate = TimestampProviderUtils.getCalendar();
+      receivedDate = TimestampProviderUtils.getCalendar();
 
       try
       {

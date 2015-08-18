@@ -18,6 +18,7 @@ import javax.swing.*;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.Unknown;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -146,7 +147,7 @@ public abstract class AbstractDateEntry extends JPanel
       Calendar calendar = null;
       if (!isEmpty())
       {
-         calendar = Calendar.getInstance();
+         calendar = TimestampProviderUtils.getCalendar();
       }
       if (null != calendar)
       {

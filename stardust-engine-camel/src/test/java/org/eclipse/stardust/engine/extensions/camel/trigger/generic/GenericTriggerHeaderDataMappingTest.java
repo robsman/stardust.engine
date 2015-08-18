@@ -55,7 +55,6 @@ public class GenericTriggerHeaderDataMappingTest
          projectMap.put("id", "22");
          projectMap.put("name", "Camel");
          projectMap.put("license", "ASF");
-         Thread.sleep(1000);
          producer.sendBodyAndHeader("direct:startGenericTriggerToSdtInHeader", "", "project", projectMap);
       }
       catch (Exception e)
@@ -87,8 +86,7 @@ public class GenericTriggerHeaderDataMappingTest
    @Test
    public void genericTriggerToSdtInHeader() throws Exception
    {
-      createFile("./target/FileDirectory/DocumentGT", "DocumentFileGT.txt", "Document File Content GT");
-      Thread.sleep(2000);
+      createFile("target/FileDirectory/DocumentGT", "DocumentFileGT.txt", "Document File Content GT");
       ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
       ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
             ProcessInstanceQuery.findAlive("{GenericTriggerTestModel}GenericTriggerToSdtInHeader"));

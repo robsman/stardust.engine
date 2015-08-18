@@ -105,7 +105,8 @@ public class RtDetailsFactory
       UserInfo details = (UserInfo) cache.get(user);
       if (details == null)
       {
-         details = new UserInfoDetails(user.getOID(), user.getId(), PerformerUtils.getQualifiedName(user));
+         details = new UserInfoDetails(user.getOID(), user.getId(), PerformerUtils.getQualifiedName(user),
+               user.getFirstName(), user.getLastName());
          cache.put(user, details);
       }
       return details;

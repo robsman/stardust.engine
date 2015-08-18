@@ -15,8 +15,6 @@ import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.Modules;
-import org.eclipse.stardust.engine.core.extensions.ExtensionService;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.ItemDescription;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.ItemLocatorUtils;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
@@ -48,8 +46,6 @@ public class EngineService
          try
          {
             trace.info("Bootstrapping engine");
-
-            ExtensionService.initializeModuleExtensions(Modules.ENGINE);
 
             ItemLocatorUtils.registerDescription(ModelManagerFactory.ITEM_NAME,
                   new ItemDescription(new ModelManagerLoader(),

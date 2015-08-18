@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  *          found by the query itself are members.
  *          
  * 
- * <p>Java class for CasePolicy complex type.
+ * <p>Java-Klasse für CasePolicy complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="CasePolicy">
@@ -43,7 +43,7 @@ public class CasePolicyXto
     protected String type;
 
     /**
-     * Gets the value of the type property.
+     * Ruft den Wert der type-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -55,7 +55,7 @@ public class CasePolicyXto
     }
 
     /**
-     * Sets the value of the type property.
+     * Legt den Wert der type-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is

@@ -12,9 +12,7 @@ package org.eclipse.stardust.engine.api.runtime;
 
 import java.text.MessageFormat;
 
-import org.eclipse.stardust.common.error.BaseErrorCaseMessages;
 import org.eclipse.stardust.common.error.ErrorCase;
-import org.eclipse.stardust.common.error.PublicException;
 
 
 /**
@@ -170,7 +168,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 ATDB_PROCESS_INSTANCE_NOT_TERMINATED = newArgs1("ATDB01103", BpmRuntimeErrorMessages.getString("ATDB01103")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_PROCESS_INSTANCE_TERMINATED = newArgs1("ATDB01104", BpmRuntimeErrorMessages.getString("ATDB01104")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_PROCESS_INSTANCE_ABORTING = newArgs1("ATDB01105", BpmRuntimeErrorMessages.getString("ATDB01105")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args1 ATDB_PROCESS_INSTANCE_NOT_SPAWNED = newArgs1("ATDB01106", "Process instance with OID {0} is not spawned.");
+   public static final Args1 ATDB_PROCESS_INSTANCE_NOT_SPAWNED = newArgs1("ATDB01106", BpmRuntimeErrorMessages.getString("ATDB01106")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ATDB_PROCESS_INSTANCE_NOT_ROOT = newArgs1("ATDB01107", BpmRuntimeErrorMessages.getString("ATDB01107")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args0 ATDB_NO_MATCHING_ACTIVITY_INSTANCE = newArgs0("ATDB01111", BpmRuntimeErrorMessages.getString("ATDB01111")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_UNKNOWN_ACTIVITY_INSTANCE_OID = newArgs1("ATDB01112", BpmRuntimeErrorMessages.getString("ATDB01112")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -310,7 +309,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 AUTHx_USER_TEMPORARILY_INVALIDATED = newArgs1("AUTHx00125", BpmRuntimeErrorMessages.getString("AUTHx00125")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 AUTHx_USER_DISABLED_BY_PW_RULES = newArgs1("AUTHx00126", BpmRuntimeErrorMessages.getString("AUTHx00126")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 AUTHx_CHANGE_PASSWORD_OLD_PW_VERIFICATION_FAILED = newArgs0("AUTHx00127", BpmRuntimeErrorMessages.getString("AUTHx00127")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args0 AUTHx_CHANGE_PASSWORD_NEW_PW_VERIFICATION_FAILED = newArgs0("AUTHx00128", BaseErrorCaseMessages.getString("AUTHx00128")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 AUTHx_CHANGE_PASSWORD_NEW_PW_VERIFICATION_FAILED = newArgs0("AUTHx00128", BpmRuntimeErrorMessages.getString("AUTHx00128")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 AUTHx_CHANGE_PASSWORD_NEW_PW_MISSING = newArgs0("AUTHx00129", BpmRuntimeErrorMessages.getString("AUTHx00129")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 AUTHx_USER_ID_PASSWORD_EXPIRED = newArgs1("AUTHx00130", BpmRuntimeErrorMessages.getString("AUTHx00130")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 AUTHx_CHANGE_PASSWORD_IVALID_TOKEN = newArgs0("AUTHx00131", BpmRuntimeErrorMessages.getString("AUTHx00131")); //$NON-NLS-1$ //$NON-NLS-2$

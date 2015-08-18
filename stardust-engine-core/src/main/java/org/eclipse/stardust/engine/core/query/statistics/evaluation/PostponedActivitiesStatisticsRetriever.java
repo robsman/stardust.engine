@@ -29,11 +29,9 @@ import org.eclipse.stardust.engine.api.query.Users;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.persistence.*;
-import org.eclipse.stardust.engine.core.query.statistics.api.CriticalExecutionTimePolicy;
-import org.eclipse.stardust.engine.core.query.statistics.api.PostponedActivitiesStatisticsQuery;
+import org.eclipse.stardust.engine.core.query.statistics.api.*;
 import org.eclipse.stardust.engine.core.query.statistics.api.PostponedActivitiesStatistics.Participation;
 import org.eclipse.stardust.engine.core.query.statistics.api.PostponedActivitiesStatistics.PostponedActivities;
 import org.eclipse.stardust.engine.core.query.statistics.api.PostponedActivitiesStatistics.PostponedActivityDetails;
@@ -42,14 +40,12 @@ import org.eclipse.stardust.engine.core.query.statistics.utils.PkRegistry;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.runtime.utils.AbstractAuthorization2Predicate;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
-import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
-import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
+import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQueryResult;
 import org.eclipse.stardust.engine.core.spi.query.IUserQueryEvaluator;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -77,10 +73,10 @@ public class PostponedActivitiesStatisticsRetriever implements IUserQueryEvaluat
 
       // retrieve login times
 
-      final Date now = new Date();
+      final Date now = TimestampProviderUtils.getTimeStamp();
 
       // TODO find all wiedervorlage event RT OIDs
-      
+
       QueryDescriptor sqlQuery = QueryDescriptor.from(ActivityInstanceBean.class)
             .select(new Column[] {
                   ActivityInstanceBean.FR__MODEL,
@@ -110,10 +106,10 @@ public class PostponedActivitiesStatisticsRetriever implements IUserQueryEvaluat
                   ActivityInstanceHistoryBean.FIELD__ACTIVITY_INSTANCE)
             .andOn(ActivityInstanceBean.FR__LAST_MODIFICATION_TIME,
                   ActivityInstanceHistoryBean.FIELD__FROM);
-      
+
       sqlQuery.innerJoin(EventBindingBean.class)
             .on(ActivityInstanceBean.FR__OID, EventBindingBean.FIELD__OBJECT_OID);
-      
+
       boolean singlePartition = Parameters.instance().getBoolean(
             KernelTweakingProperties.SINGLE_PARTITION, false);
       if (!singlePartition)
@@ -152,12 +148,11 @@ public class PostponedActivitiesStatisticsRetriever implements IUserQueryEvaluat
       // TODO implement
       final CriticalExecutionTimePolicy criticalityPolicy = StatisticsQueryUtils.getCriticalExecutionTimePolicy(pasq);
 
-      final AuthorizationContext ctx = AuthorizationContext.create(WorkflowService.class,
-            "getActivityInstance", long.class);
+      final AuthorizationContext ctx = AuthorizationContext.create(ClientPermission.READ_ACTIVITY_INSTANCE_DATA);
       final boolean guarded = Parameters.instance().getBoolean("QueryService.Guarded", true)
             && !ctx.isAdminOverride();
       final AbstractAuthorization2Predicate authPredicate = new AbstractAuthorization2Predicate(ctx) {};
-      
+
       authPredicate.addRawPrefetch(sqlQuery, piJoin.fieldRef(ProcessInstanceBean.FIELD__SCOPE_PROCESS_INSTANCE));
 
       final Map<Long, PostponedActivities> performanceStatistics = CollectionUtils.newMap();
@@ -168,13 +163,13 @@ public class PostponedActivitiesStatisticsRetriever implements IUserQueryEvaluat
          private final PkRegistry visitedAis = new PkRegistry();
 //         private final PkRegistry visitedPis = new PkRegistry();
 
-         private final Date tsAiStarted = new Date();
-         private final Date tsPiStarted = new Date();
+         private final Date tsAiStarted = TimestampProviderUtils.getTimeStamp();
+         private final Date tsPiStarted = TimestampProviderUtils.getTimeStamp();
 
          public void handleRow(ResultSet rs) throws SQLException
          {
             authPredicate.accept(rs);
-            
+
             long modelOid = rs.getLong(1);
             long eventHandlerRtOid = rs.getLong(2);
             long userOid = rs.getLong(3);
@@ -227,9 +222,9 @@ public class PostponedActivitiesStatisticsRetriever implements IUserQueryEvaluat
 
                   tsAiStarted.setTime(aiStartTime);
                   tsPiStarted.setTime(piStartTime);
-   
+
                   IProcessDefinition targetProcess = modelManager.findProcessDefinition(modelOid, targetProcessRtOid);
-                  String qualifiedId = ModelUtils.getQualifiedId(targetProcess);                  
+                  String qualifiedId = ModelUtils.getQualifiedId(targetProcess);
 
                   PerformerType onBehalfOfKind = PerformerType.get(performerKind);
                   ParticipantInfo onBehalfOf = DepartmentUtils.getParticipantInfo(
@@ -246,20 +241,20 @@ public class PostponedActivitiesStatisticsRetriever implements IUserQueryEvaluat
                   {
                      contrib = participations.get(index);
                   }
-   
+
                   List<PostponedActivityDetails> postponedAis = contrib.getDetailsForPriority(targetProcessPriority);
-   
+
                   // any AI may have multiple event bindings
                   if (visitedAis.registerPk(this, aiOid))
                   {
                      PostponedActivityDetails newEntry = new PostponedActivityDetails(
                            targetProcessPriority, aiOid, piOid, tsAiStarted, tsPiStarted);
-   
+
                      postponedAis.add(newEntry);
                      if (criticalityPolicy.isCriticalDuration(targetProcessPriority,
                            tsPiStarted, now, targetProcess))
                      {
-                        List<PostponedActivityDetails> postponedCriticalAis = 
+                        List<PostponedActivityDetails> postponedCriticalAis =
                            contrib.getCriticalDetailsForPriority(targetProcessPriority);
                         postponedCriticalAis.add(newEntry);
                      }

@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.concurrent.ConcurrentMap;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
@@ -43,13 +44,11 @@ public class RepositoryManager
 
    private static Logger trace = LogManager.getLogger(RepositoryManager.class);
 
-   private static RepositoryManager INSTANCE;
+   private static volatile ConcurrentMap<String, RepositoryManager> PARTITIONED_INSTANCES = CollectionUtils.newConcurrentHashMap();
 
    private Map<String, IRepositoryProvider> providers = CollectionUtils.newHashMap();
 
    private RepositoryInstanceCache instances;
-
-   private String defaultRepositoryId;
 
    private RepositoryIdMediator repositoryIdMediator;
 
@@ -75,17 +74,25 @@ public class RepositoryManager
 
    public static RepositoryManager getInstance()
    {
-      if (INSTANCE == null)
+      String partitionId = SecurityProperties.getPartition().getId();
+
+      if (PARTITIONED_INSTANCES.get(partitionId) == null)
       {
          synchronized (RepositoryManager.class)
          {
-            if (INSTANCE == null)
-            {
-               INSTANCE = new RepositoryManager();
-            }
+            PARTITIONED_INSTANCES.putIfAbsent(partitionId, new RepositoryManager());
          }
       }
-      return INSTANCE;
+      return PARTITIONED_INSTANCES.get(partitionId);
+   }
+
+   public static void reset()
+   {
+      String partitionId = SecurityProperties.getPartition().getId();
+      synchronized (RepositoryManager.class)
+      {
+         PARTITIONED_INSTANCES.remove(partitionId);
+      }
    }
 
    private void registerDefaultInstances()
@@ -101,8 +108,8 @@ public class RepositoryManager
             {
                if ( !instances.containsGlobalKey(repositoryId))
                {
-                  IRepositoryInstance instance = provider.createInstance(configuration,
-                        SecurityProperties.getPartition().getId());
+                  // By using partition null it will show up on instance listing for all partitions.
+                  IRepositoryInstance instance = provider.createInstance(configuration, null);
                   instances.putGlobal(repositoryId, instance);
                }
                else
@@ -139,10 +146,6 @@ public class RepositoryManager
             trace.error("IRepositoryConfiguration could not be loaded.", e);
          }
       }
-
-      // load default repository Id
-      String defaultRepoId = RepositoryProviderUtils.loadDefaultRepositoryId();
-      this.defaultRepositoryId = defaultRepoId == null ? SYSTEM_REPOSITORY_ID : defaultRepoId;
    }
 
    public void bindRepository(IRepositoryConfiguration configuration)
@@ -187,7 +190,7 @@ public class RepositoryManager
       {
          throw new IllegalArgumentException("null");
       }
-      if (defaultRepositoryId.equals(repositoryId))
+      if (getDefaultRepository().equals(repositoryId))
       {
          throw new DocumentManagementServiceException(BpmRuntimeError.DMS_REPOSITORY_DEFAULT_UNBIND.raise());
       }
@@ -209,7 +212,9 @@ public class RepositoryManager
 
    public String getDefaultRepository()
    {
-      return defaultRepositoryId;
+      // load default repository Id
+      String defaultRepoId = RepositoryProviderUtils.loadDefaultRepositoryId();
+      return defaultRepoId == null ? SYSTEM_REPOSITORY_ID : defaultRepoId;
    }
 
    public void setDefaultRepository(String repositoryId)
@@ -219,10 +224,8 @@ public class RepositoryManager
          throw new DocumentManagementServiceException(BpmRuntimeError.DMS_REPOSITORY_INSTANCE_NOT_FOUND.raise(repositoryId));
       }
 
-      this.defaultRepositoryId = repositoryId == null
-            ? SYSTEM_REPOSITORY_ID
-            : repositoryId;
-      RepositoryProviderUtils.saveDefaultRepositoryId(this.defaultRepositoryId);
+      String toSaveRepositoryId = repositoryId == null ? SYSTEM_REPOSITORY_ID : repositoryId;
+      RepositoryProviderUtils.saveDefaultRepositoryId(toSaveRepositoryId);
    }
 
    public IRepositoryService getImplicitService()
@@ -237,7 +240,7 @@ public class RepositoryManager
 
    protected IRepositoryInstance getInstance(String repositoryId)
    {
-      String repoId = repositoryId == null ? defaultRepositoryId : repositoryId;
+      String repoId = repositoryId == null ? getDefaultRepository() : repositoryId;
 
       IRepositoryInstance instance = instances.get(repoId);
       if (instance != null)

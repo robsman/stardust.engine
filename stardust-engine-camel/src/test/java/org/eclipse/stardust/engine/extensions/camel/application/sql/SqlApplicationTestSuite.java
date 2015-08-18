@@ -42,7 +42,6 @@ public class SqlApplicationTestSuite
             ClassPathResource resource = new ClassPathResource("models/" + deployedModelId + ".xpdl");
             testUtils.setModelFile(resource);
             testUtils.deployModel();
-            Thread.sleep(1000);
          }
       }
       catch (Exception e)

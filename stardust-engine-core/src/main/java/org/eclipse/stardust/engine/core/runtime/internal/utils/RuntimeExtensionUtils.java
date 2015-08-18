@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.runtime.internal.utils;
 import java.util.List;
 
 import org.eclipse.stardust.common.config.ExtensionProviderUtils;
+import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 import org.eclipse.stardust.engine.core.spi.runtime.IRuntimeExtensionConfigurator;
 
@@ -24,7 +25,6 @@ import org.eclipse.stardust.engine.core.spi.runtime.IRuntimeExtensionConfigurato
  */
 public class RuntimeExtensionUtils
 {
-
    public static void configureExtensions(MethodInvocation invocation)
    {
       List configurators = ExtensionProviderUtils.getExtensionProviders(IRuntimeExtensionConfigurator.class);
@@ -35,9 +35,13 @@ public class RuntimeExtensionUtils
          {
             configurator.initialize(invocation);
          }
+         catch (PublicException pe)
+         {
+            throw pe;
+         }
          catch (Exception e)
          {
-            // TODO: handle exception
+            // Exceptions ignored
          }
       }
    }
@@ -53,9 +57,13 @@ public class RuntimeExtensionUtils
          {
             configurator.cleanup(invocation);
          }
+         catch (PublicException pe)
+         {
+            throw pe;
+         }
          catch (Exception e)
          {
-            // TODO: handle exception
+            // Exceptions ignored
          }
       }
    }

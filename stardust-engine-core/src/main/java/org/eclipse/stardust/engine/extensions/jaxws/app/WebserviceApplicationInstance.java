@@ -20,6 +20,7 @@ import javax.xml.ws.soap.AddressingFeature;
 import javax.xml.ws.soap.SOAPFaultException;
 
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
@@ -27,10 +28,13 @@ import org.eclipse.stardust.common.utils.xml.jaxb.Jaxb;
 import org.eclipse.stardust.engine.api.model.Application;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.ApplicationInvocationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SynchronousApplicationInstance;
 import org.eclipse.stardust.engine.extensions.jaxws.addressing.EndpointReferenceType;
 import org.eclipse.stardust.engine.extensions.jaxws.addressing.WSAddressing;
+import org.eclipse.stardust.engine.extensions.jaxws.app.spi.JaxwsClientConfigurer;
 import org.eclipse.stardust.engine.extensions.jaxws.wssecurity.WSSecurity;
+
 import org.w3c.dom.*;
 import org.w3c.dom.Node;
 
@@ -52,6 +56,7 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
          WSConstants.DYNAMIC_BOUND_SERVICE_QNAME.getNamespaceURI(), DYNAMIC_PORT_NAME);
 
    private static final Set<String> primitiveTypes = new HashSet<String>();
+
    static {
       primitiveTypes.add(boolean.class.getName());
       primitiveTypes.add(Boolean.class.getName());
@@ -78,83 +83,112 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
       primitiveTypes.add(Byte.class.getName());
    }
 
-   // both needed to instantiate the service.
-   private QName serviceName;
-   private String endpointName;
+   public static class JaxwsInvocationContext extends ApplicationInvocationContext
+   {
+      public JaxwsInvocationContext(ActivityInstance ai)
+      {
+         super(ai);
+      }
 
-   private String inputOrder;
-   private String outputOrder;
+      // both needed to instantiate the service.
+      public QName serviceName;
+      public String endpointName;
+   
+      public String inputOrder;
+      public String outputOrder;
+   
+      public HashMap<String,String> typeMappings;
+      public HashMap<String,QName> namespaces;
+   
+      public AuthenticationParameters auth;
+      public EndpointReferenceType ref;
+      public URL wsdlLocation;
+   
+      public Map<String, Object> inValues = new HashMap<String, Object>();
+   
+      public String endpointAddress;
+      public String soapAction;
+      public String soapProtocol;
+   }
 
-   private HashMap<String,String> typeMappings;
-   private HashMap<String,QName> namespaces;
+   private JaxwsInvocationContext ctx;
 
-   private AuthenticationParameters auth;
-   private EndpointReferenceType ref;
-   private URL wsdlLocation;
-
-   private Map<String, Object> inValues = new HashMap<String, Object>();
-
-   private String endpointAddress;
-   private String soapAction;
-   private String soapProtocol;
+   private JaxwsClientConfigurer configurer;
 
    @SuppressWarnings("unchecked")
    public void bootstrap(ActivityInstance activityInstance)
    {
       Application application = activityInstance.getActivity().getApplication();
       Map<String, String> properties = application.getAllAttributes();
+
+      this.ctx = new JaxwsInvocationContext(activityInstance);
+
+      // TODO move this method into JaxwsInvocationContext construction, possibly allowing
+      // to set fields final
       processProperties(properties);
+      
+      this.configurer = null;
+      for (JaxwsClientConfigurer.Factory configurerFactory : ExtensionProviderUtils
+            .getExtensionProviders(JaxwsClientConfigurer.Factory.class))
+      {
+         this.configurer = configurerFactory.createConfigurer(ctx);
+         if (null != configurer)
+         {
+            trace.info("Discovered custom client configurer " + configurer + " for " + activityInstance);
+            break;
+         }
+      }
    }
 
    private void processProperties(Map<String, String> properties)
    {
       String wsdlUrl = properties.get(WSConstants.WS_WSDL_URL_ATT);
-      serviceName = QName.valueOf(properties.get(WSConstants.WS_SERVICE_NAME_ATT));
+      ctx.serviceName = QName.valueOf(properties.get(WSConstants.WS_SERVICE_NAME_ATT));
 
-      endpointName = properties.get(WSConstants.WS_PORT_NAME_ATT);
+      ctx.endpointName = properties.get(WSConstants.WS_PORT_NAME_ATT);
       String noRuntimeWsdl = properties.get(WSConstants.WS_NO_RUNTIME_WSDL_ATT);
       if ("true".equals(noRuntimeWsdl)
-            || WSConstants.DYNAMIC_BOUND_SERVICE_QNAME.equals(serviceName))
+            || WSConstants.DYNAMIC_BOUND_SERVICE_QNAME.equals(ctx.serviceName))
       {
-         endpointName = DYNAMIC_PORT_NAME;
-         serviceName = DYNAMIC_SERVICE_QNAME;
+         ctx.endpointName = DYNAMIC_PORT_NAME;
+         ctx.serviceName = DYNAMIC_SERVICE_QNAME;
       }
       else
       {
          try
          {
-            wsdlLocation = new URL(XmlUtils.resolveResourceUri(wsdlUrl));
+            ctx.wsdlLocation = new URL(XmlUtils.resolveResourceUri(wsdlUrl));
          }
          catch (MalformedURLException e)
          {
             trace.warn("Invalid WSDL location: " + wsdlUrl, e);
          }
       }
-      if (wsdlLocation == null)
+      if (ctx.wsdlLocation == null)
       {
-         wsdlLocation = WebserviceApplicationInstance.class.getResource("dummyServices.wsdl");
+         ctx.wsdlLocation = WebserviceApplicationInstance.class.getResource("dummyServices.wsdl");
       }
 
       String implementation = (String) properties.get(WSConstants.WS_IMPLEMENTATION_ATT);
       if (WSConstants.WS_CARNOT_EPR.equals(implementation)
             || WSConstants.WS_GENERIC_EPR.equals(implementation))
       {
-         ref = WSAddressing.newEndpointReference(serviceName, endpointName);
+         ctx.ref = WSAddressing.newEndpointReference(ctx.serviceName, ctx.endpointName);
       }
 
       String authenticationType = (String) properties.get(WSConstants.WS_AUTHENTICATION_ATT);
       if (authenticationType != null)
       {
-         auth = new AuthenticationParameters(authenticationType);
+         ctx.auth = new AuthenticationParameters(authenticationType);
          String variant = (String) properties.get(WSConstants.WS_VARIANT_ATT);
          if (!StringUtils.isEmpty(variant))
          {
-            auth.setVariant(variant);
+            ctx.auth.setVariant(variant);
          }
       }
 
-      typeMappings = new HashMap<String, String>();
-      namespaces = new HashMap<String, QName>();
+      ctx.typeMappings = new HashMap<String, String>();
+      ctx.namespaces = new HashMap<String, QName>();
       for (Iterator<Map.Entry<String, String>> i = properties.entrySet().iterator(); i.hasNext();)
       {
          Map.Entry<String, String> entry = i.next();
@@ -164,7 +198,7 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
             // Prefix may be one of "input:", "output:" or "fault:" + <fault_name>
             String name = entry.getKey().substring(
                   WSConstants.WS_MAPPING_ATTR_PREFIX.length());
-            typeMappings.put(name, entry.getValue());
+            ctx.typeMappings.put(name, entry.getValue());
          }
          else if (entry.getKey().startsWith(WSConstants.WS_NAMESPACE_ATTR_PREFIX))
          {
@@ -172,7 +206,7 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
             // Prefix may be one of "input:", "output:" or "fault:" + <fault_name>
             String name = entry.getKey().substring(
                   WSConstants.WS_NAMESPACE_ATTR_PREFIX.length());
-            namespaces.put(name, QName.valueOf(entry.getValue()));
+            ctx.namespaces.put(name, QName.valueOf(entry.getValue()));
          }
          else if (entry.getKey().startsWith(WSConstants.WS_TEMPLATE_ATTR_PREFIX))
          {
@@ -182,16 +216,16 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
          }
       }
 
-      soapAction = properties.get(WSConstants.WS_SOAP_ACTION_URI_ATT);
-      soapProtocol = properties.get(WSConstants.WS_SOAP_PROTOCOL_ATT);
-      if (soapProtocol == null)
+      ctx.soapAction = properties.get(WSConstants.WS_SOAP_ACTION_URI_ATT);
+      ctx.soapProtocol = properties.get(WSConstants.WS_SOAP_PROTOCOL_ATT);
+      if (ctx.soapProtocol == null)
       {
-         soapProtocol = SOAPConstants.DEFAULT_SOAP_PROTOCOL;
+         ctx.soapProtocol = SOAPConstants.DEFAULT_SOAP_PROTOCOL;
       }
-      inputOrder = properties.get(WSConstants.WS_INPUT_ORDER_ATT);
-      outputOrder = properties.get(WSConstants.WS_OUTPUT_ORDER_ATT);
+      ctx.inputOrder = properties.get(WSConstants.WS_INPUT_ORDER_ATT);
+      ctx.outputOrder = properties.get(WSConstants.WS_OUTPUT_ORDER_ATT);
 
-      if (DYNAMIC_SERVICE_QNAME == serviceName)
+      if (DYNAMIC_SERVICE_QNAME == ctx.serviceName)
       {
          String endpointAddress = (String) properties.get(WSConstants.WS_UDDI_ACCESS_POINT_ATT);
          setEndpointAddress(endpointAddress);
@@ -200,36 +234,41 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
 
    private void setEndpointAddress(String address)
    {
-      trace.debug("Set endpoint address to: " + endpointAddress);
-      if (ref == null)
+      trace.debug("Set endpoint address to: " + ctx.endpointAddress);
+      if (ctx.ref == null)
       {
-         this.endpointAddress = address;
+         ctx.endpointAddress = address;
       }
       else
       {
-         WSAddressing.setEndpointAddress(ref, address);
+         WSAddressing.setEndpointAddress(ctx.ref, address);
       }
    }
 
    @SuppressWarnings({"unchecked", "rawtypes"})
    public Map invoke(Set outDataTypes) throws InvocationTargetException
    {
-      while (true)
+      while (true) // TODO why is this a loop?
       {
          try
          {
-            SOAPMessage request = createRequestMessage();
-            Service service = Service.create(wsdlLocation, serviceName);
-            Dispatch<SOAPMessage> dispatch = null;
-            if (ref != null)
+            if (null != configurer)
             {
-               EndpointReference epr = WSAddressing.toJaxwsEndpointReference(ref);
+               configurer.initializeClientEnvironment(ctx);
+            }
+            
+            SOAPMessage request = createRequestMessage();
+            Service service = Service.create(ctx.wsdlLocation, ctx.serviceName);
+            Dispatch<SOAPMessage> dispatch = null;
+            if (ctx.ref != null)
+            {
+               EndpointReference epr = WSAddressing.toJaxwsEndpointReference(ctx.ref);
                dispatch = service.createDispatch(epr, SOAPMessage.class,
                   Service.Mode.MESSAGE, new AddressingFeature(true, false));
             }
             else
             {
-               dispatch = service.createDispatch(new QName(serviceName.getNamespaceURI(), endpointName),
+               dispatch = service.createDispatch(new QName(ctx.serviceName.getNamespaceURI(), ctx.endpointName),
                      SOAPMessage.class, Service.Mode.MESSAGE);
             }
             setRequestProperties(dispatch);
@@ -255,31 +294,31 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
          throws InvocationTargetException
    {
       Map<String, Object> requestContext = dispatch.getRequestContext();
-      if (auth != null)
+      if (ctx.auth != null)
       {
-         if (WSConstants.WS_BASIC_AUTHENTICATION.equals(auth.getMechanism()))
+         if (WSConstants.WS_BASIC_AUTHENTICATION.equals(ctx.auth.getMechanism()))
          {
-            if (auth.getUsername() == null)
+            if (ctx.auth.getUsername() == null)
             {
                throw new InvocationTargetException(null, "Basic authentication requires a username to be specified.");
             }
             requestContext.put(
-                  BindingProvider.USERNAME_PROPERTY, auth.getUsername());
-            if (auth.getPassword() != null)
+                  BindingProvider.USERNAME_PROPERTY, ctx.auth.getUsername());
+            if (ctx.auth.getPassword() != null)
             {
                requestContext.put(
-                  BindingProvider.PASSWORD_PROPERTY, auth.getPassword());
+                  BindingProvider.PASSWORD_PROPERTY, ctx.auth.getPassword());
             }
          }
       }
-      if (soapAction != null)
+      if (ctx.soapAction != null)
       {
          requestContext.put(BindingProvider.SOAPACTION_USE_PROPERTY, Boolean.TRUE);
-         requestContext.put(BindingProvider.SOAPACTION_URI_PROPERTY, soapAction);
+         requestContext.put(BindingProvider.SOAPACTION_URI_PROPERTY, ctx.soapAction);
       }
-      if (endpointAddress != null)
+      if (ctx.endpointAddress != null)
       {
-         requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
+         requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, ctx.endpointAddress);
       }
    }
 
@@ -297,7 +336,7 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
             // Search through fault mappings to find a matching one.
             // The first one found will be used.
             // The mapped exception must be annotated with WebFault annotation.
-            for (Iterator<Map.Entry<String, String>> j = typeMappings.entrySet().iterator(); j.hasNext();)
+            for (Iterator<Map.Entry<String, String>> j = ctx.typeMappings.entrySet().iterator(); j.hasNext();)
             {
                Map.Entry<String, String> entry = j.next();
                String key = entry.getKey();
@@ -388,9 +427,9 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
    private Map<String, ?> processResponseMessage(SOAPMessage response, Set<String> outDataTypes) throws Exception
    {
       Map<String, Object> data = new HashMap<String, Object>();
-      if (outputOrder != null) // it may not have an output !
+      if (ctx.outputOrder != null) // it may not have an output !
       {
-         String[] parts = outputOrder.split(",");
+         String[] parts = ctx.outputOrder.split(",");
          Iterator<?> i = response.getSOAPBody().getChildElements();
          int j = 0;
 
@@ -408,7 +447,7 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
 
             if (outDataTypes.contains(name))
             {
-               String mapping = typeMappings.get("output:" + name);
+               String mapping = ctx.typeMappings.get("output:" + name);
                if (mapping != null)
                {
                   if (isPrimitive(mapping))
@@ -487,44 +526,44 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
       MessageFactory mf = null;
       try
       {
-         mf = MessageFactory.newInstance(soapProtocol);
+         mf = MessageFactory.newInstance(ctx.soapProtocol);
       }
       catch (Error err)
       {
          mf = MessageFactory.newInstance();
       }
 
-      SOAPFactory sf = SOAPFactory.newInstance(soapProtocol);
+      SOAPFactory sf = SOAPFactory.newInstance(ctx.soapProtocol);
 
       SOAPMessage request = mf.createMessage();
-      if (soapAction != null && soapAction.length() > 0)
+      if (ctx.soapAction != null && ctx.soapAction.length() > 0)
       {
          // workaround for implementations that do not recognize BindingProvider.SOAPACTION_URI_PROPERTY
-         request.getMimeHeaders().addHeader("SOAPAction", soapAction);
+         request.getMimeHeaders().addHeader("SOAPAction", ctx.soapAction);
       }
 
-      WSSecurity.INSTANCE.setWSSHeaders(request.getSOAPHeader(), auth);
+      WSSecurity.INSTANCE.setWSSHeaders(request.getSOAPHeader(), ctx.auth);
 
       SOAPBody body = request.getSOAPBody();
 
-      if (inputOrder != null) // it may not have an input !
+      if (ctx.inputOrder != null) // it may not have an input !
       {
-         String[] parts = inputOrder.split(",");
+         String[] parts = ctx.inputOrder.split(",");
          for (String name : parts)
          {
             Element partValue = null;
-            Object value = inValues.get(name);
+            Object value = ctx.inValues.get(name);
             if (value == null)
             {
                // try to get struct value if the old-style string/document value is not set
-               value = inValues.get(name + WSConstants.STRUCT_POSTFIX);
+               value = ctx.inValues.get(name + WSConstants.STRUCT_POSTFIX);
             }
-            String mapping = typeMappings.get("input:" + name);
+            String mapping = ctx.typeMappings.get("input:" + name);
             if (mapping != null)
             {
                if (isPrimitive(mapping))
                {
-                  QName qname = namespaces.get("input:" + name);
+                  QName qname = ctx.namespaces.get("input:" + name);
                   SOAPElement soapElement = sf.createElement(qname);
                   soapElement.addTextNode(String.valueOf(value));
                   body.addChildElement(soapElement);
@@ -533,7 +572,7 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
                {
                   if (!(value instanceof XmlRootElement))
                   {
-                     QName qname = namespaces.get("input:" + name);
+                     QName qname = ctx.namespaces.get("input:" + name);
                      value = new JAXBElement(qname, value.getClass(), value);
                   }
                   partValue = Jaxb.marshall(mapping, value);
@@ -659,7 +698,7 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
    {
       if (WSConstants.WS_ENDPOINT_REFERENCE_ID.equals(name))
       {
-         ref = (EndpointReferenceType) value;
+         ctx.ref = (EndpointReferenceType) value;
       }
       else if (WSConstants.WS_ENDPOINT_ADDRESS_ID.equals(name))
       {
@@ -667,28 +706,28 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
       }
       else if (WSConstants.WS_AUTHENTICATION_ID.equals(name))
       {
-         auth = (AuthenticationParameters) value;
+         ctx.auth = (AuthenticationParameters) value;
       }
       else
       {
-         if (!typeMappings.containsKey("input:" + name))
+         if (!ctx.typeMappings.containsKey("input:" + name))
          {
             // no type mapping, direct values
             if (value instanceof Element)
             {
                // value is already a DOM element
-               inValues.put(name, value);
+               ctx.inValues.put(name, value);
             }
             else
             {
                // old behavior, parse XML passed as string
                Document document = XmlUtils.parseString(String.valueOf(value));
-               inValues.put(name, document);
+               ctx.inValues.put(name, document);
             }
          }
          else
          {
-            inValues.put(name, value);
+            ctx.inValues.put(name, value);
          }
       }
    }
@@ -697,29 +736,29 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
    {
       if (WSConstants.WS_ENDPOINT_REFERENCE_ID.equals(name))
       {
-         return ref;
+         return ctx.ref;
       }
       else if (WSConstants.WS_ENDPOINT_ADDRESS_ID.equals(name))
       {
-         return ref == null ? endpointAddress : ref.getAddress().getValue();
+         return ctx.ref == null ? ctx.endpointAddress : ctx.ref.getAddress().getValue();
       }
       else if (WSConstants.WS_AUTHENTICATION_ID.equals(name))
       {
-         return auth;
+         return ctx.auth;
       }
       else
       {
-         Object ret = inValues.get(name);
+         Object ret = ctx.inValues.get(name);
          if (ret == null)
          {
             try
             {
-               String paramType = (String) typeMappings.get("input:" + name);
+               String paramType = (String) ctx.typeMappings.get("input:" + name);
                Class<?> paramClass = Reflect.getClassFromClassName(paramType);
                if (null != paramClass)
                {
                   ret = paramClass.newInstance();
-                  inValues.put(name, ret);
+                  ctx.inValues.put(name, ret);
                }
             }
             catch (Exception e)
@@ -733,8 +772,19 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
 
    public void cleanup()
    {
-      auth = null;
-      ref = null;
+      if (null != configurer)
+      {
+         try
+         {
+            configurer.cleanupClientEnvironment(ctx);
+         }
+         catch (Exception e)
+         {
+            trace.warn("Failed cleaning up JAX-WS client environment.", e);
+         }
+         this.configurer = null;
+      }
+      this.ctx = null;
    }
 
    private static String trim(String text)

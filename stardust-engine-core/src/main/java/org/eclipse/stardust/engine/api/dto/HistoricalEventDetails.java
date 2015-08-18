@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -119,7 +119,9 @@ public class HistoricalEventDetails implements HistoricalEvent
       if (HistoricalEventType.StateChange == eventType)
       {
          return new HistoricalEventDescriptionStateChangeDetails(
-               prevHistState.getState(), histState.getState(), histState.getPerfomer());
+               prevHistState.getState(), prevHistState.getParticipant(), //
+               histState.getState(), histState.getPerfomer(), //
+               histState.getOnBehalfOfParticipant());
       }
       else if (HistoricalEventType.Delegation == eventType)
       {

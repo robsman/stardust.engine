@@ -20,12 +20,12 @@
    </group>
 
    <network>
-      <port auto-increment="false">5811</port>
+      <port auto-increment="false">5820</port>
 
       <join>
-         <aws enabled="false" />
          <multicast enabled="false" />
          <tcp-ip enabled="false" />
+         <aws enabled="false" />
       </join>
 
       <interfaces>

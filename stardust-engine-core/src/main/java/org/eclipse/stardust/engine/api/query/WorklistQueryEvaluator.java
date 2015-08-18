@@ -39,6 +39,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingP
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -122,7 +123,7 @@ public class WorklistQueryEvaluator
       UserWorklist result = buildCountOnlyWorklistForUser(user, layoutPolicy.isMerged());
       if ( !layoutPolicy.isMerged() && UserUtils.isDeputyOfAny(user))
       {
-         Date now = new Date();
+         Date now = TimestampProviderUtils.getTimeStamp();
          for (DeputyBean deputy : UserUtils.getDeputies(user))
          {
             if (deputy.isActive(now))
@@ -182,7 +183,7 @@ public class WorklistQueryEvaluator
          // add the original users being deputy of
          if (merged && UserUtils.isDeputyOfAny(user))
          {
-            Date now = new Date();
+            Date now = TimestampProviderUtils.getTimeStamp();
             List<DeputyBean> deputies = UserUtils.getDeputies(user);
             for (DeputyBean deputy : deputies)
             {
@@ -396,7 +397,7 @@ public class WorklistQueryEvaluator
       UserWorklist result = buildStandardWorklistForUser(user, layoutPolicy.isMerged());
       if ( !layoutPolicy.isMerged() && UserUtils.isDeputyOfAny(user))
       {
-         Date now = new Date();
+         Date now = TimestampProviderUtils.getTimeStamp();
          for (DeputyBean deputy : UserUtils.getDeputies(user))
          {
             if (deputy.isActive(now))

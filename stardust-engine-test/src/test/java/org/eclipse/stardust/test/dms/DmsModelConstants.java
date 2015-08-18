@@ -17,24 +17,23 @@ package org.eclipse.stardust.test.dms;
  * </p>
  *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
-/* package-private */ class DmsModelConstants
+public class DmsModelConstants
 {
    /**
     * the name of the model for common DMS tests
     */
-   /* package-private */ static final String DMS_MODEL_NAME = "DmsModel";
+   public static final String DMS_MODEL_NAME = "DmsModel";
 
    /**
     * the name of the model for synchronization tests
     */
-   /* package-private */ static final String DMS_SYNC_MODEL_NAME = "DmsSyncModel";
+   public static final String DMS_SYNC_MODEL_NAME = "DmsSyncModel";
 
    /**
     * the name of the model for dms application tests
     */
-   /* package-private */ static final String DMS_APPLICATION_MODEL_NAME = "DmsApplicationModel";
+   public static final String DMS_APPLICATION_MODEL_NAME = "DmsApplicationModel";
 
    /**
     * the name of the model for dms concurrency tests

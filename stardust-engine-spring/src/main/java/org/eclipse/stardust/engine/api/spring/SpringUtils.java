@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,13 +27,25 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 
+/**
+ * This class provides methods to obtain the Spring Application Context, to cache a Spring
+ * Application Context, to clear the cache and to obtain the Spring Web Application
+ * Context.
+ */
 public class SpringUtils
 {
    private static final Logger trace = LogManager.getLogger(SpringUtils.class);
-   
+
    // TODO revert to Spring singleton
    private static ApplicationContext singleton;
 
+   /**
+    * Returns the cached Spring Application Context for retrieving bean instances specified in
+    * <code>carnot-spring-context.xml</code>. If no cached application context is
+    * available a new one is bootstrapped.
+    * 
+    * @return <code>ApplicationContext</code> containing Spring Beans
+    */
    public static ApplicationContext getApplicationContext()
    {
       ApplicationContext result = (ApplicationContext) Parameters.instance().get(
@@ -46,7 +58,13 @@ public class SpringUtils
 
       return result;
    }
-   
+
+   /**
+    * Sets the specified Spring Application Context that has to be cached.
+    * 
+    * @param ctxt
+    *           The Spring Application Context to be cached.
+    */
    public static synchronized void setApplicationContext(ConfigurableApplicationContext ctxt)
    {
       Parameters parameters = Parameters.instance();
@@ -66,21 +84,37 @@ public class SpringUtils
          Parameters parameters = Parameters.instance();
          String contextFile = parameters.getString(
                SpringConstants.PRP_APPLICATION_CONTEXT_FILE, "carnot-spring-context.xml");
+         String[] contextFiles = contextFile.split(",");
          String contextClass = parameters.getString(
-               SpringConstants.PRP_APPLICATION_CONTEXT_CLASS, 
+               SpringConstants.PRP_APPLICATION_CONTEXT_CLASS,
                ClassPathXmlApplicationContext.class.getName());
-         singleton = (ApplicationContext) Reflect.createInstance(contextClass, 
-               new Class[] { String.class }, 
-               new Object[] { contextFile });
-         
+         singleton = (ApplicationContext) Reflect.createInstance(contextClass,
+               new Class[] { String[].class },
+               new Object[] { contextFiles });
+
          trace.warn("Bootstrapped new Spring application context " + singleton);
       }
-      
+
       setApplicationContext((ConfigurableApplicationContext) singleton);
 
       return singleton;
    }
-   
+
+   /**
+    * Removes the stored Spring Application Context from cache.
+    */
+   public static synchronized void reset()
+   {
+      Parameters.instance().set(SpringConstants.PRP_CACHED_APPLICATION_CONTEXT, null);
+      singleton = null;
+   }
+
+   /**
+    * Finds the root web application context for this web application for the servlet
+    * context or for the current thread.
+    * 
+    * @return The root web <code>ApplicationContext</code>, or null if none found.
+    */
    public static ApplicationContext getWebApplicationContext()
    {
       try
@@ -98,7 +132,7 @@ public class SpringUtils
          }
          return ContextLoader.getCurrentWebApplicationContext();
       }
-      catch (IllegalStateException e) 
+      catch (IllegalStateException e)
       {
          // seems that we're not in a web environment
       }

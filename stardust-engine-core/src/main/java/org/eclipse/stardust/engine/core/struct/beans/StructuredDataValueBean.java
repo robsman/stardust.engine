@@ -20,6 +20,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentB
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstanceAware;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 
@@ -29,7 +30,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
  * process execution.
  */
 public class StructuredDataValueBean extends IdentifiablePersistentBean
-      implements IStructuredDataValue, BigData
+      implements IStructuredDataValue, BigData, IProcessInstanceAware
 {
 
    private static final long serialVersionUID = 722289133134906543L;

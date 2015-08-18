@@ -108,7 +108,7 @@ public class SpawnSubProcessEndpointTest
                         + "?user=motu&password=motu")
                   .to("ipp:process:"
                         + COMMAND_START
-                        + "?processId=MainProcess&modelId=SpawnSubProcessModel&synchronousMode=false&data=MessageBody::${body}")
+                        + "?processId=MainProcess&modelId=SpawnSubProcessModel&synchronousMode=true&data=MessageBody::${body}")
                   .log("Created process instance OID: ${header." + PROCESS_INSTANCE_OID
                         + "}")
                   .to("ipp:process:spawnSubprocess?parentProcessInstanceOid=${header."

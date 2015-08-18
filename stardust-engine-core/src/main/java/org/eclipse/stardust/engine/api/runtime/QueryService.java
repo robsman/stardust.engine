@@ -339,6 +339,19 @@ public interface QueryService extends Service
          throws ObjectNotFoundException;
 
    /**
+    * Returns the business objects satisfying the query.
+    *
+    * @param query the business objects query.
+    * @return a list of business objects, possibly empty.
+    */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.readDataValues,
+         scope=ExecutionPermission.Scope.data,
+         defer=true,
+         defaults={ExecutionPermission.Default.ALL})
+   BusinessObjects getAllBusinessObjects(BusinessObjectQuery query);
+
+   /**
     * Retrieves the list of model descriptions for all deployed models.
     *
     * @return a List of {@link DeployedModelDescription} objects.

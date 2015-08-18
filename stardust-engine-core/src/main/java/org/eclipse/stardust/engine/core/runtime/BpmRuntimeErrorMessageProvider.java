@@ -17,7 +17,6 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.config.ConfigurationError;
 import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.ErrorCase;
 import org.eclipse.stardust.common.error.ErrorMessageUtils;
@@ -60,23 +59,6 @@ public class BpmRuntimeErrorMessageProvider implements IErrorMessageProvider
             msg = MessageFormat.format(msg, rtErrorCode.getMessageArgs());
          }
       }
-      else if(error instanceof ConfigurationError)
-      {
-         ConfigurationError rtErrorCode = (ConfigurationError) error;
-         msg = ErrorMessageUtils.getErrorMessage(messages, rtErrorCode);
-         
-         if (StringUtils.isEmpty(msg))
-         {
-            // fall back to default message
-            msg = rtErrorCode.getDefaultMessage();
-         }
-         
-         if ( !StringUtils.isEmpty(msg) && (null != rtErrorCode.getMessageArgs())
-               && (0 < rtErrorCode.getMessageArgs().length))
-         {
-            msg = MessageFormat.format(msg, rtErrorCode.getMessageArgs());
-         }
-      }
 
       return msg;
    }
@@ -93,7 +75,7 @@ public class BpmRuntimeErrorMessageProvider implements IErrorMessageProvider
 
       public IErrorMessageProvider getProvider(ErrorCase errorCase)
       {
-         return (errorCase instanceof BpmRuntimeError) || (errorCase instanceof ConfigurationError) ? INSTANCE : null;
+         return (errorCase instanceof BpmRuntimeError) ? INSTANCE : null;
       }
    }
 

@@ -12,12 +12,15 @@ package org.eclipse.stardust.test.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.engine.api.spring.SpringConstants;
 import org.eclipse.stardust.engine.api.spring.SpringUtils;
+import org.eclipse.stardust.test.api.setup.ApplicationContextConfiguration;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestRtEnvException;
 import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
+
 import org.springframework.context.ConfigurableApplicationContext;
 
 
@@ -32,31 +35,33 @@ import org.springframework.context.ConfigurableApplicationContext;
  * </ul>
  * the same.
  * </p>
- * 
+ *
  * <p>
  * Furthermore, it allows for retrieving the same.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
 public class SpringAppContext
 {
    private static final Log LOG = LogFactory.getLog(SpringAppContext.class);
-   
-   private static final String APP_CTX_NAME_PREFIX = "stardust-local.";
+
+   private static final String APP_CTX_DELIMITER = ",";
+
+   private static final String APP_CTX_NAME_PREFIX = "stardust-local-";
    private static final String APP_CTX_NAME_SUFFIX = ".app-ctx.xml";
-   
-   private static final String APP_CTX_NAME_JMS_FORKING = APP_CTX_NAME_PREFIX + "jms-forking" + APP_CTX_NAME_SUFFIX;
-   private static final String APP_CTX_NAME_NATIVE_THREADING = APP_CTX_NAME_PREFIX + "native-threading" + APP_CTX_NAME_SUFFIX;
-   
-   public void bootstrap(final ForkingServiceMode forkingServiceMode) throws TestRtEnvException
+
+   private static final String APP_CTX_NAME_DEFAULT = "stardust-local" + APP_CTX_NAME_SUFFIX;
+   private static final String APP_CTX_NAME_JMS_FORKING = APP_CTX_NAME_PREFIX + "forking-jms-activemq" + APP_CTX_NAME_SUFFIX;
+   private static final String APP_CTX_NAME_NATIVE_THREADING = APP_CTX_NAME_PREFIX + "forking-native-threading" + APP_CTX_NAME_SUFFIX;
+
+   public void bootstrap(final ForkingServiceMode forkingServiceMode, final Class<?> testClass) throws TestRtEnvException
    {
       try
       {
-         final String appCtxName = determineAppCtxName(forkingServiceMode);
+         final String appCtxNames = determineAppCtxNames(forkingServiceMode, testClass);
          final GlobalParameters params = GlobalParameters.globals();
-         params.set(SpringConstants.PRP_APPLICATION_CONTEXT_FILE, appCtxName);
+         params.set(SpringConstants.PRP_APPLICATION_CONTEXT_FILE, appCtxNames);
 
          /* causes the Spring Application Context to be initialized */
          appCtx();
@@ -68,39 +73,55 @@ public class SpringAppContext
          throw new TestRtEnvException(errorMsg, e, TestRtEnvAction.APP_CTX_SETUP);
       }
    }
-   
+
    public void close() throws TestRtEnvException
    {
       try
       {
          appCtx().close();
+         SpringUtils.reset();
       }
       catch (final Exception e)
       {
          final String errorMsg = "Unable to close Spring Application Context.";
          LOG.error(errorMsg, e);
-         throw new TestRtEnvException(errorMsg, e, TestRtEnvAction.APP_CTX_TEARDOWN);         
+         throw new TestRtEnvException(errorMsg, e, TestRtEnvAction.APP_CTX_TEARDOWN);
       }
    }
-   
+
    public ConfigurableApplicationContext appCtx()
    {
       return (ConfigurableApplicationContext) SpringUtils.getApplicationContext();
    }
-   
-   private String determineAppCtxName(final ForkingServiceMode forkingServiceMode)
+
+   private String determineAppCtxNames(final ForkingServiceMode forkingServiceMode, final Class<?> testClass)
    {
+      final StringBuilder sb = new StringBuilder();
+
+      final ApplicationContextConfiguration appCtxConfig = testClass.getAnnotation(ApplicationContextConfiguration.class);
+      if (appCtxConfig != null)
+      {
+         for (final String l : appCtxConfig.locations())
+         {
+            sb.append(l).append(APP_CTX_DELIMITER);
+         }
+      }
+
+      sb.append(APP_CTX_NAME_DEFAULT);
+      sb.append(APP_CTX_DELIMITER);
       if (forkingServiceMode == ForkingServiceMode.NATIVE_THREADING)
       {
-         return APP_CTX_NAME_NATIVE_THREADING;
+         sb.append(APP_CTX_NAME_NATIVE_THREADING);
       }
       else if (forkingServiceMode == ForkingServiceMode.JMS)
       {
-         return APP_CTX_NAME_JMS_FORKING;
+         sb.append(APP_CTX_NAME_JMS_FORKING);
       }
       else
       {
          throw new IllegalArgumentException("Unknown forking service mode '" + forkingServiceMode + "'.");
       }
+
+      return sb.toString();
    }
 }

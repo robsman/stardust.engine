@@ -44,4 +44,13 @@ public class ConsumerRouteContext extends ApplicationRouteContext
          else
             return Boolean.parseBoolean((String)value);
    }
+   
+   public Boolean getAutostartupValue()
+   {
+	   Boolean startup = true;
+	   if (application.getAttribute("carnot:engine:camel::autoStartup") != null){
+		   startup = (Boolean) application.getAttribute("carnot:engine:camel::autoStartup");
+	   }
+	   return startup;
+   }
 }

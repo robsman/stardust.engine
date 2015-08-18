@@ -85,7 +85,7 @@ public class ClasspathUriConverter extends ExtensibleURIConverterImpl
          private InputStream createClasspathInputStream(URI uri) throws IOException
          {
             String path = uri.path();
-            boolean isAbsolute = path.startsWith("/");
+            boolean isAbsolute = path == null ? false: path.startsWith("/");
 
             // (fh) treat all paths as absolute paths
             if (trace.isDebugEnabled())

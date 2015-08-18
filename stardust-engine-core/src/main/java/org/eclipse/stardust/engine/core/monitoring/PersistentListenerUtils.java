@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.monitoring;
 
+import static org.eclipse.stardust.common.CollectionUtils.isEmpty;
+
 import java.util.List;
 
 import org.eclipse.stardust.common.CollectionUtils;
@@ -17,9 +19,6 @@ import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.spi.persistence.IPersistentListener;
-import org.eclipse.stardust.engine.core.spi.persistence.IPersistentListener.Factory;
-
-
 
 /**
  * 
@@ -28,40 +27,32 @@ import org.eclipse.stardust.engine.core.spi.persistence.IPersistentListener.Fact
  */
 public class PersistentListenerUtils
 {
-
-
-   
    public static IPersistentListener getPersistentListener(Persistent persistent)
    {
-
       GlobalParameters globals = GlobalParameters.globals();
-      
-      final String KEY_PERSISTENT_LISTENER_MEDIATOR = persistent.getClass().getName()
-      + ".PersistentListenerMediator";
-      
+
+      final String KEY_PERSISTENT_LISTENER_MEDIATOR = persistent.getClass().getName() + ".PersistentListenerMediator";
+
       IPersistentListener mediator = (IPersistentListener) globals.get(KEY_PERSISTENT_LISTENER_MEDIATOR);
-      
       if (mediator == null)
       {
-
-         List/* <Factory> */factories = ExtensionProviderUtils.getExtensionProviders(IPersistentListener.Factory.class);
+         List<IPersistentListener.Factory> factories = ExtensionProviderUtils.getExtensionProviders(IPersistentListener.Factory.class);
 
          List<IPersistentListener> listeners = CollectionUtils.newList();
 
-         for (int i = 0; i < factories.size(); ++i)
+         for (IPersistentListener.Factory factory : factories)
          {
-            final Factory listenerFactory = (Factory) factories.get(i);
-
-            listeners = listenerFactory.createListener(persistent.getClass());
-
+            List<IPersistentListener> additionalListeners = factory.createListener(persistent.getClass());
+            if (!isEmpty(additionalListeners))
+            {
+               listeners.addAll(additionalListeners);
+            }
          }
-         
-         mediator = new PersistentListenerMediator(listeners);         
+
+         mediator = new PersistentListenerMediator(listeners);
          globals.set(KEY_PERSISTENT_LISTENER_MEDIATOR, mediator);
       }
 
       return mediator;
    }
-
-
 }

@@ -63,6 +63,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserParticipantLink;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 public class RuntimeOidPatcher
 {
@@ -740,7 +741,7 @@ public class RuntimeOidPatcher
    {
       try
       {
-         String fileName = "fix_runtime_oid_log_" + System.currentTimeMillis();
+         String fileName = "fix_runtime_oid_log_" + TimestampProviderUtils.getTimeStampValue();
          String path = "./" + fileName;
          BufferedWriter writer = new BufferedWriter(new FileWriter(new File(path)));
          for (Short partitionOid : patchesByPartitionOid.keySet())

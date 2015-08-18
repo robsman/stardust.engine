@@ -41,6 +41,7 @@ import org.eclipse.stardust.engine.core.query.statistics.utils.IProcessVisitor;
 import org.eclipse.stardust.engine.core.runtime.beans.IUserGroup;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -358,11 +359,9 @@ public class StatisticsModelUtils
             duration = (Period) modelElement.getRuntimeAttribute(parsedParamName);
             if ((null == duration) && (null != durationValue))
             {
-               Calendar calBase = Calendar.getInstance();
-               calBase.setTimeInMillis(0l);
+               Calendar calBase = TimestampProviderUtils.getCalendar(0l);
+               Calendar cal = TimestampProviderUtils.getCalendar(0l);
 
-               Calendar cal = Calendar.getInstance();
-               cal.setTimeInMillis(0l);
                durationValue = durationValue instanceof Number ? durationValue.toString() : durationValue;
                if (durationValue instanceof String)
                {

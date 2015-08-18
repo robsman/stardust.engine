@@ -8,19 +8,17 @@ public interface IntegrationManagement {
 	
 	void startAllRoutes(String contextId);
 	
-    void stopAllRoutes(String contextId);
+	void stopAllRoutes(String contextId);
 	
 	void startCamelContext(String contextId);
 
 	void stopCamelContext(String contextId);
 
 	String getProducerRoutesList(String contextId);
-	
+
 	String getConsumerRoutesList(String contextId);
 
-	String getTriggerConsumerRoutesList(String contextId);
-
-	String getApplicationConsumerRoutesList(String contextId);
+	String getOtherRoutesList(String contextId);
 
 	void startRouteService(String contextId, String routeId);
 

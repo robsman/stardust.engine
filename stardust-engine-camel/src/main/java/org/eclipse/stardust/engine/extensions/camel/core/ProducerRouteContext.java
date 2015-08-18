@@ -87,4 +87,13 @@ public class ProducerRouteContext extends ApplicationRouteContext
       return (String) application
             .getAttribute(CamelConstants.PRODUCER_INBOUND_CONVERSION);
    }
+   
+   public Boolean getAutostartupValue()
+   {
+	   Boolean startup = true;
+	   if (application.getAttribute("carnot:engine:camel::autoStartup") != null){
+		   startup = (Boolean) application.getAttribute("carnot:engine:camel::autoStartup");
+	   }
+	   return startup;
+   }
 }

@@ -143,8 +143,16 @@ public class DocumentSetEvaluator implements AccessPathEvaluator
          }
          else if (handle instanceof Long)
          {
+            // Fetch from cache only
             String memento = LargeStringHolder.getLargeString(
-                  ((Long) handle).longValue(), DocumentSetTypeDescription.class);
+                  ((Long) handle).longValue(), DocumentSetTypeDescription.class, false);
+
+            if ( StringUtils.isEmpty(memento))
+            {
+               // Consider disk only if not found in cache
+               memento = LargeStringHolder.getLargeString(((Long) handle).longValue(),
+                     DocumentSetTypeDescription.class, true);
+            }
 
             if ( !StringUtils.isEmpty(memento))
             {

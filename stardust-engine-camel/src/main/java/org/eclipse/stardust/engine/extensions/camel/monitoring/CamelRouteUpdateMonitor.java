@@ -1,5 +1,7 @@
 package org.eclipse.stardust.engine.extensions.camel.monitoring;
 
+import java.util.Collection;
+
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IModel;
@@ -39,6 +41,18 @@ public class CamelRouteUpdateMonitor implements IPartitionMonitor {
 //		createApplicationRoute(partitionId, model.getApplications(),
 //				applicationContext);
 
+	}
+
+	@Override
+	public void beforeModelDeployment(Collection<IModel> models, boolean isOverwrite)
+	      throws DeploymentException
+	{
+	}
+
+	@Override
+	public void afterModelDeployment(Collection<IModel> models, boolean isOverwrite)
+	      throws DeploymentException
+	{
 	}
 
 	public void userCreated(IUser user) {

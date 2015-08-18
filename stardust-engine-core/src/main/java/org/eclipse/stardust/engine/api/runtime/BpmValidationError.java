@@ -61,6 +61,7 @@ public class BpmValidationError extends ErrorCase
    public static final Args PD_NO_ACTIVITIES_DEFINED = new Args("PD01007");
    public static final Args PD_PROCESS_INTERFACE_NOT_RESOLVED = new Args("PD01008");
    public static final Args PD_POTENTIAL_DEADLOCKS = new Args("PD01009");
+   public static final Args PD_FORMAL_PARAMETER_INCOMPATIBLE_DATA_FOR_EXTERNAL_INVOCATION = new Args("PD01010");
 
    //Application related
    public static final Args APP_TYPE_NO_LONGER_SUPPORTED = new Args("APP01001");
@@ -158,6 +159,11 @@ public class BpmValidationError extends ErrorCase
    public static final Args SDT_DUPLICATE_ID_FOR_TYPE_DECLARATION = new Args("SDT01000");
    public static final Args SDT_TYPE_DECLARATION_NOT_ALLOWED_TO_CONTAIN_VARIABLES = new Args("SDT01001");
    public static final Args SDT_REFERENCED_PARENT_TYPE_NOT_FOUND = new Args("SDT01002");
+   public static final Args SDT_XSD_SCHEMA_NOT_FOUND = new Args("SDT01003");
+   public static final Args SDT_XSD_IMPORT_NOT_RESOLVABLE = new Args("SDT01004");
+   public static final Args SDT_XSD_INCLUDE_NOT_RESOLVABLE = new Args("SDT01005");
+   public static final Args SDT_XSD_TYPE_DEFINITION_NOT_RESOLVABLE = new Args("SDT01006");
+
 
    //Participant related
    public static final Args PART_NO_DATA_ASSOCIATED_TO_CONDITIONAL_PERFORMER = new Args("PART01001");

@@ -17,9 +17,10 @@ import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
-public class ProcessInstanceLinkBean extends PersistentBean implements IProcessInstanceLink
+public class ProcessInstanceLinkBean extends PersistentBean implements IProcessInstanceLink, IProcessInstanceAware
 {
    public static final String FIELD__PROCESS_INSTANCE = "processInstance";
    public static final String FIELD__LINKED_PROCESS_INSTANCE = "linkedProcessInstance";
@@ -67,7 +68,7 @@ public class ProcessInstanceLinkBean extends PersistentBean implements IProcessI
       this.linkedProcessInstance = linkedProcessInstance.getOID();
       this.linkType = linkType.getOID();
 
-      createTime = System.currentTimeMillis();
+      createTime = TimestampProviderUtils.getTimeStampValue();
       creatingUser = SecurityProperties.getUserOID();
       this.linkingComment = StringUtils.cutString(comment, linkingComment_COLUMN_LENGTH);
 

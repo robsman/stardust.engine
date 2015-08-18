@@ -18,9 +18,9 @@ import org.eclipse.stardust.engine.api.ws.RoleInfoXto;
  *  		A usage examples is to retrieve all users being administrators.
  *         
  * 
- * <p>Java class for ParticipantAssociationFilter complex type.
+ * <p>Java-Klasse für ParticipantAssociationFilter complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
  * 
  * <pre>
  * &lt;complexType name="ParticipantAssociationFilter">
@@ -66,7 +66,7 @@ public class ParticipantAssociationFilterXto
     protected ParticipantAssociationFilterXto.ModelParticipantXto modelParticipant;
 
     /**
-     * Gets the value of the department property.
+     * Ruft den Wert der department-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -78,7 +78,7 @@ public class ParticipantAssociationFilterXto
     }
 
     /**
-     * Sets the value of the department property.
+     * Legt den Wert der department-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -90,7 +90,7 @@ public class ParticipantAssociationFilterXto
     }
 
     /**
-     * Gets the value of the teamLeader property.
+     * Ruft den Wert der teamLeader-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -102,7 +102,7 @@ public class ParticipantAssociationFilterXto
     }
 
     /**
-     * Sets the value of the teamLeader property.
+     * Legt den Wert der teamLeader-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -114,7 +114,7 @@ public class ParticipantAssociationFilterXto
     }
 
     /**
-     * Gets the value of the modelParticipant property.
+     * Ruft den Wert der modelParticipant-Eigenschaft ab.
      * 
      * @return
      *     possible object is
@@ -126,7 +126,7 @@ public class ParticipantAssociationFilterXto
     }
 
     /**
-     * Sets the value of the modelParticipant property.
+     * Legt den Wert der modelParticipant-Eigenschaft fest.
      * 
      * @param value
      *     allowed object is
@@ -139,9 +139,9 @@ public class ParticipantAssociationFilterXto
 
 
     /**
-     * <p>Java class for anonymous complex type.
+     * <p>Java-Klasse für anonymous complex type.
      * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
+     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
      * 
      * <pre>
      * &lt;complexType>
@@ -166,11 +166,11 @@ public class ParticipantAssociationFilterXto
 
         @XmlElement(required = true)
         protected ParticipantInfoXto participant;
-        @XmlAttribute
+        @XmlAttribute(name = "recursively")
         protected Boolean recursively;
 
         /**
-         * Gets the value of the participant property.
+         * Ruft den Wert der participant-Eigenschaft ab.
          * 
          * @return
          *     possible object is
@@ -182,7 +182,7 @@ public class ParticipantAssociationFilterXto
         }
 
         /**
-         * Sets the value of the participant property.
+         * Legt den Wert der participant-Eigenschaft fest.
          * 
          * @param value
          *     allowed object is
@@ -194,7 +194,7 @@ public class ParticipantAssociationFilterXto
         }
 
         /**
-         * Gets the value of the recursively property.
+         * Ruft den Wert der recursively-Eigenschaft ab.
          * 
          * @return
          *     possible object is
@@ -210,7 +210,7 @@ public class ParticipantAssociationFilterXto
         }
 
         /**
-         * Sets the value of the recursively property.
+         * Legt den Wert der recursively-Eigenschaft fest.
          * 
          * @param value
          *     allowed object is

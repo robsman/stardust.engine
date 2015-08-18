@@ -53,6 +53,7 @@ import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
+import org.eclipse.stardust.engine.core.preferences.permissions.GlobalPermissionConstants;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -100,11 +101,11 @@ public class Authorization2
             else
             {
                long aiOid = ((Long) args[0]).longValue();
-               if (ExecutionPermission.Id.abortActivityInstances.name().equals(permission.id) &&
+               if (ExecutionPermission.Id.abortActivityInstances == permission.id() &&
                      (args.length == 1 || AbortScope.RootHierarchy.equals(args[1])))
                {
                   // change context to process instance if you want to abort the complete process hierarchy
-                  permission = new ClientPermission(Permissions.PROCESS_DEFINITION_ABORT_PROCESS_INSTANCES);
+                  permission = ClientPermission.ABORT_PROCESS_INSTANCES;
 
                   IActivityInstance activityInstance = ActivityInstanceBean.findByOID(aiOid);
                   IProcessInstance processInstance = activityInstance.getProcessInstance();
@@ -117,7 +118,7 @@ public class Authorization2
                {
                   if (method.getName().equals("performAdHocTransition") && !(Boolean) args[2])
                   {
-                     permission = permission.clone(ExecutionPermission.Id.abortActivityInstances.name());
+                     permission = permission.clone(ExecutionPermission.Id.abortActivityInstances);
                      context = AuthorizationContext.create(permission);
                      TransitionTarget target = (TransitionTarget) args[1];
                      if (target != null) // must not throw NPEs here, let them to come from the service implementation
@@ -134,12 +135,25 @@ public class Authorization2
          case data:
             if (permission.defer())
             {
-               // TODO: If necessary, then how to implement it?
-               // authorizationPredicate = new DataAuthorization2Predicate(context);
+               authorizationPredicate = new DataAuthorization2Predicate(context);
             }
             else
             {
-               // TODO: If necessary, then how to implement it?
+               if (args[0] instanceof String)
+               {
+                  QName qname = QName.valueOf((String) args[0]);
+                  IModel model = ModelManagerFactory.getCurrent().findActiveModel(qname.getNamespaceURI());
+                  if (model != null)
+                  {
+                     IData data = model.findData(qname.getLocalPart());
+                     if (data != null)
+                     {
+                        context.setModelElementData(data);
+                     }
+                  }
+               }
+               // TODO: else ?
+               requiredGrant = checkPermission(context);
             }
             break;
          case model:
@@ -161,8 +175,7 @@ public class Authorization2
                   User user = (User) args[0];
                   if (UserUtils.isUserGrantOrGroupModified(user))
                   {
-                     ClientPermission xpermission = new ClientPermission(
-                           Permissions.MODEL_MANAGE_AUTHORIZATION);
+                     ClientPermission xpermission = ClientPermission.MANAGE_AUTHORIZATION;
                      AuthorizationContext xcontext = AuthorizationContext.create(xpermission);
                      xcontext.setModels(models);
                      requiredGrant = checkPermission(xcontext);
@@ -183,8 +196,7 @@ public class Authorization2
                      && method.getName().equals("joinProcessInstance"))
                {
 
-                  ClientPermission xpermission = new ClientPermission(
-                        Permissions.PROCESS_DEFINITION_ABORT_PROCESS_INSTANCES);
+                  ClientPermission xpermission = ClientPermission.ABORT_PROCESS_INSTANCES;
                   AuthorizationContext xcontext = AuthorizationContext.create(xpermission);
                   authorizationPredicate = new ProcessInstanceAuthorization2Predicate(
                         xcontext);
@@ -204,8 +216,7 @@ public class Authorization2
                   }
                   if (abortProcess)
                   {
-                     ClientPermission xpermission = new ClientPermission(
-                           Permissions.PROCESS_DEFINITION_ABORT_PROCESS_INSTANCES);
+                     ClientPermission xpermission = ClientPermission.ABORT_PROCESS_INSTANCES;
                      AuthorizationContext xcontext = AuthorizationContext.create(xpermission);
                      authorizationPredicate = new ProcessInstanceAuthorization2Predicate(xcontext);
                   }
@@ -233,8 +244,7 @@ public class Authorization2
                      }
                      if (PreferenceScope.REALM.equals(scope))
                      {
-                        ClientPermission realmPermission = new ClientPermission(
-                              Permissions.MODEL_SAVE_OWN_REALM_SCOPE_PREFERENCES);
+                        ClientPermission realmPermission = ClientPermission.SAVE_OWN_REALM_SCOPE_PREFERENCES;
                         AuthorizationContext realmContext = AuthorizationContext.create(realmPermission);
                         realmContext.setModels(models);
                         requiredGrant = checkPermission(realmContext);
@@ -245,8 +255,7 @@ public class Authorization2
                      }
                      else if (PreferenceScope.PARTITION.equals(scope))
                      {
-                        ClientPermission partitionPermission = new ClientPermission(
-                              Permissions.MODEL_SAVE_OWN_PARTITION_SCOPE_PREFERENCES);
+                        ClientPermission partitionPermission = ClientPermission.SAVE_OWN_PARTITION_SCOPE_PREFERENCES;
                         AuthorizationContext partitionContext = AuthorizationContext.create(partitionPermission);
                         partitionContext.setModels(models);
                         requiredGrant = checkPermission(partitionContext);
@@ -269,7 +278,7 @@ public class Authorization2
                   requiredGrant = checkPermission(context);
                }
 
-               if (ExecutionPermission.Id.manageDeputies.name().equals(permission.id))
+               if (ExecutionPermission.Id.manageDeputies == permission.id())
                {
                   IUser user = context.getUser();
                   // 1st attribute is the user, 2nd deputy user
@@ -299,7 +308,7 @@ public class Authorization2
                else
                {
                   pi = ProcessInstanceBean.findByOID((Long) args[0]);
-                  if (ExecutionPermission.Id.abortProcessInstances.name().equals(permission.id) &&
+                  if (ExecutionPermission.Id.abortProcessInstances == permission.id() &&
                         AbortScope.RootHierarchy.equals(args[args.length - 1]))
                   {
                      // change to root process instance if you want to abort the complete process hierarchy
@@ -655,32 +664,32 @@ public class Authorization2
    }
 
    private static Object evaluateDataPath(AuthorizationContext context,
-	         final IData dataObject, String dataPath, final Object dataValue)
-	   {
-	      ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(dataObject, dataPath);
-	      SymbolTable symbolTable = new SymbolTable()
-	      {
-	         public Object lookupSymbol(String name)
-	         {
-	            if (name.equals(dataObject.getId()))
-	            {
-	               return dataValue;
-	            }
-	            return null;
-	         }
+            final IData dataObject, String dataPath, final Object dataValue)
+      {
+         ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(dataObject, dataPath);
+         SymbolTable symbolTable = new SymbolTable()
+         {
+            public Object lookupSymbol(String name)
+            {
+               if (name.equals(dataObject.getId()))
+               {
+                  return dataValue;
+               }
+               return null;
+            }
 
-	         public AccessPoint lookupSymbolType(String name)
-	         {
-	            if (name.equals(dataObject.getId()))
-	            {
-	               return dataObject;
-	            }
-	            return null;
-	         }
-	      };
-	      AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(symbolTable, context.getScopeProcessOid());
-	      return evaluator.evaluate(dataObject, dataValue, dataPath, evaluationContext);
-	   }
+            public AccessPoint lookupSymbolType(String name)
+            {
+               if (name.equals(dataObject.getId()))
+               {
+                  return dataObject;
+               }
+               return null;
+            }
+         };
+         AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(symbolTable, context.getScopeProcessOid());
+         return evaluator.evaluate(dataObject, dataValue, dataPath, evaluationContext);
+      }
 
    private static void findRestricted(List<IOrganization> restrictions, IModelParticipant participant)
    {
@@ -703,7 +712,7 @@ public class Authorization2
 
       ModelManager modelManager = ModelManagerFactory.getCurrent();
       IModel activeModel = modelManager.findActiveModel();
-      Map<ExecutionPermission.Scope, Set<String>> processed = CollectionUtils.newMap();
+      Map<ExecutionPermission.Scope, Set<ExecutionPermission.Id>> processed = CollectionUtils.newMap();
       Map<ModelElement, Scope> scopesMap = CollectionUtils.newMap();
       Method[] methods = cls.getMethods();
       for (Method method : methods)
@@ -811,27 +820,107 @@ public class Authorization2
       return Parameters.instance().getBoolean(serviceName + ".Guarded", true);
    }
 
-   private static boolean isPermissionProcessed(Map<ExecutionPermission.Scope, Set<String>> processed,
+   private static boolean isPermissionProcessed(Map<ExecutionPermission.Scope, Set<ExecutionPermission.Id>> processed,
          ClientPermission permission)
    {
-      Set<String> ids = processed.get(permission.scope());
+      Set<ExecutionPermission.Id> ids = processed.get(permission.scope());
       if (ids == null)
       {
          ids = CollectionUtils.newSet();
-         ids.add(permission.id);
+         ids.add(permission.id());
          processed.put(permission.scope(), ids);
       }
       else
       {
-         if (ids.contains(permission.id))
+         if (ids.contains(permission.id()))
          {
             return true;
          }
          else
          {
-            ids.add(permission.id);
+            ids.add(permission.id());
          }
       }
       return false;
+   }
+
+   public static List<Permission> getGlobalPermissions()
+   {
+      return getPermissions(GlobalPermissionSpecificService.class);
+   }
+
+   /**
+    * Class is used to list all possible global permissions. With it the permissions
+    * can be evaluated by <code>Authorization2</code> class.
+    * @author sven.rottstock
+    * @see GlobalPermissionConstants
+    */
+   static interface GlobalPermissionSpecificService extends Service
+   {
+      @ExecutionPermission(id=ExecutionPermission.Id.manageAuthorization)
+      Permission getManageAuthorizationPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.manageDeputies)
+      Permission getManageDeputiesPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.controlProcessEngine)
+      Permission getControlProcessEnginePermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.deployProcessModel)
+      Permission getDeployProcessModelPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.forceSuspend)
+      Permission getForceSuspendPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.manageDaemons)
+      Permission getManageDaemonsPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail)
+      Permission getModifyAuditTrailPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.modifyDepartments)
+      Permission getModifyDepartmentsPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.modifyUserData)
+      Permission getModifyUserDataPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.readAuditTrailStatistics)
+      Permission getReadAuditTrailStatisticsPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.createCase)
+      Permission getCreateCasePermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.readDepartments)
+      Permission getReadDepartmentsPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.readModelData)
+      Permission getReadModelDataPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.readUserData)
+      Permission getReadUserDataPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.resetUserPassword)
+      Permission getResetUserPasswordPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.runRecovery)
+      Permission getRunRecoveryPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.saveOwnUserScopePreferences)
+      Permission getSaveOwnUserScopePreferencesPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.saveOwnRealmScopePreferences)
+      Permission getSaveOwnRealmScopePreferencesPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.saveOwnPartitionScopePreferences)
+      Permission getSaveOwnPartitionScopePreferencesPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.joinProcessInstance)
+      Permission getJoinProcessInstancePermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.spawnPeerProcessInstance)
+      Permission getSpawnPeerProcessInstancePermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.spawnSubProcessInstance)
+      Permission getSpawnSubProcessInstancePermission();
    }
 }

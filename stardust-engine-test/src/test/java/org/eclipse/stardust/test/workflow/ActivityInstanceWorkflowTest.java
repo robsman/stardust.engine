@@ -28,6 +28,14 @@ import static org.junit.Assert.assertThat;
 import java.util.Collections;
 import java.util.Map;
 
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
+
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.InvalidArgumentException;
@@ -58,46 +66,38 @@ import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
 
 /**
  * <p>
  * Tests basic functionality regarding the workflow of activity instances.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
 public class ActivityInstanceWorkflowTest
 {
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
-   
+
    private static final String DEFAULT_ROLE_USER_ID = "u1";
-   
+
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory adminSf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    private final TestServiceFactory userSf = new TestServiceFactory(new UsernamePasswordPair(DEFAULT_ROLE_USER_ID, DEFAULT_ROLE_USER_ID));
-   
+
    @ClassRule
    public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
-   
+
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(adminSf)
                                           .around(userSf);
-   
+
    @Before
    public void setUp()
    {
       UserHome.create(adminSf, DEFAULT_ROLE_USER_ID, DEFAULT_ROLE_ID);
    }
-   
+
    /**
     * Tests whether an interactive activity instance is suspended
     * after the process instance has been started.
@@ -107,10 +107,10 @@ public class ActivityInstanceWorkflowTest
    {
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
-      
+
       assertThat(ai.getState(), equalTo(ActivityInstanceState.Suspended));
    }
-   
+
    /**
     * <p>
     * Tests whether the following happens when activating an activity instance:
@@ -126,14 +126,14 @@ public class ActivityInstanceWorkflowTest
    {
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
-      
+
       /* before activation */
       final Worklist wlBefore = userSf.getWorkflowService().getWorklist(WorklistQuery.findCompleteWorklist());
       assertThat(wlBefore.size(), is(0));
       final Worklist participantWlBefore = (Worklist) wlBefore.getSubWorklists().next();
       assertThat(participantWlBefore.size(), is(1));
       assertThat(ai.getState(), equalTo(ActivityInstanceState.Suspended));
-      
+
       /* activating the activity instance */
       final ActivityInstance activatedAi = userSf.getWorkflowService().activate(ai.getOID());
 
@@ -144,7 +144,7 @@ public class ActivityInstanceWorkflowTest
       assertThat(participantWlAfter.size(), is(0));
       assertThat(activatedAi.getState(), equalTo(ActivityInstanceState.Application));
    }
-   
+
    /**
     * <p>
     * Tests whether the activation throws the correct exception when the activity instance cannot
@@ -156,7 +156,7 @@ public class ActivityInstanceWorkflowTest
    {
       userSf.getWorkflowService().activate(-1);
    }
-   
+
    /**
     * <p>
     * Tests whether the activation throws the correct exception when the user has insufficient
@@ -168,10 +168,10 @@ public class ActivityInstanceWorkflowTest
    {
       final User user = userSf.getWorkflowService().getUser();
       UserHome.removeAllGrants(adminSf, user);
-      
+
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
-      
+
       userSf.getWorkflowService().activate(ai.getOID());
    }
 
@@ -187,10 +187,10 @@ public class ActivityInstanceWorkflowTest
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
-      
+
       userSf.getWorkflowService().activate(ai.getOID());
    }
-   
+
    /**
     * <p>
     * Tests whether the completion of an activity instance works correctly.
@@ -202,7 +202,7 @@ public class ActivityInstanceWorkflowTest
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activate(ai.getOID());
-      
+
       final ActivityInstance completedAi = userSf.getWorkflowService().complete(ai.getOID(), null, null);
       assertThat(completedAi.getActivity().getId(), equalTo(BasicWorkflowModelConstants.MANUAL_ACTIVITY_1_ID));
       assertThat(completedAi.getState(), equalTo(ActivityInstanceState.Completed));
@@ -218,11 +218,11 @@ public class ActivityInstanceWorkflowTest
    public void testCompletePassValue()
    {
       final String testText = "This is a test";
-      
+
       final ProcessInstance pi = startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activate(ai.getOID());
-      
+
       final Map<String, ?> data = Collections.singletonMap(MY_STRING_DATA_ID, testText);
       final ActivityInstance completedAi = userSf.getWorkflowService().complete(ai.getOID(), null, data);
       assertThat(completedAi.getActivity().getId(), equalTo(BasicWorkflowModelConstants.MANUAL_ACTIVITY_1_ID));
@@ -243,7 +243,7 @@ public class ActivityInstanceWorkflowTest
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activate(ai.getOID());
-      
+
       final ActivityCompletionLog aiLog = userSf.getWorkflowService().complete(ai.getOID(), null, null, WorkflowService.FLAG_ACTIVATE_NEXT_ACTIVITY_INSTANCE);
       final ActivityInstance completedAi = aiLog.getCompletedActivity();
       assertThat(completedAi.getActivity().getId(), equalTo(MANUAL_ACTIVITY_1_ID));
@@ -252,7 +252,7 @@ public class ActivityInstanceWorkflowTest
       assertThat(nextAi.getActivity().getId(), equalTo(MANUAL_ACTIVITY_2_ID));
       assertThat(nextAi.getState(), equalTo(ActivityInstanceState.Application));
    }
-   
+
    /**
     * <p>
     * Tests whether the correct exception is thrown when the activity instance
@@ -264,7 +264,7 @@ public class ActivityInstanceWorkflowTest
    {
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
-      
+
       userSf.getWorkflowService().complete(ai.getOID(), null, null);
    }
 
@@ -292,11 +292,11 @@ public class ActivityInstanceWorkflowTest
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activate(ai.getOID());
-      
+
       final Map<String, ?> data = Collections.singletonMap(MY_STRING_DATA_ID, -1);
       userSf.getWorkflowService().complete(ai.getOID(), null, data);
    }
-   
+
    /**
     * <p>
     * Tests whether the correct exception is thrown when the activity instance
@@ -309,12 +309,12 @@ public class ActivityInstanceWorkflowTest
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       adminSf.getWorkflowService().activate(ai.getOID());
-      
+
       final User user = userSf.getUserService().getUser();
       UserHome.removeAllGrants(adminSf, user);
       userSf.getWorkflowService().complete(ai.getOID(), null, null);
    }
-   
+
    /**
     * <p>
     * Tests whether the correct exception is thrown when the activity instance
@@ -327,7 +327,7 @@ public class ActivityInstanceWorkflowTest
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
-      
+
       userSf.getWorkflowService().complete(ai.getOID(), null, null);
    }
 
@@ -341,7 +341,7 @@ public class ActivityInstanceWorkflowTest
    {
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
-      
+
       final ActivityInstance completedAi = userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
       assertThat(completedAi.getActivity().getId(), equalTo(BasicWorkflowModelConstants.MANUAL_ACTIVITY_1_ID));
       assertThat(completedAi.getState(), equalTo(ActivityInstanceState.Completed));
@@ -357,10 +357,10 @@ public class ActivityInstanceWorkflowTest
    public void testActivateAndCompletePassValue()
    {
       final String testText = "This is a test";
-      
+
       final ProcessInstance pi = startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
-      
+
       final Map<String, ?> data = Collections.singletonMap(MY_STRING_DATA_ID, testText);
       final ActivityInstance completedAi = userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, data);
       assertThat(completedAi.getActivity().getId(), equalTo(BasicWorkflowModelConstants.MANUAL_ACTIVITY_1_ID));
@@ -380,7 +380,7 @@ public class ActivityInstanceWorkflowTest
    {
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
-      
+
       final ActivityCompletionLog aiLog = userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null, WorkflowService.FLAG_ACTIVATE_NEXT_ACTIVITY_INSTANCE);
       final ActivityInstance completedAi = aiLog.getCompletedActivity();
       assertThat(completedAi.getActivity().getId(), equalTo(MANUAL_ACTIVITY_1_ID));
@@ -413,11 +413,11 @@ public class ActivityInstanceWorkflowTest
    {
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
-      
+
       final Map<String, ?> data = Collections.singletonMap(MY_STRING_DATA_ID, -1);
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, data);
    }
-   
+
    /**
     * <p>
     * Tests whether the correct exception is thrown when the activity instance
@@ -429,12 +429,12 @@ public class ActivityInstanceWorkflowTest
    {
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
-      
+
       final User user = userSf.getUserService().getUser();
       UserHome.removeAllGrants(adminSf, user);
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
    }
-   
+
    /**
     * <p>
     * Tests whether the correct exception is thrown when the activity instance
@@ -447,10 +447,10 @@ public class ActivityInstanceWorkflowTest
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
-      
+
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
    }
-   
+
    /**
     * <p>
     * Tests whether suspending of an activity instance works correctly.
@@ -462,16 +462,16 @@ public class ActivityInstanceWorkflowTest
       final WorklistQuery wlQuery = WorklistQuery.findCompleteWorklist();
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
-      
+
       final ActivityInstance activatedAi = userSf.getWorkflowService().activate(ai.getOID());
       final Worklist wlBefore = userSf.getWorkflowService().getWorklist(wlQuery);
       assertThat(wlBefore.size(), is(1));
       final Worklist participantWl2 = (Worklist) wlBefore.getSubWorklists().next();
       assertThat(participantWl2.size(), is(0));
       assertThat(activatedAi.getState(), equalTo(ActivityInstanceState.Application));
-      
+
       final ActivityInstance suspendedAi = userSf.getWorkflowService().suspend(ai.getOID(), null);
-      
+
       final Worklist wlAfter = userSf.getWorkflowService().getWorklist(wlQuery);
       assertThat(wlAfter.size(), is(0));
       final Worklist participantWl3 = (Worklist) wlAfter.getSubWorklists().next();
@@ -489,20 +489,20 @@ public class ActivityInstanceWorkflowTest
    public void testSuspendPassContextData()
    {
       final String testText = "This is a test.";
-      
+
       final ProcessInstance pi = startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activate(ai.getOID());
-      
+
       final Map<String, ?> data = Collections.singletonMap(MY_STRING_DATA_ID, testText);
       final ContextData ctxData = new ContextData(null, data);
       userSf.getWorkflowService().suspend(ai.getOID(), ctxData);
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
-      
+
       final String retrievedText = (String) userSf.getWorkflowService().getInDataPath(pi.getOID(), MY_STRING_IN_DATA_PATH_ID);
       assertThat(retrievedText, equalTo(testText));
    }
-   
+
    /**
     * <p>
     * Tests whether the correct exception is thrown when the activity instance
@@ -515,10 +515,10 @@ public class ActivityInstanceWorkflowTest
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
-      
+
       userSf.getWorkflowService().suspend(ai.getOID(), null);
    }
-   
+
    /**
     * <p>
     * Tests whether the correct exception is thrown when the performing user
@@ -531,12 +531,12 @@ public class ActivityInstanceWorkflowTest
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       adminSf.getWorkflowService().activate(ai.getOID());
-      
+
       final User user = userSf.getUserService().getUser();
       UserHome.removeAllGrants(adminSf, user);
       userSf.getWorkflowService().suspend(ai.getOID(), null);
    }
-   
+
    /**
     * <p>
     * Tests whether the correct exception is thrown when the activity instance
@@ -548,7 +548,7 @@ public class ActivityInstanceWorkflowTest
    {
       userSf.getWorkflowService().suspend(-1, null);
    }
-   
+
    /**
     * <p>
     * Tests whether hibernation of an activity instance works correctly.
@@ -560,10 +560,10 @@ public class ActivityInstanceWorkflowTest
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       final ActivityInstance hibernatedAi = userSf.getWorkflowService().hibernate(ai.getOID());
-      
+
       assertThat(hibernatedAi.getState(), equalTo(ActivityInstanceState.Hibernated));
    }
-   
+
    /**
     * <p>
     * Tests whether the correct exception is thrown when the activity instance
@@ -576,22 +576,22 @@ public class ActivityInstanceWorkflowTest
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
-      
+
       userSf.getWorkflowService().hibernate(ai.getOID());
    }
-   
+
    /**
     * <p>
     * Tests whether the correct exception is thrown when the activity instance
     * cannot be found.
-    * </p> 
+    * </p>
     */
    @Test(expected = ObjectNotFoundException.class)
    public void testHibernateFailActivityInstanceNotFound()
    {
       userSf.getWorkflowService().hibernate(-1);
    }
-   
+
    /**
     * <p>
     * Tests whether abortion of an activity instance works correctly for
@@ -603,18 +603,18 @@ public class ActivityInstanceWorkflowTest
    {
       final ProcessInstance pi = startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
-      
+
       adminSf.getWorkflowService().abortActivityInstance(ai.getOID(), AbortScope.RootHierarchy);
-      
+
       ActivityInstanceStateBarrier.instance().await(ai.getOID(), ActivityInstanceState.Aborted);
       final ActivityInstance abortedAi = userSf.getWorkflowService().getActivityInstance(ai.getOID());
       assertThat(abortedAi, notNullValue());
       assertThat(abortedAi.getState(), equalTo(ActivityInstanceState.Aborted));
-      
+
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Aborted);
-      final ProcessInstance abortedPi = userSf.getWorkflowService().getProcessInstance(pi.getOID());      
+      final ProcessInstance abortedPi = userSf.getWorkflowService().getProcessInstance(pi.getOID());
       assertThat(abortedPi, notNullValue());
-      assertThat(abortedPi.getState(), equalTo(ProcessInstanceState.Aborted)); 
+      assertThat(abortedPi.getState(), equalTo(ProcessInstanceState.Aborted));
    }
 
    /**
@@ -628,25 +628,25 @@ public class ActivityInstanceWorkflowTest
    {
       final ProcessInstance pi = startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
-      
+
       userSf.getWorkflowService().abortActivityInstance(ai.getOID(), AbortScope.SubHierarchy);
-      
+
       ActivityInstanceStateBarrier.instance().await(ai.getOID(), ActivityInstanceState.Aborted);
       final ActivityInstance abortedAi = userSf.getWorkflowService().getActivityInstance(ai.getOID());
       assertThat(abortedAi, notNullValue());
       assertThat(abortedAi.getState(), equalTo(ActivityInstanceState.Aborted));
-      
-      final ProcessInstance abortedPi = userSf.getWorkflowService().getProcessInstance(pi.getOID());      
+
+      final ProcessInstance abortedPi = userSf.getWorkflowService().getProcessInstance(pi.getOID());
       assertThat(abortedPi, notNullValue());
       assertThat(abortedPi.getState(), equalTo(ProcessInstanceState.Active));
    }
-   
+
    /**
     * <p>
     * Tests whether the correct exception is thrown if the activity instance
     * does not allow to be aborted during activity instance abortion.
     * </p>
-    * 
+    *
     * <p>
     * TODO re-enable as soon as CRNT-20630 has been resolved
     * </p>
@@ -659,11 +659,11 @@ public class ActivityInstanceWorkflowTest
       final ActivityInstance ai1 = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activateAndComplete(ai1.getOID(), null, null);
       final ActivityInstance ai2 = findFirstAliveActivityInstanceFor(PD_1_ID);
-      
+
       assertThat(ai2.getActivity().isAbortable(), is(false));
       adminSf.getWorkflowService().abortActivityInstance(ai2.getOID(), AbortScope.SubHierarchy);
    }
-   
+
    /**
     * <p>
     * Tests whether the correct exception is thrown if the performing user
@@ -677,7 +677,7 @@ public class ActivityInstanceWorkflowTest
       final ActivityInstance ai1 = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activateAndComplete(ai1.getOID(), null, null);
       final ActivityInstance ai2 = findFirstAliveActivityInstanceFor(PD_1_ID);
-      
+
       userSf.getWorkflowService().abortActivityInstance(ai2.getOID(), AbortScope.SubHierarchy);
    }
 
@@ -693,7 +693,7 @@ public class ActivityInstanceWorkflowTest
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
-      
+
       userSf.getWorkflowService().abortActivityInstance(ai.getOID(), AbortScope.SubHierarchy);
    }
 
@@ -708,7 +708,7 @@ public class ActivityInstanceWorkflowTest
    {
       userSf.getWorkflowService().abortActivityInstance(-1);
    }
-   
+
    /**
     * <p>
     * Tests whether the retrieval of a worklist works correctly:
@@ -721,15 +721,15 @@ public class ActivityInstanceWorkflowTest
       startProcess(PD_1_ID);
       final ActivityInstance ai1 = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activate(ai1.getOID());
-      
+
       startProcess(PD_3_ID);
       final ActivityInstance ai2 = findFirstAliveActivityInstanceFor(PD_3_ID);
       userSf.getWorkflowService().activate(ai2.getOID());
-      
+
       final Worklist worklist = userSf.getWorkflowService().getWorklist(WorklistQuery.findPrivateWorklist());
       assertThat(worklist.size(), is(2));
    }
-   
+
    /**
     * <p>
     * Tests whether the retrieval of a worklist works correctly:
@@ -740,15 +740,15 @@ public class ActivityInstanceWorkflowTest
    public void testGetWorklistPrivateWorklistLimit()
    {
       final int limit = 1;
-      
+
       startProcess(PD_1_ID);
       final ActivityInstance ai1 = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activate(ai1.getOID());
-      
+
       startProcess(PD_3_ID);
       final ActivityInstance ai2 = findFirstAliveActivityInstanceFor(PD_3_ID);
       userSf.getWorkflowService().activate(ai2.getOID());
-      
+
       final Worklist worklist = userSf.getWorkflowService().getWorklist(WorklistQuery.findPrivateWorklist(limit));
       assertThat(worklist.size(), is(1));
    }
@@ -763,23 +763,23 @@ public class ActivityInstanceWorkflowTest
    public void testGetWorklistCompleteWorklist()
    {
       startProcess(PD_1_ID);
-      
+
       startProcess(PD_1_ID);
       final ActivityInstance ai1 = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activate(ai1.getOID());
-      
+
       startProcess(PD_3_ID);
       final ActivityInstance ai2 = findFirstAliveActivityInstanceFor(PD_3_ID);
       userSf.getWorkflowService().activate(ai2.getOID());
-      
+
       final Worklist worklist = userSf.getWorkflowService().getWorklist(WorklistQuery.findCompleteWorklist());
       assertThat(worklist.getCumulatedSize(), is(3));
       assertThat(worklist.size(), is(2));
-      
+
       final Worklist participantWorklist = (Worklist) worklist.getSubWorklists().next();
       assertThat(participantWorklist.size(), is(1));
-   }   
-   
+   }
+
    /**
     * <p>
     * Tests whether the activation of the next activity instance
@@ -805,13 +805,13 @@ public class ActivityInstanceWorkflowTest
    public void testActivateNextActivityInstanceByNonEmptyWorklistQuery()
    {
       startProcess(PD_1_ID);
-      
+
       final ActivityInstance nextAi = userSf.getWorkflowService().activateNextActivityInstance(WorklistQuery.findCompleteWorklist());
       assertThat(nextAi, notNullValue());
       assertThat(nextAi.getActivity().getId(), equalTo(MANUAL_ACTIVITY_1_ID));
       assertThat(nextAi.getState(), equalTo(ActivityInstanceState.Application));
    }
-   
+
    /**
     * <p>
     * Tests whether the activation of the next activity instance
@@ -821,13 +821,13 @@ public class ActivityInstanceWorkflowTest
    @Test
    public void testActivateNextActivityInstanceByAiOid()
    {
-      // TODO remove as soon as CRNT-29836 has been resolved
+      /* increasing the timestamp epsilson to allow for reliable execution of 'activateNextActivityInstance()' */
       GlobalParameters.globals().set(KernelTweakingProperties.LAST_MODIFIED_TIMESTAMP_EPSILON, 20);
-      
+
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
-      
+
       final ActivityInstance nextAi = userSf.getWorkflowService().activateNextActivityInstance(ai.getOID());
       assertThat(nextAi, notNullValue());
       assertThat(nextAi.getActivity().getId(), equalTo(MANUAL_ACTIVITY_2_ID));
@@ -845,7 +845,7 @@ public class ActivityInstanceWorkflowTest
    {
       userSf.getWorkflowService().activateNextActivityInstance(-1);
    }
-   
+
    /**
     * <p>
     * Tests whether the activation of the next activity instance
@@ -873,7 +873,7 @@ public class ActivityInstanceWorkflowTest
    {
       userSf.getWorkflowService().activateNextActivityInstanceForProcessInstance(-1);
    }
-   
+
    /**
     * <p>
     * Tests whether the retrieval of an activity instance works correctly.
@@ -884,12 +884,12 @@ public class ActivityInstanceWorkflowTest
    {
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
-      
+
       final ActivityInstance retrievedAi = userSf.getWorkflowService().getActivityInstance(ai.getOID());
       assertThat(retrievedAi, notNullValue());
       assertThat(retrievedAi, equalTo(ai));
    }
-   
+
    /**
     * <p>
     * Tests whether the correct exception is thrown when the activity instance cannot be found.
@@ -900,7 +900,7 @@ public class ActivityInstanceWorkflowTest
    {
       userSf.getWorkflowService().getActivityInstance(-1);
    }
-   
+
    /**
     * <p>
     * Tests whether setting of activity instance attributes works correctly.
@@ -910,20 +910,20 @@ public class ActivityInstanceWorkflowTest
    public void testSetActivityInstanceAttributes()
    {
       final String testText = "This is a test.";
-      
+
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       final ActivityInstanceAttributes attributes = new ActivityInstanceAttributesImpl(ai.getOID());
       attributes.addNote(testText);
       userSf.getWorkflowService().setActivityInstanceAttributes(attributes);
-      
+
       final ActivityInstance retrievedAi = userSf.getWorkflowService().getActivityInstance(ai.getOID());
       final ActivityInstanceAttributes retrievedAttributes = retrievedAi.getAttributes();
       assertThat(retrievedAttributes.getNotes().size(), is(1));
       final Note retrievedNote = retrievedAttributes.getNotes().get(0);
       assertThat(retrievedNote.getText(), equalTo(testText));
    }
-   
+
    /**
     * <p>
     * Tests whether the correct exception is thrown when the activity instance cannot be found.
@@ -935,7 +935,7 @@ public class ActivityInstanceWorkflowTest
       final ActivityInstanceAttributes attributes = new ActivityInstanceAttributesImpl(-1);
       userSf.getWorkflowService().setActivityInstanceAttributes(attributes);
    }
-   
+
    /**
     * <p>
     * Tests whether the correct exception is thrown when the activity instance attribute
@@ -947,12 +947,12 @@ public class ActivityInstanceWorkflowTest
    {
       userSf.getWorkflowService().setActivityInstanceAttributes(null);
    }
-   
+
    private ProcessInstance startProcess(final String processId)
    {
       return userSf.getWorkflowService().startProcess(processId, null, true);
    }
-   
+
    private ActivityInstance findFirstAliveActivityInstanceFor(final String processId)
    {
       final ActivityInstanceQuery aiQuery = ActivityInstanceQuery.findAlive(processId);

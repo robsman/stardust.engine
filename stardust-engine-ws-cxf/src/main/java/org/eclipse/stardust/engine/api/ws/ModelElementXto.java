@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;sequence>
  *         &lt;element name="modelOid" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *         &lt;element name="id" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="qualifiedId" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="name" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="description" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="partitionId" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
@@ -40,6 +41,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "ModelElement", propOrder = {
     "modelOid",
     "id",
+    "qualifiedId",
     "name",
     "description",
     "partitionId",
@@ -50,16 +52,16 @@ import javax.xml.bind.annotation.XmlType;
     ProcessDefinitionXto.class,
     ModelDescriptionXto.class,
     InteractionContextXto.class,
-    DataPathXto.class,
-    ModelParticipantXto.class,
     TypeDeclarationXto.class,
-    EventHandlerDefinitionXto.class,
-    DeployedModelDescriptionXto.class,
     ActivityDefinitionXto.class,
     ApplicationXto.class,
-    DataFlowXto.class,
     TriggerXto.class,
     ParameterMappingXto.class,
+    DataPathXto.class,
+    ModelParticipantXto.class,
+    EventHandlerDefinitionXto.class,
+    DeployedModelDescriptionXto.class,
+    DataFlowXto.class,
     VariableDefinitionXto.class,
     EventActionDefinitionXto.class
 })
@@ -67,6 +69,7 @@ public class ModelElementXto {
 
     protected long modelOid;
     protected String id;
+    protected String qualifiedId;
     protected String name;
     protected String description;
     protected String partitionId;
@@ -111,6 +114,30 @@ public class ModelElementXto {
      */
     public void setId(String value) {
         this.id = value;
+    }
+
+    /**
+     * Gets the value of the qualifiedId property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getQualifiedId() {
+        return qualifiedId;
+    }
+
+    /**
+     * Sets the value of the qualifiedId property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setQualifiedId(String value) {
+        this.qualifiedId = value;
     }
 
     /**

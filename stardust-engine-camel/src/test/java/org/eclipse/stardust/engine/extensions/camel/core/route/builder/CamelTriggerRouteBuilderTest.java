@@ -11,7 +11,6 @@ import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ITrigger;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
-import org.eclipse.stardust.engine.extensions.camel.converter.DataConverter;
 import org.eclipse.stardust.engine.extensions.camel.core.CamelTriggerRouteContext;
 import org.eclipse.stardust.engine.extensions.camel.core.RouteDefinitionBuilder;
 
@@ -41,7 +40,7 @@ public class CamelTriggerRouteBuilderTest
             RouteDefinitionBuilder
                   .createRouteDefintionForCamelTrigger(
                         new CamelTriggerRouteContext(trigger, "default",
-                              "defaultCamelContext", new ArrayList<DataConverter>())).toString());
+                              "defaultCamelContext")).toString());
    }
 
    @Test
@@ -69,7 +68,7 @@ public class CamelTriggerRouteBuilderTest
             RouteDefinitionBuilder
                   .createRouteDefintionForCamelTrigger(
                         new CamelTriggerRouteContext(trigger, "default",
-                              "defaultCamelContext", new ArrayList<DataConverter>())).toString());
+                              "defaultCamelContext")).toString());
    }
 
    @Test
@@ -97,7 +96,7 @@ public class CamelTriggerRouteBuilderTest
             RouteDefinitionBuilder
                   .createRouteDefintionForCamelTrigger(
                         new CamelTriggerRouteContext(trigger, "default",
-                              "defaultCamelContext", new ArrayList<DataConverter>())).toString());
+                              "defaultCamelContext")).toString());
    }
 
 }

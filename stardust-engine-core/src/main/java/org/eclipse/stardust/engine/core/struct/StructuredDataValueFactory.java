@@ -24,6 +24,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -85,7 +86,7 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
             {
                //RPI: Workaround for CRNT-25389
                SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
-               String dateString = sd.format(new Date());
+               String dateString = sd.format(TimestampProviderUtils.getTimeStamp());
                String tempStrValue = dateString + "T" + stringValue;
                df = new SimpleDateFormat(XSD_DATETIME_FORMAT);
                df.setLenient(false);

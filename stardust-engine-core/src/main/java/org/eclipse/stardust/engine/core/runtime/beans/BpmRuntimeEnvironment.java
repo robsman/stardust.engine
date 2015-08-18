@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.jms.JMSException;
+import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueSender;
@@ -82,9 +83,9 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    private Map<QueueSession, QueueSender> jmsQueueSenders = Collections.emptyMap();
 
    private Map<IRepositoryInstance, IRepositoryService> repositoryServices = Collections.emptyMap();
-   
+
    private Map<ConnectionFactory, Connection> jcaConnections = Collections.emptyMap();
-   
+
    private Authorization2Predicate authorization2Predicate;
 
    private RtDetailsFactory detailsFactory;
@@ -92,17 +93,17 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    private Map<String, IModel> modelOverrides;
 
    private IActivityInstance currentActivityInstance;
-   
+
    private ExecutionPlan executionPlan;
-   
+
    private boolean deploymentBeanCreated = false;
-   
+
    private long authorizedOnBehalfOf = 0;
 
    private EventBindingRecords eventBindingRecords;
-   
+
    private ExtendedAccessPathEvaluatorRegistry evaluatorRegistry;
-   
+
    private DataClusterRuntimeInfo dataClusterRuntimeInfo;
 
    public BpmRuntimeEnvironment(PropertyLayer predecessor)
@@ -138,7 +139,7 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    public void setAuthorizedOnBehalfOf(long authorizedOnBehalfOf)
    {
       this.authorizedOnBehalfOf = authorizedOnBehalfOf;
-   }      
+   }
 
    public ActivityThreadContext getActivityThreadContext()
    {
@@ -204,12 +205,12 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    {
       return jcaResourceProvider;
    }
-   
+
    public void setJcaResourceProvider(IJcaResourceProvider jcaResourceProvider)
    {
       this.jcaResourceProvider = jcaResourceProvider;
    }
-   
+
    public ExtendedAccessPathEvaluatorRegistry getEvaluatorRegistry()
    {
       return evaluatorRegistry;
@@ -218,6 +219,19 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    public void setEvaluatorRegistry(ExtendedAccessPathEvaluatorRegistry evaluatorRegistry)
    {
       this.evaluatorRegistry = evaluatorRegistry;
+   }
+
+   public QueueConnectionFactory retrieveQueueConnectionFactory(String name)
+   {
+      if (jmsResourceProvider != null)
+      {
+         return jmsResourceProvider.resolveQueueConnectionFactory(name);
+      }
+      else
+      {
+         Parameters params = Parameters.instance();
+         return params.getObject(name);
+      }
    }
 
    public QueueConnection retrieveQueueConnection(QueueConnectionFactory factory)
@@ -337,19 +351,32 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       return sender;
    }
 
+   public Queue resolveQueue(String name)
+   {
+      if (jmsResourceProvider != null)
+      {
+         return jmsResourceProvider.resolveQueue(name);
+      }
+      else
+      {
+         Parameters params = Parameters.instance();
+         return params.getObject(name);
+      }
+   }
+
    public Connection retrieveJcaConnection(final ConnectionFactory connectionFactory) throws ResourceException
    {
       Connection connection = null;
-      
+
       if ( !jcaConnections.isEmpty())
       {
          connection = jcaConnections.get(connectionFactory);
       }
-      
+
       if (null == connection)
       {
          connection = connectionFactory.getConnection();
-         
+
          if (jcaConnections.isEmpty())
          {
             jcaConnections = Collections.singletonMap(connectionFactory, connection);
@@ -363,10 +390,10 @@ public class BpmRuntimeEnvironment extends PropertyLayer
             jcaConnections.put(connectionFactory, connection);
          }
       }
-      
+
       return connection;
    }
-   
+
    public void close()
    {
       detailsFactory = null;
@@ -458,7 +485,7 @@ public class BpmRuntimeEnvironment extends PropertyLayer
          this.jmsQueueSenders = Collections.EMPTY_MAP;
       }
    }
-   
+
    public void registerRepositoryService(IRepositoryInstance instance, IRepositoryService service)
    {
       if (repositoryServices.isEmpty())
@@ -474,7 +501,7 @@ public class BpmRuntimeEnvironment extends PropertyLayer
          repositoryServices.put(instance, service);
       }
    }
-   
+
    public IRepositoryService getRepositoryService(IRepositoryInstance instance)
    {
       return repositoryServices.get(instance);
@@ -508,11 +535,11 @@ public class BpmRuntimeEnvironment extends PropertyLayer
                trace.warn("Failed closing a JCA connection.", e);
             }
          }
-         
+
          this.jcaConnections = Collections.emptyMap();
       }
    }
-   
+
    public RtDetailsFactory getDetailsFactory()
    {
       return detailsFactory;
@@ -553,15 +580,15 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       currentActivityInstance = activityInstance;
    }
 
-	public boolean isDeploymentBeanCreated() 
-	{
-		return deploymentBeanCreated;
-	}
+   public boolean isDeploymentBeanCreated()
+   {
+      return deploymentBeanCreated;
+   }
 
-	public void setDeploymentBeanCreatedt(boolean deploymentBeanCreated) 
-	{
-		this.deploymentBeanCreated = deploymentBeanCreated;
-	}
+   public void setDeploymentBeanCreatedt(boolean deploymentBeanCreated)
+   {
+      this.deploymentBeanCreated = deploymentBeanCreated;
+   }
 
    public EventBindingRecords getEventBindingRecords()
    {
@@ -581,7 +608,7 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    {
       this.dataClusterRuntimeInfo = dataClusterRuntimeInfo;
    }
-   
+
    /**
     * <p>
     * Returns whether the {@link MultipleTryInterceptor} will trigger no additional retry. This may
@@ -591,7 +618,7 @@ public class BpmRuntimeEnvironment extends PropertyLayer
     *    <li>the retry count has been exceeded</li>
     * </ul>
     * </p>
-    * 
+    *
     * @return whether the {@link MultipleTryInterceptor} will trigger no additional retry
     */
    public boolean isLastTry()
@@ -601,7 +628,7 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       {
          return true;
       }
-      
+
       return triesLeft.intValue() <= 0;
    }
 }

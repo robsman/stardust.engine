@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,14 +19,7 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.log.LogUtils;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IDataType;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.IOrganization;
-import org.eclipse.stardust.engine.api.model.IRole;
-import org.eclipse.stardust.engine.api.model.Inconsistency;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
@@ -353,23 +346,17 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
                      inconsistencies.add(new Inconsistency(error, this,
                            Inconsistency.ERROR));
                   }
-                  if (isStructData && dataPathOrg == null)
+
+                  BridgeObject bridgeData = BridgeObject.getBridge(data, dataPathOrg,
+                        Direction.OUT, null);
+                  final Class endClass = bridgeData.getEndClass();
+
+                  if (!String.class.equals(endClass) && !endClass.isEnum())
                   {
-                     BpmValidationError error = BpmValidationError.PART_DATA_OF_SCOPED_ORGANIZATION_MUST_NOT_BE_NULL_WHEN_SDT_IS_USED.raise(organization.getId());
+                     BpmValidationError error = BpmValidationError.PART_TYPE_OF_DATA_OF_SCOPED_ORGANIZATION_IS_NOT.raise(
+                           dataIdOrg, organization.getId(), String.class);
                      inconsistencies.add(new Inconsistency(error, this,
                            Inconsistency.ERROR));
-                  }
-                  else
-                  {
-                     BridgeObject bridgeData = BridgeObject.getBridge(data, dataPathOrg,
-                           Direction.OUT, null);
-                     if (!String.class.equals(bridgeData.getEndClass()))
-                     {
-                        BpmValidationError error = BpmValidationError.PART_TYPE_OF_DATA_OF_SCOPED_ORGANIZATION_IS_NOT.raise(
-                              dataIdOrg, organization.getId(), String.class);
-                        inconsistencies.add(new Inconsistency(error, this,
-                              Inconsistency.ERROR));
-                     }
                   }
                }
             }

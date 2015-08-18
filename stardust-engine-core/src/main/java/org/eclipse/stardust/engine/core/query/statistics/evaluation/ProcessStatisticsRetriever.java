@@ -10,6 +10,11 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.query.statistics.evaluation;
 
+import static org.eclipse.stardust.common.CollectionUtils.isEmpty;
+import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
+import static org.eclipse.stardust.engine.core.persistence.Predicates.andTerm;
+import static org.eclipse.stardust.engine.core.persistence.Predicates.inList;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -19,7 +24,6 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.persistence.Column;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
@@ -33,12 +37,11 @@ import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.runtime.utils.AbstractAuthorization2Predicate;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
-import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
+import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQueryResult;
 import org.eclipse.stardust.engine.core.spi.query.IProcessInstanceQueryEvaluator;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -58,7 +61,7 @@ public class ProcessStatisticsRetriever implements IProcessInstanceQueryEvaluato
 
       final ProcessStatisticsQuery psq = (ProcessStatisticsQuery) query;
 
-      final Date now = new Date();
+      final Date now = TimestampProviderUtils.getTimeStamp();
 
       ProcessCumulationPolicy cumulationPolicy = StatisticsQueryUtils.getProcessCumulationPolicy(psq);
       FieldRef frCumulationPi;
@@ -107,8 +110,13 @@ public class ProcessStatisticsRetriever implements IProcessInstanceQueryEvaluato
 
       final Set<Long> processRtOidFilter = StatisticsQueryUtils.extractProcessFilter(psq.getFilter());
 
-      final AuthorizationContext ctx = AuthorizationContext.create(WorkflowService.class,
-            "getProcessInstance", long.class);
+      if ( !isEmpty(processRtOidFilter))
+      {
+         sqlQuery.where(andTerm(sqlQuery.getPredicateTerm(),
+               inList(ProcessInstanceBean.FR__PROCESS_DEFINITION, newArrayList(processRtOidFilter))));
+      }
+
+      final AuthorizationContext ctx = AuthorizationContext.create(ClientPermission.READ_PROCESS_INSTANCE_DATA);
       final boolean guarded = Parameters.instance().getBoolean("QueryService.Guarded", true)
             && !ctx.isAdminOverride();
       final AbstractAuthorization2Predicate authPredicate = new AbstractAuthorization2Predicate(ctx) {};
@@ -121,7 +129,7 @@ public class ProcessStatisticsRetriever implements IProcessInstanceQueryEvaluato
       {
          private final CriticalExecutionTimePolicy criticalityPolicy = StatisticsQueryUtils.getCriticalExecutionTimePolicy(psq);
 
-         private final Date tsPiStart = new Date();
+         private final Date tsPiStart = TimestampProviderUtils.getTimeStamp();
 
          public void handleRow(ResultSet rs) throws SQLException
          {

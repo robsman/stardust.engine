@@ -25,9 +25,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.transform.stream.StreamResult;
+
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
@@ -72,7 +75,7 @@ public class XmlPreferenceWriter implements IPreferencesWriter
          }
       }
 
-      XmlUtils.serialize(prefsDoc, osPreferences, 2);
+      XmlUtils.serialize(prefsDoc, new StreamResult(osPreferences), "UTF-8", 2, null ,null);
       osPreferences.flush();
    }
 

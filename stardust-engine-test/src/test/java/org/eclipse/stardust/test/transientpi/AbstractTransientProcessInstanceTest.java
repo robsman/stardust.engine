@@ -39,10 +39,6 @@ import javax.jms.Session;
 import javax.sql.DataSource;
 import javax.transaction.SystemException;
 
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
-import org.springframework.transaction.jta.JtaTransactionManager;
-
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
@@ -72,6 +68,9 @@ import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
 import org.eclipse.stardust.test.api.monitoring.DatabaseOperationMonitoring;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.util.JmsConstants;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
+import org.springframework.transaction.jta.JtaTransactionManager;
 
 /**
  * <p>
@@ -80,10 +79,11 @@ import org.eclipse.stardust.test.api.util.JmsConstants;
  * </p>
  *
  * @author Nicolas.Werlein
- * @version $Revision$
  */
 public class AbstractTransientProcessInstanceTest
 {
+   private static final String EXPECTED_DATA_STRING = "SUCCESS";
+
    protected static final String PI_BLOBS_HOLDER_FIELD_NAME = "piBlobsHolder";
 
    protected static final String PERSISTENT_TO_ROOT_PI_FIELD_NAME = "persistentToRootPi";
@@ -95,6 +95,16 @@ public class AbstractTransientProcessInstanceTest
    protected static final String HAZELCAST_LOGGING_TYPE_KEY = "hazelcast.logging.type";
    protected static final String HAZELCAST_LOGGING_TYPE_VALUE = "log4j";
 
+   protected static final String ASSERTION_MSG_PI_STATE_CHECK = " - process instance state check";
+   protected static final String ASSERTION_MSG_HAS_ENTRY_IN_DB = " - process instance entry in database";
+   protected static final String ASSERTION_MSG_NO_SERIAL_AT_QUEUES = " - no serial activity thread queues";
+   protected static final String ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY = " - is transient process instance storage empty";
+   protected static final String ASSERTION_MSG_USER_DETAILS_LEVEL_CHECK = " - user details level check";
+   protected static final String ASSERTION_MSG_USER_PROPS_ARE_EMPTY = " - starting user properties are empty";
+   protected static final String ASSERTION_MSG_EXCEPTION_ID_CHECK = " - exception ID check";
+   protected static final String ASSERTION_MSG_AUDIT_TRAIL_PERSISTENCE_CHECK = " - audit trail persistence check";
+   protected static final String ASSERTION_MSG_STARTING_USER_CHECK = " - starting user check";
+   protected static final String ASSERTION_MSG_SHOULD_NOT_BE_REACHED = " - line should not be reached";
 
    protected static volatile boolean appMayComplete;
 
@@ -329,7 +339,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class FailingApp
    {
@@ -347,7 +356,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class FirstTryFailsApp
    {
@@ -371,7 +379,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class SucceedingApp
    {
@@ -388,7 +395,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class SettingRollbackOnlyApp
    {
@@ -407,7 +413,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class AbortingApp
    {
@@ -425,7 +430,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class IsolatedQueryApp
    {
@@ -452,7 +456,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class WaitingApp
    {
@@ -481,7 +484,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class BigDataWriter
    {
@@ -505,7 +507,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class BigDataReader
    {
@@ -521,7 +522,6 @@ public class AbstractTransientProcessInstanceTest
     * </p>
     *
     * @author Nicolas.Werlein
-    * @version $Revision$
     */
    public static final class ChangeAuditTrailPersistence
    {
@@ -531,6 +531,47 @@ public class AbstractTransientProcessInstanceTest
 
          final ProcessInstanceBean rootPi = ProcessInstanceBean.findByOID(rootPiOid);
          rootPi.setAuditTrailPersistence(newValue);
+      }
+   }
+
+   /**
+    * <p>
+    * This is the application used in the test model to init some {@link String} data.
+    * </p>
+    *
+    * @author Nicolas.Werlein
+    */
+   public static final class InitData
+   {
+      public String init()
+      {
+         return EXPECTED_DATA_STRING;
+      }
+   }
+
+   /**
+    * <p>
+    * This is the application used in the test model to verify that some {@link String} data
+    * has the expected value.
+    * </p>
+    *
+    * @author Nicolas.Werlein
+    */
+   public static final class VerifyData
+   {
+      private String data;
+
+      public void setData(final String data)
+      {
+         this.data = data;
+      }
+
+      public void verify()
+      {
+         if ( !EXPECTED_DATA_STRING.equals(data))
+         {
+            throw new IllegalStateException();
+         }
       }
    }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,24 +15,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.Functor;
-import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.TransformingIterator;
+import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.TimeMeasure;
 import org.eclipse.stardust.common.config.CurrentVersion;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
@@ -43,29 +31,13 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailDataBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.Constants;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceLinkTypeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.PropertyPersistor;
-import org.eclipse.stardust.engine.core.runtime.beans.SchemaHelper;
-import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserDomainBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserDomainHierarchyBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
-import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.setup.*;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster.DataClusterEnableState;
-import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
-import org.eclipse.stardust.engine.core.runtime.setup.DataClusterIndex;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterSynchronizationInfo;
-import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
-import org.eclipse.stardust.engine.core.runtime.setup.DataSlotFieldInfo;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**
@@ -167,12 +139,12 @@ public class DDLManager
          {
             stmt = connection.createStatement();
 
-            long start = System.currentTimeMillis();
+            final TimeMeasure timer = new TimeMeasure();
             stmt.executeUpdate(statement);
-            long stop = System.currentTimeMillis();
+            timer.stop();
             if(jdbcSession != null)
             {
-               jdbcSession.monitorSqlExecution(statement, start, stop);
+               jdbcSession.monitorSqlExecution(statement, timer);
             }
          }
          finally
@@ -1117,7 +1089,7 @@ public class DDLManager
                   "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT " + dbDescriptor.getNextValForSeqString(schemaName, "user_seq") + ", 'motu', 'Master', 'Of the Universe', 'motu', NULL, "
-                  + new Date().getTime() + ", "
+                  + TimestampProviderUtils.getTimeStampValue() + ", "
                   + "0, NULL, 0, 0, r.oid "
                   + "FROM " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME)) + " r "
                   + "WHERE r.id = 'carnot'");
@@ -1221,7 +1193,7 @@ public class DDLManager
                   "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT 'motu', 'Master', 'Of the Universe', 'motu', NULL, "
-                  + new Date().getTime() + ", "
+                  + TimestampProviderUtils.getTimeStampValue() + ", "
                   + "0, NULL, 0, 0, r.oid "
                   + "FROM " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME)) + " r "
                   + "WHERE r.id = 'carnot'");
@@ -1321,7 +1293,7 @@ public class DDLManager
                   "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "VALUES (1, 'motu', 'Master', 'Of the Universe', 'motu', NULL, "
-                  + new Date().getTime() + ",0 , NULL, 0, 0, 1)");
+                  + TimestampProviderUtils.getTimeStampValue() + ",0 , NULL, 0, 0, 1)");
             ps.println(statementDelimiter);
 
             ps.println(

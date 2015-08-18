@@ -13,13 +13,15 @@ package org.eclipse.stardust.engine.core.compatibility.gui.utils.spinner;
 import java.util.Calendar;
 import java.text.DateFormat;
 
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
+
 /**
  * @author rsauer
  * @version $Revision$
  */
 public class TimeSpinModel extends DefaultSpinModel
 {
-   private Calendar time = Calendar.getInstance();
+   private Calendar time = TimestampProviderUtils.getCalendar();
 
    public TimeSpinModel()
    {

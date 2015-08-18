@@ -74,6 +74,13 @@ public interface ProcessDefinition extends ModelElement, EventAware
    List getAllActivities();
 
    /**
+    * Gets all transitions defined for this process definition.
+    *
+    * @return a List of <code>{@link Transition}</code> objects.
+    */
+   List<Transition> getAllTransitions();
+
+   /**
     * Gets the specified activity.
     *
     * @param id the ID of the activity.
@@ -103,4 +110,49 @@ public interface ProcessDefinition extends ModelElement, EventAware
     * @return the ProcessInterface or null if this process do not implement an interface.
     */
    ProcessInterface getDeclaredProcessInterface();
+
+   /**
+    * Returns the list of all transitions having as target the specified activity.
+    *
+    * @param activity the target activity.
+    *
+    * @return a list of Transition objects. Can be empty if there are no incomming transitions to the specified activity.
+    */
+   List<Transition> getIncommingTransitions(Activity activity);
+
+   /**
+    * Returns the list of all transitions having as source the specified activity.
+    *
+    * @param activity the source activity.
+    *
+    * @return a list of Transition objects. Can be empty if there are no outgoing transitions from the specified activity.
+    */
+   List<Transition> getOutgoingTransitions(Activity activity);
+
+   /**
+    * Gets the specified Transition.
+    *
+    * @param transitionId the id of the transition.
+    *
+    * @return the requested transition or null if there is no transition with the specified id.
+    */
+   Transition getTransition(String transitionId);
+
+   /**
+    * Gets the source activity for the specified transition.
+    *
+    * @param transition the transition.
+    *
+    * @return an Activity object.
+    */
+   Activity getSourceActivity(Transition transition);
+
+   /**
+    * Gets the target activity for the specified transition.
+    *
+    * @param transition the transition.
+    *
+    * @return an Activity object.
+    */
+   Activity getTargetActivity(Transition transition);
 }

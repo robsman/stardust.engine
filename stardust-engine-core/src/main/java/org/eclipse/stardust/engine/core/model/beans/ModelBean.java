@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,69 +10,22 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.beans;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.FilteringIterator;
-import org.eclipse.stardust.common.Predicate;
-import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.CardinalityKey;
-import org.eclipse.stardust.engine.api.model.EventType;
-import org.eclipse.stardust.engine.api.model.IApplication;
-import org.eclipse.stardust.engine.api.model.IApplicationContextType;
-import org.eclipse.stardust.engine.api.model.IApplicationType;
-import org.eclipse.stardust.engine.api.model.IConditionalPerformer;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IDataType;
-import org.eclipse.stardust.engine.api.model.IEventActionType;
-import org.eclipse.stardust.engine.api.model.IEventConditionType;
-import org.eclipse.stardust.engine.api.model.IExternalPackage;
-import org.eclipse.stardust.engine.api.model.ILinkType;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.IModeler;
-import org.eclipse.stardust.engine.api.model.IOrganization;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.IQualityAssurance;
-import org.eclipse.stardust.engine.api.model.IQualityAssuranceCode;
-import org.eclipse.stardust.engine.api.model.IRole;
-import org.eclipse.stardust.engine.api.model.ITriggerType;
-import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
-import org.eclipse.stardust.engine.api.model.IView;
-import org.eclipse.stardust.engine.api.model.IXpdlType;
-import org.eclipse.stardust.engine.api.model.Inconsistency;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.model.Scripting;
-import org.eclipse.stardust.engine.api.query.UserQuery;
-import org.eclipse.stardust.engine.api.runtime.AdministrationService;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
-import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.api.runtime.UserService;
-import org.eclipse.stardust.engine.core.compatibility.diagram.ArrowKey;
-import org.eclipse.stardust.engine.core.compatibility.diagram.ColorKey;
-import org.eclipse.stardust.engine.core.compatibility.diagram.DefaultDiagram;
-import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
-import org.eclipse.stardust.engine.core.compatibility.diagram.LineKey;
+import org.eclipse.stardust.engine.core.compatibility.diagram.*;
 import org.eclipse.stardust.engine.core.model.utils.*;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableDefinition;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableScope;
@@ -83,7 +36,9 @@ import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
+import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  *
@@ -100,7 +55,7 @@ public class ModelBean extends RootElementBean
    private static final long serialVersionUID = 3L;
 
    private static final Logger trace = LogManager.getLogger(ModelBean.class);
-   
+
    private static final String IPP_VARIABLES = "ipp:variables[";
    private static final String IPP_VARIABLES_DESCRIPTION = "]:description";
    private static final String IPP_VARIABLES_DEFAULT_VALUE = "]:defaultValue";
@@ -149,7 +104,7 @@ public class ModelBean extends RootElementBean
    private int defaultConditionalPerformerId = 1;
    private int defaultDiagramId = 1;
    private int defaultViewId = 1;
-   
+
    private Set<String> configurationVariableReferences = CollectionUtils.newSet();
    private QualityAssuranceBean qualityAssuranceBean;
 
@@ -213,7 +168,7 @@ public class ModelBean extends RootElementBean
    public List checkConsistency()
    {
       List inconsistencies = CollectionUtils.newList();
-      
+
       if (!validateReferences(inconsistencies))
       {
          return inconsistencies;
@@ -222,7 +177,7 @@ public class ModelBean extends RootElementBean
       super.checkConsistency(inconsistencies);
 
       try
-      {         
+      {
          IQualityAssurance qualityAssurance = getQualityAssurance();
          if (qualityAssurance != null)
          {
@@ -243,7 +198,7 @@ public class ModelBean extends RootElementBean
             if (!duplicatesInfo.isEmpty())
             {
                for (IQualityAssuranceCode qaCode : duplicatesInfo.keySet())
-               {               
+               {
                   Integer duplicatesCount = duplicatesInfo.get(qaCode);
                   String code = qaCode.getCode();
 
@@ -252,7 +207,7 @@ public class ModelBean extends RootElementBean
                }
             }
          }
-         
+
          for (IData data : getData())
          {
             data.checkConsistency(inconsistencies);
@@ -272,7 +227,7 @@ public class ModelBean extends RootElementBean
          {
             ((IModelParticipant) i.next()).checkConsistency(inconsistencies);
          }
-         
+
          IModelParticipant administrator = findParticipant("Administrator");
          if (administrator == null)
          {
@@ -284,32 +239,32 @@ public class ModelBean extends RootElementBean
             BpmValidationError error = BpmValidationError.PART_ADMINISTRATOR_PARTICIPANT_MUST_BE_A_ROLE.raise();
             inconsistencies.add(new Inconsistency(error, administrator, Inconsistency.ERROR));
          }
-         
+
          if (!scripting.isSupported())
          {
             BpmValidationError error = BpmValidationError.MDL_UNSUPPORTED_SCRIPT_LANGUAGE.raise(scripting.getType());
             inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
-         
+
          if (ModelManagerFactory.isAvailable())
          {
-            if (administrator.getAllOrganizations().hasNext())
+            if (administrator != null && administrator.getAllOrganizations().hasNext())
             {
                BpmValidationError error = BpmValidationError.PART_ADMINISTRATOR_IS_NOT_ALLOWED_TO_HAVE_RELATIONSHIPS_TO_ANY_ORGANIZATION.raise();
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
             Set<String> grants = new HashSet<String>();
-            addAllGrants(grants, QueryService.class, "getAllUsers", UserQuery.class);
-            addAllGrants(grants, AdministrationService.class, "deployModel", String.class, int.class);
-            addAllGrants(grants, AdministrationService.class, "cleanupRuntimeAndModels");
-            addAllGrants(grants, AdministrationService.class, "recoverRuntimeEnvironment");
-            addAllGrants(grants, AdministrationService.class, "getAllDaemons", boolean.class);
-            addAllGrants(grants, AdministrationService.class, "flushCaches");
-            addAllGrants(grants, AdministrationService.class, "getAuditTrailHealthReport");
-            addAllGrants(grants, UserService.class, "modifyUser", User.class);
-            addAllGrants(grants, QueryService.class, "getActiveModel");
-            addAllGrants(grants, AdministrationService.class, "getDepartment", long.class);
-            addAllGrants(grants, AdministrationService.class, "removeDepartment", long.class);
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.CONTROL_PROCESS_ENGINE));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.DEPLOY_PROCESS_MODEL));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.MANAGE_DAEMONS));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.MODIFY_AUDIT_TRAIL));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.MODIFY_DEPARTMENTS));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.MODIFY_USER_DATA));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.READ_AUDIT_TRAIL_STATISTICS));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.READ_DEPARTMENTS));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.READ_MODEL_DATA));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.READ_USER_DATA));
+            addAllGrants(grants, AuthorizationContext.create(ClientPermission.RUN_RECOVERY));
 
             Iterator allParticipants = getAllParticipants();
             while (allParticipants.hasNext())
@@ -323,14 +278,14 @@ public class ModelBean extends RootElementBean
                }
             }
          }
-         
+
        ModelElementList typeDecls = getTypeDeclarations();
        for (int i = 0; i < typeDecls.size(); i++)
        {
           TypeDeclarationBean typeDecl = (TypeDeclarationBean) typeDecls.get(i);
           typeDecl.checkConsistency(inconsistencies);
        }
-       
+
          Set<String> configurationVariableReferences = getConfigurationVariableReferences();
          Set<IConfigurationVariableDefinition> configurationVariableDefinitions = getConfigurationVariableDefinitionsFullNames();
          Set<String> definedVarNames = CollectionUtils.newSet();
@@ -358,7 +313,7 @@ public class ModelBean extends RootElementBean
                BpmValidationError error = BpmValidationError.MDL_NO_DEFAULT_VALUE_FOR_CONFIGURATION_VARIABLE.raise(varDefinition.getName());
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
             }
-            
+
             if ( !configurationVariableReferences.contains(varDefinition.getName()))
             {
                BpmValidationError error = BpmValidationError.MDL_CONFIGURATION_VARIABLE_NEVER_USED.raise(varDefinition.getName());
@@ -371,7 +326,7 @@ public class ModelBean extends RootElementBean
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
             }
          }
-         
+
          for (String varReferenceName : configurationVariableReferences)
          {
             if ( !definedVarNames.contains(varReferenceName))
@@ -380,7 +335,7 @@ public class ModelBean extends RootElementBean
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
             }
          }
-         
+
          return inconsistencies;
       }
       catch (ApplicationException ae)
@@ -438,7 +393,7 @@ public class ModelBean extends RootElementBean
 
       return duplicatesInfo;
    }
-   
+
    private boolean validateReferences(List<Inconsistency> inconsistencies)
    {
       for (IExternalPackage externalPackage : externalPackages)
@@ -455,11 +410,12 @@ public class ModelBean extends RootElementBean
             return addReferenceInconsistency(inconsistencies, externalPackage);
          }
       }
-      
+
       if (ModelManagerFactory.isAvailable())
       {
          Date ref = (Date) getAttribute(PredefinedConstants.VALID_FROM_ATT);
-         return validateTransitiveConsistency(ModelManagerFactory.getCurrent(), ref == null ? new Date() : ref,
+         return validateTransitiveConsistency(ModelManagerFactory.getCurrent(),
+               ref == null ? TimestampProviderUtils.getTimeStamp() : ref,
                CollectionUtils.<String, IModel>newMap(), this, inconsistencies);
       }
       return true;
@@ -586,9 +542,8 @@ public class ModelBean extends RootElementBean
       return scopedOrg;
    }
 
-   private void addAllGrants(Set<String> grants, Class service, String method, Class... params)
+   protected void addAllGrants(Set<String> grants, AuthorizationContext authorizationContext)
    {
-      AuthorizationContext authorizationContext = AuthorizationContext.create(service, method, params);
       authorizationContext.setModels(Collections.singletonList((IModel) this));
       grants.addAll(Arrays.asList(authorizationContext.getGrants()));
    }
@@ -601,7 +556,7 @@ public class ModelBean extends RootElementBean
          throw new PublicException(
                BpmRuntimeError.MDL_TYPEDECLARATION_WITH_ID_ALREADY_EXISTS.raise(id));
       }
-      
+
       markModified();
 
       TypeDeclarationBean typeDeclaration = new TypeDeclarationBean(id, name,
@@ -755,7 +710,7 @@ public class ModelBean extends RootElementBean
    {
       return (ITypeDeclaration) typeDeclarations.findById(id);
    }
-   
+
    public IApplication findApplication(String id)
    {
       return find(applications, id);
@@ -882,7 +837,7 @@ public class ModelBean extends RootElementBean
    {
       return data.iterator();
    }
-   
+
    public ModelElementList<IData> getData()
    {
       return data;
@@ -1083,7 +1038,7 @@ public class ModelBean extends RootElementBean
    {
       eventActionTypes.remove(type);
    }
-   
+
    public Iterator getAllApplicationContextTypes()
    {
       return applicationContextTypes.iterator();
@@ -1480,7 +1435,7 @@ public class ModelBean extends RootElementBean
    {
       this.scripting = scripting;
    }
-   
+
    public void addToExternalPackages(IExternalPackage externalPackage)
    {
       externalPackages.add(externalPackage);
@@ -1495,7 +1450,7 @@ public class ModelBean extends RootElementBean
    {
       return ModelUtils.findById(externalPackages, id);
    }
-   
+
    public Set<IConfigurationVariableDefinition> getConfigurationVariableDefinitions()
    {
       Set<IConfigurationVariableDefinition> defs = CollectionUtils.newSet();
@@ -1522,7 +1477,7 @@ public class ModelBean extends RootElementBean
       }
       return defs;
    }
-   
+
    public Set<IConfigurationVariableDefinition> getConfigurationVariableDefinitionsFullNames()
    {
       Set<IConfigurationVariableDefinition> defs = CollectionUtils.newSet();
@@ -1554,10 +1509,10 @@ public class ModelBean extends RootElementBean
    {
       return Collections.unmodifiableSet(configurationVariableReferences);
    }
-   
+
    public void setConfigurationVariableReferences(Set<String> configurationVariableReferences)
    {
-      this.configurationVariableReferences = configurationVariableReferences; 
+      this.configurationVariableReferences = configurationVariableReferences;
    }
 
    public IProcessDefinition getImplementingProcess(QName processId)
@@ -1584,7 +1539,7 @@ public class ModelBean extends RootElementBean
    public IQualityAssurance createQualityAssurance()
    {
       qualityAssuranceBean = new QualityAssuranceBean();
-      
+
       return qualityAssuranceBean;
    }
 

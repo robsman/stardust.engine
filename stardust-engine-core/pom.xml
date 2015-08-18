@@ -33,11 +33,6 @@
          <scope>provided</scope>
       </dependency>
       <dependency>
-         <groupId>javax.servlet</groupId>
-         <artifactId>jsp-api</artifactId>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
          <groupId>org.apache.geronimo.specs</groupId>
          <artifactId>geronimo-jta_1.1_spec</artifactId>
          <scope>compile</scope>
@@ -74,26 +69,6 @@
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>javax.xml.bind</groupId>
-         <artifactId>jaxb-api</artifactId>
-         <scope>compile</scope>
-         <exclusions>
-            <exclusion>
-               <groupId>javax.xml.stream</groupId>
-               <artifactId>stax-api</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>javax.activation</groupId>
-               <artifactId>activation</artifactId>
-            </exclusion>
-         </exclusions>
-      </dependency>
-      <dependency>
-         <groupId>stax</groupId>
-         <artifactId>stax-api</artifactId>
-         <scope>compile</scope>
-      </dependency>
-      <dependency>
          <groupId>rhino</groupId>
          <artifactId>js</artifactId>
          <scope>compile</scope>
@@ -121,11 +96,11 @@
       </dependency>
       <dependency>
          <groupId>org.codehaus.woodstox</groupId>
-         <artifactId>wstx-asl</artifactId>
+         <artifactId>woodstox-core-asl</artifactId>
          <scope>runtime</scope>
          <exclusions>
             <exclusion>
-               <groupId>stax</groupId>
+               <groupId>javax.xml.stream</groupId>
                <artifactId>stax-api</artifactId>
             </exclusion>
          </exclusions>
@@ -152,7 +127,7 @@
       </dependency>
       <dependency>
          <groupId>org.eclipse.stardust.components</groupId>
-         <artifactId>jcr-vfs</artifactId>
+         <artifactId>jcr-vfs-factory</artifactId>
          <scope>compile</scope>
          <version>${project.version}</version>
          <optional>true</optional>
@@ -562,25 +537,12 @@
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.hamcrest</groupId>
-         <artifactId>hamcrest-core</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.hamcrest</groupId>
-         <artifactId>hamcrest-library</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.mockito</groupId>
-         <artifactId>mockito-core</artifactId>
-         <scope>test</scope>
-         <exclusions>
-            <exclusion>
-               <groupId>org.hamcrest</groupId>
-               <artifactId>hamcrest-core</artifactId>
-            </exclusion>
-         </exclusions>
+         <groupId>org.eclipse.stardust.engine</groupId>
+         <artifactId>mockito-module</artifactId>
+         <version>${project.version}</version>
+         <scope>compile</scope>
+         <type>pom</type>
+         <optional>true</optional>
       </dependency>
    </dependencies>
    
@@ -613,8 +575,8 @@
             <configuration>
                <excludes>
                   <exclude>org/eclipse/stardust/**/ejb2/tools/*.class</exclude>
-                  <exclude>org/eclipse/stardust/**/models/xpdl/Carnot2Xpdl.class</exclude>
-                  <exclude>org/eclipse/stardust/**/models/xpdl/Xpdl2Carnot.class</exclude>
+                  <exclude>org/eclipse/stardust/**/model/xpdl/Carnot2Xpdl.class</exclude>
+                  <exclude>org/eclipse/stardust/**/model/xpdl/Xpdl2Carnot.class</exclude>
                </excludes>
             </configuration>
          </plugin>
@@ -732,6 +694,7 @@
                   <include>api/model/Role.java</include>
                   <include>api/model/RoleInfo.java</include>
                   <include>api/model/SubProcessModeKey.java</include>
+                  <include>api/model/Transition.java</include>
                   <include>api/model/Trigger.java</include>
                   <include>api/model/TypeDeclaration.java</include>
                   <include>api/model/XpdlType.java</include>
@@ -860,6 +823,8 @@
                   <include>api/query/AttributeOrder.java</include>
                   <include>api/query/AttributedScopedFilter.java</include>
                   <include>api/query/BinaryOperatorFilter.java</include>
+                  <include>api/query/BusinessObjectQuery.java</include>
+                  <include>api/query/BusinessObjects.java</include>
                   <include>api/query/CasePolicy.java</include>
                   <include>api/query/DataFilter.java</include>
                   <include>api/query/DataQuery.java</include>
@@ -925,6 +890,14 @@
                   <include>api/query/Worklist.java</include>
                   <include>api/query/WorklistLayoutPolicy.java</include>
                   <include>api/query/WorklistQuery.java</include>
+                  
+                  <!-- org/eclipse/stardust/engine/core/query -->
+                  <include>core/query/statistics/api/CriticalExecutionTimePolicy.java</include>
+                  <include>core/query/statistics/api/CriticalCostPerExecutionPolicy.java</include>
+                  <include>core/query/statistics/api/CriticalProcessingTimePolicy.java</include>
+                  <include>core/query/statistics/api/StatisticsDateRangePolicy.java</include>
+                  <include>core/query/statistics/api/PerformanceCriticalityPolicy.java</include>
+                  <include>core/query/statistics/api/ProcessCumulationPolicy.java</include>
 
                   <include>core/spi/dms/IRepositoryCapabilities.java</include>
                   <include>core/spi/dms/IRepositoryConfiguration.java</include>

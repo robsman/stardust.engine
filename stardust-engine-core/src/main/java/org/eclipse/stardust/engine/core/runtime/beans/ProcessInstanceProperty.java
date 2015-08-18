@@ -19,7 +19,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
  * @author ubirkemeyer
  * @version $Revision$
  */
-public class ProcessInstanceProperty extends AbstractPropertyWithUser
+public class ProcessInstanceProperty extends AbstractPropertyWithUser implements IProcessInstanceAware
 {
    public static final String FIELD__OID = AbstractProperty.FIELD__OID;
    public static final String FIELD__OBJECT_OID = AbstractProperty.FIELD__OBJECT_OID;
@@ -49,7 +49,7 @@ public class ProcessInstanceProperty extends AbstractPropertyWithUser
    public static final String[] proc_inst_prp_idx3_INDEX = new String[] {
          FIELD__TYPE_KEY, FIELD__STRING_VALUE};
    public static final String[] proc_inst_prp_idx4_UNIQUE_INDEX = new String[] {FIELD__OID};
-   
+
    public ProcessInstanceProperty()
    {
    }
@@ -58,10 +58,10 @@ public class ProcessInstanceProperty extends AbstractPropertyWithUser
    {
       super(processInstance, name, value);
    }
-   
+
    /**
     * Clones the current property and adapts the clones oid to the targeted processInstance.
-    * 
+    *
     * @param processInstance The target processInstance oid.
     * @return The cloned property.
     */
@@ -69,7 +69,12 @@ public class ProcessInstanceProperty extends AbstractPropertyWithUser
    {
       ProcessInstanceProperty property = new ProcessInstanceProperty();
       ProcessInstanceProperty clone = super.clone(processInstance, property);
-      SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).cluster(property);
       return clone;
+   }
+
+   @Override
+   public IProcessInstance getProcessInstance()
+   {
+      return ProcessInstanceBean.findByOID(getObjectOID());
    }
 }

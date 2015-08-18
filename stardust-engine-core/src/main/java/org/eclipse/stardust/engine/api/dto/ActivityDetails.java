@@ -35,7 +35,7 @@ public class ActivityDetails extends AuditTrailModelElementDetails implements Ac
    private static final long serialVersionUID = 2L;
 
    private static final Logger trace = LogManager.getLogger(ActivityDetails.class);
-   
+
    private final ImplementationType implementationType;
    private final boolean abortable;
    private final boolean interactive;
@@ -50,12 +50,16 @@ public class ActivityDetails extends AuditTrailModelElementDetails implements Ac
    private final ModelParticipant defaultPerformer;
    private final Reference reference;
 
-   private Set<QualityAssuranceCode> qualityAssuranceCodes = new HashSet<QualityAssuranceCode>();   
+   private Set<QualityAssuranceCode> qualityAssuranceCodes = new HashSet<QualityAssuranceCode>();
    private boolean qualityAssuranceEnabled = false;
-   private ModelParticipant qualityAssuranceParticipant = null;   
+   private ModelParticipant qualityAssuranceParticipant = null;
    private String qualityAssuranceFormula;
    private int qualityAssuranceProbability;
-   
+
+   private final GatewayType joinType;
+
+   private final GatewayType splitType;
+
    public ActivityDetails(IActivity activity)
    {
       this(activity, null);
@@ -64,11 +68,11 @@ public class ActivityDetails extends AuditTrailModelElementDetails implements Ac
    public ActivityDetails(IActivity activity, IActivityInstance activityInstance)
    {
       super(activity);
-      
+
       this.implementationType = activity.getImplementationType();
       this.abortable = activity.getAllowsAbortByPerformer();
       this.interactive = activity.isInteractive();
-      
+
       this.processDefinitionId = activity.getProcessDefinition().getId();
 
       IApplication app = activity.getApplication();
@@ -88,9 +92,9 @@ public class ActivityDetails extends AuditTrailModelElementDetails implements Ac
       }
       else
       {
-         this.defaultPerformer = null;         
+         this.defaultPerformer = null;
       }
-      
+
       this.eventHandlers = DetailsFactory.<EventHandler, EventHandlerDetails>
          createCollection(activity.getEventHandlers(),
             IEventHandler.class, EventHandlerDetails.class);
@@ -100,7 +104,7 @@ public class ActivityDetails extends AuditTrailModelElementDetails implements Ac
          this.contexts.add(new ApplicationContextDetails((IApplicationContext) i.next(),
                activity));
       }
-      
+
       reference = DetailsFactory.create(activity.getExternalReference(), IReference.class, ReferenceDetails.class);
 
       qualifiedImplementationProcessDefinitionId =
@@ -115,8 +119,8 @@ public class ActivityDetails extends AuditTrailModelElementDetails implements Ac
                ? qualifiedImplementationProcessDefinitionId.substring(getNamespace().length() + 2)
                : reference.getId()
             : null;
-               
-               
+
+
       qualityAssuranceEnabled = activity.isQualityAssuranceEnabled();
       qualityAssuranceFormula = activity.getQualityAssuranceFormula();
       qualityAssuranceProbability = activity.getQualityAssuranceProbability();
@@ -124,13 +128,33 @@ public class ActivityDetails extends AuditTrailModelElementDetails implements Ac
       {
          qualityAssuranceParticipant = resolvePerformer(activity, activityInstance, activity.getQualityAssurancePerformer());
       }
-      
+
       Set<IQualityAssuranceCode> codes = activity.getQualityAssuranceCodes();
       for(IQualityAssuranceCode code : codes)
       {
          QualityAssuranceCode qualityAssuranceCodeDetails = DetailsFactory.create(code, IQualityAssuranceCode.class, QualityAssuranceCodeDetails.class);
          qualityAssuranceCodes.add(qualityAssuranceCodeDetails);
-      }         
+      }
+
+      joinType = toGatewayType(activity.getJoinType());
+      splitType = toGatewayType(activity.getSplitType());
+   }
+
+   private GatewayType toGatewayType(JoinSplitType type)
+   {
+      if (type == JoinSplitType.And)
+      {
+         return GatewayType.And;
+      }
+      if (type == JoinSplitType.Xor)
+      {
+         return GatewayType.Xor;
+      }
+      if (type == JoinSplitType.Or)
+      {
+         return GatewayType.Or;
+      }
+      return null;
    }
 
    private ModelParticipant resolvePerformer(IActivity activity, IActivityInstance activityInstance, IModelParticipant performer)
@@ -184,7 +208,7 @@ public class ActivityDetails extends AuditTrailModelElementDetails implements Ac
          trace.warn("Creating details for model participants of type "
                + (performer != null ? performer.getClass() : null) + " is currently not supported.");
       }
-      
+
       return participant;
    }
 
@@ -232,7 +256,7 @@ public class ActivityDetails extends AuditTrailModelElementDetails implements Ac
    {
       return application;
    }
-   
+
    public ModelParticipant getDefaultPerformer()
    {
       return defaultPerformer;
@@ -279,7 +303,7 @@ public class ActivityDetails extends AuditTrailModelElementDetails implements Ac
       }
       return name;
    }
-   
+
    public String getImplementationProcessDefinitionId()
    {
       return implementationProcessDefinitionId;
@@ -318,5 +342,17 @@ public class ActivityDetails extends AuditTrailModelElementDetails implements Ac
    public Set<QualityAssuranceCode> getAllQualityAssuranceCodes()
    {
       return qualityAssuranceCodes;
+   }
+
+   @Override
+   public GatewayType getJoinType()
+   {
+      return joinType;
+   }
+
+   @Override
+   public GatewayType getSplitType()
+   {
+      return splitType;
    }
 }

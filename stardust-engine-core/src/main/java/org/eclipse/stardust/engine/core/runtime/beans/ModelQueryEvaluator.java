@@ -18,6 +18,7 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.query.ModelPolicy;
 import org.eclipse.stardust.engine.api.query.Query;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * 
@@ -91,7 +92,7 @@ public class ModelQueryEvaluator extends AbstractQueryPredicate<IModel>
                if (!model.getBooleanAttribute(PredefinedConstants.IS_DISABLED_ATT))
                {
                   Date validFrom = (Date) model.getAttribute(PredefinedConstants.VALID_FROM_ATT);
-                  if (validFrom == null || validFrom.before(new Date()))
+                  if (validFrom == null || validFrom.before(TimestampProviderUtils.getTimeStamp()))
                   {
                      state = DeployedModelQuery.DeployedModelState.VALID;
                   }

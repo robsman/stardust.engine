@@ -126,7 +126,7 @@ public class ModelInfoRetriever
    {
       XMLFilter nameSpaceFilter = getNameSpaceFilter();
       StopFilter stopFilter = new StopFilter(nameSpaceFilter);
-      stopFilter.addStopCondition(XMLConstants.NS_XPDL_2_1, "TypeDeclarations", "Participants", "Applications", "DataFields", "WorkflowProcesses", "ExtendedAttributes");
+      stopFilter.addStopCondition(XMLConstants.NS_XPDL_2_1, "TypeDeclarations", "Participants", "Applications", "DataFields", "WorkflowProcesses");
 
       SAXSource source = getModelSource(inputSource, stopFilter);
       JAXBContext context = getContext();

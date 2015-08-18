@@ -32,6 +32,7 @@ import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsFolderBean;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 
@@ -199,7 +200,7 @@ public class DmsUtils
       ZipOutputStream out = new ZipOutputStream(outputStream);
 
       out.setComment("Configuration backup for partition '" + partitionId
-            + "', created on " + new Date() + ", root folder '" + rootFolder.getPath()
+            + "', created on " + TimestampProviderUtils.getTimeStamp() + ", root folder '" + rootFolder.getPath()
             + "'");
 
       backupFolder(rootFolder, out, documentManagementService, "", ignoreEmptyFolders);

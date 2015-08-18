@@ -226,6 +226,20 @@
     </complexContent>
    </complexType>
 
+   <complexType name="BusinessObjectQuery">
+   	<annotation>
+   		<documentation>
+   		TODO: Documentation needed
+   		</documentation>
+   	</annotation>
+   	<complexContent>
+   		<extension base="tns:Query">
+   			<sequence>
+   			</sequence>
+   		</extension>
+   	</complexContent>
+   </complexType>
+
    <complexType name="Operand" abstract="true">
       <simpleContent>
          <extension base="string" />
@@ -347,6 +361,8 @@
                   <element name="startingUser" type="tns:StartingUserFilter" />
                   <element name="userState" type="tns:UserStateFilter" />
                   <element name="participantAssociation" type="tns:ParticipantAssociationFilter" />
+
+                  <element name="havingDocument" type="tns:HavingDocumentFilter" />
                </choice>
 
             </sequence>
@@ -836,11 +852,11 @@
      <complexContent>
          <extension base="tns:PredicateBase">
        		<sequence>
-			<!--   userOID=-1 maps to CURRENT_USER    -->
-    		<element name="userOid" type="long"/>
-   	   		</sequence>
-   	   	 </extension>
-   	 </complexContent>
+      			<!--   userOID=-1 maps to CURRENT_USER    -->
+          		<element name="userOid" type="long"/>
+   	   	</sequence>
+   	   </extension>
+   	</complexContent>
    </complexType>
 
    <element name="startingUser" type="tns:StartingUserFilter" substitutionGroup="tns:filterCriterion" />
@@ -892,7 +908,27 @@
 
    <element name="participantAssociation" type="tns:ParticipantAssociationFilter" substitutionGroup="tns:filterCriterion" />
 
+   <complexType name="HavingDocumentFilter">
+     <annotation>
+        <documentation>
+        Restricts the resulting items to the ones using the specified document.
+        </documentation>
+     </annotation>
+     <complexContent>
+         <extension base="tns:PredicateBase">
+            <sequence>
+               <element name="documentId" type="string" />
+               <element name="modelId" type="string"  minOccurs="0" />
+            </sequence>
+         </extension>
+     </complexContent>
+   </complexType>
+
+   <element name="havingDocumentFilter" type="tns:HavingDocumentFilter" substitutionGroup="tns:filterCriterion" />
+
+
 <!-- ORDER -->
+
    <complexType name="OrderCriterion" abstract="true" />
 
    <complexType name="OrderCriteria">

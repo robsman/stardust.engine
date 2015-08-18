@@ -11,7 +11,6 @@
 package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,6 +34,7 @@ import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  *@author mgille
@@ -106,12 +106,12 @@ public class MailHelper
       Session session = null;
 
       boolean smtpAuth = Parameters.instance().getBoolean(PROP_MAIL_SMTP_AUTH_ENABLED,
-            true);
-
-      addSmtpProperties(properties);
+            false);
 
       if (smtpAuth)
       {
+         addSmtpProperties(properties);
+         
          trace.info("SMTP Auth is set to :" + smtpAuth);
          final String smtpUsername = Parameters.instance().getString(PROP_MAIL_SMTP_USER);
          final String smtpPassword = Parameters.instance().getString(
@@ -136,7 +136,7 @@ public class MailHelper
          // Create a message
 
          MimeMessage _message = new MimeMessage(session);
-
+         _message.setHeader("Content-Type", "text/plain; charset=UTF-8");
          _message.setFrom(new InternetAddress(from));
 
          // Separate nulls, If empty simply return.
@@ -166,11 +166,11 @@ public class MailHelper
 
          _message.setRecipients(Message.RecipientType.TO, _internetAddresses);
          _message.setSubject(subject);
-         _message.setSentDate(new Date());
+         _message.setSentDate(TimestampProviderUtils.getTimeStamp());
 
          // Create and fill the first message part
          MimeBodyPart mbp1 = new MimeBodyPart();
-         mbp1.setText(content);
+         mbp1.setText(content, "UTF-8");
          Multipart _mp = new MimeMultipart();
          _mp.addBodyPart(mbp1);
 
@@ -181,7 +181,7 @@ public class MailHelper
             for (Entry<String, String> attachmentEntry : atttachments.entrySet())
             {
                _mbp2 = new MimeBodyPart();
-               _mbp2.setText(attachmentEntry.getValue());
+               _mbp2.setText(attachmentEntry.getValue(), "UTF-8");
                _mbp2.setFileName(attachmentEntry.getKey());
                _mp.addBodyPart(_mbp2);
             }
@@ -208,7 +208,7 @@ public class MailHelper
       String socketFactoryClass = Parameters.instance().getString(
             PROP_MAIL_SMTP_SOCKETFACTORY_CLASS, "javax.net.ssl.SSLSocketFactory");
       String smtpAuth = Parameters.instance().getString(PROP_MAIL_SMTP_AUTH_ENABLED,
-            "true");
+            "false");
       String smtpPort = Parameters.instance().getString(PROP_MAIL_SMTP_PORT, "465");
       // properties.put("mail.smtp.starttls.enable","true");
 

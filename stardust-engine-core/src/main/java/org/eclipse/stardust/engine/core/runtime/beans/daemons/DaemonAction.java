@@ -119,7 +119,7 @@ public class DaemonAction extends SecurityContextAwareAction
                lastExecutionLog = (DaemonLog) service.isolate(getLastExecutionLogAction);
                
                DaemonUtils.getExecutionMonitor().afterExecute(
-                     new DaemonDetails(daemonLog.getType(), carrier.getStartTimeStamp(),
+                     new DaemonDetails(daemonLog.getType(), originalCarrier.getStartTimeStamp(),
                            lastExecutionLog.getTimeStamp(), true,
                            daemonLog.getAcknowledgementState(),
                            daemonLog.getDaemonExecutionState()));

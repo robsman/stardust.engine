@@ -66,6 +66,7 @@ public class BenchmarkEvaluationAction implements ContextAction
       Script compiledFormula;
       try
       {
+         cx.setOptimizationLevel( -1);
 
          if (this.aiBean != null)
          {
@@ -78,7 +79,6 @@ public class BenchmarkEvaluationAction implements ContextAction
          {
             modelScope = getModelScopeForProcessInstance(piBean, cx);
             modelScope.bindThreadLocalSymbolTable(SymbolTableFactory.create(piBean, null));
-            cx.setOptimizationLevel( -1);
             compiledFormula = cx.compileString(this.javaScript,
                   "Benchmark", 1, null);
          }

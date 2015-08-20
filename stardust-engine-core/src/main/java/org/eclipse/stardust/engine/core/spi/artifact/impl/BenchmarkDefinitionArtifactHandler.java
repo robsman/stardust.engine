@@ -10,12 +10,16 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.spi.artifact.impl;
 
+import java.io.Serializable;
+import java.util.Map;
+
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQueryEvaluator;
 import org.eclipse.stardust.engine.api.query.QueryServiceUtils;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.benchmark.BenchmarkUtils;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
+import org.eclipse.stardust.engine.core.preferences.*;
 import org.eclipse.stardust.engine.core.spi.artifact.IArtifactHandler;
 
 /**
@@ -73,8 +77,8 @@ public class BenchmarkDefinitionArtifactHandler
    {
       long benchmarkOid = deployedRuntimeArtifact.getOid();
 
+      // check, if benchmark is in use in PI
       ProcessInstanceQuery query = ProcessInstanceQuery.findAlive();
-
 
       if (benchmarkOid > 0)
       {
@@ -89,6 +93,22 @@ public class BenchmarkDefinitionArtifactHandler
             QueryServiceUtils.getDefaultEvaluationContext()).executeFetch();
 
       if (rawResult.hasNext())
+      {
+         throw new IllegalOperationException(
+               BpmRuntimeError.ATDB_RUNTIME_ARTIFACT_IN_USE.raise(benchmarkOid));
+      }
+
+      // check, if benchmark is in use as default for PI
+
+      IPreferenceStorageManager prefManager = PreferenceStorageFactory.getCurrent();
+
+      Preferences defaultBenchmarkPrefs = prefManager.getPreferences(
+            PreferenceScope.PARTITION, PreferencesConstants.MODULE_ID_ENGINE_INTERNALS,
+            PreferencesConstants.PREFERENCE_ID_DEFAULT_BENCHMARKS);
+
+      Map<String, Serializable> defaults = defaultBenchmarkPrefs.getPreferences();
+
+      if (defaults.containsValue(deployedRuntimeArtifact.getArtifactId()))
       {
          throw new IllegalOperationException(
                BpmRuntimeError.ATDB_RUNTIME_ARTIFACT_IN_USE.raise(benchmarkOid));

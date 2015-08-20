@@ -389,7 +389,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
 
       processInstance.setState(ProcessInstanceState.ACTIVE);
-      if(!isSubProcess)
+      if (!isSubProcess)
       {
          processInstance.doBindAutomaticlyBoundEvents();
       }
@@ -998,7 +998,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
             object);
       IDataValue dataValue = getDataValue(dataID, dvProvider);
 
-      if ( !dvProvider.isUsedForInitialization())
+      if (!dvProvider.isUsedForInitialization())
       {
          dataValue.setValue(object, false);
       }
@@ -1346,7 +1346,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
             .createExtendedAccessPathEvaluator(data, path);
 
       IDataValue dataValue = null;
-      if(evaluator instanceof IHandleGetDataValue)
+      if (evaluator instanceof IHandleGetDataValue)
       {
          dataValue = ((IHandleGetDataValue) evaluator).getDataValue(data, dvProvider, context);
       }
@@ -1357,7 +1357,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
       Assert.isNotNull(dataValue);
 
-      if ( !dvProvider.isUsedForInitialization())
+      if (!dvProvider.isUsedForInitialization())
       {
          dvProvider.setCurrentValue(dataValue.getValue());
          AbstractInitialDataValueProvider.EvaluatedValue newRef = dvProvider
@@ -1413,16 +1413,19 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       ExtendedAccessPathEvaluator evaluator = SpiUtils
             .createExtendedAccessPathEvaluator(data, path);
       AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(this,
-            targetActivityAccessPoint == null && 
+            targetActivityAccessPoint == null &&
                (data != null && JavaDataTypeUtils.isJavaEnumeration(data))
                ? JAVA_ENUM_ACCESS_POINT : targetActivityAccessPoint,
             targetPath, activity);
 
-      if(!(evaluator instanceof IHandleGetDataValue))
+      if (evaluator instanceof IHandleGetDataValue)
+      {
+         return ((IHandleGetDataValue) evaluator).evaluate(data, path, evaluationContext);
+      }
+      else
       {
          return evaluator.evaluate(data, data == null ? null : getDataValue(data).getValue(), path, evaluationContext);
       }
-      return ((IHandleGetDataValue) evaluator).evaluate(data, path, evaluationContext);
    }
 
    void lockDataValue(IData data) throws PhantomException
@@ -1536,7 +1539,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
    public void preloadDataValues(List dataItems)
    {
-      if(getOID() != getScopeProcessInstanceOID())
+      if (getOID() != getScopeProcessInstanceOID())
       {
          getScopeProcessInstance().preloadDataValues(dataItems);
          return;
@@ -1765,7 +1768,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    public AuditTrailPersistence getAuditTrailPersistence()
    {
       final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-      
+
       if (isGlobalAuditTrailPersistenceOverride() && rtEnv.getOperationMode() == BpmRuntimeEnvironment.OperationMode.DEFAULT)
       {
          return determineGlobalOverride();
@@ -2287,7 +2290,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       getStartingActivityInstance();
       getStartingUser();
    }
-   
+
    public void setBenchmark(long benchmarkOid)
    {
       markModified(FIELD__BENCHMARK_OID);

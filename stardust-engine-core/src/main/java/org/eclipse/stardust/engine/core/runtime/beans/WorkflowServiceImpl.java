@@ -45,7 +45,6 @@ import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManagerFactory;
 import org.eclipse.stardust.engine.core.spi.artifact.impl.BenchmarkDefinitionArtifactType;
-import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
 
 /**
  * @author mgille
@@ -158,7 +157,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
             }
          }
       }
-      
+
       if (trace.isInfoEnabled())
       {
          trace.info("Starting process '" + processDefinition.getId() + "', oid = "
@@ -228,7 +227,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    }
 
    private void runProcessInstance(IProcessInstance processInstance,
-         String startActivityId)
+         List<String> startActivitiesIds)
    {
       IProcessDefinition processDefinition = processInstance.getProcessDefinition();
 
@@ -242,20 +241,21 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       boolean sync = false;
 
       IActivity startActivity = null;
-      if (startActivityId == null)
+      if (startActivitiesIds == null || startActivitiesIds.isEmpty())
       {
          startActivity = processDefinition.getRootActivity();
       }
       else
       {
-         startActivity = processDefinition.findActivity(startActivityId);
+         String firstActivityId = startActivitiesIds.get(0);
+         startActivity = processDefinition.findActivity(firstActivityId);
          if (startActivity == null)
          {
             throw new ObjectNotFoundException(
-                  BpmRuntimeError.MDL_UNKNOWN_ACTIVITY_DEFINITION.raise(startActivityId),
-                  startActivityId);
+                  BpmRuntimeError.MDL_UNKNOWN_ACTIVITY_DEFINITION.raise(firstActivityId),
+                  firstActivityId);
          }
-         TransitionTarget transitionTarget = TransitionTargetFactory.createTransitionTarget(startActivity);
+         TransitionTarget transitionTarget = computeTransitionTarget(startActivity, startActivitiesIds);
          ExecutionPlan plan = new ExecutionPlan(transitionTarget);
          BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
          rtEnv.setExecutionPlan(plan);
@@ -264,6 +264,35 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       ActivityThread.schedule(processInstance, startActivity, null, sync, null,
             Collections.EMPTY_MAP, sync);
+   }
+
+   private TransitionTarget computeTransitionTarget(IActivity startActivity, List<String> activitiesIds)
+   {
+      if (activitiesIds.size() > 1)
+      {
+         Stack<TransitionStep> steps = new Stack();
+         IProcessDefinition processDefinition = startActivity.getProcessDefinition();
+         for (String activityId : activitiesIds)
+         {
+            steps.add(TransitionTargetFactory.createTransitionStep(startActivity));
+            startActivity = processDefinition.findActivity(activityId);
+            if (startActivity == null)
+            {
+               throw new ObjectNotFoundException(
+                     BpmRuntimeError.MDL_UNKNOWN_ACTIVITY_DEFINITION.raise(activityId),
+                     activityId);
+            }
+            if (ImplementationType.SubProcess.equals(startActivity.getImplementationType()))
+            {
+               processDefinition = startActivity.getImplementationProcessDefinition();
+            }
+         }
+         return TransitionTargetFactory.createTransitionTarget(startActivity, steps, true);
+      }
+      else
+      {
+         return TransitionTargetFactory.createTransitionTarget(startActivity);
+      }
    }
 
    public List<ProcessInstance> spawnSubprocessInstances(long rootProcessInstanceOid,
@@ -749,7 +778,28 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       new ProcessInstanceLinkBean(originatingProcessInstance, processInstance, link,
             options.getComment());
 
-      runProcessInstance(processInstance, options.getStartActivity());
+      ProcessStateSpec spec = options.getProcessStateSpec();
+      Iterator<List<String>> itr = spec.iterator();
+      if (!itr.hasNext())
+      {
+         runProcessInstance(processInstance, null);
+      }
+      else
+      {
+         while (true)
+         {
+            List<String> targets = itr.next();
+            runProcessInstance(processInstance, targets);
+            if (itr.hasNext())
+            {
+               TransitionTokenBean.createStartToken(processInstance);
+            }
+            else
+            {
+               break;
+            }
+         }
+      }
 
       return DetailsFactory.create(processInstance);
    }

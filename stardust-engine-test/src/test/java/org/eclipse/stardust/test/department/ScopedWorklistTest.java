@@ -199,43 +199,48 @@ public class ScopedWorklistTest
    @Test
    public void testCrossModelPermissions()
    {
-      RtEnvHome.deployModel(adminSf.getAdministrationService(), null, INVOICES_MODEL, APPROVALS_MODEL);
+      try
+      {
+         RtEnvHome.deployModel(adminSf.getAdministrationService(), null, INVOICES_MODEL, APPROVALS_MODEL);
 
-      List<Department> clients = DepartmentHome.createDepartments(adminSf,
-            INVOICES_MODEL, "Client", "Macquarie", "Mario");
-      List<Department> streams = DepartmentHome.createDepartments(adminSf,
-            INVOICES_MODEL, "ExpenseStream", clients.get(0), "Legal", "Tax");
-      List<Department> levels = DepartmentHome.createDepartments(adminSf,
-            INVOICES_MODEL, "Clearance", streams.get(0), "L1", "L2");
+         List<Department> clients = DepartmentHome.createDepartments(adminSf,
+               INVOICES_MODEL, "Client", "Macquarie", "Mario");
+         List<Department> streams = DepartmentHome.createDepartments(adminSf,
+               INVOICES_MODEL, "ExpenseStream", clients.get(0), "Legal", "Tax");
+         List<Department> levels = DepartmentHome.createDepartments(adminSf,
+               INVOICES_MODEL, "Clearance", streams.get(0), "L1", "L2");
 
-      UserHome.create(adminSf, APPROVER_ID,
-            ParticipantInfoUtil.newModelParticipantInfo(INVOICES_MODEL, "ApproverL1", levels.get(0)));
+         UserHome.create(adminSf, APPROVER_ID,
+               ParticipantInfoUtil.newModelParticipantInfo(INVOICES_MODEL, "ApproverL1", levels.get(0)));
 
-      Map<String, Object> client = CollectionUtils.newMap();
-      client.put("Id", clients.get(0).getId());
-      client.put("Name", clients.get(0).getName());
+         Map<String, Object> client = CollectionUtils.newMap();
+         client.put("Id", clients.get(0).getId());
+         client.put("Name", clients.get(0).getName());
 
-      Map<String, Object> stream = CollectionUtils.newMap();
-      stream.put("Id", streams.get(0).getId());
-      stream.put("Name", streams.get(0).getName());
+         Map<String, Object> stream = CollectionUtils.newMap();
+         stream.put("Id", streams.get(0).getId());
+         stream.put("Name", streams.get(0).getName());
 
-      Map<String, Object> invoice = CollectionUtils.newMap();
-      invoice.put("Client", client);
-      invoice.put("ExpenseStream", stream);
+         Map<String, Object> invoice = CollectionUtils.newMap();
+         invoice.put("Client", client);
+         invoice.put("ExpenseStream", stream);
 
-      Map<String, Object> data1 = CollectionUtils.newMap();
-      data1.put("ApprovalProcessID", INVOICE_APPROVAL.toString());
-      data1.put("ClearanceLevel", levels.get(0).getId());
-      data1.put("Invoice", invoice);
+         Map<String, Object> data1 = CollectionUtils.newMap();
+         data1.put("ApprovalProcessID", INVOICE_APPROVAL.toString());
+         data1.put("ClearanceLevel", levels.get(0).getId());
+         data1.put("Invoice", invoice);
 
-      ProcessInstance pi1 = adminSf.getWorkflowService().startProcess(INVOICE_PROCESSING.toString(), data1, true);
-      Assert.assertNotNull("Started process instance", pi1);
+         ProcessInstance pi1 = adminSf.getWorkflowService().startProcess(INVOICE_PROCESSING.toString(), data1, true);
+         Assert.assertNotNull("Started process instance", pi1);
 
-      Worklist w = approverSf.getWorkflowService().getWorklist(WorklistQuery.findCompleteWorklist());
-      Assert.assertEquals("Count", 1, w.getCumulatedSize());
-
-      RtEnvHome.cleanUpRuntimeAndModels(adminSf.getAdministrationService());
-      RtEnvHome.deployModel(adminSf.getAdministrationService(), null, MODEL_NAME);
+         Worklist w = approverSf.getWorkflowService().getWorklist(WorklistQuery.findCompleteWorklist());
+         Assert.assertEquals("Count", 1, w.getCumulatedSize());
+      }
+      finally
+      {
+         RtEnvHome.cleanUpRuntimeAndModels(adminSf.getAdministrationService());
+         RtEnvHome.deployModel(adminSf.getAdministrationService(), null, MODEL_NAME);
+      }
    }
 
    private void ensureWorklistAssignedTo(final Department createdDept)

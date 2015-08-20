@@ -12,19 +12,21 @@ package org.eclipse.stardust.test.spawn;
 
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
-import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
-import org.eclipse.stardust.engine.api.query.HistoricalStatesPolicy;
-import org.eclipse.stardust.engine.api.query.ProcessInstanceDetailsPolicy;
-import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
-import org.eclipse.stardust.engine.api.query.ProcessInstances;
+import org.eclipse.stardust.engine.api.model.ImplementationType;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.query.statistics.api.ProcessCumulationPolicy;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
@@ -72,6 +74,159 @@ public class SpawnPeerProcessCrossModelTest
    // ************************************
    // **             SYNC               **
    // ************************************
+
+   @Test
+   public void testSpawnIntoSubprocess() throws TimeoutException, InterruptedException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+      QueryService qs = sf.getQueryService();
+
+      ProcessInstance pi = wfs.startProcess("{SpawnProcessModel}InputData1", new StartOptions(null , true));
+      assertThat(pi.getState(), is(ProcessInstanceState.Active));
+
+      // Spawn process
+      DataCopyOptions copyOptions = new DataCopyOptions(Collections.singletonList(TestDataValueConverter.class.getName()));
+      SpawnOptions options = new SpawnOptions(null, true, null, copyOptions);
+      options.getProcessStateSpec().addJumpTarget("InputData1", "InputData1");
+      ProcessInstance peer = wfs.spawnPeerProcessInstance(
+            pi.getOID(), "{SpawnProcessModel}ComplexProcess", options);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Aborted);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
+
+      ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(peer.getOID());
+      query.where(ActivityInstanceQuery.STATE.isEqual(ActivityInstanceState.SUSPENDED));
+      query.setPolicy(ProcessCumulationPolicy.WITH_PI);
+      ActivityInstance ai = qs.findFirstActivityInstance(query);
+      Assert.assertEquals("InputData1", ai.getActivity().getId());
+      Assert.assertEquals("ComplexProcess", ai.getProcessDefinitionId());
+      Assert.assertEquals(ImplementationType.SubProcess, ai.getActivity().getImplementationType());
+
+      ProcessInstanceQuery piQuery = ProcessInstanceQuery.findAll();
+      piQuery.where(ProcessInstanceQuery.STARTING_ACTIVITY_INSTANCE_OID.isEqual(ai.getOID()));
+      ProcessInstance sub = qs.findFirstProcessInstance(piQuery);
+      Assert.assertEquals(ProcessInstanceState.Active, sub.getState());
+      Assert.assertEquals("InputData1", sub.getProcessID());
+      Assert.assertEquals(ProcessInstanceState.Active, sub.getState());
+
+      query = ActivityInstanceQuery.findForProcessInstance(sub.getOID());
+      query.where(ActivityInstanceQuery.STATE.isEqual(ActivityInstanceState.SUSPENDED));
+      query.setPolicy(ProcessCumulationPolicy.WITH_PI);
+      ai = qs.findFirstActivityInstance(query);
+      Assert.assertEquals("InputData1", ai.getActivity().getId());
+      Assert.assertEquals("InputData1", ai.getProcessDefinitionId());
+
+      wfs.activateAndComplete(ai.getOID(), PredefinedConstants.DEFAULT_CONTEXT, Collections.<String, Object>emptyMap());
+      ProcessInstanceStateBarrier.instance().await(sub.getOID(), ProcessInstanceState.Completed);
+
+      ActivityInstanceStateBarrier.instance().awaitForId(peer.getOID(), "Left");
+      ActivityInstanceStateBarrier.instance().awaitForId(peer.getOID(), "Right");
+
+      query = ActivityInstanceQuery.findForProcessInstance(peer.getOID());
+      query.where(ActivityInstanceQuery.STATE.isEqual(ActivityInstanceState.SUSPENDED));
+      query.setPolicy(ProcessCumulationPolicy.WITH_PI);
+      ActivityInstances ais = qs.getAllActivityInstances(query);
+      assertThat(ais.size(), is(2));
+
+      complete(wfs, ais);
+      ais = qs.getAllActivityInstances(query);
+      assertThat(ais.size(), is(1));
+
+      complete(wfs, ais);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Completed);
+   }
+
+   @Test
+   public void testSpawnIntoAndSplit() throws TimeoutException, InterruptedException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+      QueryService qs = sf.getQueryService();
+
+      ProcessInstance pi = wfs.startProcess("{SpawnProcessModel}InputData1", new StartOptions(null, true));
+      Assert.assertEquals(ProcessInstanceState.Active, pi.getState());
+
+      // Spawn process
+      SpawnOptions options = new SpawnOptions(null, true, null, null);
+      options.getProcessStateSpec().addJumpTarget("Left");
+      options.getProcessStateSpec().addJumpTarget("Right");
+      ProcessInstance peer = wfs.spawnPeerProcessInstance(
+            pi.getOID(), "{SpawnProcessModel}ComplexProcess", options);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Aborted);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
+
+      ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(peer.getOID());
+      query.where(ActivityInstanceQuery.STATE.isEqual(ActivityInstanceState.SUSPENDED));
+      query.setPolicy(ProcessCumulationPolicy.WITH_PI);
+      ActivityInstances ais = qs.getAllActivityInstances(query);
+      assertThat(ais.size(), is(2));
+
+      complete(wfs, ais);
+      ais = qs.getAllActivityInstances(query);
+      assertThat(ais.size(), is(1));
+
+      complete(wfs, ais);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Completed);
+   }
+
+   @Test
+   public void testCustomConverters() throws TimeoutException, InterruptedException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+      QueryService qs = sf.getQueryService();
+
+      Map<String, Object> inputData = CollectionUtils.newMap();
+      inputData.put("Primitive1", "test value");
+      ProcessInstance pi = wfs.startProcess("{SpawnProcessModel}InputData1", new StartOptions(inputData , true));
+      assertThat(pi.getState(), is(ProcessInstanceState.Active));
+
+      // Spawn process
+      DataCopyOptions copyOptions = new DataCopyOptions(Collections.singletonList(TestDataValueConverter.class.getName()));
+      SpawnOptions options = new SpawnOptions(null, true, null, copyOptions);
+      options.getProcessStateSpec().addJumpTarget("InputData1", "InputData1");
+      ProcessInstance peer = wfs.spawnPeerProcessInstance(
+            pi.getOID(), "{SpawnProcessModel}ComplexProcess", options);
+
+      Object myStruct = wfs.getInDataPath(peer.getOID(), "MyStruct");
+      assertThat(myStruct, is(instanceOf(Map.class)));
+      assertThat(((Map<?, ?>) myStruct).get("myString"), is(inputData.get("Primitive1")));
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Aborted);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
+
+      ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(peer.getOID());
+      query.where(ActivityInstanceQuery.STATE.isEqual(ActivityInstanceState.SUSPENDED));
+      query.setPolicy(ProcessCumulationPolicy.WITH_PI);
+      ActivityInstance ai = qs.findFirstActivityInstance(query);
+
+      ProcessInstanceQuery piQuery = ProcessInstanceQuery.findAll();
+      piQuery.where(ProcessInstanceQuery.STARTING_ACTIVITY_INSTANCE_OID.isEqual(ai.getOID()));
+      ProcessInstance sub = qs.findFirstProcessInstance(piQuery);
+
+      query = ActivityInstanceQuery.findForProcessInstance(sub.getOID());
+      query.where(ActivityInstanceQuery.STATE.isEqual(ActivityInstanceState.SUSPENDED));
+      query.setPolicy(ProcessCumulationPolicy.WITH_PI);
+      ai = qs.findFirstActivityInstance(query);
+
+      wfs.activateAndComplete(ai.getOID(), PredefinedConstants.DEFAULT_CONTEXT, Collections.<String, Object>emptyMap());
+      ProcessInstanceStateBarrier.instance().await(sub.getOID(), ProcessInstanceState.Completed);
+
+      ActivityInstanceStateBarrier.instance().awaitForId(peer.getOID(), "Left");
+      ActivityInstanceStateBarrier.instance().awaitForId(peer.getOID(), "Right");
+
+      query = ActivityInstanceQuery.findForProcessInstance(peer.getOID());
+      query.where(ActivityInstanceQuery.STATE.isEqual(ActivityInstanceState.SUSPENDED));
+      query.setPolicy(ProcessCumulationPolicy.WITH_PI);
+      ActivityInstances ais = qs.getAllActivityInstances(query);
+      assertThat(ais.size(), is(2));
+
+      complete(wfs, ais);
+      ais = qs.getAllActivityInstances(query);
+      assertThat(ais.size(), is(1));
+
+      complete(wfs, ais);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Completed);
+   }
 
    @Test(expected=IllegalOperationException.class)
    public void testCompleteSpawnProcessFromSyncSubprocess() throws Exception
@@ -732,6 +887,14 @@ public class SpawnPeerProcessCrossModelTest
       query.setPolicy(pidp);
       query.where(ProcessInstanceQuery.OID.isEqual(spawnPeerProcessInstance.getOID()));
       return qs.findFirstProcessInstance(query);
+   }
+
+   private void complete(WorkflowService wfs, ActivityInstances ais)
+   {
+      for (ActivityInstance ai : ais)
+      {
+         wfs.activateAndComplete(ai.getOID(), PredefinedConstants.DEFAULT_CONTEXT, Collections.<String, Object>emptyMap());
+      }
    }
 
    private void attachToProcess(Document doc, ServiceFactory sf, long oid)

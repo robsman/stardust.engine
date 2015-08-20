@@ -126,6 +126,7 @@ public final class PredefinedConstants
    public static final String MOTU = "motu";
    public static final String MOTU_FIRST_NAME = "Master";
    public static final String MOTU_LAST_NAME = "Of the Universe";
+   public static final String AUDITOR = "Auditor";
 
    public static final String SYSTEM = "system_carnot_engine";
    public static final String SYSTEM_FIRST_NAME = SYSTEM;

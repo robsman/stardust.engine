@@ -154,34 +154,42 @@ public @interface ExecutionPermission {
       /**
        * permission to access activity instances
        */
+      @ReadOnly
       readActivityInstanceData,
       /**
        * permission to query statistics on the audittrail database
        */
+      @ReadOnly
       readAuditTrailStatistics,
       /**
        * permission to read process data values
        */
+      @ReadOnly
       readDataValues,
       /**
        * permission to read department information
        */
+      @ReadOnly
       readDepartments,
       /**
        * permission to access data contained in the model
        */
+      @ReadOnly
       readModelData,
       /**
        * permission to access the process instances
        */
+      @ReadOnly
       readProcessInstanceData,
       /**
        * permission to read a deployed runtime artifact.
        */
+      @ReadOnly
       readRuntimeArtifact,
       /**
        * readUserData - permission to access user data such as email, account, etc.
        */
+      @ReadOnly
       readUserData,
       /**
        * permission to reset the password of an user
@@ -288,4 +296,9 @@ public @interface ExecutionPermission {
     * @return the implied Id
     */
    Id[] implied() default {};
+   
+   @Retention(RetentionPolicy.RUNTIME)
+   public @interface ReadOnly {
+      
+   }
 }

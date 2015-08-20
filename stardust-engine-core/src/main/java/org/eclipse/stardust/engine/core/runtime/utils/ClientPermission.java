@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.utils;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -345,13 +346,55 @@ public final class ClientPermission
    public static Map<String, String> getDefaults()
    {
       HashMap<String, String> defaultPermissions = new HashMap<String, String>();
+      Set<ExecutionPermission.Id> readOnlyPermissions = getReadOnlyPermissions();
       for (ClientPermission permission : permissionCache.values())
       {
          addDefaultPermission(defaultPermissions, permission);
+         addDefaultAuditorPermission(defaultPermissions, permission, readOnlyPermissions);
       }
       addDefaultPermission(defaultPermissions, MANAGE_AUTHORIZATION);
       addDefaultPermission(defaultPermissions, SAVE_OWN_REALM_SCOPE_PREFERENCES);
+      
       return defaultPermissions;
+   }
+
+   private static void addDefaultAuditorPermission(
+         HashMap<String, String> defaultPermissions, ClientPermission permission,
+         Set<ExecutionPermission.Id> readOnlyPermissions)
+   {
+      if (permission != NULL && permission.changeable())
+      {
+         if (!readOnlyPermissions.contains(permission.id()))
+         {
+            String permissionId = ExecutionPermission.Scope.model.equals(permission
+                  .scope()) ? permission.id().name() : permission.toString();
+            defaultPermissions.put("deny:" + permissionId, PredefinedConstants.AUDITOR);
+         }
+      }
+   }
+
+   private static Set<ExecutionPermission.Id> getReadOnlyPermissions()
+   {
+      Set<String> readOnlyPermissionIds = new HashSet<String>();
+      Class<ExecutionPermission.Id> obj = ExecutionPermission.Id.class;
+      Id[] ids = obj.getEnumConstants();
+      Field[] fields = obj.getFields();
+      for (Field field : fields)
+      {
+         if (field.isAnnotationPresent(ExecutionPermission.ReadOnly.class))
+         {
+            readOnlyPermissionIds.add(field.getName());
+         }
+      }
+      Set<ExecutionPermission.Id> readOnlyPermissions = new HashSet<ExecutionPermission.Id>();
+      for (ExecutionPermission.Id id : ids)
+      {
+         if (readOnlyPermissionIds.contains(id.name()))
+         {
+            readOnlyPermissions.add(id);
+         }
+      }
+      return readOnlyPermissions;
    }
 
    protected static void addDefaultPermission(HashMap<String, String> defaultPermissions,

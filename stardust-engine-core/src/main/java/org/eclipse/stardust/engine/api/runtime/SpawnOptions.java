@@ -82,8 +82,7 @@ public class SpawnOptions implements Serializable
    /**
     * Creates a new SpawnOptions that allows to specify the starting activity and detailed data copy options.
     *
-    * @param startActivity the activity from which the spawned process instance should start.
-    *        If null, the spawned process instance will start from the default start activity.
+    * @param ProcessStateSpec information about the started activities.
     * @param abortProcessInstance true to abort the originating process instance. Currently only
     *        a value of true is accepted for processing.
     * @param comment a comment describing the operation. May be null.
@@ -117,6 +116,11 @@ public class SpawnOptions implements Serializable
       return jumpTargets.hasNext() ? jumpTargets.next().get(0) : null;
    }
 
+   /**
+    * Retrieves the specification of the started activities.
+    *
+    * @return the specification of the started activities.
+    */
    public ProcessStateSpec getProcessStateSpec()
    {
       return processStateSpec ;

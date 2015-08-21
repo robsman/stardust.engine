@@ -17,6 +17,7 @@ import java.util.*;
 import org.eclipse.stardust.common.CollectionUtils;
 
 /**
+ * Specification class that holds information about which activities should be started during spawning of a peer process.
  *
  * @author Florin.Herinean
  */
@@ -26,6 +27,11 @@ public class ProcessStateSpec implements Serializable, Iterable<List<String>>
 
    private Set<List<String>> targets = CollectionUtils.newSet();
 
+   /**
+    * Adds a new jump target by specifying an array of activity ids representing the jump hierarchy.
+    *
+    * @param activities the array of activity ids.
+    */
    public void addJumpTarget(String... activities)
    {
       if (activities != null)
@@ -34,6 +40,11 @@ public class ProcessStateSpec implements Serializable, Iterable<List<String>>
       }
    }
 
+   /**
+    * Adds a new jump target by specifying a list of activity ids representing the jump hierarchy.
+    *
+    * @param activities the list of activity ids.
+    */
    public void addJumpTarget(List<String> activities)
    {
       if (activities != null && !activities.isEmpty())
@@ -42,6 +53,21 @@ public class ProcessStateSpec implements Serializable, Iterable<List<String>>
       }
    }
 
+   /**
+    * Gets an iterator over the jump targets.
+    */
+   @Override
+   public Iterator<List<String>> iterator()
+   {
+      return targets.iterator();
+   }
+
+   /**
+    * Utility method to create a ProcessStateSpec for a target consisting of a specific single activity.
+    *
+    * @param startActivity the jump target.
+    * @return the initialized ProcessStateSpec.
+    */
    public static ProcessStateSpec simpleSpec(String startActivity)
    {
       ProcessStateSpec spec = new ProcessStateSpec();
@@ -50,11 +76,5 @@ public class ProcessStateSpec implements Serializable, Iterable<List<String>>
          spec.addJumpTarget(startActivity);
       }
       return spec;
-   }
-
-   @Override
-   public Iterator<List<String>> iterator()
-   {
-      return targets.iterator();
    }
 }

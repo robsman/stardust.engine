@@ -18,7 +18,6 @@ import java.util.List;
  * Container class for options that controls how the spawning operation has to be performed.
  *
  * @author Florin.Herinean
- * @version $Revision: $
  */
 public class SpawnOptions implements Serializable
 {

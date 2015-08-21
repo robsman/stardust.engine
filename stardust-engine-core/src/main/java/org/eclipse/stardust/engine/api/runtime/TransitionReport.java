@@ -14,14 +14,23 @@ package org.eclipse.stardust.engine.api.runtime;
 import java.io.Serializable;
 
 /**
- * TODO: javadoc
+ * Class holding the results of an ad hoc transition.
  *
  * @author Florin.Herinean
- * @version $Revision: $
  */
 public interface TransitionReport extends Serializable
 {
+   /**
+    * Retrieves the source activity instance from which the transition was performed.
+    *
+    * @return the source activity instance.
+    */
    ActivityInstance getSourceActivityInstance();
 
+   /**
+    * Retrieves the target activity instance created by the adhoc transition.
+    *
+    * @return the target activity instance.
+    */
    ActivityInstance getTargetActivityInstance();
 }

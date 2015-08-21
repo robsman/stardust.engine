@@ -18,7 +18,6 @@ import java.util.Map;
  * Options class that specifies how the data should be copied between two process instances.
  *
  * @author Florin.Herinean
- * @version $Revision: $
  */
 public class DataCopyOptions implements Serializable
 {

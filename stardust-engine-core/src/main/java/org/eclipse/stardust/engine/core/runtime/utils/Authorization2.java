@@ -438,7 +438,7 @@ public class Authorization2
       IPreferenceStorageManager preferenceStore = PreferenceStorageFactory.getCurrent();
       if (preferenceStore != null)
       {
-         List<String> grants = PermissionUtils.getScopedGlobalPermissionValues(preferenceStore, permissionId, false);
+         List<String> grants = PermissionUtils.getScopedGlobalPermissionValues(preferenceStore, permissionId, true);
          if (!grants.isEmpty())
          {
             for (String grant : grants)

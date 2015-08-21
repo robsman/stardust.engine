@@ -32,6 +32,8 @@ public final class ClientPermission
 {
 // private static final Logger trace = LogManager.getLogger(ClientPermission.class);
 
+   private static final String DENY_PREFIX = "deny:";
+
    static final ClientPermission NULL = new ClientPermission(null, Scope.model, new Default[] {Default.ADMINISTRATOR},
          new Default[] {}, true, true, false, new Id[] {});
 
@@ -216,7 +218,7 @@ public final class ClientPermission
       String[] deniedIds = new String[allowedIds.length];
       for (int i = 0; i < allowedIds.length; i++)
       {
-         deniedIds[i] = "deny:" + allowedIds[i];
+         deniedIds[i] = DENY_PREFIX + allowedIds[i];
       }
       this.deniedIds = Collections.unmodifiableList(Arrays.asList(deniedIds));
    }
@@ -368,7 +370,7 @@ public final class ClientPermission
          {
             String permissionId = ExecutionPermission.Scope.model.equals(permission
                   .scope()) ? permission.id().name() : permission.toString();
-            defaultPermissions.put("deny:" + permissionId, PredefinedConstants.AUDITOR);
+            defaultPermissions.put(DENY_PREFIX + permissionId, PredefinedConstants.AUDITOR_ROLE);
          }
       }
    }

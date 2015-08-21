@@ -588,6 +588,13 @@ public class AuthorizationContext
             return null;
          }
       }
+      if (permission != null && PredefinedConstants.AUDITOR_ROLE.equals(grant))
+      {
+         List<IModel> pdModel = ModelManagerFactory.getCurrent().getModelsForId(
+               PredefinedConstants.PREDEFINED_MODEL_ID);
+         return pdModel.get(0).findParticipant(PredefinedConstants.AUDITOR_ROLE);
+      }
+      
       QName qualifiedGrant = QName.valueOf(grant);
       IModel model = getModel(qualifiedGrant.getNamespaceURI());
       return model == null ? null : model.findParticipant(qualifiedGrant.getLocalPart());

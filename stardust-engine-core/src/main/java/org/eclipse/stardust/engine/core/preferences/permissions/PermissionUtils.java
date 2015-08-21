@@ -338,6 +338,14 @@ public class PermissionUtils
             IModelParticipant participant = model.findParticipant(qualifier.getLocalPart());
             if (participant == null)
             {
+               // check PredefinedModel as Auditor Role is only there defined
+               List<IModel> pdModel = ModelManagerFactory.getCurrent().getModelsForId(
+                     PredefinedConstants.PREDEFINED_MODEL_ID);
+               participant = pdModel.get(0).findParticipant(
+                     qualifier.getLocalPart());
+            }
+            if (participant == null)
+            {
                throw new ValidationException(
                      "Setting permissions failed. Participant does not exist in active model: "
                            + qualifiedModelParticipantId, false);

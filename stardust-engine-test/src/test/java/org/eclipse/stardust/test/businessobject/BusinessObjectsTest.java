@@ -85,6 +85,15 @@ public class BusinessObjectsTest
       }
    }
    
+   /**
+    * Validate if BusinessObjectQuery returns business objects which are defined
+    * in the models MODEL_NAME2 and MODEL_NAME3.
+    * Note: 
+    *   If BusinessObjectsList is executed standalone than bos.size() == expected.size().
+    *   But if it is executed after CheckFiltering2 then bos.size() > expected.size()
+    *   because CheckFiltering2 deployes MODEL_NAME3 as a new version. This means that
+    *   bos.size() == expected.size()+2 in this case.
+    */
    @Test
    public void BusinessObjectsList()
    {
@@ -93,14 +102,38 @@ public class BusinessObjectsTest
 
       BusinessObjects bos = sf.getQueryService().getAllBusinessObjects(query);
       
-      List<String> expected = CollectionUtils.newArrayListFromElements(Arrays.asList("Account", "Customer", "Order"));
+      List<String> expected = CollectionUtils.newArrayListFromElements(Arrays.asList(
+            new QName(MODEL_NAME2, "Account").toString(),
+            new QName(MODEL_NAME2, "Customer").toString(),
+            new QName(MODEL_NAME2, "Order").toString(),
+            new QName(MODEL_NAME2, "Fund").toString(),
+            new QName(MODEL_NAME2, "FundGroup").toString(),
+            new QName(MODEL_NAME3, "Employee").toString(),
+            new QName(MODEL_NAME3, "Fund").toString()));
+      
+      List<String> removedEntries = CollectionUtils.newArrayList(expected.size());
+      
       for (BusinessObject bo : bos)
       {
-         expected.remove(bo.getName());
+         String qualifiedBOId = new QName(bo.getModelId(), bo.getId()).toString();
+         if(expected.remove(qualifiedBOId))
+         {
+            removedEntries.add(qualifiedBOId);
+         }
+         else
+         {
+            Assert.assertTrue("Not expected entry: " + qualifiedBOId, 
+                  removedEntries.contains(qualifiedBOId));
+         }
       }
       Assert.assertTrue("Missing business objects: " + expected, expected.isEmpty());
    }
    
+   /**
+    * Test if the business object query returns all business object instances for a 
+    * given business object id. The BO instances was created by the OrderCreation process
+    * resp. EnterOrderData activity in the setup() method.
+    */
    @Test
    public void CheckOrders()
    {
@@ -117,6 +150,11 @@ public class BusinessObjectsTest
       checkValue(values, false, "customerId", 1, 2, 3, 4, 5);
    }
    
+   /**
+    * Create business object instances via API (not via process instances) and validate
+    * if they're created and if a business object query for a given primary key
+    * returns the corresponding BO.
+    */
    @Test
    public void CreateCustomersCheck()
    {
@@ -144,7 +182,11 @@ public class BusinessObjectsTest
       Assert.assertEquals("Values", 1, values.size());
       checkValue(values, true, "firstName", "Danny2");
    }
-      
+   
+   /**
+    * Validate if BO instances can be created once only with the same primary key and that
+    * they can be queried either via findWithPrimaryKey() or with help of data filters.
+    */
    @Test
    public void CreateOrdersCheck()
    {
@@ -182,7 +224,10 @@ public class BusinessObjectsTest
       Assert.assertEquals("Values", 2, values.size());
       checkValue(values, true, "customerId", 2, 4);
    }
-      
+   
+   /**
+    * Test if a field, other than the primary key, of a BO instance can be modified.
+    */
    @Test
    public void ModifyOrdersCheck()
    {
@@ -201,6 +246,9 @@ public class BusinessObjectsTest
       Assert.assertEquals("Time difference", TIME_LAPSE, updatedDate.getTime() - date.getTime());
    }
    
+   /**
+    * Check if an already created BO instance can be deleted and created again later.
+    */
    @Test
    public void DeleteOrdersCheck()
    {
@@ -220,6 +268,17 @@ public class BusinessObjectsTest
       Assert.assertEquals("Values", 1, bos.getSize());
    }
    
+   /**
+    * Create some instances for a given BO and validate if they can be queried:
+    * <ul>
+    *   <li>where the qualified business object id is set</li>
+    *   <li>the primary key is passed to findForBusinessObject()</li>
+    *   <li>the qualified business object id is passed to findForBusinessObject
+    *       and the primary key is set as a data filter</li>
+    *   <li>the qualified business object id is passed to findForBusinessObject
+    *       and an attribute of the BO is set as a data filter</li>
+    * </ul> 
+    */
    @Test
    public void CheckFiltering() throws Exception
    {
@@ -273,6 +332,21 @@ public class BusinessObjectsTest
       checkValue(values, true, "AccountName", "Fund7");
    }
    
+   /**
+    * Create some instances for a given BO and validate if they can be queried where:
+    * <ul>
+    *   <li>the qualified business object id is set</li>
+    *   <li>the primary key is passed to findForBusinessObject()</li>
+    *   <li>the qualified business object id is passed to findForBusinessObject
+    *       and an attribute of the BO is set as a data filter</li>
+    *   <li>the qualified business object id is passed to findForBusinessObject and
+    *       the query is restricted to the currently active model</li>
+    *   <li>the qualified business object id is passed to findForBusinessObject and
+    *       across all deployed model versions</li>
+    *   <li>the qualified business object id is passed to findForBusinessObject and
+    *       the query is restricted to a given modelOid</li>
+    * </ul> 
+    */
    @Test
    public void CheckFiltering2() throws Exception
    {

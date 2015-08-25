@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import org.apache.camel.Exchange;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.dto.ModelDetails;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
@@ -220,27 +221,11 @@ public abstract class AbstractBpmTypeConverter
 
    protected Object getTypeDeclaration(IModel model, DataMapping mapping)
    {
-       String typeDeclarationId = (String) mapping.getApplicationAccessPoint().getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-       ITypeDeclaration typeDeclaration = model.findTypeDeclaration(typeDeclarationId);
-         
-       if (typeDeclaration == null) {
-          IModel refModel=null;
-          IData data = model.findData(mapping.getDataId());
-          if (data != null) {
-                refModel= (IModel) data.getParent();
-                typeDeclaration = refModel.findTypeDeclaration((String)data.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT));
-          }
-          
-          if(typeDeclaration==null) {
-             IReference ref = data.getExternalReference();
-             if(ref!=null) {
-                refModel=ref.getExternalPackage().getReferencedModel();
-                typeDeclaration= refModel.findTypeDeclaration(ref.getId());
-             }
-          }
-       }
-       return typeDeclaration;
+      return getTypeDeclaration(model, mapping.getDataId());
+      // IData data = model.findData(mapping.getDataId());
+      // return StructuredTypeRtUtils.getTypeDeclaration(data, model);
    }
+
    protected Object getTypeDeclaration(Model model, DataMapping mapping)
    {
       TypeDeclaration td = null;
@@ -301,7 +286,7 @@ public abstract class AbstractBpmTypeConverter
       return false;
    }
 
-   protected static Object lookupModel(long modelOid)
+   protected Object lookupModel(long modelOid)
    {
       BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor.getCurrent();
 
@@ -312,27 +297,33 @@ public abstract class AbstractBpmTypeConverter
       }
       else
       {
-         ServiceFactory sf = ClientEnvironment.getCurrentServiceFactory();
-         return sf.getWorkflowService().execute(
-               RetrieveModelDetailsCommand.retrieveModelByOid(modelOid));
+    	  ServiceFactory sf = ClientEnvironment.getCurrentServiceFactory();
+    	  return fetchModel(sf, RetrieveModelDetailsCommand.retrieveModelByOid(modelOid));
       }
    }
    
-   protected static Object lookupModelById(String modelId)
+  
+   
+   public Model getModel(long modelOid)
    {
-      BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor.getCurrent();
-
-      if (bpmRt != null)
-      {
-         ModelManager modelManager = ModelManagerFactory.getCurrent();
-         return modelManager.findActiveModel(modelId);
+	  ServiceFactory sf = ClientEnvironment.getCurrentServiceFactory();
+      return fetchModel(sf, RetrieveModelDetailsCommand.retrieveModelByOid(modelOid));
+   }
+   
+   protected Model fetchModel(ServiceFactory sf, RetrieveModelDetailsCommand command)
+   {
+      final Model model = (Model) sf.getWorkflowService().execute(command);
+      if (model instanceof ModelDetails){
+    	  ModelDetails.SchemaLocatorAdapter schemaLocatorAdapter = new ModelDetails.SchemaLocatorAdapter(model)
+    	   {
+    	      protected Model getModel(long oid)
+    	      {
+    	         return AbstractBpmTypeConverter.this.getModel((int) oid);
+    	      }
+    	   };
+    	   ((ModelDetails) model).setSchemaLocatorAdapter(schemaLocatorAdapter);
       }
-      else
-      {
-         ServiceFactory sf = ClientEnvironment.getCurrentServiceFactory();
-         return sf.getWorkflowService().execute(
-               RetrieveModelDetailsCommand.retrieveActiveModelById(modelId));
-      }
+      return model;
    }
 
    protected class SDTConverter
@@ -367,6 +358,8 @@ public abstract class AbstractBpmTypeConverter
             this.xsdSchema = loadXsdSchema(model, typeDeclaration);
             component = StructuredTypeRtUtils.findElementOrTypeDeclaration(xsdSchema,
                   typeDeclaration.getId(), false);
+            Data data = model.getData(dataMapping.getId());
+            this.xPathMap = StructuredTypeRtUtils.getXPathMap(model, data);
          }
 
          Set xPathSet = XPathFinder.findAllXPaths(xsdSchema, component);

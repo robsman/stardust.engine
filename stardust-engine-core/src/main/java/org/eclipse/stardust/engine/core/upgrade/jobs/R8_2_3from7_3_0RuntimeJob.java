@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 - 2015 SunGard CSA LLC 
+ * Copyright (c) 2011 - 2015 SunGard CSA LLC
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.upgrade.jobs;
 
@@ -58,7 +58,8 @@ public class R8_2_3from7_3_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    {
       super(new DBMSKey[] {
             DBMSKey.ORACLE, DBMSKey.ORACLE9i, DBMSKey.DB2_UDB, DBMSKey.MYSQL,
-            DBMSKey.DERBY, DBMSKey.POSTGRESQL, DBMSKey.SYBASE, DBMSKey.MSSQL8});
+            DBMSKey.DERBY, DBMSKey.POSTGRESQL, DBMSKey.SYBASE, DBMSKey.MSSQL8,
+            DBMSKey.MYSQL_SEQ});
       initUpgradeTasks();
    }
 

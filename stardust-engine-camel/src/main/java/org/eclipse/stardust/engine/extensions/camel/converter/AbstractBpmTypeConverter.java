@@ -301,13 +301,22 @@ public abstract class AbstractBpmTypeConverter {
 			ModelBean model = (ModelBean) o;
 			TypeDeclarationBean typeDeclaration = (TypeDeclarationBean) getTypeDeclaration(
 					model, mapping);
+			if (typeDeclaration!=null){
 			return "{" + typeDeclaration.getModel().getId() + "}"
 					+ typeDeclaration.getId();
+			}
+			else{
+				return null;
+			}
 		}else if(o instanceof ModelDetails){
 			ModelDetails modelDetails=(ModelDetails)o;
 			TypeDeclarationDetails typeDeclarationDetails = (TypeDeclarationDetails) getTypeDeclaration(	modelDetails, mapping);
+			if (modelDetails!=null && typeDeclarationDetails!=null){
 			return "{" + modelDetails.getId() + "}"
 			+ typeDeclarationDetails.getId();
+			}else{
+				return null;
+			}
 		}
 		return null;
 	}

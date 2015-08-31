@@ -144,6 +144,7 @@ public class ScriptingApplicationRouteContext extends ProducerRouteContext
    private String buildConstantExpressionForPythonApp(IApplication application)
    {
       String scriptCode = Util.getScriptCode(application);
+      Gson gson=getGsonInstance(application);
       StringBuilder header = new StringBuilder();
       header.append("import json\n");
       header.append("import pprint\n");
@@ -182,7 +183,7 @@ public class ScriptingApplicationRouteContext extends ProducerRouteContext
                   true);
             header.append("if exchange.getIn().getHeader('" + ap.getId()
                   + "')is None: \n");
-            header.append("\t" + ap.getId() + " = " + new Gson().toJson(instance) + "\n");
+            header.append("\t" + ap.getId() + " = " + gson.toJson(instance) + "\n");
             header.append("else :\n");
             header.append("\t" + ap.getId() + " = exchange.getIn().getHeader('"
                   + ap.getId() + "')\n");
@@ -197,6 +198,36 @@ public class ScriptingApplicationRouteContext extends ProducerRouteContext
       }
       return header.toString();
    }
+   
+   private Gson getGsonInstance(IApplication application){
+	   GsonBuilder gsonBuilder = new GsonBuilder();
+	   String language=application.getAttribute(SCRIPTING_LANGUAGE_EA_KEY);
+	   gsonBuilder.registerTypeAdapter(Date.class, new JsonSerializer<Date>()
+		      {
+		         @Override
+		         public JsonElement serialize(Date date, java.lang.reflect.Type typeOfSrc,
+		               JsonSerializationContext context)
+		         {
+		            return date != null
+		                  ? new JsonPrimitive("/Date(" + date.getTime() + ")/")
+		                  : null;
+		         }
+		      });
+	   if(StringUtils.isNotEmpty(language) &&language.equals(PYTHON)){
+    	   gsonBuilder.registerTypeAdapter(Boolean.class, new JsonSerializer<Boolean>()
+                   {
+					@Override
+					public JsonElement serialize(Boolean val,
+							java.lang.reflect.Type typeOfSrc,
+							JsonSerializationContext context) {
+						 return val ? new JsonPrimitive("True") : new JsonPrimitive("False");
+					}
+                   });
+       }
+	   
+	   return gsonBuilder.create();
+   }
+   
 
    /**
     * produce the full Javascript code that will be set in CamelLanguageScript Header
@@ -225,6 +256,7 @@ public class ScriptingApplicationRouteContext extends ProducerRouteContext
    private String buildInputParametersInitializationScript(IApplication application)
    {
       StringBuilder script = new StringBuilder();
+      Gson gson=getGsonInstance(application);
       for (Iterator< ? > iter = application.getAllInAccessPoints(); iter.hasNext();)
       {
          IAccessPoint ap = (IAccessPoint) iter.next();
@@ -311,7 +343,7 @@ public class ScriptingApplicationRouteContext extends ProducerRouteContext
                   true);
             script.append("if(request.headers.get('" + ap.getId() + "')==null){\n");
             script.append("var " + ap.getId() + "Structure = ("
-                  + getInstance().toJson(instance) + ");\n");
+                  + gson.toJson(instance) + ");\n");
             script.append(ap.getId() + " =  eval(" + ap.getId() + "Structure);\n");
             script.append(ap.getId() + "=visitMembers(" + ap.getId()
                   + ", recursiveFunction);\n");
@@ -383,20 +415,20 @@ public class ScriptingApplicationRouteContext extends ProducerRouteContext
       return functions.toString();
    }
 
-   private static Gson getInstance()
-   {
-      GsonBuilder gsonBuilder = new GsonBuilder();
-      gsonBuilder.registerTypeAdapter(Date.class, new JsonSerializer<Date>()
-      {
-         @Override
-         public JsonElement serialize(Date date, java.lang.reflect.Type typeOfSrc,
-               JsonSerializationContext context)
-         {
-            return date != null
-                  ? new JsonPrimitive("/Date(" + date.getTime() + ")/")
-                  : null;
-         }
-      });
-      return gsonBuilder.create();
-   }
+//   private static Gson getInstance()
+//   {
+//      GsonBuilder gsonBuilder = new GsonBuilder();
+//      gsonBuilder.registerTypeAdapter(Date.class, new JsonSerializer<Date>()
+//      {
+//         @Override
+//         public JsonElement serialize(Date date, java.lang.reflect.Type typeOfSrc,
+//               JsonSerializationContext context)
+//         {
+//            return date != null
+//                  ? new JsonPrimitive("/Date(" + date.getTime() + ")/")
+//                  : null;
+//         }
+//      });
+//      return gsonBuilder.create();
+//   }
 }

@@ -3,13 +3,15 @@
  * (C) 2000 - 2013 CARNOT AG
  */
 package org.eclipse.stardust.engine.extensions.camel.converter;
-
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SCRIPTING_LANGUAGE_EA_KEY;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.PYTHON;
 import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.camel.Exchange;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.DataMapping;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.core.struct.ClientXPathMap;
@@ -17,6 +19,7 @@ import org.eclipse.stardust.engine.core.struct.IXPathMap;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.extensions.camel.trigger.AccessPointProperties;
 import org.mozilla.javascript.IdScriptableObject;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -27,7 +30,6 @@ import com.google.gson.JsonSerializer;
 public class JsonTypeConverter
 {
    public static String ISO_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
-
    public static String LONG_DATA_FORMAT = "LONG";
 
    static class ApplicationTypeConverter extends AbstractIApplicationTypeConverter
@@ -114,6 +116,20 @@ public class JsonTypeConverter
                   gsonBuilder.setDateFormat(this.dateFormat).create();
                }
                
+               if(extendedAttributes.get(SCRIPTING_LANGUAGE_EA_KEY)!=null && StringUtils.isNotEmpty((String)extendedAttributes.get(SCRIPTING_LANGUAGE_EA_KEY)) && 
+            		   ((String)extendedAttributes.get(SCRIPTING_LANGUAGE_EA_KEY)).equals(PYTHON)
+            		   ){
+            	   gsonBuilder.registerTypeAdapter(Boolean.class, new JsonSerializer<Boolean>()
+                           {
+
+                              @Override
+                              public JsonElement serialize(Boolean val, Type type,
+                                    JsonSerializationContext context)
+                              {
+                                  return val ? new JsonPrimitive("True") : new JsonPrimitive("False");
+                              }
+                           });
+               }
                Gson gson=gsonBuilder.create();
                
                String json = null;

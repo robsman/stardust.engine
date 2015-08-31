@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,9 +52,10 @@ public class Version implements Comparable<Version>, Serializable
       mapStardust2Ipp.put(Version.createFixedVersion(2, 1, 0), Version.createFixedVersion(8, 1, 1));
       mapStardust2Ipp.put(Version.createFixedVersion(2, 1, 1), Version.createFixedVersion(8, 1, 1));
       mapStardust2Ipp.put(Version.createFixedVersion(3, 0, 0), Version.createFixedVersion(8, 2, 0));
-      
+      mapStardust2Ipp.put(Version.createFixedVersion(3, 0, 1), Version.createFixedVersion(8, 2, 2));
+
       // map DEV builds to latest IPP release
-      mapStardust2Ipp.put(Version.createFixedVersion(9, 9, 9), Version.createFixedVersion(8, 2, 0));
+      mapStardust2Ipp.put(Version.createFixedVersion(9, 9, 9), Version.createFixedVersion(8, 2, 2));
    }
 
    // some Versions coded in product are fixed and are not allowed to be altered during compare

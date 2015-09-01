@@ -91,6 +91,17 @@ public class Version implements Comparable<Version>, Serializable
       fixedVersion.setFixed(true);
       return fixedVersion;
    }
+   
+   public static Version createVersion(String productName, String versionString)
+   {
+      Version version = new Version(versionString);
+      if((StringUtils.isEmpty(productName) && (1 == version.getMajor() || 2 == version.getMajor()))
+            || PRODUCT_NAME_STARDUST.equals(productName))
+      {
+         version.setFixed(true);
+      }
+      return version;
+   }
 
    /**
     * Returns version based on models version string. This depends on the content of vendorString as

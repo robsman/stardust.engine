@@ -95,7 +95,9 @@ public class ActivityInstanceUtils
       assertNotTerminated(ai);
       assertNotInAbortingProcess(ai);
       assertNotActivatedByOther(ai);
-
+     
+      IProcessInstance pi = ai.getProcessInstance();
+      
       if (AbortScope.RootHierarchy == abortScope)
       {
          IProcessInstance processInstance = ai.getProcessInstance();
@@ -104,13 +106,36 @@ public class ActivityInstanceUtils
       }
       else if (AbortScope.SubHierarchy == abortScope)
       {
-         ActivityInstanceUtils.abortActivityInstance(ai);
+         // in case that process instance is already aborted but not its activity
+         if (isProcessInstanceAborted(ai, pi))
+         {
+            ((ActivityInstanceBean) ai).setState(ActivityInstanceState.ABORTED);
+         }
+         else
+         {
+            ActivityInstanceUtils.abortActivityInstance(ai);
+         }
       }
       else
       {
          throw new InternalError(MessageFormat.format("AbortScope {0} is not expected.",
                new Object[] { abortScope }));
       }
+      
+      // in case that process instance is already aborted but not its activity
+      if (isProcessInstanceAborted(ai, pi))
+      {
+         ((ActivityInstanceBean) ai).setState(ActivityInstanceState.ABORTED);
+      }
+      
+   }
+
+   private static boolean isProcessInstanceAborted(IActivityInstance ai,
+         IProcessInstance pi)
+   {
+      return ProcessInstanceUtils.isInAbortingPiHierarchy(pi)
+            && pi.getState().equals(ProcessInstanceState.Aborted) && !ai.isAborting()
+            && !ai.isTerminated();
    }
    
    public static void scheduleNewActivityThread(IActivityInstance activityInstance)

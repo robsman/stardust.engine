@@ -68,6 +68,31 @@ public class RuntimeUpgradeTaskExecutor
    {
       execute(finalizeSchemaTasks);
    }
+   
+   public void printUpgradeSchemaInfo()
+   {
+      printInfo(upgradeSchemaTasks);
+   }
+   
+
+   public void printMigrateDataInfo()
+   {
+      printInfo(migrateDataTasks);
+   }
+
+   public void printFinalizeSchemaInfo()
+   {
+      printInfo(finalizeSchemaTasks);
+   }
+
+
+   private void printInfo(List<UpgradeTask> upgradeTasks)
+   {
+      for (UpgradeTask upgradeTask : upgradeTasks)
+      {
+         upgradeTask.printInfo();
+      }
+   }
 
    private void execute(List<UpgradeTask> upgradeTasks)
    {

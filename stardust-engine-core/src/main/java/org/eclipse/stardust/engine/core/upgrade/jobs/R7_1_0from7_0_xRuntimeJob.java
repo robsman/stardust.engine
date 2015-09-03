@@ -136,6 +136,12 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          {
             createTmpTable();
          }
+
+         @Override
+         public void printInfo()
+         {
+            // TODO Auto-generated method stub
+         }
       });
    }
 
@@ -185,6 +191,12 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
                }
             }, observer);
          }
+
+         @Override
+         public void printInfo()
+         {
+            // TODO Auto-generated method stub
+         }
       };
    }
 
@@ -198,6 +210,12 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             DatabaseHelper.dropTable(item, new DropTableInfo(TMP_XPATH_DEC_TABLE, null),
                   R7_1_0from7_0_xRuntimeJob.this);
 
+         }
+
+         @Override
+         public void printInfo()
+         {
+            // TODO Auto-generated method stub
          }
       });
    }
@@ -264,6 +282,13 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
                      + doubleValueColumn.getName() + ".");
             }
          }
+
+         @Override
+         public void printInfo()
+         {
+            // TODO Auto-generated method stub
+            
+         }
       };
    }
 
@@ -281,6 +306,12 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             {
                upgradeDoubleValuesByPartition(partitionInfo);
             }
+         }
+
+         @Override
+         public void printInfo()
+         {
+            // TODO Auto-generated method stub
          }
       };
    }

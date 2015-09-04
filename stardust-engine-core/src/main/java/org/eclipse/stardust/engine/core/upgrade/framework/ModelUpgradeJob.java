@@ -234,7 +234,7 @@ public abstract class ModelUpgradeJob extends UpgradeJob
                + " WHERE " + FIELD__MODEL + " IN ( "
                      + "SELECT " + FIELD__OID
                      + " FROM " + DatabaseHelper.getQualifiedName(MODEL_TABLE_NAME)
-                     + " WHERE " + FIELD__PARTITION + "=" + partitionOid + " AND " + FIELD__ID + "='" + modelId + "'" + ")");
+                     + " WHERE " + FIELD__PARTITION + "=" + partitionOid + ")");
          if (rs.next())
          {
             return rs.getLong(1) + 1;

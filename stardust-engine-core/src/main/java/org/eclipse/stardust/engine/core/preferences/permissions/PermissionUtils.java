@@ -308,7 +308,8 @@ public class PermissionUtils
       {
          if (!PredefinedConstants.ADMINISTRATOR_ROLE.equals(qualifiedModelParticipantId)
                && !Authorization2.ALL.equals(qualifiedModelParticipantId)
-               && !Authorization2.OWNER.equals(qualifiedModelParticipantId))
+               && !Authorization2.OWNER.equals(qualifiedModelParticipantId)
+               && !PredefinedConstants.AUDITOR_ROLE.equals(qualifiedModelParticipantId))
          {
             QName qualifier = QName.valueOf(qualifiedModelParticipantId);
 
@@ -328,7 +329,6 @@ public class PermissionUtils
                }
             }
 
-
             if (model == null)
             {
                throw new ValidationException(
@@ -336,14 +336,6 @@ public class PermissionUtils
                            + qualifiedModelParticipantId, false);
             }
             IModelParticipant participant = model.findParticipant(qualifier.getLocalPart());
-            if (participant == null)
-            {
-               // check PredefinedModel as Auditor Role is only there defined
-               List<IModel> pdModel = ModelManagerFactory.getCurrent().getModelsForId(
-                     PredefinedConstants.PREDEFINED_MODEL_ID);
-               participant = pdModel.get(0).findParticipant(
-                     qualifier.getLocalPart());
-            }
             if (participant == null)
             {
                throw new ValidationException(

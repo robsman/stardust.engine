@@ -45,6 +45,8 @@ public interface IDaemon
 
    long getDefaultPeriodicity();
 
+   DaemonExecutionLog getExecutionLog();   
+   
    public static final class ExecutionResult extends StringKey
    {
       private static final long serialVersionUID = 1;

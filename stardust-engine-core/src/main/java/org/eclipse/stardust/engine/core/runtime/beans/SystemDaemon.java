@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.util.List;
+import java.util.TreeSet;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.FactoryFinder;
@@ -108,5 +109,12 @@ public class SystemDaemon implements IDaemon
    public long getDefaultPeriodicity()
    {
       return 5;
+   }
+
+   @Override
+   public DaemonExecutionLog getExecutionLog()
+   {
+      // TODO Auto-generated method stub
+      return null;
    }
 }

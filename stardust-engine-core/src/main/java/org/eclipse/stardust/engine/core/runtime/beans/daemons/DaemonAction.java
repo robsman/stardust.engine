@@ -96,6 +96,8 @@ public class DaemonAction extends SecurityContextAwareAction
                ExecuteDaemonAction innerAction = new ExecuteDaemonAction(carrier, daemon,
                      batchSize);
 
+               daemon.getExecutionLog().reset();
+
                daemonLogger.info("Running daemon '" + type.toString() + "'.");
                while (IDaemon.WORK_PENDING.equals(innerAction.getExecutionStatus()))
                {
@@ -105,7 +107,6 @@ public class DaemonAction extends SecurityContextAwareAction
                   // responsiveness
                   acknowledge(service, carrier);
                }
-
                if (IDaemon.WORK_DONE.equals(innerAction.getExecutionStatus()))
                {
                   // (fh) mark successful execution
@@ -122,7 +123,7 @@ public class DaemonAction extends SecurityContextAwareAction
                      new DaemonDetails(daemonLog.getType(), originalCarrier.getStartTimeStamp(),
                            lastExecutionLog.getTimeStamp(), true,
                            daemonLog.getAcknowledgementState(),
-                           daemonLog.getDaemonExecutionState()));
+                           daemonLog.getDaemonExecutionState(),daemon.getExecutionLog()));
             }
             catch (Exception ex)
             {

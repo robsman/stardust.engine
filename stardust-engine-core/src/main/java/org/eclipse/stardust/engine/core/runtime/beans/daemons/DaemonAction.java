@@ -96,7 +96,10 @@ public class DaemonAction extends SecurityContextAwareAction
                ExecuteDaemonAction innerAction = new ExecuteDaemonAction(carrier, daemon,
                      batchSize);
 
-               daemon.getExecutionLog().reset();
+               if (daemon.getExecutionLog() != null)
+               {
+                  daemon.getExecutionLog().reset();
+               }
 
                daemonLogger.info("Running daemon '" + type.toString() + "'.");
                while (IDaemon.WORK_PENDING.equals(innerAction.getExecutionStatus()))

@@ -211,7 +211,7 @@ public class BenchmarkCalendarTest
       Map sdMap = CollectionUtils.newHashMap();
       sdMap.put("TheDate", new Date());
 
-      data.put("BUSINESS_DATE", Calendar.getInstance());
+      data.put("BUSINESS_DATE", Calendar.getInstance().getTimeInMillis());
       data.put("DateSD", sdMap);
       return data;
    }

@@ -82,7 +82,7 @@ public class BenchmarkStatisticsTest
       BenchmarkTestUtils.deployBenchmark("benchmarksTest.benchmark", serviceFactory);
 
       startOptions_withBenchmark = new StartOptions(Collections.singletonMap(
-            BUSINESS_DATE, Calendar.getInstance()), true, BENCHMARK_REF);
+            BUSINESS_DATE, Calendar.getInstance().getTimeInMillis()), true, BENCHMARK_REF);
       startOptions_withoutBenchmark = new StartOptions(null, true);
 
       // 2 with benchmark
@@ -216,7 +216,7 @@ public class BenchmarkStatisticsTest
       now.set(Calendar.MINUTE, 59);
       now.set(Calendar.MILLISECOND, 0);
 
-      return now;// .getTime();//.getTime();
+      return now.getTime();// .getTime();//.getTime();
    }
 
    private static Serializable getCurrentDayStart()
@@ -227,6 +227,6 @@ public class BenchmarkStatisticsTest
       now.set(Calendar.MINUTE, 0);
       now.set(Calendar.MILLISECOND, 0);
 
-      return now;// .getTime();//.getTime();
+      return now.getTime();// .getTime();//.getTime();
    }
 }

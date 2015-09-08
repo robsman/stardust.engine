@@ -14,20 +14,17 @@ import java.util.Set;
 import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
-import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.spring.spi.ApplicationContextRegistry;
 import org.eclipse.stardust.common.Pair;
-import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.Application;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AsynchronousApplicationInstance;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SynchronousApplicationInstance;
-import org.eclipse.stardust.engine.extensions.camel.GenericProducer;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.AbstractApplicationContext;
+import org.eclipse.stardust.engine.extensions.camel.producer.ApplicationProducerFactory;
+import org.eclipse.stardust.engine.extensions.camel.producer.CamelProducer;
 
 public class CamelProducerSpringBeanApplicationInstance
       implements SynchronousApplicationInstance, AsynchronousApplicationInstance
@@ -40,11 +37,11 @@ public class CamelProducerSpringBeanApplicationInstance
 
    private ActivityInstance activityInstance;
 
-   private ApplicationContext springContext;
-
-   private DefaultCamelContext camelContext;
-
-   private String camelContextId;
+//   private ApplicationContext springContext;
+//
+//   private DefaultCamelContext camelContext;
+//
+//   private String camelContextId;
 
    private List<Pair<String, Object>> accessPointValues;
 
@@ -57,24 +54,24 @@ public class CamelProducerSpringBeanApplicationInstance
 
       this.activityInstance = activityInstance;
       this.application = activityInstance.getActivity().getApplication();
-      this.camelContextId = getCamelContextId(this.application);
-      this.springContext = (AbstractApplicationContext) Parameters.instance().get(PRP_APPLICATION_CONTEXT);
-      this.camelContext = (DefaultCamelContext) this.springContext.getBean(this.camelContextId);
+//      this.camelContextId = getCamelContextId(this.application);
+//      this.springContext = (AbstractApplicationContext) Parameters.instance().get(PRP_APPLICATION_CONTEXT);
+//      this.camelContext = (DefaultCamelContext) this.springContext.getBean(this.camelContextId);
+//
+//      if (this.camelContext != null && this.springContext != null)
+//      {
+//         this.camelContext.setRegistry(new ApplicationContextRegistry(springContext));
+//      }
+//      else
+//      {
+//         // TODO: What if null
+//      }
 
-      if (this.camelContext != null && this.springContext != null)
-      {
-         this.camelContext.setRegistry(new ApplicationContextRegistry(springContext));
-      }
-      else
-      {
-         // TODO: What if null
-      }
-
-      if (logger.isDebugEnabled())
-      {
-         logger.debug("Processing request for application with ID " + this.application.getId() + ".");
-         logger.debug("CamelContext: " + this.camelContextId);
-      }
+//      if (logger.isDebugEnabled())
+//      {
+//         logger.debug("Processing request for application with ID " + this.application.getId() + ".");
+//         logger.debug("CamelContext: " + this.camelContextId);
+//      }
    }
 
    /**
@@ -120,10 +117,9 @@ public class CamelProducerSpringBeanApplicationInstance
       {
 
          Map<String, Object> outDataMappings = null;
-
-         GenericProducer producer = new GenericProducer(this.activityInstance, this.camelContext);
-         String producerMethodName = producer.getProducerMethodName();
-         Method method = Reflect.decodeMethod(producer.getClass(), producerMethodName);
+         
+         CamelProducer producer=ApplicationProducerFactory.getProducer(application);
+         Method method = Reflect.decodeMethod(producer.getClass(), CamelProducer.METHOD);
 
          Object[] inDataMappings = CamelMessageHelper.setInDataAccessPoints(method, this.application,
                this.accessPointValues);
@@ -196,13 +192,12 @@ public class CamelProducerSpringBeanApplicationInstance
 
       try
       {
-         String invocationPattern = getInvocationPattern(application);
+         String invocationPattern = getInvocationPattern(this.application);
 
          if (!RECEIVE.equals(invocationPattern))
          {
-            GenericProducer producer = new GenericProducer(this.activityInstance, this.camelContext);
-            String producerMethodName = producer.getProducerMethodName();
-            Method method = Reflect.decodeMethod(producer.getClass(), producerMethodName);
+            CamelProducer producer=ApplicationProducerFactory.getProducer(this.application);
+            Method method = Reflect.decodeMethod(producer.getClass(), CamelProducer.METHOD);
 
             Object[] inDataMappings = CamelMessageHelper.setInDataAccessPoints(method, this.application,
                   this.accessPointValues);

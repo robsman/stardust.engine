@@ -1,11 +1,11 @@
 package org.eclipse.stardust.engine.extensions.camel;
 
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.*;
+
 import java.io.IOException;
 import java.util.*;
 
 import org.apache.camel.Exchange;
-
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
@@ -31,22 +31,25 @@ public class Util
 	   }
 	   return null;
    }
-      /**
-    * returns "direct:partitionId_modelId_applicationId"
+   
+   /** Returns the uri related to the provided Application.
+    *  "partitionId_modelId_applicationId"
+    *  
     * @return
     */
-   public static String getEndpoint(ActivityInstance activityInstance){
-	 String partitionId=activityInstance.getActivity().getApplication().getPartitionId();
-	 String modelId=extractModelIdFromFullyQualifiedName(activityInstance.getActivity().getApplication().getQualifiedId());
-	 String activityId=activityInstance.getActivity().getApplication().getId();
-	 if(StringUtils.isNotEmpty(partitionId) && StringUtils.isNotEmpty(modelId) && StringUtils.isNotEmpty(activityId))
-		return partitionId+"_"+modelId+"_"+activityId;
-	 if( StringUtils.isNotEmpty(modelId) && StringUtils.isNotEmpty(activityId))
-			return modelId+"_"+activityId;
-	 if( StringUtils.isNotEmpty(activityId))
-			return activityId;
-	 return null ;
-   }
+    public static String getEndpoint(Application application){
+       String partitionId=  application.getPartitionId();
+       String modelId=extractModelIdFromFullyQualifiedName(application.getQualifiedId());
+       String appId=application.getId();
+   
+       if(StringUtils.isNotEmpty(partitionId) && StringUtils.isNotEmpty(modelId) && StringUtils.isNotEmpty(appId))
+          return partitionId+"_"+modelId+"_"+appId;
+      if( StringUtils.isNotEmpty(modelId) && StringUtils.isNotEmpty(appId))
+           return modelId+"_"+appId;
+      if( StringUtils.isNotEmpty(appId))
+           return appId;
+      return null ;
+    }
 
    /**
     * copy the content of the IN Message to the Out Message.
@@ -344,29 +347,26 @@ public class Util
    {
       return application.getAttribute(CAT_BODY_OUT_ACCESS_POINT);
    }
-
    /**
-    *
-    * @param application
-    * @return
-    */
+   *
+   * @param application
+   * @return
+   */
    public static Object getBodyInAccessPoint(final Application application)
    {
       return application.getAttribute(CAT_BODY_IN_ACCESS_POINT);
    }
-
    /**
-    *
-    * @param application
-    * @return
-    */
+   *
+   * @param application
+   * @return
+   */
    public static Object getSupportMultipleAccessPointAttribute(final Application application)
    {
       return application.getAttribute(SUPPORT_MULTIPLE_ACCESS_POINTS);
    }
-
    /**
-    *
+   *
     * @param ai
     * @return
     */

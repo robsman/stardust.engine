@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.query.statistics.evaluation;
 
+import java.util.Map;
+
 import org.eclipse.stardust.engine.core.query.statistics.api.BenchmarkCategoryCounts;
 import org.eclipse.stardust.engine.core.query.statistics.api.BenchmarkProcessStatistics;
 import org.eclipse.stardust.engine.core.query.statistics.api.BenchmarkProcessStatisticsQuery;
@@ -29,12 +31,13 @@ public class BenchmarkProcessStatisticsResult extends BenchmarkProcessStatistics
 
    public void registerProcessBenchmarkCategory(String processId, int benchmarkValue)
    {
-      BenchmarkCategoryCounts benchmarkCategoryCount = benchmarkCategoryCountsPerProcessId.get(processId);
+      Map<String, BenchmarkCategoryCounts> benchmarkCategoryCountsPerItem = getBenchmarkCategoryCountsPerItem();
+      BenchmarkCategoryCounts benchmarkCategoryCount = benchmarkCategoryCountsPerItem.get(processId);
 
       if (benchmarkCategoryCount == null)
       {
          benchmarkCategoryCount = new BenchmarkCategoryCounts();
-         benchmarkCategoryCountsPerProcessId.put(processId, benchmarkCategoryCount);
+         benchmarkCategoryCountsPerItem.put(processId, benchmarkCategoryCount);
       }
 
       benchmarkCategoryCount.registerBenchmarkValue(benchmarkValue);
@@ -42,7 +45,8 @@ public class BenchmarkProcessStatisticsResult extends BenchmarkProcessStatistics
 
    public void addAbortedInstance(String qualifiedProcessId)
    {
-      Long count = abortedPerProcessId.get(qualifiedProcessId);
+      Map<String, Long> abortedPerItem = getAbortedPerItem();
+      Long count = abortedPerItem.get(qualifiedProcessId);
       if (count == null)
       {
          count = 1L;
@@ -51,12 +55,13 @@ public class BenchmarkProcessStatisticsResult extends BenchmarkProcessStatistics
       {
          count++;
       }
-      abortedPerProcessId.put(qualifiedProcessId, count);
+      abortedPerItem.put(qualifiedProcessId, count);
    }
 
    public void addCompletedInstance(String qualifiedProcessId)
    {
-      Long count = completedPerProcessId.get(qualifiedProcessId);
+      Map<String, Long> completedPerItem = getCompletedPerItem();
+      Long count = completedPerItem.get(qualifiedProcessId);
       if (count == null)
       {
          count = 1L;
@@ -65,6 +70,6 @@ public class BenchmarkProcessStatisticsResult extends BenchmarkProcessStatistics
       {
          count++;
       }
-      completedPerProcessId.put(qualifiedProcessId, count);
+      completedPerItem.put(qualifiedProcessId, count);
    }
 }

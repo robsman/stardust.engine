@@ -18,6 +18,7 @@ import java.util.*;
 import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Predicate;
 import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.ObjectExistsException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
@@ -59,6 +60,24 @@ public class BusinessObjectUtils
 {
    private static final String BUSINESS_OBJECT_ATT = PredefinedConstants.MODEL_SCOPE + "BusinessObject";
    private static final String BUSINESS_OBJECT_RELATIONSHIPS_ATT = BUSINESS_OBJECT_ATT + ":Relationships";
+
+   public static final Predicate dataFilterPredicate = new Predicate()
+   {
+      @Override
+      public boolean accept(Object o)
+      {
+         return o instanceof DataFilter;
+      }
+   };
+
+   private static final Predicate sdvPredicate = new Predicate()
+   {
+      @Override
+      public boolean accept(Object o)
+      {
+         return o instanceof StructuredDataValueBean;
+      }
+   };
 
    public static BusinessObjects getBusinessObjects(BusinessObjectQuery query)
    {
@@ -113,7 +132,7 @@ public class BusinessObjectUtils
             new TransformingIterator<IData, BusinessObject>(allData.iterator(), transformer)));
    }
 
-   private static boolean isUniqueBusinessObject(Set<IData> allData)
+   public static boolean isUniqueBusinessObject(Set<IData> allData)
    {
       String modelId = null;
       String dataId = null;
@@ -135,7 +154,7 @@ public class BusinessObjectUtils
       return true;
    }
 
-   private static Set<IData> collectData(final ModelManager modelManager, BusinessObjectQueryPredicate queryEvaluator)
+   public static Set<IData> collectData(final ModelManager modelManager, BusinessObjectQueryPredicate queryEvaluator)
    {
       BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
       Authorization2Predicate auth = runtimeEnvironment == null ? null : runtimeEnvironment.getAuthorizationPredicate();
@@ -209,7 +228,7 @@ public class BusinessObjectUtils
             String pk = data.getAttribute(PredefinedConstants.PRIMARY_KEY_ATT);
             pi.where(DataFilter.isEqual(data.getId(), pk, (Serializable) pkValue));
          }
-         copyDataFilters(term, pi.getFilter());
+         copyFilters(term, pi.getFilter(), dataFilterPredicate);
          ProcessInstanceQueryEvaluator eval = new ProcessInstanceQueryEvaluator(pi, QueryServiceUtils.getDefaultEvaluationContext());
          ParsedQuery parsedQuery = eval.parseQuery();
          List<Join> predicateJoins = parsedQuery.getPredicateJoins();
@@ -237,7 +256,7 @@ public class BusinessObjectUtils
       desc
             .innerJoin(ClobDataBean.class)
             .on(dvJoin.fieldRef(DataValueBean.FIELD__NUMBER_VALUE), ClobDataBean.FIELD__OID);
-      applyRestrictions(desc, predicateJoins);
+      applyRestrictions(desc, predicateJoins, sdvPredicate);
 
       List<PredicateTerm> predicates = CollectionUtils.newList();
       predicates.add(Predicates.isEqual(ProcessInstanceBean.FR__PROCESS_DEFINITION, -1));
@@ -327,27 +346,38 @@ public class BusinessObjectUtils
       }
    }
 
-   private static void applyRestrictions(QueryDescriptor desc, List<Join> predicateJoins)
+   public static void applyRestrictions(QueryDescriptor desc, List<Join> predicateJoins, Predicate predicate)
    {
       if (predicateJoins != null)
       {
          for (Join join : predicateJoins)
          {
             ITableDescriptor tDesc = join.getRhsTableDescriptor();
-            if (tDesc instanceof TypeDescriptor && StructuredDataValueBean.class.equals(((TypeDescriptor) tDesc).getType()))
+            Class type = ((TypeDescriptor) tDesc).getType();
+            if (tDesc instanceof TypeDescriptor && predicate.accept(type)/*StructuredDataValueBean.class.equals(((TypeDescriptor) tDesc).getType())*/)
             {
                Join sdvJoin = null;
                if (join.isRequired())
                {
                   sdvJoin = desc
-                        .innerJoin(StructuredDataValueBean.class, join.getTableAlias())
-                        .on(ProcessInstanceBean.FR__OID, StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
+                        .innerJoin(type, join.getTableAlias());
                }
                else
                {
                   sdvJoin = desc
-                        .leftOuterJoin(StructuredDataValueBean.class, join.getTableAlias())
-                        .on(ProcessInstanceBean.FR__OID, StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
+                        .leftOuterJoin(type, join.getTableAlias());
+               }
+               for (JoinElement element : join.getJoinConditions())
+               {
+                  Pair<FieldRef, ? > condition = element.getJoinCondition();
+                  if (condition.getSecond() instanceof FieldRef)
+                  {
+                     sdvJoin.addJoinCondition(condition.getFirst(), ((FieldRef) condition.getSecond()).fieldName, element.getJoinConditionType());
+                  }
+                  else
+                  {
+                     sdvJoin.addJoinConditionConstant(condition.getFirst(), (String) condition.getSecond(), element.getJoinConditionType());
+                  }
                }
                AndTerm restriction = join.getRestriction();
                if (restriction != null)
@@ -674,7 +704,7 @@ public class BusinessObjectUtils
       return data;
    }
 
-   private static PredicateTerm filter(PredicateTerm source)
+   public static PredicateTerm filter(PredicateTerm source)
    {
       // TODO: provide generic filtering like PredicateTerm.filter(Predicate)
       if (source instanceof MultiPartPredicateTerm)
@@ -725,29 +755,29 @@ public class BusinessObjectUtils
       return source;
    }
 
-   private static void copyDataFilters(FilterTerm source, FilterTerm target)
+   public static void copyFilters(FilterTerm source, FilterTerm target, Predicate predicate)
    {
       for (Object part : source.getParts())
       {
          if (part instanceof FilterAndTerm)
          {
-            copyDataFilters((FilterAndTerm) part, target.addAndTerm());
+            copyFilters((FilterAndTerm) part, target.addAndTerm(), predicate);
          }
          else if (part instanceof FilterAndNotTerm)
          {
-            copyDataFilters((FilterAndNotTerm) part, target.addAndNotTerm());
+            copyFilters((FilterAndNotTerm) part, target.addAndNotTerm(), predicate);
          }
          else if (part instanceof FilterOrTerm)
          {
-            copyDataFilters((FilterOrTerm) part, target.addOrTerm());
+            copyFilters((FilterOrTerm) part, target.addOrTerm(), predicate);
          }
          else if (part instanceof FilterOrNotTerm)
          {
-            copyDataFilters((FilterOrNotTerm) part, target.addOrNotTerm());
+            copyFilters((FilterOrNotTerm) part, target.addOrNotTerm(), predicate);
          }
-         else if (part instanceof DataFilter)
+         else if (predicate.accept(part))
          {
-            target.add((DataFilter) part);
+            target.add((FilterCriterion) part);
          }
       }
    }
@@ -921,5 +951,24 @@ public class BusinessObjectUtils
          data.setRuntimeAttribute(BUSINESS_OBJECT_RELATIONSHIPS_ATT, map);
       }
       return map;
+   }
+
+   public static String getPrimaryKeyFromBusinessObject(BusinessObject bo)
+   {
+      String primaryKey = null;
+      for(BusinessObject.Definition boDef : bo.getItems())
+      {
+         if(boDef.isPrimaryKey())
+         {
+            primaryKey = boDef.getName();
+            break;
+         }
+      }
+
+      if(primaryKey == null)
+      {
+         throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("primary key"));
+      }
+      return primaryKey;
    }
 }

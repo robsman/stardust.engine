@@ -27,6 +27,83 @@
             </xsd:schema>
          </xpdl:SchemaType>
       </xpdl:TypeDeclaration>
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" Id="ParentBaseType" Name="ParentBaseType">
+         <xpdl:ExtendedAttributes>
+            <xpdl:ExtendedAttribute Name="carnot:model:uuid" Value="d4bc4848-85c7-4a34-86c9-3c4320027076"/>
+         </xpdl:ExtendedAttributes>
+         <xpdl:SchemaType>
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:par="http://www.infinity.com/bpm/model/BenchmarksModel/ParentBaseType" targetNamespace="http://www.infinity.com/bpm/model/BenchmarksModel/ParentBaseType">
+               <xsd:complexType name="ParentBaseType">
+                  <xsd:sequence>
+                     <xsd:element name="Ident" type="xsd:int"/>
+                     <xsd:element name="Name" type="xsd:string"/>
+                  </xsd:sequence>
+               </xsd:complexType>
+               <xsd:element name="ParentBaseType" type="par:ParentBaseType"/>
+            </xsd:schema>
+         </xpdl:SchemaType>
+      </xpdl:TypeDeclaration>
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" Id="BaseType" Name="BaseType">
+         <xpdl:ExtendedAttributes>
+            <xpdl:ExtendedAttribute Name="carnot:model:uuid" Value="687501a3-86c8-4ac9-8368-8e8da44a30e5"/>
+         </xpdl:ExtendedAttributes>
+         <xpdl:SchemaType>
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:bas="http://www.infinity.com/bpm/model/BenchmarksModel/BaseType" xmlns:par="http://www.infinity.com/bpm/model/BenchmarksModel/ParentBaseType" targetNamespace="http://www.infinity.com/bpm/model/BenchmarksModel/BaseType">
+               <xsd:import namespace="http://www.infinity.com/bpm/model/BenchmarksModel/ParentBaseType" schemaLocation="urn:internal:ParentBaseType"/>
+               <xsd:complexType name="BaseType">
+                  <xsd:complexContent>
+                     <xsd:extension base="par:ParentBaseType">
+                        <xsd:sequence>
+                           <xsd:element maxOccurs="unbounded" minOccurs="0" name="Groups" type="xsd:int"/>
+                           <xsd:element maxOccurs="unbounded" minOccurs="0" name="Categories" type="xsd:int"/>
+                        </xsd:sequence>
+                     </xsd:extension>
+                  </xsd:complexContent>
+               </xsd:complexType>
+               <xsd:element name="BaseType" type="bas:BaseType"/>
+            </xsd:schema>
+         </xpdl:SchemaType>
+      </xpdl:TypeDeclaration>
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" Id="BaseGroupType" Name="BaseGroupType">
+         <xpdl:ExtendedAttributes>
+            <xpdl:ExtendedAttribute Name="carnot:model:uuid" Value="f13a9208-8e7b-4da3-be8e-b9dc50aac9ec"/>
+         </xpdl:ExtendedAttributes>
+         <xpdl:SchemaType>
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:bas="http://www.infinity.com/bpm/model/BenchmarksModel/BaseGroupType" xmlns:par="http://www.infinity.com/bpm/model/BenchmarksModel/ParentBaseType" targetNamespace="http://www.infinity.com/bpm/model/BenchmarksModel/BaseGroupType">
+               <xsd:import namespace="http://www.infinity.com/bpm/model/BenchmarksModel/ParentBaseType" schemaLocation="urn:internal:ParentBaseType"/>
+               <xsd:complexType name="BaseGroupType">
+                  <xsd:complexContent>
+                     <xsd:extension base="par:ParentBaseType">
+                        <xsd:sequence>
+                           <xsd:element maxOccurs="unbounded" minOccurs="0" name="BaseObjects" type="xsd:int"/>
+                        </xsd:sequence>
+                     </xsd:extension>
+                  </xsd:complexContent>
+               </xsd:complexType>
+               <xsd:element name="BaseGroupType" type="bas:BaseGroupType"/>
+            </xsd:schema>
+         </xpdl:SchemaType>
+      </xpdl:TypeDeclaration>
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" Id="BaseCategoryType" Name="BaseCategoryType">
+         <xpdl:ExtendedAttributes>
+            <xpdl:ExtendedAttribute Name="carnot:model:uuid" Value="70a1b102-8070-4ee7-9c1a-5d5445a0fce2"/>
+         </xpdl:ExtendedAttributes>
+         <xpdl:SchemaType>
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:bas="http://www.infinity.com/bpm/model/BenchmarksModel/BaseCategoryType" xmlns:par="http://www.infinity.com/bpm/model/BenchmarksModel/ParentBaseType" targetNamespace="http://www.infinity.com/bpm/model/BenchmarksModel/BaseCategoryType">
+               <xsd:import namespace="http://www.infinity.com/bpm/model/BenchmarksModel/ParentBaseType" schemaLocation="urn:internal:ParentBaseType"/>
+               <xsd:complexType name="BaseCategoryType">
+                  <xsd:complexContent>
+                     <xsd:extension base="par:ParentBaseType">
+                        <xsd:sequence>
+                           <xsd:element maxOccurs="unbounded" minOccurs="0" name="BaseObjects" type="xsd:int"/>
+                        </xsd:sequence>
+                     </xsd:extension>
+                  </xsd:complexContent>
+               </xsd:complexType>
+               <xsd:element name="BaseCategoryType" type="bas:BaseCategoryType"/>
+            </xsd:schema>
+         </xpdl:SchemaType>
+      </xpdl:TypeDeclaration>
    </TypeDeclarations>
    <Participants>
       <Participant Id="Administrator" Name="Administrator">
@@ -279,6 +356,81 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </DataField>
+      <DataField Id="BaseData" Name="BaseData" IsArray="FALSE">
+         <DataType>
+            <DeclaredType Id="BaseType"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="91" Type="struct">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="1d81b393-a718-4d29-a3f2-dbba22657fae"/>
+                     <carnot:Attribute Name="carnot:engine:primaryKey" Value="Ident"/>
+                     <carnot:Attribute Name="carnot:engine:nameExpression" Value="Name"/>
+                     <carnot:Attribute Name="carnot:engine:businessObjectRelationships" Value="[{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;BaseGroupData&quot;,&quot;modelId&quot;:&quot;BenchmarksModel&quot;},&quot;otherRole&quot;:&quot;GroupsRole&quot;,&quot;otherCardinality&quot;:&quot;TO_MANY&quot;,&quot;otherForeignKeyField&quot;:&quot;Groups&quot;,&quot;thisRole&quot;:&quot;BaseObjectsRole&quot;,&quot;thisCardinality&quot;:&quot;TO_MANY&quot;,&quot;thisForeignKeyField&quot;:&quot;BaseObjects&quot;},{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;BaseCategoryData&quot;,&quot;modelId&quot;:&quot;BenchmarksModel&quot;},&quot;otherRole&quot;:&quot;CategoriesRole&quot;,&quot;otherCardinality&quot;:&quot;TO_MANY&quot;,&quot;otherForeignKeyField&quot;:&quot;Categories&quot;,&quot;thisRole&quot;:&quot;BaseObjectsRole&quot;,&quot;thisCardinality&quot;:&quot;TO_MANY&quot;,&quot;thisForeignKeyField&quot;:&quot;BaseObjects&quot;}]"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="BaseGroupData" Name="BaseGroupData" IsArray="FALSE">
+         <DataType>
+            <DeclaredType Id="BaseGroupType"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="92" Type="struct">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="8daa349a-d264-4539-947a-97df8ee973a0"/>
+                     <carnot:Attribute Name="carnot:engine:primaryKey" Value="Ident"/>
+                     <carnot:Attribute Name="carnot:engine:nameExpression" Value="Name"/>
+                     <carnot:Attribute Name="carnot:engine:businessObjectRelationships" Value="[{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;BaseData&quot;,&quot;modelId&quot;:&quot;BenchmarksModel&quot;},&quot;otherRole&quot;:&quot;BaseObjectsRole&quot;,&quot;otherCardinality&quot;:&quot;TO_MANY&quot;,&quot;otherForeignKeyField&quot;:&quot;BaseObjects&quot;,&quot;thisRole&quot;:&quot;GroupsRole&quot;,&quot;thisCardinality&quot;:&quot;TO_MANY&quot;,&quot;thisForeignKeyField&quot;:&quot;Groups&quot;},{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;BaseWithoutNameData&quot;,&quot;modelId&quot;:&quot;BenchmarksModel&quot;},&quot;otherRole&quot;:&quot;BaseObjectsWithoutNameRole&quot;,&quot;otherCardinality&quot;:&quot;TO_MANY&quot;,&quot;otherForeignKeyField&quot;:&quot;BaseObjects&quot;,&quot;thisRole&quot;:&quot;GroupsRole&quot;,&quot;thisCardinality&quot;:&quot;TO_MANY&quot;,&quot;thisForeignKeyField&quot;:&quot;Groups&quot;}]"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="BaseCategoryData" Name="BaseCategoryData" IsArray="FALSE">
+         <DataType>
+            <DeclaredType Id="BaseCategoryType"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="93" Type="struct">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="c47f2ef1-42d9-4510-8eaf-4b66f38754b7"/>
+                     <carnot:Attribute Name="carnot:engine:primaryKey" Value="Ident"/>
+                     <carnot:Attribute Name="carnot:engine:nameExpression" Value="Name"/>
+                     <carnot:Attribute Name="carnot:engine:businessObjectRelationships" Value="[{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;BaseData&quot;,&quot;modelId&quot;:&quot;BenchmarksModel&quot;},&quot;otherRole&quot;:&quot;BaseObjectsRole&quot;,&quot;otherCardinality&quot;:&quot;TO_MANY&quot;,&quot;otherForeignKeyField&quot;:&quot;BaseObjects&quot;,&quot;thisRole&quot;:&quot;CategoriesRole&quot;,&quot;thisCardinality&quot;:&quot;TO_MANY&quot;,&quot;thisForeignKeyField&quot;:&quot;Categories&quot;}]"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="BaseWithoutNameData" Name="BaseWithoutNameData" IsArray="FALSE">
+         <DataType>
+            <DeclaredType Id="BaseType"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="123" Type="struct">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="c096984f-2e40-4b0c-a946-07791c5a8415"/>
+                     <carnot:Attribute Name="carnot:engine:primaryKey" Value="Ident"/>
+                     <carnot:Attribute Name="carnot:engine:businessObjectRelationships" Value="[{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;BaseGroupData&quot;,&quot;modelId&quot;:&quot;BenchmarksModel&quot;},&quot;otherRole&quot;:&quot;GroupsRole&quot;,&quot;otherCardinality&quot;:&quot;TO_MANY&quot;,&quot;otherForeignKeyField&quot;:&quot;Groups&quot;,&quot;thisRole&quot;:&quot;BaseObjectsWithoutNameRole&quot;,&quot;thisCardinality&quot;:&quot;TO_MANY&quot;,&quot;thisForeignKeyField&quot;:&quot;BaseObjects&quot;}]"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
    </DataFields>
    <WorkflowProcesses>
       <WorkflowProcess Id="BenchmarkedProcess" Name="Benchmarked Process" AccessLevel="PRIVATE">
@@ -317,14 +469,19 @@
                   <carnot:DataPaths/>
                   <carnot:EventHandlers/>
                   <carnot:Diagrams>
-                     <carnot:Diagram Oid="51" Name="Standard" Orientation="Vertical" Mode="MODE_4_0_0">
+                     <carnot:Diagram Oid="51" Name="Standard" Orientation="Vertical" Mode="MODE_4_5_0">
                         <carnot:Symbols>
-                           <carnot:Symbol Kind="POOL" Oid="52" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                           <carnot:Symbol Kind="POOL" Oid="52" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="650" Height="935">
                               <carnot:Symbols>
-                                 <carnot:Symbol Kind="STARTEVENT" Oid="53" X="320" Y="35" Width="40" Height="40"/>
-                                 <carnot:Symbol Kind="ACTIVITY" Oid="55" X="250" Y="185" Width="181" Height="51" ModelElement="BenchmarkedActivity"/>
-                                 <carnot:Symbol Kind="ROLE" Oid="58" X="545" Y="190" Width="50" Height="40" ModelElement="Rolle1"/>
-                                 <carnot:Symbol Kind="ENDEVENT" Oid="60" X="320" Y="345" Width="40" Height="40"/>
+                                 <carnot:Symbol Kind="LANE" Oid="86" Id="Lane1" Name="Lane 1" X="5" Y="7" Width="630" Height="895" ParticipantReference="Rolle1" ParentLane="52">
+                                    <carnot:Symbols>
+                                       <carnot:Symbol Kind="STARTEVENT" Oid="53" X="320" Y="35" Width="40" Height="40"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="55" X="250" Y="185" Width="181" Height="51" ModelElement="BenchmarkedActivity"/>
+                                       <carnot:Symbol Kind="ROLE" Oid="58" X="545" Y="190" Width="50" Height="40" ModelElement="Rolle1"/>
+                                       <carnot:Symbol Kind="ENDEVENT" Oid="60" X="320" Y="345" Width="40" Height="40"/>
+                                    </carnot:Symbols>
+                                    <carnot:Connections/>
+                                 </carnot:Symbol>
                               </carnot:Symbols>
                               <carnot:Connections>
                                  <carnot:Connection Kind="TRANSITION" Oid="56" SourceSymbol="53" TargetSymbol="55" SourceAnchor="center" TargetAnchor="center"/>
@@ -367,7 +524,7 @@
                   </ExtendedAttribute>
                </ExtendedAttributes>
             </Activity>
-            <Activity Id="BencmarkedSubProcess" Name="Bencmarked Sub Process">
+            <Activity Id="BenchmarkedSubProcess_SharedData_" Name="Benchmarked Sub Process (Shared Data)">
                <Implementation>
                   <SubFlow Id="BenchmarkedSubProcess" Execution="SYNCHR"/>
                </Implementation>
@@ -385,7 +542,7 @@
                         <carnot:DataFlows/>
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
-                           <carnot:Attribute Name="carnot:engine:subprocess:copyAllData" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:subprocess:copyAllData" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
                            <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
                            <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
@@ -395,6 +552,160 @@
                            <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
                            <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
                            <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:engine:bound" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="gateway_Split" Name="Split">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <TransitionRestrictions>
+                  <TransitionRestriction>
+                     <Join Type="AND"/>
+                  </TransitionRestriction>
+                  <TransitionRestriction>
+                     <Split Type="AND">
+                        <TransitionRefs>
+                           <TransitionRef Id="eb2d7216-6185-4ee0-b89b-31363fa0abf5"/>
+                           <TransitionRef Id="0fa3c13a-301e-4d4b-9a1b-3585ba2df0c0"/>
+                           <TransitionRef Id="55a09830-a948-4ebd-9b49-ebce56996184"/>
+                           <TransitionRef Id="9508c4a4-1113-4dcf-8414-9de52dc4e390"/>
+                        </TransitionRefs>
+                     </Split>
+                  </TransitionRestriction>
+               </TransitionRestrictions>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="94">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="c4ee6b0b-cbeb-4eb9-82a2-7560c7643a38"/>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="BenchmarkedSubProcess_SeparateData_Copy_" Name="Benchmarked Sub Process (Separate Data - Copy)">
+               <Implementation>
+                  <SubFlow Id="BenchmarkedSubProcess" Execution="SYNCHR"/>
+               </Implementation>
+               <Performer>Rolle1</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="100" Implementation="Subprocess" SubProcessMode="sync_separate">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="22800716-c4f0-43cf-af57-b239b282224b"/>
+                           <carnot:Attribute Name="carnot:engine:subprocess:copyAllData" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:bound" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="BenchmarkedSubProcess_AsyncCopy_" Name="Benchmarked Sub Process (Async Copy)">
+               <Implementation>
+                  <SubFlow Id="BenchmarkedSubProcess" Execution="SYNCHR"/>
+               </Implementation>
+               <Performer>Rolle1</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="104" Implementation="Subprocess" SubProcessMode="async_separate">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="d56e9bfc-7fd0-4ddb-8619-c89f89e54f3a"/>
+                           <carnot:Attribute Name="carnot:engine:subprocess:copyAllData" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:bound" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="BenchmarkedSubProcess_SeparateData_" Name="Benchmarked Sub Process (Separate Data)">
+               <Implementation>
+                  <SubFlow Id="BenchmarkedSubProcess" Execution="SYNCHR"/>
+               </Implementation>
+               <Performer>Rolle1</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="108" Implementation="Subprocess" SubProcessMode="sync_separate">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="4221256c-4c28-4012-b42d-8dea31a3394f"/>
+                           <carnot:Attribute Name="carnot:engine:subprocess:copyAllData" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:bound" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="gateway_Join" Name="Join">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <TransitionRestrictions>
+                  <TransitionRestriction>
+                     <Join Type="XOR"/>
+                  </TransitionRestriction>
+                  <TransitionRestriction>
+                     <Split Type="XOR">
+                        <TransitionRefs/>
+                     </Split>
+                  </TransitionRestriction>
+               </TransitionRestrictions>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="112">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:model:uuid" Value="e097f4dc-935b-469e-9c76-28f4f5dbaf35"/>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
                         </carnot:Attributes>
                      </carnot:Activity>
                   </ExtendedAttribute>
@@ -402,11 +713,75 @@
             </Activity>
          </Activities>
          <Transitions>
-            <Transition Id="Übergang1" Name="Übergang 1" From="Route" To="BencmarkedSubProcess">
+            <Transition Id="585f37aa-f509-4206-af0c-05e134274c18" Name="" From="Route" To="gateway_Split">
                <Condition Type="CONDITION">true</Condition>
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Transition Oid="75"/>
+                     <carnot:Transition Oid="96" IsForkingOnTraversal="false"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="eb2d7216-6185-4ee0-b89b-31363fa0abf5" Name="" From="gateway_Split" To="BenchmarkedSubProcess_SharedData_">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="98" IsForkingOnTraversal="false"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="0fa3c13a-301e-4d4b-9a1b-3585ba2df0c0" Name="" From="gateway_Split" To="BenchmarkedSubProcess_SeparateData_Copy_">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="102" IsForkingOnTraversal="false"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="55a09830-a948-4ebd-9b49-ebce56996184" Name="" From="gateway_Split" To="BenchmarkedSubProcess_AsyncCopy_">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="106" IsForkingOnTraversal="false"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="9508c4a4-1113-4dcf-8414-9de52dc4e390" Name="" From="gateway_Split" To="BenchmarkedSubProcess_SeparateData_">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="110" IsForkingOnTraversal="false"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="c98374c3-ff4e-4257-846c-255c6eb4338b" Name="" From="BenchmarkedSubProcess_SharedData_" To="gateway_Join">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="114" IsForkingOnTraversal="false"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="5b42d27d-87c8-46d0-969f-4b62e9719c89" Name="" From="BenchmarkedSubProcess_SeparateData_Copy_" To="gateway_Join">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="116" IsForkingOnTraversal="false"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="7a21db7c-225b-40d0-ad36-5bf9affc6c8e" Name="" From="BenchmarkedSubProcess_AsyncCopy_" To="gateway_Join">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="118" IsForkingOnTraversal="false"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="e3c7785a-aed1-4d88-bcba-819c2f45ec34" Name="" From="BenchmarkedSubProcess_SeparateData_" To="gateway_Join">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="120" IsForkingOnTraversal="false"/>
                   </ExtendedAttribute>
                </ExtendedAttributes>
             </Transition>
@@ -418,19 +793,37 @@
                   <carnot:DataPaths/>
                   <carnot:EventHandlers/>
                   <carnot:Diagrams>
-                     <carnot:Diagram Oid="63" Name="Standard" Orientation="Vertical" Mode="MODE_4_0_0">
+                     <carnot:Diagram Oid="63" Name="Standard" Orientation="Vertical" Mode="MODE_4_5_0">
                         <carnot:Symbols>
-                           <carnot:Symbol Kind="POOL" Oid="62" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                           <carnot:Symbol Kind="POOL" Oid="62" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="958" Height="605">
                               <carnot:Symbols>
-                                 <carnot:Symbol Kind="STARTEVENT" Oid="68" X="195" Y="5" Width="40" Height="40"/>
-                                 <carnot:Symbol Kind="ACTIVITY" Oid="70" X="125" Y="100" Width="181" Height="51" ModelElement="Route"/>
-                                 <carnot:Symbol Kind="ACTIVITY" Oid="72" X="125" Y="200" Width="180" Height="50" ModelElement="BencmarkedSubProcess"/>
-                                 <carnot:Symbol Kind="ENDEVENT" Oid="73" X="195" Y="300" Width="40" Height="40"/>
+                                 <carnot:Symbol Kind="LANE" Oid="88" Id="Lane1" Name="Lane 1" X="12" Y="32" Width="938" Height="565" ParticipantReference="Rolle1" ParentLane="62">
+                                    <carnot:Symbols>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="70" X="234" Y="131" Width="181" Height="51" ModelElement="Route"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="72" X="10" Y="327" Width="180" Height="50" ModelElement="BenchmarkedSubProcess_SharedData_"/>
+                                       <carnot:Symbol Kind="ENDEVENT" Oid="73" X="305" Y="513" Width="40" Height="40"/>
+                                       <carnot:Symbol Kind="STARTEVENT" Oid="68" X="304" Y="61" Width="40" Height="40"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="95" X="235" Y="232" Width="180" Height="50" ModelElement="gateway_Split"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="101" X="235" Y="327" Width="180" Height="50" ModelElement="BenchmarkedSubProcess_SeparateData_Copy_"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="105" X="448" Y="327" Width="180" Height="50" ModelElement="BenchmarkedSubProcess_AsyncCopy_"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="109" X="653" Y="327" Width="180" Height="50" ModelElement="BenchmarkedSubProcess_SeparateData_"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="113" X="235" Y="421" Width="180" Height="50" ModelElement="gateway_Join"/>
+                                    </carnot:Symbols>
+                                    <carnot:Connections/>
+                                 </carnot:Symbol>
                               </carnot:Symbols>
                               <carnot:Connections>
                                  <carnot:Connection Kind="TRANSITION" Oid="74" SourceSymbol="68" TargetSymbol="70" SourceAnchor="center" TargetAnchor="center"/>
-                                 <carnot:Connection Kind="TRANSITION" Oid="76" ModelElement="Übergang1" SourceSymbol="70" TargetSymbol="72" SourceAnchor="center" TargetAnchor="center"/>
-                                 <carnot:Connection Kind="TRANSITION" Oid="77" SourceSymbol="72" TargetSymbol="73" SourceAnchor="center" TargetAnchor="bottom"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="97" ModelElement="585f37aa-f509-4206-af0c-05e134274c18" SourceSymbol="70" TargetSymbol="95" SourceAnchor="bottom" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="99" ModelElement="eb2d7216-6185-4ee0-b89b-31363fa0abf5" SourceSymbol="95" TargetSymbol="72" SourceAnchor="left" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="103" ModelElement="0fa3c13a-301e-4d4b-9a1b-3585ba2df0c0" SourceSymbol="95" TargetSymbol="101" SourceAnchor="bottom" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="107" ModelElement="55a09830-a948-4ebd-9b49-ebce56996184" SourceSymbol="95" TargetSymbol="105" SourceAnchor="right" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="111" ModelElement="9508c4a4-1113-4dcf-8414-9de52dc4e390" SourceSymbol="95" TargetSymbol="109" SourceAnchor="right" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="115" ModelElement="c98374c3-ff4e-4257-846c-255c6eb4338b" SourceSymbol="72" TargetSymbol="113" SourceAnchor="bottom" TargetAnchor="left"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="117" ModelElement="5b42d27d-87c8-46d0-969f-4b62e9719c89" SourceSymbol="101" TargetSymbol="113" SourceAnchor="bottom" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="119" ModelElement="7a21db7c-225b-40d0-ad36-5bf9affc6c8e" SourceSymbol="105" TargetSymbol="113" SourceAnchor="bottom" TargetAnchor="right"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="121" ModelElement="e3c7785a-aed1-4d88-bcba-819c2f45ec34" SourceSymbol="109" TargetSymbol="113" SourceAnchor="bottom" TargetAnchor="right"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="122" SourceSymbol="113" TargetSymbol="73" SourceAnchor="bottom" TargetAnchor="top"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>
@@ -487,12 +880,17 @@
                   <carnot:DataPaths/>
                   <carnot:EventHandlers/>
                   <carnot:Diagrams>
-                     <carnot:Diagram Oid="66" Name="Standard" Orientation="Vertical" Mode="MODE_4_0_0">
+                     <carnot:Diagram Oid="66" Name="Standard" Orientation="Vertical" Mode="MODE_4_5_0">
                         <carnot:Symbols>
-                           <carnot:Symbol Kind="POOL" Oid="65" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                           <carnot:Symbol Kind="POOL" Oid="65" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="650" Height="935">
                               <carnot:Symbols>
-                                 <carnot:Symbol Kind="ROLE" Oid="78" X="425" Y="170" Width="50" Height="40" ModelElement="Rolle1"/>
-                                 <carnot:Symbol Kind="ACTIVITY" Oid="80" X="180" Y="165" Width="180" Height="50" ModelElement="BenchmarkedActivity"/>
+                                 <carnot:Symbol Kind="LANE" Oid="90" Id="Lane1" Name="Lane 1" X="5" Y="7" Width="630" Height="895" ParticipantReference="Rolle1" ParentLane="65">
+                                    <carnot:Symbols>
+                                       <carnot:Symbol Kind="ROLE" Oid="78" X="425" Y="170" Width="50" Height="40" ModelElement="Rolle1"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="80" X="150" Y="158" Width="180" Height="50" ModelElement="BenchmarkedActivity"/>
+                                    </carnot:Symbols>
+                                    <carnot:Connections/>
+                                 </carnot:Symbol>
                               </carnot:Symbols>
                               <carnot:Connections>
                                  <carnot:Connection Kind="PERFORMS" Oid="81" SourceSymbol="78" TargetSymbol="80"/>
@@ -808,6 +1206,7 @@
             <carnot:Attributes>
                <carnot:Attribute Name="carnot:engine:revision" Value="0" Type="int"/>
                <carnot:Attribute Name="ipp:criticalityFormula" Value="if(activityInstance.getActivity().getTargetExecutionTime() == 0)&#10;{&#10;  T = ${TDefault};&#10;}&#10;else&#10;{&#10;  T = activityInstance.getActivity().getTargetExecutionTime();&#10;}&#10;if(PROCESS_PRIORITY == -1)&#10;{&#10;  Cp = ${CLow};&#10;  Mp = ${MLow};&#10;}&#10;if(PROCESS_PRIORITY == 0)&#10;{&#10;   Cp = ${CMed};&#10;   Mp = ${MMed};&#10;}&#10;if(PROCESS_PRIORITY == 1)&#10;{&#10;   Cp = ${CHigh};&#10;   Mp = ${MHigh};&#10;}&#10;t = activityInstance.getAge() / 1000;&#10;&#10;Cp + (1- Cp) * t/(Mp * T);&#10;" Type="String"/>
+               <carnot:Attribute Name="ipp:model:modified" Value="Fri Sep 18 09:16:09 CEST 2015"/>
                <carnot:Attribute Name="ipp:variables[0]:name" Value="TDefault" Type="String"/>
                <carnot:Attribute Name="ipp:variables[0]:defaultValue" Value="86400" Type="String"/>
                <carnot:Attribute Name="ipp:variables[0]:description" Value="Ziel-Ausführungszeit" Type="String"/>

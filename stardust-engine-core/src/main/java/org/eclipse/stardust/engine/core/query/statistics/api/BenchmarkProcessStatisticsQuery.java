@@ -10,12 +10,15 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.query.statistics.api;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Set;
 
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.query.FilterOrTerm;
 import org.eclipse.stardust.engine.api.query.ProcessDefinitionFilter;
+import org.eclipse.stardust.engine.api.runtime.BusinessObject;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.BusinessObjectUtils;
 import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQuery;
 
 
@@ -66,6 +69,71 @@ public class BenchmarkProcessStatisticsQuery extends CustomProcessInstanceQuery
 
       return query;
    }
+   
+   public static BenchmarkProcessStatisticsQuery forProcessesAndBusinessObject(
+         Set<ProcessDefinition> processes,
+         BusinessObject businessObjectId, Set<Serializable> businessObjectPrimaryKeys)
+   {
+      return forProcessesAndBusinessObject(processes, 
+            businessObjectId, businessObjectPrimaryKeys, null, null);
+   }
+   
+   public static BenchmarkProcessStatisticsQuery forProcessesAndBusinessObject(
+         Set<ProcessDefinition> processes,
+         BusinessObject businessObjectId, BusinessObject businessObjectGroup)
+   {
+      return forProcessesAndBusinessObject(processes, 
+            businessObjectId, null, businessObjectGroup, null);
+   }
+   
+   public static BenchmarkProcessStatisticsQuery forProcessesAndBusinessObject(
+         Set<ProcessDefinition> processes,
+         BusinessObject businessObject, Set<Serializable> businessObjectPrimaryKeys,
+         BusinessObject businessObjectGroup, Set<Serializable> businessObjectGroupPrimaryKeys)
+   {
+      BenchmarkProcessStatisticsQuery query = forProcesses(processes);
+
+//      FilterTerm where = query.getFilter();
+//      FilterTerm filter = where.addOrTerm();
+//
+//      for (ProcessDefinition process : processes)
+//      {
+//         filter.add(PROCESS_DEFINITION_OID.isEqual(process.getRuntimeElementOID()));
+//      }
+      
+      BusinessObjectPolicy boPolicy = BusinessObjectPolicy.filterFor(
+            businessObject.getModelId(), businessObject.getId(),
+            BusinessObjectUtils.getPrimaryKeyFromBusinessObject(businessObject),
+            businessObjectPrimaryKeys);
+      
+      /*
+      filter = where.addAndTerm();
+      if(businessObjectPrimaryKeys == null || businessObjectPrimaryKeys.isEmpty())
+      {
+         filter.add(DataFilter.hasAnyValue(businessObject.getId(), primaryKey));
+      }
+      else
+      {
+         filter = filter.addOrTerm();
+         for(Serializable primaryKeyValue : businessObjectPrimaryKeys)
+         {
+            filter.add(DataFilter.isEqual(businessObject.getId(), primaryKey, primaryKeyValue));
+         }
+      }*/
+      
+      if(businessObjectGroup != null)
+      {
+         boPolicy.groupBy(businessObjectGroup.getModelId(),
+               businessObjectGroup.getId(), 
+               BusinessObjectUtils.getPrimaryKeyFromBusinessObject(businessObjectGroup),
+               businessObjectGroupPrimaryKeys);
+      }
+      
+      query.setPolicy(boPolicy);
+
+      return query;
+   }
+   
 
    protected BenchmarkProcessStatisticsQuery()
    {

@@ -121,6 +121,11 @@ public class RuntimeUpgradeTaskExecutorTest
          @Override
          public void execute()
          {}
+
+         @Override
+         public void printInfo()
+         {
+         }
       };
    }
 

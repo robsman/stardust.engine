@@ -102,6 +102,12 @@ public class R7_1_4from7_1_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
                      "Failed migrating runtime item tables (nested exception).");
             }
          }
+
+         @Override
+         public void printInfo()
+         {
+            // TODO Auto-generated method stub
+         }
       });
    }
 

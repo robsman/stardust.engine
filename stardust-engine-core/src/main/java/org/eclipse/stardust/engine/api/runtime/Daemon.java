@@ -13,6 +13,8 @@ package org.eclipse.stardust.engine.api.runtime;
 import java.io.Serializable;
 import java.util.Date;
 
+import org.eclipse.stardust.engine.core.runtime.beans.DaemonExecutionLog;
+
 /**
  * The <code>Daemon</code> class represents a snapshot of a Carnot workflow daemon.
  * <p>Carnot workflow engine contains two tipes of daemons: the event daemon and the
@@ -76,4 +78,12 @@ public interface Daemon extends Serializable
     * @return execution state
     */
    DaemonExecutionState getDaemonExecutionState();
+   
+   
+   /**
+    * Return the execution log of the last daeon execution
+    * @return ExecutionLogEntry
+   */
+   DaemonExecutionLog getExecutionLog();
+   
 }

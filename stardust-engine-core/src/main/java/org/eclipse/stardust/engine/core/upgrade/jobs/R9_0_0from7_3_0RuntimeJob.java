@@ -16,11 +16,9 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
 import org.eclipse.stardust.engine.core.upgrade.framework.*;
-import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
 
 public class R9_0_0from7_3_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
-
    private static final Logger trace = LogManager.getLogger(R9_0_0from7_3_0RuntimeJob.class);
 
    private static final String PI_TABLE_NAME = "process_instance";
@@ -136,7 +134,15 @@ public class R9_0_0from7_3_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
                }
             }, observer);
          }
+
+         @Override
+         public void printInfo()
+         {
+         }
       });
+      
+      upgradeTaskExecutor.addUpgradeSchemaTask(new SignalMsgTableUpgradeTask());
+      upgradeTaskExecutor.addUpgradeSchemaTask(new SignalMsgLookupTableUpgradeTask());
    }
 
    @Override
@@ -213,16 +219,157 @@ public class R9_0_0from7_3_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    @Override
    protected void printUpgradeSchemaInfo()
    {
+      upgradeTaskExecutor.printUpgradeSchemaInfo();
    }
 
    @Override
    protected void printMigrateDataInfo()
    {
+      upgradeTaskExecutor.printMigrateDataInfo();
    }
 
    @Override
    protected void printFinalizeSchemaInfo()
    {
+      upgradeTaskExecutor.printFinalizeSchemaInfo();
+   }
+   
+   public class SignalMsgTableUpgradeTask implements UpgradeTask
+   {
+      private static final String SIGNAL_MESSAGE_TABLE_NAME = "signal_message";
+
+      private static final String SIGNAL_MESSAGE_FIELD_OID = "oid";
+
+      private static final String SIGNAL_MESSAGE_FIELD_PARTITION_OID = "partitionOid";
+
+      private static final String SIGNAL_MESSAGE_FIELD_SIGNAL_NAME = "signalName";
+
+      private static final String SIGNAL_MESSAGE_FIELD_MESSAGE_CONTENT = "messageContent";
+
+      private static final String SIGNAL_MESSAGE_FIELD_TIMESTAMP = "timestamp";
+
+      private static final String SIGNAL_MESSAGE_IDX1 = "signal_message_idx1";
+      
+      private static final String SIGNAL_MESSAGE_PK_SEQUENCE = "signal_message_seq";
+
+      @Override
+      public void execute()
+      {
+         DatabaseHelper.createTable(item, new CreateTableInfo(SIGNAL_MESSAGE_TABLE_NAME)
+         {
+            private final FieldInfo oid = new FieldInfo(SIGNAL_MESSAGE_FIELD_OID,
+                  Long.TYPE, 0, true);
+
+            private final FieldInfo partitionOid = new FieldInfo(
+                  SIGNAL_MESSAGE_FIELD_PARTITION_OID, Long.TYPE, 0, false);
+
+            private final FieldInfo signalName = new FieldInfo(
+                  SIGNAL_MESSAGE_FIELD_SIGNAL_NAME, String.class, 255, false);
+
+            private final FieldInfo messageContent = new FieldInfo(
+                  SIGNAL_MESSAGE_FIELD_MESSAGE_CONTENT, String.class, 255, false);
+
+            private final FieldInfo timestamp = new FieldInfo(
+                  SIGNAL_MESSAGE_FIELD_TIMESTAMP, Long.TYPE, 0, false);
+
+            private final IndexInfo IDX1 = new IndexInfo(SIGNAL_MESSAGE_IDX1, true,
+                  new FieldInfo[] {oid});
+
+            @Override
+            public String getSequenceName()
+            {
+               return SIGNAL_MESSAGE_PK_SEQUENCE;
+            }
+
+            @Override
+            public FieldInfo[] getFields()
+            {
+               return new FieldInfo[] {
+                     oid, partitionOid, signalName, messageContent, timestamp};
+            }
+
+            @Override
+            public IndexInfo[] getIndexes()
+            {
+               return new IndexInfo[] {IDX1};
+            }
+
+         }, observer);
+      }
+
+      public void printInfo()
+      {
+         info("A new table '" + SIGNAL_MESSAGE_TABLE_NAME + "' with the columns " + "'"
+               + SIGNAL_MESSAGE_FIELD_OID + "', '" + SIGNAL_MESSAGE_FIELD_PARTITION_OID
+               + "', '" + SIGNAL_MESSAGE_FIELD_SIGNAL_NAME + "', '"
+               + SIGNAL_MESSAGE_FIELD_MESSAGE_CONTENT + "', '"
+               + SIGNAL_MESSAGE_FIELD_TIMESTAMP + "' " + "and index '"
+               + SIGNAL_MESSAGE_IDX1 + "' will be created.");
+      }
+
+   }
+
+   public class SignalMsgLookupTableUpgradeTask implements UpgradeTask
+   {
+      private static final String SIGNAL_MESSAGE_LOOKUP_TABLE_NAME = "signal_message_lookup";
+
+      private static final String SIGNAL_MESSAGE_LOOKUP_FIELD_PARTITION_OID = "partitionOid";
+
+      private static final String SIGNAL_MESSAGE_LOOKUP_FIELD_SIGNAL_NAME = "signalDataHash";
+
+      private static final String SIGNAL_MESSAGE_LOOKUP_FIELD_SIGNAL_MESSAGE_OID = "signalMessageOid";
+
+      private static final String SIGNAL_MESSAGE_LOOKUP_IDX1 = "signal_message_lookup_idx1";
+
+      @Override
+      public void execute()
+      {
+         DatabaseHelper.createTable(item, new CreateTableInfo(
+               SIGNAL_MESSAGE_LOOKUP_TABLE_NAME)
+         {
+            private final FieldInfo partitionOid = new FieldInfo(
+                  SIGNAL_MESSAGE_LOOKUP_FIELD_PARTITION_OID, Long.TYPE, 0, false);
+
+            private final FieldInfo signalDataHash = new FieldInfo(
+                  SIGNAL_MESSAGE_LOOKUP_FIELD_SIGNAL_NAME, String.class, 255, false);
+
+            private final FieldInfo signalMessageOid = new FieldInfo(
+                  SIGNAL_MESSAGE_LOOKUP_FIELD_SIGNAL_MESSAGE_OID, Long.TYPE, 0, false);
+
+            private final IndexInfo IDX1 = new IndexInfo(SIGNAL_MESSAGE_LOOKUP_IDX1,
+                  false, new FieldInfo[] {partitionOid, signalDataHash});
+
+            @Override
+            public String getSequenceName()
+            {
+               return null;
+            }
+
+            @Override
+            public FieldInfo[] getFields()
+            {
+               return new FieldInfo[] {partitionOid, signalDataHash, signalMessageOid};
+            }
+
+            @Override
+            public IndexInfo[] getIndexes()
+            {
+               return new IndexInfo[] {IDX1};
+            }
+
+         }, observer);
+      }
+
+      @Override
+      public void printInfo()
+      {
+         info("A new table '" + SIGNAL_MESSAGE_LOOKUP_TABLE_NAME + "' with the columns "
+               + "'" + SIGNAL_MESSAGE_LOOKUP_FIELD_PARTITION_OID + "', '"
+               + SIGNAL_MESSAGE_LOOKUP_FIELD_SIGNAL_NAME + "', '"
+               + SIGNAL_MESSAGE_LOOKUP_FIELD_SIGNAL_MESSAGE_OID + " and index '"
+               + SIGNAL_MESSAGE_LOOKUP_IDX1 + "' will be created.");
+      }
+
    }
 
 }

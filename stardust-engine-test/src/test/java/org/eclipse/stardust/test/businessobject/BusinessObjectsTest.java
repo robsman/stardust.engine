@@ -29,6 +29,7 @@ import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.RtEnvHome;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
+import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
@@ -427,6 +428,143 @@ public class BusinessObjectsTest
       values = bo.getValues();
       Assert.assertEquals("Values", 2, values.size());
    }
+   
+   /**
+    * The following test case should ensure that
+    * <ul>
+    *    <li>Any modifications to an attribute of a BOI via API isn't reflected to 
+    *        process data which are using the BO</li>
+    *    <li>Any modifications to an attribute of a BOI via the process data is only reflected
+    *        to the BOI which is attached to the synthetic process instance and that it
+    *        doesn't affect other BOIs which are used in other processes
+    * </ul>
+    */
+   @Test
+   public void checkFilteringOnBusinessObjectAttrChange()
+   {
+      // setup
+      final int customerIdOffset = 100;
+      final int customerCount = 3;
+      for(int customerId = 1; customerId <= customerCount; customerId++)
+      {
+         ProcessInstance pi = sf.getWorkflowService().startProcess(new QName(MODEL_NAME2, 
+               "DistributedOrder").toString(), null, true);
+         List<ActivityInstance> w = getWorklist(pi);
+         Assert.assertEquals("worklist", 1, w.size());
+         ActivityInstance ai = w.get(0);
+         Assert.assertEquals("activity instance", "CreateOrder", ai.getActivity().getId());
+         Map<String, Object> order = CollectionUtils.newMap();
+         order.put("date", new Date());
+         order.put("customerId", customerIdOffset + customerId);
+         order.put("items", "item " + customerId);
+         ai = complete(ai, PredefinedConstants.DEFAULT_CONTEXT, Collections.singletonMap("Order", order));
+         
+         try
+         {
+            ActivityInstanceStateBarrier.instance().await(ai.getOID(), ActivityInstanceState.Completed);
+         }
+         catch (Exception e)
+         {
+         }
+      }
+      
+      // after DistributeCreation activity is completed we have the following state:
+      // * 2 asynchronous subprocesses are started: one which copies the data and the 
+      //   other one which doesn't
+      // * 3 synchronous subprocesses are triggered: one with shared data, one with separate
+      //   but copied data and the last one with separate data without copying
+      // This results into the following state:
+      // * Each process has created four business object instances
+      //   * One which is attached to a synthetic process instance
+      //   * 3 other BOIs which are attached to a real process instance
+      String businessObjectQualifiedId = new QName(MODEL_NAME2, "Order").toString();
+      BusinessObjectQuery businessObjectQuery = BusinessObjectQuery.findForBusinessObject(businessObjectQualifiedId);
+      businessObjectQuery.getFilter().addAndTerm().add(DataFilter.greaterThan("Order", "customerId", customerIdOffset));
+      businessObjectQuery.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES, BusinessObjectQuery.Option.WITH_DESCRIPTION));
+      BusinessObjects bos = sf.getQueryService().getAllBusinessObjects(businessObjectQuery);
+      Assert.assertEquals("Only one business object, namely Order, is expected", 1, bos.getSize());
+      Assert.assertEquals("Business object instances count isn't the same as started process ergo the count of the synthetic process instances", 
+            customerCount, getTotalSize(bos));
+      
+      // Wait that all ShowOrder processes are started (unfortunately we cannot use ProcessInstanceStateBarrier here
+      // because of the async processes.
+      ProcessInstanceQuery piQuery = ProcessInstanceQuery.findAlive("ShowOrder");
+      boolean waitForPIs = true;
+      while(waitForPIs)
+      {
+         long instanceCount = sf.getQueryService().getProcessInstancesCount(piQuery);
+         waitForPIs = instanceCount != (customerCount * 5);
+         
+         if(waitForPIs)
+         {
+            try
+            {
+               Thread.sleep(100);
+            }
+            catch (InterruptedException e)
+            {
+            }
+         }
+      }
+      
+      BusinessObject bo = bos.get(0);
+      BusinessObject.Value customer101 = null;
+      for(BusinessObject.Value boValue : bo.getValues())
+      {
+         Map<?, ?> boAttr = (Map< ? , ? >) boValue.getValue();
+         Integer customerId = (Integer) boAttr.get("customerId");
+         if(Integer.valueOf(customerIdOffset+1).equals(customerId))
+         {
+            customer101 = boValue;
+         }
+      }
+      Assert.assertNotNull("Customer " + customerIdOffset+1 + " not found", customer101);
+      
+      // Update BOI via API...
+      ((Map)customer101.getValue()).put("items", "newitems");
+      sf.getWorkflowService().updateBusinessObjectInstance(businessObjectQualifiedId, customer101.getValue());
+      
+      
+      // ...and validate if no process data is modified
+      piQuery = ProcessInstanceQuery.findActive();
+      FilterTerm filter = piQuery.getFilter().addAndTerm();
+      filter.add(DataFilter.between("Order", "customerId", customerIdOffset, customerIdOffset+customerCount));
+      filter.add(DataFilter.like("Order", "items", "item%"));
+      filter.addAndTerm().add(ProcessInstanceHierarchyFilter.ROOT_PROCESS);
+      piQuery.setPolicy(SubsetPolicy.UNRESTRICTED);
+      ProcessInstances rootPIs = sf.getQueryService().getAllProcessInstances(piQuery);
+      // Root process instances are the DistributedOrder processes and the ShowOrder processes which was started
+      // as async processes and which had copied the data
+      Assert.assertEquals("Changes in BOIs must not be reflected in process instance data",
+            customerCount * 2, rootPIs.getTotalCount());
+      
+      // Update BOI for a given process via data path...
+      long piOid = rootPIs.get(0).getOID();
+      ((Map)customer101.getValue()).put("items", "newitems1");
+      sf.getWorkflowService().setOutDataPath(piOid, "OrderDataPath", (Map)customer101.getValue());
+      
+      // ...and validate if the BOI is updated...
+      businessObjectQuery = BusinessObjectQuery.findWithPrimaryKey(
+            businessObjectQualifiedId, ((Map)customer101.getValue()).get("customerId"));
+      businessObjectQuery.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
+      bos = sf.getQueryService().getAllBusinessObjects(businessObjectQuery);
+      Assert.assertEquals("Only one business object, namely Order, is expected", 1, bos.getSize());
+      List<BusinessObject.Value> boValues = bos.get(0).getValues();
+      Assert.assertEquals(1, boValues.size());
+      Assert.assertEquals("newitems1", ((Map)boValues.get(0).getValue()).get("items"));
+      
+      // ...but the other process instance data should be untouched
+      piQuery = ProcessInstanceQuery.findActive();
+      filter = piQuery.getFilter().addAndTerm();
+      filter.add(DataFilter.between("Order", "customerId", customerIdOffset, customerIdOffset+customerCount));
+      filter.add(DataFilter.like("Order", "items", "item%"));
+      filter.addAndTerm().add(ProcessInstanceHierarchyFilter.ROOT_PROCESS);
+      piQuery.setPolicy(SubsetPolicy.UNRESTRICTED);
+      rootPIs = sf.getQueryService().getAllProcessInstances(piQuery);
+      Assert.assertEquals("Changes in BOIs must not be reflected in process instance data",
+            (customerCount * 2) - 1, rootPIs.getTotalCount());
+      
+   }
 
    /* helper methods */
       
@@ -500,6 +638,23 @@ public class BusinessObjectsTest
             query.setPolicy(policy);
          }
       }
+      Worklist worklist = ws.getWorklist(query);
+      return worklist.getCumulatedItems();
+   }
+   
+   @SuppressWarnings("unchecked")
+   private List<ActivityInstance> getWorklist(ProcessInstance pi, EvaluationPolicy... policies)
+   {
+      WorkflowService ws = sf.getWorkflowService();
+      WorklistQuery query = WorklistQuery.findCompleteWorklist();
+      if (policies != null)
+      {
+         for (EvaluationPolicy policy : policies)
+         {
+            query.setPolicy(policy);
+         }
+      }
+      query.getFilter().add(new ProcessInstanceFilter(pi.getOID(), false));
       Worklist worklist = ws.getWorklist(query);
       return worklist.getCumulatedItems();
    }

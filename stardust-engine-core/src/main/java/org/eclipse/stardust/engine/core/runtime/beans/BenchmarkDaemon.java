@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
@@ -37,6 +38,7 @@ import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.DaemonExecutionLog.ExecutionLogEntry;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.SyncBenchmarksToDiskAction;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
@@ -61,12 +63,16 @@ public class BenchmarkDaemon implements IDaemon
    private long currentPiOid = 0;
 
    private int nInstance;
+   
+   private DaemonExecutionLog executionLog = new DaemonExecutionLog();
 
    @Override
    public ExecutionResult execute(long batchSize)
    {
       daemonLogger.info("Benchmark Daemon, perform synchronisation.");
-
+      
+      executionLog.log("Start Daemon Execution");
+      
       ForkingServiceFactory factory = (ForkingServiceFactory) Parameters.instance().get(
             EngineProperties.FORKING_SERVICE_HOME);
 
@@ -81,9 +87,12 @@ public class BenchmarkDaemon implements IDaemon
          Map<Long, Integer> benchmarkPIMap = CollectionUtils.newMap();
          Map<Long, Integer> benchmarkAIMap = CollectionUtils.newMap();
 
+         executionLog.log("Start to retrieve Benchmark Update Map");
+         
          // Create update map
          Map<Long, PiBenchmarkDetails> benchmarkUpdateMap = this.getBenchmarkUpdateMap(batchSize);
 
+         
          Set<Long> updateList = benchmarkUpdateMap.keySet();
 
          for (Iterator i = updateList.iterator(); i.hasNext();)
@@ -116,6 +125,7 @@ public class BenchmarkDaemon implements IDaemon
             Map<Long, String> aiBenchmarkMap = benchmarkDetails.getAiBenchmarkMap();
             Set<Long> aiUpdateList = aiBenchmarkMap.keySet();
 
+
             for (Iterator ai = aiUpdateList.iterator(); ai.hasNext();)
             {
                long aiOid = (Long) ai.next();
@@ -127,12 +137,18 @@ public class BenchmarkDaemon implements IDaemon
             }
             lastPiOid = oid;
          }
+         executionLog.log("Finished retrieval of Update Map");
 
+         executionLog.log("Start synchronizingBenchmarks to disk");
+         
          jobManager.performSynchronousJob(new SyncBenchmarksToDiskAction(benchmarkPIMap,
                benchmarkAIMap));
          
+         
          currentPiOid = lastPiOid;
          nInstance = nInstance + benchmarkPIMap.size();         
+
+         executionLog.log("Finished synchronizing Benchmarks to disk");
 
       }
       catch (Exception e)
@@ -145,9 +161,12 @@ public class BenchmarkDaemon implements IDaemon
 
       if (nInstance < batchSize)
       {
+         executionLog.log("Finished Daemon Job");
+                  
          this.currentPiOid = 0;
          return IDaemon.WORK_DONE;
       }
+      executionLog.log("Finished Daemon Batch");
       return IDaemon.WORK_PENDING;
    }
 
@@ -264,6 +283,12 @@ public class BenchmarkDaemon implements IDaemon
          return this.benchmarkOid;
       }
 
+   }
+
+   @Override
+   public DaemonExecutionLog getExecutionLog()
+   {
+      return this.executionLog;
    }
 
 }

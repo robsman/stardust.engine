@@ -27,7 +27,10 @@ public class DaemonExecutionLog
    
    public void reset()
    {
-      this.logEntries.clear();
+      if (this.logEntries != null)
+      {
+         this.logEntries.clear();
+      }
    }
    
    public class ExecutionLogEntry implements Comparable<ExecutionLogEntry>

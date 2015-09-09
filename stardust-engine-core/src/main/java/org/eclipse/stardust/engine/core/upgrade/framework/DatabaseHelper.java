@@ -285,7 +285,9 @@ public final class DatabaseHelper
          buffer.append(delimiter).append(getColumnName(dbDescriptor, field)).append(" ");
          buffer.append(dbDescriptor.getSQLType(field.type, field.size));
 
-         if (field.isPK && dbDescriptor.supportsIdentityColumns()
+         if (field.isPK
+               && (dbDescriptor.supportsIdentityColumns() || DBMSKey.MYSQL_SEQ
+                     .equals(dbDescriptor.getDbmsKey()))
                && !StringUtils.isEmpty(tableInfo.getSequenceName()))
          {
             buffer.append(" ")

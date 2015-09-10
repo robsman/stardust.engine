@@ -40,6 +40,7 @@
             <module>stardust-engine-ws-cxf</module>
             <module>stardust-engine-camel</module>
             <module>stardust-engine-business-calendar</module>
+			<module>stardust-engine-decorator</module>
          </modules>
       </profile>
       <profile>

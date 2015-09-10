@@ -33,7 +33,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AsynchronousApplicationInstance;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SynchronousApplicationInstance;
-import org.eclipse.stardust.engine.extensions.template.wrappers.ActivityInstanceWrapper;
+import org.eclipse.stardust.engine.extensions.decorator.wrappers.ActivityInstanceWrapper;
 
 public class DecoratorAppApplicationInstance implements SynchronousApplicationInstance,  AsynchronousApplicationInstance
 {
@@ -45,7 +45,7 @@ public class DecoratorAppApplicationInstance implements SynchronousApplicationIn
 
    private ActivityInstanceWrapper aiw;
 
-   private Application templateApplication;
+   private Application decoratorApplication;
 
    private IModel containingModel;
 
@@ -55,22 +55,22 @@ public class DecoratorAppApplicationInstance implements SynchronousApplicationIn
 
    private Map<String, Object> inAccessPointValues = CollectionUtils.newMap();
 
-   private String getElementType(Application templateApplication)
+   private String getElementType(Application decoratorApplication)
    {
-      return (String) templateApplication
-            .getAttribute("stardust:application::template::elementType");
+      return (String) decoratorApplication
+            .getAttribute("stardust:application::decorator::elementType");
    }
 
-   private String getModelId(Application templateApplication)
+   private String getModelId(Application decoratorApplication)
    {
-      return (String) templateApplication
-            .getAttribute("stardust:application::template::modelId");
+      return (String) decoratorApplication
+            .getAttribute("stardust:application::decorator::modelId");
    }
 
-   private String getDecoratedElementID(Application templateApplication)
+   private String getDecoratedElementID(Application decoratorApplication)
    {
-      return (String) templateApplication
-            .getAttribute("stardust:application::template::elementId");
+      return (String) decoratorApplication
+            .getAttribute("stardust:application::decorator::elementId");
    }
 
    private IModel findModel(String modelId, ModelManager modelManager)
@@ -95,13 +95,13 @@ public class DecoratorAppApplicationInstance implements SynchronousApplicationIn
    public void bootstrap(ActivityInstance activityInstance)
    {
       this.activityInstance = activityInstance;
-      this.templateApplication = activityInstance.getActivity().getApplication();
+      this.decoratorApplication = activityInstance.getActivity().getApplication();
       ModelManager modelManager = ModelManagerFactory.getCurrent();
 
-      String modelId = getModelId(templateApplication);
+      String modelId = getModelId(decoratorApplication);
       containingModel = findModel(modelId, modelManager);
-      elementType = getElementType(templateApplication);
-      String eltId = getDecoratedElementID(templateApplication);
+      elementType = getElementType(decoratorApplication);
+      String eltId = getDecoratedElementID(decoratorApplication);
 
       if (StringUtils.isNotEmpty(elementType) && elementType.equals("application"))
       {
@@ -121,8 +121,8 @@ public class DecoratorAppApplicationInstance implements SynchronousApplicationIn
          if (logger.isDebugEnabled())
          {
             IModel currentModel = modelManager
-                  .findModel(this.templateApplication.getModelOID());
-            logger.debug("Application " + this.templateApplication.getName()
+                  .findModel(this.decoratorApplication.getModelOID());
+            logger.debug("Application " + this.decoratorApplication.getName()
                   + " from model " + currentModel.getName()
                   + " is configured to decorate application "
                   + decoratedApplication.getName() + " from model "
@@ -136,8 +136,8 @@ public class DecoratorAppApplicationInstance implements SynchronousApplicationIn
          if (logger.isDebugEnabled())
          {
             IModel currentModel = modelManager
-                  .findModel(this.templateApplication.getModelOID());
-            logger.debug("Application " + this.templateApplication.getName()
+                  .findModel(this.decoratorApplication.getModelOID());
+            logger.debug("Application " + this.decoratorApplication.getName()
                   + " from model " + currentModel.getName()
                   + " is configured to decorate Process Interfaces for process "
                   + " from model " + containingModel.getName());
@@ -146,7 +146,7 @@ public class DecoratorAppApplicationInstance implements SynchronousApplicationIn
       else
       {
          logger.debug(
-               "Template Application Runtime invoked with an invalid configuration");
+               "Decorator Application Runtime invoked with an invalid configuration");
       }
 
    }

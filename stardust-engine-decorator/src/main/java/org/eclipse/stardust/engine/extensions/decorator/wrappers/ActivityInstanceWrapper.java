@@ -1,4 +1,4 @@
-package org.eclipse.stardust.engine.extensions.template.wrappers;
+package org.eclipse.stardust.engine.extensions.decorator.wrappers;
 
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
 import org.eclipse.stardust.engine.api.model.IActivity;

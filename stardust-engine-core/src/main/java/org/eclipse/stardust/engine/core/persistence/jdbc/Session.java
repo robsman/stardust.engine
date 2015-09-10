@@ -419,8 +419,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          boolean useBatchStatement = true;
          DBMSKey dbmsKey = dbDescriptor.getDbmsKey();
-         if (DBMSKey.MSSQL8.equals(dbmsKey)
-               || DBMSKey.MSSQL.equals(dbmsKey))
+         if (DBMSKey.MSSQL8.equals(dbmsKey) || DBMSKey.MSSQL.equals(dbmsKey))
          {
             // MSSQL needs to use getGeneratedKeys() method,
             // since SELECT SCOPE_IDENTITY() has scope problems in Prepared Statements
@@ -444,8 +443,8 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                // BatchStatement is needed?
                if (useBatchStatement)
                {
-               stmt.executeBatch();
-            }
+                  stmt.executeBatch();
+               }
                else
                {
                   stmt.executeUpdate();
@@ -462,8 +461,8 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                         identityOid = new Long(rsGeneratedKeys.getLong(1));
                      }
                   }
-            catch (SQLException sqle)
-            {
+                  catch (SQLException sqle)
+                  {
                      trace.debug("Failed retrieving generated key.", sqle);
                   }
                   finally
@@ -474,7 +473,6 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             }
             catch (SQLException sqle)
             {
-               ExceptionUtils.logAllBatchExceptions(sqle);
                ApplicationException ae = ExceptionUtils.transformException(dbDescriptor,
                      sqle);
                if (null != ae)
@@ -502,8 +500,8 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             {
                stmt.executeUpdate(stmtString, Statement.RETURN_GENERATED_KEYS);
                ResultSet rsGeneratedKeys = null;
-            try
-            {
+               try
+               {
                   rsGeneratedKeys = stmt.getGeneratedKeys();
                   if (rsGeneratedKeys.next())
                   {
@@ -523,19 +521,18 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             {
                try
                {
-               stmt.executeUpdate(stmtString);
-            }
-            catch (SQLException sqle)
-            {
-               ExceptionUtils.logAllBatchExceptions(sqle);
+                  stmt.executeUpdate(stmtString);
+               }
+               catch (SQLException sqle)
+               {
                   ApplicationException ae = ExceptionUtils.transformException(
                         dbDescriptor, sqle);
-               if (null != ae)
-               {
-                  throw ae;
+                  if (null != ae)
+                  {
+                     throw ae;
+                  }
+                  throw sqle;
                }
-               throw sqle;
-            }
             }
             monitorSqlExecution(stmtString, timer.stop());
          }
@@ -543,10 +540,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          {
             QueryUtils.closeStatement(stmt);
          }
-
       }
-      if (dbDescriptor.supportsIdentityColumns()
-            && typeDescriptor.requiresPKCreation())
+
+      if (dbDescriptor.supportsIdentityColumns() && typeDescriptor.requiresPKCreation())
       {
          dmlManager.setPK(persistent, (null != identityOid)
                ? identityOid.longValue()
@@ -563,8 +559,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             dmlManager.getTypeDescriptor().getIdentityKey(persistent),
             dmlManager.createPersistenceController(this, persistent));
 
-      if (dbDescriptor.supportsIdentityColumns()
-            && typeDescriptor.requiresPKCreation())
+      if (dbDescriptor.supportsIdentityColumns() && typeDescriptor.requiresPKCreation())
       {
          // NOTE touch self references, to make sure the retrieved OID gets persisted
          // as FK-value
@@ -590,8 +585,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
             if (touchLink)
             {
-               persistent.getPersistenceController().fetchLink(
-                     link.getField().getName());
+               persistent.getPersistenceController().fetchLink(link.getField().getName());
                persistent.markModified(link.getField().getName());
             }
          }
@@ -1722,7 +1716,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                      }
                   }
                }
-               
+
                if ((dpc.isCreated() || dpc.isModified())
                      && (persistent instanceof LazilyEvaluated))
                {
@@ -2026,7 +2020,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          ExceptionUtils.logAllBatchExceptions(x);
          throw new InternalException("Error during flush.", x);
       }
-      finally 
+      finally
       {
          final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
          if (rtEnv != null)
@@ -2044,13 +2038,13 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       final boolean isAborted = persistentToFilter.isAborted();
       final boolean isCompleted = persistentToFilter.isCompleted();
       final boolean isRoot = persistentToFilter.getOID() == persistentToFilter.getRootProcessInstanceOID();
-      
+
       final boolean isCreated = persistentToFilter.getPersistenceController().isCreated();
       final boolean isModified = persistentToFilter.getPersistenceController().isModified();
-      
+
       return (isNotArchived && (isCreated || isModified) && isRoot && (isAborted || isCompleted));
    }
-   
+
    private void remove(AbstractCache externalCache, Persistent persistent)
    {
       if (externalCache != null)
@@ -3214,7 +3208,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
                final TimeMeasure timer = new TimeMeasure();
                statement.executeUpdate();
-               
+
                monitorSqlExecution(sqlString, timer.stop());
             }
             catch(SQLException x)

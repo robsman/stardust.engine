@@ -2,7 +2,7 @@ package org.eclipse.stardust.engine.extensions.decorator;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,12 +30,11 @@ import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.AsynchronousApplicationInstance;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SynchronousApplicationInstance;
 import org.eclipse.stardust.engine.extensions.decorator.wrappers.ActivityInstanceWrapper;
 
-public class DecoratorAppApplicationInstance implements SynchronousApplicationInstance,  AsynchronousApplicationInstance
+public class DecoratorAppApplicationInstance implements SynchronousApplicationInstance
 {
 
    public static final Logger logger = LogManager
@@ -91,7 +90,7 @@ public class DecoratorAppApplicationInstance implements SynchronousApplicationIn
    }
 
    private String elementType;
-
+   private String eltId;  
    public void bootstrap(ActivityInstance activityInstance)
    {
       this.activityInstance = activityInstance;
@@ -101,7 +100,7 @@ public class DecoratorAppApplicationInstance implements SynchronousApplicationIn
       String modelId = getModelId(decoratorApplication);
       containingModel = findModel(modelId, modelManager);
       elementType = getElementType(decoratorApplication);
-      String eltId = getDecoratedElementID(decoratorApplication);
+      this.eltId = getDecoratedElementID(decoratorApplication);
 
       if (StringUtils.isNotEmpty(elementType) && elementType.equals("application"))
       {
@@ -109,8 +108,8 @@ public class DecoratorAppApplicationInstance implements SynchronousApplicationIn
          IActivityInstance ais = bpmRt.getCurrentActivityInstance();
          aiw = new ActivityInstanceWrapper(ais);
 
-         eltId = eltId.replace(modelId + ":", "");
-         decoratedApplication = findDecoratedApplication(eltId, containingModel);
+         this.eltId = this.eltId.replace(modelId + ":", "");
+         decoratedApplication = findDecoratedApplication(this.eltId, containingModel);
          ApplicationDetails ap = DetailsFactory.create(decoratedApplication,
                IApplication.class, ApplicationDetails.class);
          aiw.getActivity().setApplication(ap);
@@ -195,6 +194,13 @@ public class DecoratorAppApplicationInstance implements SynchronousApplicationIn
          decoratedApplicationInstance.cleanup();
    }
 
+   private String processElementId(String eltId){
+      if(StringUtils.isNotEmpty(eltId) && eltId.contains(":")){
+         String[] ids=eltId.split(":");
+         return "{"+ids[0]+"}"+ids[1] ;
+      }
+       return null;  
+   }
    public Map invoke(Set outDataTypes) throws InvocationTargetException
    {
       if (StringUtils.isNotEmpty(this.elementType)
@@ -204,11 +210,10 @@ public class DecoratorAppApplicationInstance implements SynchronousApplicationIn
       }
       else
       {
-         String binding = "{Model27}Impl";
-         boolean copyAllData = false;
-         boolean separateData = true;
-         boolean synchronous = false;
-         IProcessDefinition processDefinition = ModelUtils.getProcessDefinition(binding);
+         boolean synchronous = true;
+         String runtimeBinding=processElementId(this.eltId);
+         
+         IProcessDefinition processDefinition = ModelUtils.getProcessDefinition(runtimeBinding);
          IProcessInstance pi=ProcessInstanceBean.findByOID(this.activityInstance.getProcessInstanceOID());
          
          ProcessInstanceBean instance = ProcessInstanceBean.createInstance(processDefinition,pi,
@@ -224,56 +229,17 @@ public class DecoratorAppApplicationInstance implements SynchronousApplicationIn
          ActivityThread.schedule(instance, instance.getProcessDefinition()
                .getRootActivity(), null, synchronous, null, Collections.EMPTY_MAP,
                synchronous);
-         
-         return Collections.EMPTY_MAP;
+
+         //Process Out DataMappings
+         Map<String, Object> outDataMappings =  new HashMap<String, Object>();
+         if(!outDataTypes.isEmpty()){
+            for(Object elt:outDataTypes)
+            {
+               outDataMappings.put((String)elt, instance.getDataValue(ModelUtils.getMappedData(processDefinition, (String)elt)).getValue());
+            }
+         }
+         return outDataMappings;
       }
       
-   }
-
-   @Override
-   public void send() throws InvocationTargetException
-   {
-      System.out.println("");
-      String binding = "{Model27}Impl";
-      boolean copyAllData = false;
-      boolean separateData = true;
-      boolean synchronous = false;
-      IProcessDefinition processDefinition = ModelUtils.getProcessDefinition(binding);
-      IProcessInstance pi=ProcessInstanceBean.findByOID(this.activityInstance.getProcessInstanceOID());
-      
-      ProcessInstanceBean instance = ProcessInstanceBean.createInstance(processDefinition,pi,
-            SecurityProperties.getUser(), Collections.EMPTY_MAP);
-      
-      for (String key:inAccessPointValues.keySet())
-      {
-         Object bridgeObject=inAccessPointValues.get(key);
-         IData subProcessData =ModelUtils.getMappedData(processDefinition, key);
-         instance.setOutDataValue(subProcessData, null, bridgeObject);
-      }
-      
-      ActivityThread.schedule(instance, instance.getProcessDefinition()
-            .getRootActivity(), null, synchronous, null, Collections.EMPTY_MAP,
-            synchronous);
-   }
-
-   @Override
-   public Map receive(Map data, Iterator outDataTypes)
-   {
-
-      System.out.println("");
-      return null;
-   }
-
-   @Override
-   public boolean isSending()
-   {
-
-      return true;
-   }
-
-   @Override
-   public boolean isReceiving()
-   {
-      return true;
    }
 }

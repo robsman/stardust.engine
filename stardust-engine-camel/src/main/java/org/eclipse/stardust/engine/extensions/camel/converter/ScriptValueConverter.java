@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
+import org.mozilla.javascript.ConsString;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.IdScriptableObject;
 import org.mozilla.javascript.NativeArray;
@@ -32,6 +33,10 @@ public final class ScriptValueConverter
       if (value instanceof Undefined)
       {
          return null;
+      }
+      if (value instanceof ConsString )
+      {
+         return Context.jsToJava(value, String.class);
       }
       else if (value instanceof Wrapper)
       {

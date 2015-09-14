@@ -33,6 +33,8 @@ public class JavaScriptTypeConverter extends JsonTypeConverter.ApplicationTypeCo
          TypedXPath rootXPath = xPathMap.getRootXPath();
          javascriptResponse = ScriptValueConverter.unwrapValue(javascriptResponse,
                rootXPath);
+      }else{
+         javascriptResponse = ScriptValueConverter.unwrapValue(javascriptResponse, null);
       }
       replaceDataValue(dataMapping, javascriptResponse, extendedAttributes);
    }

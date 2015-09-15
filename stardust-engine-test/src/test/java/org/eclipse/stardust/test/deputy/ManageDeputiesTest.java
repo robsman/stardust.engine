@@ -14,6 +14,7 @@ import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.deputy.DeputyModelConstants.*;
 
 import java.sql.Date;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -390,6 +391,54 @@ public class ManageDeputiesTest
 
       Assert.assertTrue(modifiedDeputy.getFromDate().compareTo(futureOptions.getFromDate()) == 0);
    }
+
+   @Test
+   public void createInvalidDeputyOptions()
+   {
+      // fromDate must not be null
+      try
+      {
+         new DeputyOptions(null, TimestampProviderUtils.getTimeStamp());
+         Assert.fail("fromDate must not be null!");
+      }
+      catch (IllegalArgumentException e)
+      {
+      }
+
+      try
+      {
+         DeputyOptions depOpt = new DeputyOptions(TimestampProviderUtils.getTimeStamp(), TimestampProviderUtils.getTimeStamp());
+         depOpt.setFromDate(null);
+
+         Assert.fail("fromDate must not be null!");
+      }
+      catch (IllegalArgumentException e)
+      {
+      }
+
+      // participants must not be null
+      try
+      {
+         new DeputyOptions(TimestampProviderUtils.getTimeStamp(), TimestampProviderUtils.getTimeStamp(), null);
+
+         Assert.fail("participants must not be null!");
+      }
+      catch (IllegalArgumentException e)
+      {
+      }
+
+      // participants must not be null
+      try
+      {
+         DeputyOptions depOpt = new DeputyOptions(TimestampProviderUtils.getTimeStamp(), TimestampProviderUtils.getTimeStamp(), Collections.<ModelParticipantInfo> emptySet());
+         depOpt.setParticipants(null);
+
+         Assert.fail("participants must not be null!");
+      }
+      catch (IllegalArgumentException e)
+      {
+      }
+}
 
    private static DeputyOptions createDeputyOptions(DEPUTY_VALIDITY_TARGET target, DEPUTY_VALIDITY_DATE dateSelector)
    {

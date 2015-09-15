@@ -1805,12 +1805,14 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
             doBatchInsert(persistentToBeInserted, persistentAlreadyExists, dmlManager,
                   dmlManager.getTypeDescriptor());
-            if (persistentAlreadyExists != null && !persistentAlreadyExists.isEmpty()
-                  && Collections.EMPTY_LIST == persistentToBeUpdated)
+            if (persistentAlreadyExists != null && !persistentAlreadyExists.isEmpty())
             {
-               persistentToBeUpdated = CollectionUtils.newArrayList(25);
-            convertAlreadyExistingPersistentsIntoUpdateList(persistentAlreadyExists,
-                  persistentToBeUpdated, dmlManager, dmlManager.getTypeDescriptor());
+               if (Collections.EMPTY_LIST == persistentToBeUpdated)
+               {
+                  persistentToBeUpdated = CollectionUtils.newArrayList(25);
+               }
+               convertAlreadyExistingPersistentsIntoUpdateList(persistentAlreadyExists,
+                     persistentToBeUpdated, dmlManager, dmlManager.getTypeDescriptor());
             }
             doBatchUpdate(persistentToBeUpdated, dmlManager, dmlManager
                   .getTypeDescriptor());

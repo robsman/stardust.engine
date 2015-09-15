@@ -59,7 +59,11 @@ public class CriticalityEvaluator implements ICriticalityEvaluator
       }
       catch (Exception e)
       {
-         trace.warn("Criticality formula evaluation caused an excpetion. Activity Criticality will be set to fault value <"
+         trace.warn("Criticality formula evaluation caused an excpetion for Acitivty Instance <"
+               + aiBean.getOID()
+               + "> (Process Instance <"
+               + aiBean.getProcessInstanceOID()
+               + ">). Activity Criticality will be set to fault value <"
                + CRITICALITY_FAULT_VALUE + ">");
       }
       return CRITICALITY_FAULT_VALUE;

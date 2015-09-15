@@ -37,6 +37,6 @@ import org.junit.runners.Suite.SuiteClasses;
               })
 public class SpringSecurityTestSuite
 {
-   @ClassRule
-   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING);
+//   @ClassRule
+//   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING);
 }

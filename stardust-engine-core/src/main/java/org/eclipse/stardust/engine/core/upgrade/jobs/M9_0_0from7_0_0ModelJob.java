@@ -46,6 +46,6 @@ public class M9_0_0from7_0_0ModelJob extends ModelUpgradeJob
    @Override
    public Version getVersion()
    {
-      return R9_0_0from7_3_0RuntimeJob.VERSION;
+      return R9_0_0from8_2_3RuntimeJob.VERSION;
    }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Package xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="StatisticsQueryModel" Name="StatisticsQueryModel">
+<Package xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="StatisticsQueryCrossModel" Name="StatisticsQueryCrossModel">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
       <Vendor>SunGard CSA LLC, IPP</Vendor>
@@ -11,6 +11,13 @@
    </RedefinableHeader>
    <ConformanceClass GraphConformance="NON_BLOCKED"/>
    <Script Type="text/ecmascript"/>
+   <ExternalPackages>
+      <ExternalPackage Id="StatisticsQueryModel" Name="StatisticsQueryModel" href="StatisticsQueryModel">
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="carnot:connection:uri" Value="cnx://file/"/>
+         </ExtendedAttributes>
+      </ExternalPackage>
+   </ExternalPackages>
    <TypeDeclarations/>
    <Participants>
       <Participant Id="Administrator" Name="Administrator">
@@ -23,26 +30,7 @@
          </ExtendedAttributes>
       </Participant>
    </Participants>
-   <Applications>
-      <Application Id="WaitingApplication" Name="Waiting Application">
-         <ExternalReference location="org.eclipse.stardust.test.query.statistics.ActivityInstanceStatisticsQueryTest$WaitingApp" xref="doWait:"/>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:Application Oid="75" Type="plainJava">
-                  <carnot:ApplicationContexts/>
-                  <carnot:AccessPoints/>
-                  <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.query.statistics.ActivityInstanceStatisticsQueryTest$WaitingApp"/>
-                     <carnot:Attribute Name="carnot:engine:methodName" Value="doWait()"/>
-                     <carnot:Attribute Name="carnot:engine:constructorName" Value="ActivityInstanceStatisticsQueryTest$WaitingApp()"/>
-                     <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
-                  </carnot:Attributes>
-               </carnot:Application>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </Application>
-   </Applications>
+   <Applications/>
    <DataFields>
       <DataField Id="LAST_ACTIVITY_PERFORMER" Name="&lt;Last Activity Performer&gt;" IsArray="FALSE">
          <DataType>
@@ -201,232 +189,7 @@
       </DataField>
    </DataFields>
    <WorkflowProcesses>
-      <WorkflowProcess Id="DoWork" Name="DoWork" AccessLevel="PUBLIC">
-         <ProcessHeader/>
-         <Activities>
-            <Activity Id="Work" Name="Work">
-               <Implementation>
-                  <No/>
-               </Implementation>
-               <Performer>Administrator</Performer>
-               <StartMode>
-                  <Automatic/>
-               </StartMode>
-               <FinishMode>
-                  <Manual/>
-               </FinishMode>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Activity Oid="53" Implementation="Manual" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
-                        <carnot:EventHandlers/>
-                        <carnot:QualityCodes/>
-                        <carnot:DataFlows/>
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
-                           <carnot:Attribute Name="carnot:engine:relocate:source" Value="false" Type="boolean"/>
-                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
-                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
-                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
-                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
-                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
-                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
-                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
-                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
-                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
-                        </carnot:Attributes>
-                     </carnot:Activity>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Activity>
-         </Activities>
-         <Transitions/>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:WorkflowProcess Oid="50">
-                  <carnot:Triggers>
-                     <carnot:Trigger Oid="56" Id="ManualStart" Name="Manual Start" Type="manual">
-                        <carnot:AccessPoints/>
-                        <carnot:DataFlows/>
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:engine:participant" Value="Administrator"/>
-                        </carnot:Attributes>
-                     </carnot:Trigger>
-                  </carnot:Triggers>
-                  <carnot:DataPaths/>
-                  <carnot:EventHandlers/>
-                  <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
-                     <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:01"/>
-                     <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
-                     <carnot:Attribute Name="carnot:pwh:overdueThreshold" Value="0"/>
-                     <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
-                     <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
-                     <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
-                     <carnot:Attribute Name="authorization:processDefinition.readProcessInstanceData" Value="__carnot_internal_all_permissions__"/>
-                     <carnot:Attribute Name="authorization:processDefinition.manageEventHandlers[0]" Value="Administrator"/>
-                  </carnot:Attributes>
-                  <carnot:Diagrams>
-                     <carnot:Diagram Oid="51" Name="&lt;Default&gt;" Orientation="Vertical" Mode="MODE_4_0_0">
-                        <carnot:Symbols>
-                           <carnot:Symbol Kind="POOL" Oid="52" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
-                              <carnot:Symbols>
-                                 <carnot:Symbol Kind="ACTIVITY" Oid="54" X="120" Y="130" Width="181" Height="51" ModelElement="Work"/>
-                                 <carnot:Symbol Kind="STARTEVENT" Oid="57" X="145" Y="30" Width="130" Height="50" ModelElement="ManualStart"/>
-                              </carnot:Symbols>
-                              <carnot:Connections>
-                                 <carnot:Connection Kind="TRANSITION" Oid="58" SourceSymbol="57" TargetSymbol="54" SourceAnchor="center" TargetAnchor="top"/>
-                              </carnot:Connections>
-                           </carnot:Symbol>
-                        </carnot:Symbols>
-                        <carnot:Connections/>
-                     </carnot:Diagram>
-                  </carnot:Diagrams>
-               </carnot:WorkflowProcess>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </WorkflowProcess>
-      <WorkflowProcess Id="AIProcessingTime" Name="AI Processing Time" AccessLevel="PRIVATE">
-         <ProcessHeader/>
-         <Activities>
-            <Activity Id="FirstInteractiveActivity" Name="First Interactive Activity">
-               <Implementation>
-                  <No/>
-               </Implementation>
-               <Performer>Administrator</Performer>
-               <StartMode>
-                  <Automatic/>
-               </StartMode>
-               <FinishMode>
-                  <Manual/>
-               </FinishMode>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Activity Oid="62" Implementation="Manual">
-                        <carnot:EventHandlers/>
-                        <carnot:QualityCodes/>
-                        <carnot:DataFlows/>
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
-                        </carnot:Attributes>
-                     </carnot:Activity>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Activity>
-            <Activity Id="ApplicationActivity" Name="Application Activity">
-               <Implementation>
-                  <Task>
-                     <TaskApplication Id="WaitingApplication">
-                        <ActualParameters/>
-                     </TaskApplication>
-                  </Task>
-               </Implementation>
-               <StartMode>
-                  <Automatic/>
-               </StartMode>
-               <FinishMode>
-                  <Automatic/>
-               </FinishMode>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Activity Oid="64" Implementation="Application">
-                        <carnot:EventHandlers/>
-                        <carnot:QualityCodes/>
-                        <carnot:DataFlows/>
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
-                        </carnot:Attributes>
-                     </carnot:Activity>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Activity>
-            <Activity Id="LastInteractiveActivity" Name="Last Interactive Activity">
-               <Implementation>
-                  <No/>
-               </Implementation>
-               <Performer>Administrator</Performer>
-               <StartMode>
-                  <Automatic/>
-               </StartMode>
-               <FinishMode>
-                  <Manual/>
-               </FinishMode>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Activity Oid="66" Implementation="Manual">
-                        <carnot:EventHandlers/>
-                        <carnot:QualityCodes/>
-                        <carnot:DataFlows/>
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
-                        </carnot:Attributes>
-                     </carnot:Activity>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Activity>
-         </Activities>
-         <Transitions>
-            <Transition Id="Transition1" Name="Transition 1" From="FirstInteractiveActivity" To="ApplicationActivity">
-               <Condition Type="CONDITION">true</Condition>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Transition Oid="68"/>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Transition>
-            <Transition Id="Transition2" Name="Transition 2" From="ApplicationActivity" To="LastInteractiveActivity">
-               <Condition Type="CONDITION">true</Condition>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Transition Oid="70"/>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Transition>
-         </Transitions>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:WorkflowProcess Oid="61">
-                  <carnot:Triggers/>
-                  <carnot:DataPaths/>
-                  <carnot:EventHandlers/>
-                  <carnot:Attributes>
-                     <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
-                     <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
-                     <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
-                     <carnot:Attribute Name="authorization:processDefinition.readProcessInstanceData" Value="__carnot_internal_all_permissions__"/>
-                     <carnot:Attribute Name="authorization:processDefinition.manageEventHandlers[0]" Value="Administrator"/>
-                     <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
-                     <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:01"/>
-                     <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
-                     <carnot:Attribute Name="carnot:pwh:overdueThreshold" Value="0"/>
-                  </carnot:Attributes>
-                  <carnot:Diagrams>
-                     <carnot:Diagram Oid="60" Name="Default" Orientation="Vertical" Mode="MODE_4_0_0">
-                        <carnot:Symbols>
-                           <carnot:Symbol Kind="POOL" Oid="59" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
-                              <carnot:Symbols>
-                                 <carnot:Symbol Kind="ACTIVITY" Oid="63" X="210" Y="95" Width="181" Height="51" ModelElement="FirstInteractiveActivity"/>
-                                 <carnot:Symbol Kind="ACTIVITY" Oid="65" X="210" Y="180" Width="181" Height="51" ModelElement="ApplicationActivity"/>
-                                 <carnot:Symbol Kind="ACTIVITY" Oid="67" X="210" Y="270" Width="181" Height="51" ModelElement="LastInteractiveActivity"/>
-                                 <carnot:Symbol Kind="ROLE" Oid="72" X="25" Y="185" Width="90" Height="40" ModelElement="Administrator"/>
-                                 <carnot:Symbol Kind="APPLICATION" Oid="76" X="470" Y="185" Width="120" Height="40" ModelElement="WaitingApplication"/>
-                              </carnot:Symbols>
-                              <carnot:Connections>
-                                 <carnot:Connection Kind="TRANSITION" Oid="69" ModelElement="Transition1" SourceSymbol="63" TargetSymbol="65" SourceAnchor="center" TargetAnchor="center"/>
-                                 <carnot:Connection Kind="TRANSITION" Oid="71" ModelElement="Transition2" SourceSymbol="65" TargetSymbol="67" SourceAnchor="center" TargetAnchor="center"/>
-                                 <carnot:Connection Kind="PERFORMS" Oid="73" SourceSymbol="72" TargetSymbol="63"/>
-                                 <carnot:Connection Kind="PERFORMS" Oid="74" SourceSymbol="72" TargetSymbol="67"/>
-                                 <carnot:Connection Kind="EXECUTED_BY" Oid="77" SourceSymbol="76" TargetSymbol="65"/>
-                              </carnot:Connections>
-                           </carnot:Symbol>
-                        </carnot:Symbols>
-                        <carnot:Connections/>
-                     </carnot:Diagram>
-                  </carnot:Diagrams>
-               </carnot:WorkflowProcess>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </WorkflowProcess>
-      <WorkflowProcess Id="PIProcessingTime_A" Name="PI Processing Time - A" AccessLevel="PRIVATE">
+      <WorkflowProcess Id="CrossProcessingTime" Name="Cross Processing Time" AccessLevel="PUBLIC">
          <ProcessHeader/>
          <Activities>
             <Activity Id="_A_FirstActivity" Name="[A] First Activity">
@@ -455,7 +218,7 @@
             </Activity>
             <Activity Id="PIProcessingTime_B" Name="PI Processing Time - B">
                <Implementation>
-                  <SubFlow Id="PIProcessingTime_B" Execution="SYNCHR"/>
+                  <SubFlow Id="PIProcessingTime_B" PackageRef="StatisticsQueryModel" Execution="SYNCHR"/>
                </Implementation>
                <StartMode>
                   <Automatic/>
@@ -472,6 +235,7 @@
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
                            <carnot:Attribute Name="carnot:engine:subprocess:copyAllData" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:connection:uri" Value="cnx://file/processDefinition/PIProcessingTime_B"/>
                            <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
                            <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
                            <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
@@ -550,233 +314,6 @@
                                  <carnot:Connection Kind="TRANSITION" Oid="90" ModelElement="Transition2" SourceSymbol="84" TargetSymbol="86" SourceAnchor="center" TargetAnchor="center"/>
                                  <carnot:Connection Kind="PERFORMS" Oid="92" SourceSymbol="91" TargetSymbol="82"/>
                                  <carnot:Connection Kind="PERFORMS" Oid="93" SourceSymbol="91" TargetSymbol="86"/>
-                              </carnot:Connections>
-                           </carnot:Symbol>
-                        </carnot:Symbols>
-                        <carnot:Connections/>
-                     </carnot:Diagram>
-                  </carnot:Diagrams>
-               </carnot:WorkflowProcess>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </WorkflowProcess>
-      <WorkflowProcess Id="PIProcessingTime_B" Name="PI Processing Time - B" AccessLevel="PRIVATE">
-         <ProcessHeader/>
-         <FormalParameters/>
-         <Activities>
-            <Activity Id="_B_FirstActivity" Name="[B] First Activity">
-               <Implementation>
-                  <No/>
-               </Implementation>
-               <Performer>Administrator</Performer>
-               <StartMode>
-                  <Automatic/>
-               </StartMode>
-               <FinishMode>
-                  <Manual/>
-               </FinishMode>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Activity Oid="97" Implementation="Manual">
-                        <carnot:EventHandlers/>
-                        <carnot:QualityCodes/>
-                        <carnot:DataFlows/>
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
-                        </carnot:Attributes>
-                     </carnot:Activity>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Activity>
-            <Activity Id="PIProcessingTime_C" Name="PI Processing Time - C">
-               <Implementation>
-                  <SubFlow Id="PIProcessingTime_C" Execution="SYNCHR"/>
-               </Implementation>
-               <StartMode>
-                  <Automatic/>
-               </StartMode>
-               <FinishMode>
-                  <Automatic/>
-               </FinishMode>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Activity Oid="99" Implementation="Subprocess" IsHibernatedOnCreation="false" SubProcessMode="sync_shared">
-                        <carnot:EventHandlers/>
-                        <carnot:QualityCodes/>
-                        <carnot:DataFlows/>
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
-                           <carnot:Attribute Name="carnot:engine:subprocess:copyAllData" Value="false" Type="boolean"/>
-                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
-                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
-                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
-                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
-                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
-                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
-                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
-                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
-                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
-                        </carnot:Attributes>
-                     </carnot:Activity>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Activity>
-            <Activity Id="_B_LastActivity" Name="[B] Last Activity">
-               <Implementation>
-                  <No/>
-               </Implementation>
-               <Performer>Administrator</Performer>
-               <StartMode>
-                  <Automatic/>
-               </StartMode>
-               <FinishMode>
-                  <Manual/>
-               </FinishMode>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Activity Oid="101" Implementation="Manual">
-                        <carnot:EventHandlers/>
-                        <carnot:QualityCodes/>
-                        <carnot:DataFlows/>
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
-                        </carnot:Attributes>
-                     </carnot:Activity>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Activity>
-         </Activities>
-         <Transitions>
-            <Transition Id="Transition1" Name="Transition 1" From="_B_FirstActivity" To="PIProcessingTime_C">
-               <Condition Type="CONDITION">true</Condition>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Transition Oid="103"/>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Transition>
-            <Transition Id="Transition2" Name="Transition 2" From="PIProcessingTime_C" To="_B_LastActivity">
-               <Condition Type="CONDITION">true</Condition>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Transition Oid="105"/>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Transition>
-         </Transitions>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:WorkflowProcess Oid="96">
-                  <carnot:Triggers/>
-                  <carnot:DataPaths/>
-                  <carnot:EventHandlers/>
-                  <carnot:Diagrams>
-                     <carnot:Diagram Oid="95" Name="Default" Orientation="Vertical" Mode="MODE_4_0_0">
-                        <carnot:Symbols>
-                           <carnot:Symbol Kind="POOL" Oid="94" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
-                              <carnot:Symbols>
-                                 <carnot:Symbol Kind="ACTIVITY" Oid="98" X="275" Y="105" Width="181" Height="51" ModelElement="_B_FirstActivity"/>
-                                 <carnot:Symbol Kind="ACTIVITY" Oid="100" X="275" Y="205" Width="181" Height="51" ModelElement="PIProcessingTime_C"/>
-                                 <carnot:Symbol Kind="ACTIVITY" Oid="102" X="275" Y="305" Width="181" Height="51" ModelElement="_B_LastActivity"/>
-                                 <carnot:Symbol Kind="ROLE" Oid="107" X="75" Y="210" Width="90" Height="40" ModelElement="Administrator"/>
-                              </carnot:Symbols>
-                              <carnot:Connections>
-                                 <carnot:Connection Kind="TRANSITION" Oid="104" ModelElement="Transition1" SourceSymbol="98" TargetSymbol="100" SourceAnchor="center" TargetAnchor="top"/>
-                                 <carnot:Connection Kind="TRANSITION" Oid="106" ModelElement="Transition2" SourceSymbol="100" TargetSymbol="102" SourceAnchor="center" TargetAnchor="center"/>
-                                 <carnot:Connection Kind="PERFORMS" Oid="108" SourceSymbol="107" TargetSymbol="98"/>
-                                 <carnot:Connection Kind="PERFORMS" Oid="109" SourceSymbol="107" TargetSymbol="102"/>
-                              </carnot:Connections>
-                           </carnot:Symbol>
-                        </carnot:Symbols>
-                        <carnot:Connections/>
-                     </carnot:Diagram>
-                  </carnot:Diagrams>
-                  <carnot:FormalParameterMappings/>
-               </carnot:WorkflowProcess>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </WorkflowProcess>
-      <WorkflowProcess Id="PIProcessingTime_C" Name="PI Processing Time - C" AccessLevel="PRIVATE">
-         <ProcessHeader/>
-         <Activities>
-            <Activity Id="_C_FirstActivity" Name="[C] First Activity">
-               <Implementation>
-                  <No/>
-               </Implementation>
-               <Performer>Administrator</Performer>
-               <StartMode>
-                  <Automatic/>
-               </StartMode>
-               <FinishMode>
-                  <Manual/>
-               </FinishMode>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Activity Oid="113" Implementation="Manual">
-                        <carnot:EventHandlers/>
-                        <carnot:QualityCodes/>
-                        <carnot:DataFlows/>
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
-                        </carnot:Attributes>
-                     </carnot:Activity>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Activity>
-            <Activity Id="_C_LastActivtiy" Name="[C] Last Activtiy">
-               <Implementation>
-                  <No/>
-               </Implementation>
-               <Performer>Administrator</Performer>
-               <StartMode>
-                  <Automatic/>
-               </StartMode>
-               <FinishMode>
-                  <Manual/>
-               </FinishMode>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Activity Oid="115" Implementation="Manual">
-                        <carnot:EventHandlers/>
-                        <carnot:QualityCodes/>
-                        <carnot:DataFlows/>
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
-                        </carnot:Attributes>
-                     </carnot:Activity>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Activity>
-         </Activities>
-         <Transitions>
-            <Transition Id="Transition1" Name="Transition 1" From="_C_FirstActivity" To="_C_LastActivtiy">
-               <Condition Type="CONDITION">true</Condition>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Transition Oid="117"/>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Transition>
-         </Transitions>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:WorkflowProcess Oid="112">
-                  <carnot:Triggers/>
-                  <carnot:DataPaths/>
-                  <carnot:EventHandlers/>
-                  <carnot:Diagrams>
-                     <carnot:Diagram Oid="111" Name="Default" Orientation="Vertical" Mode="MODE_4_0_0">
-                        <carnot:Symbols>
-                           <carnot:Symbol Kind="POOL" Oid="110" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
-                              <carnot:Symbols>
-                                 <carnot:Symbol Kind="ACTIVITY" Oid="114" X="270" Y="100" Width="181" Height="51" ModelElement="_C_FirstActivity"/>
-                                 <carnot:Symbol Kind="ACTIVITY" Oid="116" X="270" Y="210" Width="181" Height="51" ModelElement="_C_LastActivtiy"/>
-                                 <carnot:Symbol Kind="ROLE" Oid="119" X="70" Y="165" Width="90" Height="40" ModelElement="Administrator"/>
-                              </carnot:Symbols>
-                              <carnot:Connections>
-                                 <carnot:Connection Kind="TRANSITION" Oid="118" ModelElement="Transition1" SourceSymbol="114" TargetSymbol="116" SourceAnchor="center" TargetAnchor="center"/>
-                                 <carnot:Connection Kind="PERFORMS" Oid="120" SourceSymbol="119" TargetSymbol="114"/>
-                                 <carnot:Connection Kind="PERFORMS" Oid="121" SourceSymbol="119" TargetSymbol="116"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>
@@ -1110,6 +647,11 @@
                <carnot:Attribute Name="ipp:variables[6]:name" Value="MHigh" Type="String"/>
                <carnot:Attribute Name="ipp:variables[6]:defaultValue" Value="10" Type="String"/>
                <carnot:Attribute Name="ipp:variables[6]:description" Value="&lt;Multiple of target execution time (High)&gt;" Type="String"/>
+               <carnot:Attribute Name="carnot:connection:1:id" Value="file"/>
+               <carnot:Attribute Name="carnot:connection:1:name" Value="File Connection"/>
+               <carnot:Attribute Name="carnot:connection:1:type" Value="file"/>
+               <carnot:Attribute Name="carnot:connection:1:attribute:importByReference" Value="true"/>
+               <carnot:Attribute Name="carnot:connection:1:attribute:filename" Value="StatisticsQueryModel.xpdl"/>
             </carnot:Attributes>
          </carnot:Package>
       </ExtendedAttribute>

@@ -1493,14 +1493,18 @@ public interface WorkflowService extends Service
          throws ObjectNotFoundException;
 
    /**
-    * TODO
+    * Process instances can declare or implement process interfaces. These process interfaces have
+    * "input" and "output". "input" is represented by IN and INOUT parameters, "output" by OUT and INOUT parameters.
+    *
+    * This method allows to retrieve all "output" values for a specific process instance. This process instance
+    * needs to be a terminated scope process instance which implements a process interface.
     *
     * @param processInstanceOID the OID of the process instance.
     *
-    * @return TODO
+    * @return map containing all "output" parameters defined in process interface of process instance. If the process instance does not implement any process interface the map will be empty.
     *
     * @throws ObjectNotFoundException if there is no process instance with the specified OID.
-    * @throws AccessForbiddenException if the process instance is not completed or
+    * @throws AccessForbiddenException if the process instance is not completed, is no scope process instance or
     *       the user does not have the permission to access this process.
     */
    @ExecutionPermission(

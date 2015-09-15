@@ -17,9 +17,9 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
 import org.eclipse.stardust.engine.core.upgrade.framework.*;
 
-public class R9_0_0from7_3_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
+public class R9_0_0from8_2_3RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
-   private static final Logger trace = LogManager.getLogger(R9_0_0from7_3_0RuntimeJob.class);
+   private static final Logger trace = LogManager.getLogger(R9_0_0from8_2_3RuntimeJob.class);
 
    private static final String PI_TABLE_NAME = "process_instance";
 
@@ -63,7 +63,7 @@ public class R9_0_0from7_3_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private UpgradeObserver observer;
 
-   protected R9_0_0from7_3_0RuntimeJob()
+   protected R9_0_0from8_2_3RuntimeJob()
    {
       super(new DBMSKey[] {
             DBMSKey.ORACLE, DBMSKey.ORACLE9i, DBMSKey.DB2_UDB, DBMSKey.MYSQL,

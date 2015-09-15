@@ -1806,10 +1806,10 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          throw new AccessForbiddenException(
                BpmRuntimeError.ATDB_PROCESS_INSTANCE_NOT_TERMINATED.raise(processInstanceOID));
       }
-      else if (pi.getRootProcessInstanceOID() != pi.getOID())
+      else if (pi.getScopeProcessInstanceOID() != pi.getOID())
       {
          throw new AccessForbiddenException(
-               BpmRuntimeError.ATDB_PROCESS_INSTANCE_NOT_ROOT.raise(processInstanceOID));
+               BpmRuntimeError.BPMRT_PROCESS_INSTANCE_REFERENCED_BY_OID_HAS_TO_BE_A_SCOPE_PROCESS_INSTANCES.raise(processInstanceOID));
       }
       IProcessDefinition pd = pi.getProcessDefinition();
       IProcessDefinition intf = getProcessInterface(pd);

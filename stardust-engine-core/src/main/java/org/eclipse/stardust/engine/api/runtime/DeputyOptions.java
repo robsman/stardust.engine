@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * Container class for the deputy description options.
- * 
+ *
  * @author stephan.born
  * @version $Revision: $
  */
@@ -47,7 +47,7 @@ public class DeputyOptions implements Serializable
 
    /**
     * Creates new options valid in the given interval and with an empty participant set.
-    * 
+    *
     * @param fromDate the validity start date. Must not be null.
     * @param toDate the validity end date. If null, then it is unlimited.
     * @throws IllegalArgumentException if fromDate is null.
@@ -59,10 +59,10 @@ public class DeputyOptions implements Serializable
 
    /**
     * Creates new options valid in the given interval and with the specified participant set.
-    * 
+    *
     * @param fromDate the validity start date. Must not be null.
     * @param toDate the validity end date. If null, then it is unlimited.
-    * @param participants the set of participants the deputy will have grants to. Can be empty, but not null. 
+    * @param participants the set of participants the deputy will have grants to. Can be empty, but not null.
     * @throws IllegalArgumentException if fromDate or the participants set are null.
     */
    public DeputyOptions(Date fromDate, Date toDate, Set<ModelParticipantInfo> participants)
@@ -71,12 +71,12 @@ public class DeputyOptions implements Serializable
 
       if (fromDate == null)
       {
-         new IllegalArgumentException();
+        throw new IllegalArgumentException();
       }
 
       if (participants == null)
       {
-         new IllegalArgumentException();
+         throw new IllegalArgumentException();
       }
 
       this.fromDate = fromDate;
@@ -86,7 +86,7 @@ public class DeputyOptions implements Serializable
 
    /**
     * Gets the validity start date.
-    * 
+    *
     * @return the validity start date.
     */
    public Date getFromDate()
@@ -96,7 +96,7 @@ public class DeputyOptions implements Serializable
 
    /**
     * Sets the validity start date.
-    * 
+    *
     * @param fromDate the new validity start date. Must not be null.
     * @throws IllegalArgumentException if fromDate is null.
     */
@@ -104,7 +104,7 @@ public class DeputyOptions implements Serializable
    {
       if (fromDate == null)
       {
-         new IllegalArgumentException();
+         throw new IllegalArgumentException();
       }
 
       this.fromDate = fromDate;
@@ -112,7 +112,7 @@ public class DeputyOptions implements Serializable
 
    /**
     * Gets the validity end date.
-    * 
+    *
     * @return the validity end date or null if unlimited.
     */
    public Date getToDate()
@@ -122,7 +122,7 @@ public class DeputyOptions implements Serializable
 
    /**
     * Sets the validity end date.
-    * 
+    *
     * @param toDate the new validity end date or null if unlimited.
     */
    public void setToDate(Date toDate)
@@ -132,7 +132,7 @@ public class DeputyOptions implements Serializable
 
    /**
     * Gets the set of participant grants.
-    * 
+    *
     * @return the set of participant grants.
     */
    public Set<ModelParticipantInfo> getParticipants()
@@ -142,7 +142,7 @@ public class DeputyOptions implements Serializable
 
    /**
     * Sets the participant grants.
-    * 
+    *
     * @param participants the new set of participant grants. Should be empty if the
     * deputy user only inherit grants over work items in the personal worklist.
     * @throws IllegalArgumentException if the participants set is null.
@@ -151,7 +151,7 @@ public class DeputyOptions implements Serializable
    {
       if (participants == null)
       {
-         new IllegalArgumentException();
+         throw new IllegalArgumentException();
       }
 
       this.participants = participants;

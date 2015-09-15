@@ -527,27 +527,40 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       if (ProcessInstanceUtils.isInAbortingPiHierarchy(getProcessInstance())
             && !(state == ActivityInstanceState.ABORTED || state == ActivityInstanceState.ABORTING))
       {
-         // reshedule aborting
-         ProcessAbortionJanitor.scheduleJanitor(new AbortionJanitorCarrier(
-               getProcessInstanceOID(), workflowUserOid));
-
-         ActivityInstanceState newState = ActivityInstanceState.getState(state);
-         StringBuffer msg = new StringBuffer("Invalid state change from ");
-         msg.append(ActivityInstanceState.getState(this.state))
-               .append(" to ")
-               .append(newState);
-         msg.append(" because the process instance is ");
          if (piState.equals(ProcessInstanceState.Aborted))
          {
-            msg.append("aborted.");
+            StringBuilder msg = new StringBuilder();
+            msg.append("The process of activity instance (oid '")
+                  .append(oid)
+                  .append(
+                        "') is in state 'Aborted'. Hence the state of the activity had to be changed to 'Aborted'.");
+
+            trace.warn(msg.toString());
+            state = 6;
          }
          else
          {
-            msg.append("in process of aborting.");
+            // reshedule aborting
+            ProcessAbortionJanitor.scheduleJanitor(new AbortionJanitorCarrier(
+                  getProcessInstanceOID(), workflowUserOid));
+
+            ActivityInstanceState newState = ActivityInstanceState.getState(state);
+            StringBuffer msg = new StringBuffer("Invalid state change from ");
+            msg.append(ActivityInstanceState.getState(this.state)).append(" to ")
+                  .append(newState);
+            msg.append(" because the process instance is ");
+            if (piState.equals(ProcessInstanceState.Aborted))
+            {
+               msg.append("aborted.");
+            }
+            else
+            {
+               msg.append("in process of aborting.");
+            }
+            trace.error(msg.toString());
+            throw new IllegalStateChangeException(this.toString(),
+                  ActivityInstanceState.getState(state), this.getState(), piState);
          }
-         trace.error(msg.toString());
-         throw new IllegalStateChangeException(this.toString(),
-               ActivityInstanceState.getState(state), this.getState(), piState);
       }
 
       recordHistoricState(workflowUserOid);
@@ -852,7 +865,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    {
       return ActivityInstanceState.Aborting == getState();
    }
-
+   
    private void putToUserWorklist(IUser user)
    {
       if ( !user.isValid()

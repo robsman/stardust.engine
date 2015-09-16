@@ -1065,7 +1065,10 @@ public class XmlUtils
       }
       finally
       {
-         is.close();
+         if (is != null)
+         {
+            is.close();
+         }
       }
       return content;
    }

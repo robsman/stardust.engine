@@ -10,11 +10,14 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.upgrade.jobs;
 
+import java.sql.SQLException;
+
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DDLManager;
 import org.eclipse.stardust.engine.core.upgrade.framework.*;
 
 public class R9_0_0from8_2_3RuntimeJob extends DbmsAwareRuntimeUpgradeJob
@@ -56,7 +59,7 @@ public class R9_0_0from8_2_3RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String RUNTIME_ARTIFACT_IDX1 = "runtime_artifact_idx1";
 
    private static final String RUNTIME_ARTIFACT_IDX2 = "runtime_artifact_idx2";
-
+   
    static final Version VERSION = Version.createFixedVersion(9, 0, 0);
 
    private RuntimeUpgradeTaskExecutor upgradeTaskExecutor;
@@ -143,6 +146,7 @@ public class R9_0_0from8_2_3RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       
       upgradeTaskExecutor.addUpgradeSchemaTask(new SignalMsgTableUpgradeTask());
       upgradeTaskExecutor.addUpgradeSchemaTask(new SignalMsgLookupTableUpgradeTask());
+      upgradeTaskExecutor.addUpgradeSchemaTask(new DaemonLogLckTableUpgradeTask());
    }
 
    @Override
@@ -370,6 +374,71 @@ public class R9_0_0from8_2_3RuntimeJob extends DbmsAwareRuntimeUpgradeJob
                + SIGNAL_MESSAGE_LOOKUP_IDX1 + "' will be created.");
       }
 
+   }
+   
+   public class DaemonLogLckTableUpgradeTask implements UpgradeTask
+   {
+      private static final String DAEMON_LOG_LCK_TABLE_NAME = "daemon_log_lck";
+      private static final String DAEMON_LOG_LCK_FIELD_OID = "oid";
+      private static final String AI_LCK_TABLE_NAME = "activity_instance_lck";
+      
+      @Override
+      public void execute()
+      {
+         // Lock table will only be created if any other lock table already exists, e.g.
+         // the one for AIBean
+         if (!item.isArchiveAuditTrail() && containsTable(AI_LCK_TABLE_NAME))
+         {
+            DatabaseHelper.createTable(item, new CreateTableInfo(
+                  DAEMON_LOG_LCK_TABLE_NAME)
+            {
+               private final FieldInfo oid = new FieldInfo(DAEMON_LOG_LCK_FIELD_OID,
+                     Long.TYPE, 0, false);
+
+               @Override
+               public String getSequenceName()
+               {
+                  return null;
+               }
+
+               @Override
+               public FieldInfo[] getFields()
+               {
+                  return new FieldInfo[] {oid};
+               }
+
+            }, observer);
+         }
+      }
+
+      @Override
+      public void printInfo()
+      {
+         // Lock table will only be created if any other lock table already exists, e.g.
+         // the one for AIBean
+         if (!item.isArchiveAuditTrail() && containsTable(AI_LCK_TABLE_NAME))
+         {
+            info("A new table '" + DAEMON_LOG_LCK_TABLE_NAME + "' with the columns "
+                  + "'" + DAEMON_LOG_LCK_FIELD_OID + "' will be created.");
+         }
+      }
+   }
+
+   private boolean containsTable(String tableName)
+   {
+      boolean result = false;
+      DDLManager ddlManager = new DDLManager(item.getDbDescriptor());
+      try
+      {
+         result = ddlManager.containsTable(DatabaseHelper.getSchemaName(), tableName,
+               item.getConnection());
+      }
+      catch (SQLException e)
+      {
+         error("", e);
+      }
+
+      return result;
    }
 
 }

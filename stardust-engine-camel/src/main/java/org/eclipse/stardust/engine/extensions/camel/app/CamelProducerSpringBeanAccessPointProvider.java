@@ -87,8 +87,6 @@ public class CamelProducerSpringBeanAccessPointProvider extends
 						PredefinedConstants.CLASS_NAME_ATT, Object.class);
 				computedAccessPoints.put("returnValue", returnValueAccessPoint);
 			}
-
-			trace.info(computedAccessPoints);
 		}
 
 		return computedAccessPoints.values().iterator();

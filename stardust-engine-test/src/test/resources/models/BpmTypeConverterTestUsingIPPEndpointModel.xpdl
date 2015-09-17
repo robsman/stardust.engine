@@ -145,7 +145,6 @@
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;ipp:data:toXML&quot; /&gt;&#13;&#10;&lt;to uri=&quot;mock:result&quot; /&gt;&#13;&#10;&lt;process ref=&quot;bpmTypeConverterProcessor&quot; /&gt;&#13;&#10;&lt;to uri=&quot;ipp:data:fromXML&quot; /&gt;&#13;&#10;"/>
                      <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.test.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:camel::producerMethodName" Value="executeMessage(java.lang.Object)"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::invocationType" Value="synchronous"/>
                      <carnot:Attribute Name="carnot:engine:camel::invocationPattern" Value="sendReceive"/>
@@ -187,7 +186,6 @@
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="Input"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Output"/>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:camel::producerMethodName" Value="executeMessage(java.lang.Object)"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.test.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                   </carnot:Attributes>
@@ -227,7 +225,6 @@
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="Input" Type="String"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Output" Type="String"/>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:camel::producerMethodName" Value="executeMessage(java.lang.Object)"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
                   </carnot:Attributes>
                </carnot:Application>
@@ -266,7 +263,6 @@
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="Input"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Output"/>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:camel::producerMethodName" Value="executeMessage(java.lang.Object)"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
                   </carnot:Attributes>
                </carnot:Application>
@@ -343,7 +339,6 @@
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;ipp:data:toJSON&quot; /&gt;&#13;&#10;&lt;process ref=&quot;bpmTypeConverterProcessor&quot; /&gt;&#13;&#10;&lt;to uri=&quot;ipp:data:fromJSON&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean name=&quot;bpmTypeConverterProcessor&quot; class=&quot;org.eclipse.stardust.test.camel.common.BpmTypeConverterProcessor&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:camel::producerMethodName" Value="executeMessage(java.lang.Object)"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
                   </carnot:Attributes>
                </carnot:Application>
@@ -382,7 +377,6 @@
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="Input"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Output"/>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:camel::producerMethodName" Value="executeMessage(java.lang.Object)"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
                   </carnot:Attributes>
                </carnot:Application>
@@ -452,7 +446,6 @@
                      <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;setHeader headerName=&quot;CamelHttpUri&quot;&gt;&#13;&#10;&#9;&lt;simple&gt;http://search.twitter.com/search.json?q=$simple{header.q}&amp;amp;count=$simple{header.count}&lt;/simple&gt;&#13;&#10;&lt;/setHeader&gt;&#13;&#10;&lt;setHeader headerName=&quot;CamelHttpMethod&quot;&gt;&#13;&#10;&#9;&lt;constant&gt;GET&lt;/constant&gt;&#13;&#10;&lt;/setHeader&gt;&#13;&#10;&lt;setHeader headerName=&quot;Content-Type&quot;&gt;&#13;&#10;&#9;&lt;constant&gt;application/json&lt;/constant&gt;&#13;&#10;&lt;/setHeader&gt;&#13;&#10;&lt;to uri=&quot;http://isoverwritten&quot; /&gt;&#13;&#10;"/>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:camel::producerMethodName" Value="executeMessage(java.lang.Object)"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
                   </carnot:Attributes>
                </carnot:Application>

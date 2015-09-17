@@ -20,52 +20,70 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.Application;
-import org.eclipse.stardust.engine.api.model.IApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 
 public class ApplicationProducerFactory
 {
    private static final String PRP_APPLICATION_CONTEXT = "org.eclipse.stardust.engine.api.spring.applicationContext";
-   private static final Logger logger = LogManager.getLogger(ApplicationProducerFactory.class.getCanonicalName());
-   
+
+   private static final Logger logger = LogManager
+         .getLogger(ApplicationProducerFactory.class.getCanonicalName());
+
    private ApplicationProducerFactory()
-   {
-   }
+   {}
+
    /**
     * 
     * @param application
     * @return
     */
-   public static CamelProducer getProducer(Application application){
+   public static CamelProducer getProducer(Application application)
+   {
       String endpointUri = DIRECT_ENDPOINT + getEndpoint(application);
       String camelContextId = getCamelContextId(application);
-      
-      ApplicationContext springContext=(AbstractApplicationContext) Parameters.instance().get(PRP_APPLICATION_CONTEXT);
-      ModelCamelContext camelContext = (DefaultCamelContext) springContext.getBean(camelContextId);
+
+      ApplicationContext springContext = (AbstractApplicationContext) Parameters
+            .instance().get(PRP_APPLICATION_CONTEXT);
+      ModelCamelContext camelContext = (DefaultCamelContext) springContext
+            .getBean(camelContextId);
       if (camelContext != null && springContext != null)
-       {
-          ((DefaultCamelContext)camelContext).setRegistry(new ApplicationContextRegistry(springContext));
-       }
-       else
-       {
-          // TODO: What if null
-       }
+      {
+         ((DefaultCamelContext) camelContext)
+               .setRegistry(new ApplicationContextRegistry(springContext));
+      }
+      else
+      {
+         // TODO: What if null
+      }
 
-       if (logger.isDebugEnabled())
-       {
-          logger.debug("Processing request for application with ID " + application.getId() + ".");
-          logger.debug("CamelContext: " + camelContextId);
-       }
-      
-      String producerMethodName = (String) application.getAttribute(PRODUCER_METHOD_NAME_ATT);
+      if (logger.isDebugEnabled())
+      {
+         logger.debug(
+               "Processing request for application with ID " + application.getId() + ".");
+         logger.debug("CamelContext: " + camelContextId);
+      }
 
-      if (producerMethodName == null)
+      String producerMethodName = (String) application
+            .getAttribute(PRODUCER_METHOD_NAME_ATT);
+      if (producerMethodName != null)
+      {
+         if (logger.isDebugEnabled())
+         {
+            logger.debug("The Extended Attribute" + PRODUCER_METHOD_NAME_ATT
+                  + " is set for application" + application.getName()
+                  + ". Please update your configuration.");
+         }
+         if (producerMethodName.equalsIgnoreCase(SEND_METHOD))
+            return new InOnlyProducer(endpointUri, camelContext);
+      }
+      else
       {
          String invocationPattern = (String) application
                .getAttribute(INVOCATION_PATTERN_EXT_ATT);
 
-         String invocationType = (String) application.getAttribute(INVOCATION_TYPE_EXT_ATT);
+         String invocationType = (String) application
+               .getAttribute(INVOCATION_TYPE_EXT_ATT);
          if (StringUtils.isEmpty(invocationPattern))
          {
             if (logger.isDebugEnabled())
@@ -78,13 +96,13 @@ public class ApplicationProducerFactory
                logger.debug("Attribute " + INVOCATION_TYPE_EXT_ATT + " is missing");
          }
 
-         if (StringUtils.isNotEmpty(invocationPattern) && StringUtils.isNotEmpty(invocationType))
+         if (StringUtils.isNotEmpty(invocationPattern)
+               && StringUtils.isNotEmpty(invocationType))
          {
             if (invocationPattern.equals(SEND))
             {
                if (invocationType.equals(SYNCHRONOUS))
                {
-                  //this.producerMethodName = SEND_METHOD_WITH_HEADER;
                   return new InOnlyProducer(endpointUri, camelContext);
                }
             }
@@ -92,123 +110,22 @@ public class ApplicationProducerFactory
             {
                if (invocationType.equals(SYNCHRONOUS))
                {
-                 // this.producerMethodName = SEND_RECEIVE_METHOD_WITH_HEADER;
                   return new InOutProducer(endpointUri, camelContext);
                }
                else if (invocationType.equals(ASYNCHRONOUS))
                {
-                 // this.producerMethodName = SEND_METHOD_WITH_HEADER;
                   return new InOnlyProducer(endpointUri, camelContext);
                }
-
             }
          }
 
          if (producerMethodName == null)
          {
-            //this.producerMethodName = SEND_RECEIVE_METHOD_WITH_HEADER;
             return new InOutProducer(endpointUri, camelContext);
          }
 
       }
-      else
-      {
-         if (producerMethodName.equalsIgnoreCase(SEND_METHOD))
-           // this.producerMethodName = SEND_METHOD_WITH_HEADER;
-            return new InOnlyProducer(endpointUri, camelContext);
-      }
-      
       return null;
    }
-   /**
-    * 
-    * @param application
-    * @return
-    */
-   public static CamelProducer getProducer(IApplication application, String uri){
-      String endpointUri =null;
-      if(StringUtils.isNotEmpty(uri))
-         endpointUri=uri;
 
-      String camelContextId = getCamelContextId(application);
-      
-      ApplicationContext springContext=(AbstractApplicationContext) Parameters.instance().get(PRP_APPLICATION_CONTEXT);
-      ModelCamelContext camelContext = (DefaultCamelContext) springContext.getBean(camelContextId);
-      if (camelContext != null && springContext != null)
-       {
-          ((DefaultCamelContext)camelContext).setRegistry(new ApplicationContextRegistry(springContext));
-       }
-       else
-       {
-          // TODO: What if null
-       }
-
-       if (logger.isDebugEnabled())
-       {
-          logger.debug("Processing request for application with ID " + application.getId() + ".");
-          logger.debug("CamelContext: " + camelContextId);
-       }
-      
-      String producerMethodName = (String) application.getAttribute(PRODUCER_METHOD_NAME_ATT);
-
-      if (producerMethodName == null)
-      {
-         String invocationPattern = (String) application
-               .getAttribute(INVOCATION_PATTERN_EXT_ATT);
-
-         String invocationType = (String) application.getAttribute(INVOCATION_TYPE_EXT_ATT);
-         if (StringUtils.isEmpty(invocationPattern))
-         {
-            if (logger.isDebugEnabled())
-               logger.debug("Attribute " + INVOCATION_PATTERN_EXT_ATT + " is missing");
-         }
-
-         if (StringUtils.isEmpty(invocationType))
-         {
-            if (logger.isDebugEnabled())
-               logger.debug("Attribute " + INVOCATION_TYPE_EXT_ATT + " is missing");
-         }
-
-         if (StringUtils.isNotEmpty(invocationPattern) && StringUtils.isNotEmpty(invocationType))
-         {
-            if (invocationPattern.equals(SEND))
-            {
-               if (invocationType.equals(SYNCHRONOUS))
-               {
-                  //this.producerMethodName = SEND_METHOD_WITH_HEADER;
-                  return new InOnlyProducer(endpointUri, camelContext);
-               }
-            }
-            else if (invocationPattern.equals(SENDRECEIVE))
-            {
-               if (invocationType.equals(SYNCHRONOUS))
-               {
-                 // this.producerMethodName = SEND_RECEIVE_METHOD_WITH_HEADER;
-                  return new InOutProducer(endpointUri, camelContext);
-               }
-               else if (invocationType.equals(ASYNCHRONOUS))
-               {
-                 // this.producerMethodName = SEND_METHOD_WITH_HEADER;
-                  return new InOnlyProducer(endpointUri, camelContext);
-               }
-
-            }
-         }
-
-         if (producerMethodName == null)
-         {
-            //this.producerMethodName = SEND_RECEIVE_METHOD_WITH_HEADER;
-            return new InOutProducer(endpointUri, camelContext);
-         }
-
-      }
-      else
-      {
-         if (producerMethodName.equalsIgnoreCase(SEND_METHOD))
-           // this.producerMethodName = SEND_METHOD_WITH_HEADER;
-            return new InOnlyProducer(endpointUri, camelContext);
-      }
-      
-      return null;
-   }
 }

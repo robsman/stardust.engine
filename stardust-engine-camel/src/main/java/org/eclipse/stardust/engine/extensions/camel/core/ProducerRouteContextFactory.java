@@ -13,9 +13,10 @@ public class ProducerRouteContextFactory
    public static ProducerRouteContext getContext(IApplication application,
          CamelContext context, String partition)
    {
-      if(Util.getOverlayType(application).equalsIgnoreCase(SCRIPTING_OVERLAY))
-         return new ScriptingApplicationRouteContext(application, partition, context.getName());
-      
+      if(Util.getOverlayType(application)!=null){
+         if(Util.getOverlayType(application).equalsIgnoreCase(SCRIPTING_OVERLAY))
+            return new ScriptingApplicationRouteContext(application, partition, context.getName());
+      }
       return new GenericApplicationRouteContext(application, partition, context.getName());
    }
 }

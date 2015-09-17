@@ -196,7 +196,8 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
    {
       if ( !startingUserInitialized)
       {
-         startingUser = initStartingUser();
+         // this call will also set startingUser
+         getProcessInstanceDetails();
       }
 
       return startingUser;
@@ -341,6 +342,7 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
 
          /* initialize stuff that depends on the field to be nulled out */
          initDescriptors();
+         startingUser = initStartingUser();
 
          processInstance = null;
          useFullBlownPiDetailsObject = true;

@@ -47,40 +47,40 @@ public class BusinessObjectPolicy implements EvaluationPolicy
    private BusinessObjectData groupBy;
 
    public static BusinessObjectPolicy filterFor(String modelId, String businessObjectId,
-         String primaryKey, Set<Serializable> primaryKeyValues)
+         Set<Serializable> primaryKeyValues)
    {
       return new BusinessObjectPolicy(new QName(modelId, businessObjectId),
-            primaryKey, primaryKeyValues);
+            primaryKeyValues);
    }
 
    public static BusinessObjectPolicy filterFor(String qualifiedBusinessObjectId,
-         String primaryKey, Set<Serializable> primaryKeyValues)
+         Set<Serializable> primaryKeyValues)
    {
       return new BusinessObjectPolicy(QName.valueOf(qualifiedBusinessObjectId),
-            primaryKey, primaryKeyValues);
+            primaryKeyValues);
    }
 
    private BusinessObjectPolicy(QName businessObject,
-         String primaryKey, Set<Serializable> primaryKeyValues)
+         Set<Serializable> primaryKeyValues)
    {
       filter = new BusinessObjectData(businessObject.getNamespaceURI(),
-            businessObject.getLocalPart(), primaryKey, primaryKeyValues);
+            businessObject.getLocalPart(), primaryKeyValues);
    }
 
    public BusinessObjectPolicy groupBy(String modelId, String businessObjectId,
-         String primaryKey, Set<Serializable> primaryKeyValues)
+         Set<Serializable> primaryKeyValues)
    {
       groupBy = new BusinessObjectData(modelId, businessObjectId,
-            primaryKey, primaryKeyValues);
+            primaryKeyValues);
       return this;
    }
 
    public BusinessObjectPolicy groupBy(String qualifiedBusinessObjectId,
-         String primaryKey, Set<Serializable> primaryKeyValues)
+         Set<Serializable> primaryKeyValues)
    {
       QName businessObjectName = QName.valueOf(qualifiedBusinessObjectId);
       return groupBy(businessObjectName.getNamespaceURI(),
-            businessObjectName.getLocalPart(), primaryKey, primaryKeyValues);
+            businessObjectName.getLocalPart(), primaryKeyValues);
    }
 
    public BusinessObjectData getFilter()
@@ -97,15 +97,13 @@ public class BusinessObjectPolicy implements EvaluationPolicy
    {
       private final String modelId;
       private final String businessObjectId;
-      private final String primaryKey;
       private final Set<Serializable> primaryKeyValues;
 
       private BusinessObjectData(String modelId, String businessObjectId,
-         String primaryKey, Set<Serializable> primaryKeyValues)
+         Set<Serializable> primaryKeyValues)
       {
          this.modelId = modelId;
          this.businessObjectId = businessObjectId;
-         this.primaryKey = primaryKey;
          this.primaryKeyValues = primaryKeyValues == null ? null : new HashSet<Serializable>(primaryKeyValues);
       }
 
@@ -117,11 +115,6 @@ public class BusinessObjectPolicy implements EvaluationPolicy
       public String getBusinessObjectId()
       {
          return businessObjectId;
-      }
-
-      public String getPrimaryKey()
-      {
-         return primaryKey;
       }
 
       public Set<Serializable> getPrimaryKeyValues()

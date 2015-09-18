@@ -84,6 +84,8 @@ public class BenchmarkStatisticsTest
          new QName(MODEL_PREFIX, "BaseCategoryData").toString();
    private static final String qualifiedGroupBusinessObjectId =
          new QName(MODEL_PREFIX, "BaseGroupData").toString();
+   private static final String qualifiedGroupWithoutNameBusinessObjectId =
+         new QName(MODEL_PREFIX, "BaseGroupWithoutNameData").toString();
 
    private static final String qualifiedBusinessDateId =
          new QName(MODEL_PREFIX, PredefinedConstants.BUSINESS_DATE).toString();
@@ -156,11 +158,20 @@ public class BenchmarkStatisticsTest
       businessObjects.put((String)businessObjectData.get("Name"),
             serviceFactory.getWorkflowService().createBusinessObjectInstance(
                   qualifiedGroupBusinessObjectId, businessObjectData));
+      
+      businessObjectData = CollectionUtils.newMap();
+      businessObjectData.put("Ident", Integer.valueOf(111));
+      businessObjectData.put("BaseObjects", new ArrayList<Integer>(Arrays.asList(
+            Integer.valueOf(110))));
 
-      //       | GroupA | GroupB | CategoryA | CategoryB
-      // BaseA |   x    |        |     x     |
-      // BaseB |   x    |    x   |     x     |
-      // BaseC |        |    x   |           |    x
+     serviceFactory.getWorkflowService().createBusinessObjectInstance(
+            qualifiedGroupWithoutNameBusinessObjectId, businessObjectData);
+
+      //                      | GroupA | GroupB | CategoryA | CategoryB | GroupWithoutName(111)
+      // BaseA                |   x    |        |     x     |           |
+      // BaseB                |   x    |    x   |     x     |           |
+      // BaseC                |        |    x   |           |    x      |
+      // BaseWithoutName(110) |        |        |           |           |       x
       businessObjectData = CollectionUtils.newMap();
       businessObjectData.put("Ident", Integer.valueOf(1));
       businessObjectData.put("Name", "BaseA");
@@ -205,6 +216,19 @@ public class BenchmarkStatisticsTest
       processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance().getTimeInMillis());
       processData.put("BaseData", (Serializable)businessObjectData);
 
+      startOptions_withBenchmark = new StartOptions(processData, true, BENCHMARK_REF);
+      serviceFactory.getWorkflowService().startProcess(
+            BENCHMARK_PARENT_PROCESS, startOptions_withBenchmark);
+
+      businessObjectData = CollectionUtils.newMap();
+      businessObjectData.put("Ident", Integer.valueOf(110));
+      businessObjectData.put("Groups", new ArrayList<Integer>(Arrays.asList(
+            Integer.valueOf(111))));
+      
+      processData = CollectionUtils.newMap();
+      processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance().getTimeInMillis());
+      processData.put("BaseWithoutNameData", (Serializable)businessObjectData);
+      
       startOptions_withBenchmark = new StartOptions(processData, true, BENCHMARK_REF);
       serviceFactory.getWorkflowService().startProcess(
             BENCHMARK_PARENT_PROCESS, startOptions_withBenchmark);
@@ -298,6 +322,64 @@ public class BenchmarkStatisticsTest
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseB", 0), is(equalTo(1l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 0), is(equalTo(0l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseD", 0), is(equalTo(0l)));
+   }
+   
+   @Test
+   public void queryProcessBenchmarkStatisticsByBusinessObjectsWithoutName()
+   {
+      BusinessObject baseWithoutNameData = null;
+      BusinessObject baseGroupWithoutNameData = null;
+
+      runDaemon();
+
+      ProcessDefinition benchmarkProcess = serviceFactory.getQueryService()
+            .getProcessDefinition(BENCHMARK_PARENT_PROCESS);
+
+      String qualifiedBusinessObjectId = new QName(MODEL_PREFIX, "BaseWithoutNameData").toString();
+      BusinessObjectQuery businessObjectQuery = BusinessObjectQuery.findForBusinessObject(
+            qualifiedBusinessObjectId);
+
+      BusinessObjects bos = serviceFactory.getQueryService().getAllBusinessObjects(businessObjectQuery);
+      baseWithoutNameData = bos.get(0);
+
+      qualifiedBusinessObjectId = new QName(MODEL_PREFIX, "BaseGroupWithoutNameData").toString();
+      businessObjectQuery = BusinessObjectQuery.findForBusinessObject(
+            qualifiedBusinessObjectId);
+      
+      bos = serviceFactory.getQueryService().getAllBusinessObjects(businessObjectQuery);
+      baseGroupWithoutNameData = bos.get(0);
+
+      // Validate BenchmarkProcessStatisticsQuery if primary key values are not passed
+      // and no groupBy is specified
+      BenchmarkProcessStatisticsQuery query = BenchmarkProcessStatisticsQuery
+            .forProcessesAndBusinessObject(Collections.singleton(benchmarkProcess),
+                  baseWithoutNameData, new HashSet<Serializable>(Arrays.asList(
+                        Integer.valueOf(110))),
+                  baseGroupWithoutNameData, new HashSet<Serializable>(Arrays.asList(
+                        Integer.valueOf(111))));
+
+      // Only for the selected benchmark.
+      query.where(BenchmarkProcessStatisticsQuery.BENCHMARK_OID
+            .isEqual(getDeployedBenchmarkOid()));
+
+      // Only for BUSINESS_DATE today.
+      query.where(DataFilter.between(qualifiedBusinessDateId, getCurrentDayStart(),
+            getCurrentDayEnd()));
+
+      BenchmarkBusinessObjectStatistics stats = (BenchmarkBusinessObjectStatistics) serviceFactory
+            .getQueryService().getAllProcessInstances(query);
+      Assert.assertNotNull(stats);
+      Set<String> groupByValues = stats.getGroupByValues();
+      Assert.assertThat(groupByValues.size(), is(equalTo(1)));
+      Assert.assertThat(groupByValues, hasItem("111"));
+      Set<String> filterValues = stats.getFilterValues(null);
+      Assert.assertThat(filterValues.size(), is(equalTo(1)));
+      Assert.assertThat(filterValues, hasItems("110"));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("111", "110", 0), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("111", "BaseA", 0), is(equalTo(0l)));
+
+      Assert.assertThat(stats.getBenchmarkCategoryCount("111", null, 0), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 0), is(equalTo(1l)));
    }
 
    @Test

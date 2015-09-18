@@ -388,7 +388,7 @@
                      <carnot:Attribute Name="carnot:model:uuid" Value="8daa349a-d264-4539-947a-97df8ee973a0"/>
                      <carnot:Attribute Name="carnot:engine:primaryKey" Value="Ident"/>
                      <carnot:Attribute Name="carnot:engine:nameExpression" Value="Name"/>
-                     <carnot:Attribute Name="carnot:engine:businessObjectRelationships" Value="[{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;BaseData&quot;,&quot;modelId&quot;:&quot;BenchmarksModel&quot;},&quot;otherRole&quot;:&quot;BaseObjectsRole&quot;,&quot;otherCardinality&quot;:&quot;TO_MANY&quot;,&quot;otherForeignKeyField&quot;:&quot;BaseObjects&quot;,&quot;thisRole&quot;:&quot;GroupsRole&quot;,&quot;thisCardinality&quot;:&quot;TO_MANY&quot;,&quot;thisForeignKeyField&quot;:&quot;Groups&quot;},{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;BaseWithoutNameData&quot;,&quot;modelId&quot;:&quot;BenchmarksModel&quot;},&quot;otherRole&quot;:&quot;BaseObjectsWithoutNameRole&quot;,&quot;otherCardinality&quot;:&quot;TO_MANY&quot;,&quot;otherForeignKeyField&quot;:&quot;BaseObjects&quot;,&quot;thisRole&quot;:&quot;GroupsRole&quot;,&quot;thisCardinality&quot;:&quot;TO_MANY&quot;,&quot;thisForeignKeyField&quot;:&quot;Groups&quot;}]"/>
+                     <carnot:Attribute Name="carnot:engine:businessObjectRelationships" Value="[{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;BaseData&quot;,&quot;modelId&quot;:&quot;BenchmarksModel&quot;},&quot;otherRole&quot;:&quot;BaseObjectsRole&quot;,&quot;otherCardinality&quot;:&quot;TO_MANY&quot;,&quot;otherForeignKeyField&quot;:&quot;BaseObjects&quot;,&quot;thisRole&quot;:&quot;GroupsRole&quot;,&quot;thisCardinality&quot;:&quot;TO_MANY&quot;,&quot;thisForeignKeyField&quot;:&quot;Groups&quot;}]"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -425,7 +425,25 @@
                      <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:model:uuid" Value="c096984f-2e40-4b0c-a946-07791c5a8415"/>
                      <carnot:Attribute Name="carnot:engine:primaryKey" Value="Ident"/>
-                     <carnot:Attribute Name="carnot:engine:businessObjectRelationships" Value="[{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;BaseGroupData&quot;,&quot;modelId&quot;:&quot;BenchmarksModel&quot;},&quot;otherRole&quot;:&quot;GroupsRole&quot;,&quot;otherCardinality&quot;:&quot;TO_MANY&quot;,&quot;otherForeignKeyField&quot;:&quot;Groups&quot;,&quot;thisRole&quot;:&quot;BaseObjectsWithoutNameRole&quot;,&quot;thisCardinality&quot;:&quot;TO_MANY&quot;,&quot;thisForeignKeyField&quot;:&quot;BaseObjects&quot;}]"/>
+                     <carnot:Attribute Name="carnot:engine:businessObjectRelationships" Value="[{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;BaseGroupWithoutName&quot;,&quot;modelId&quot;:&quot;BenchmarksModel&quot;},&quot;otherRole&quot;:&quot;BaseGroupWithoutNameRole&quot;,&quot;otherCardinality&quot;:&quot;TO_MANY&quot;,&quot;otherForeignKeyField&quot;:&quot;Groups&quot;,&quot;thisRole&quot;:&quot;BaseObjectsRole&quot;,&quot;thisCardinality&quot;:&quot;TO_MANY&quot;,&quot;thisForeignKeyField&quot;:&quot;BaseObjects&quot;}]"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="BaseGroupWithoutNameData" Name="BaseGroupWithoutNameData" IsArray="FALSE">
+         <DataType>
+            <DeclaredType Id="BaseGroupType"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="124" Type="struct">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                     <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:model:uuid" Value="ff35b814-20eb-446e-82ec-04425caa8641"/>
+                     <carnot:Attribute Name="carnot:engine:primaryKey" Value="Ident"/>
+                     <carnot:Attribute Name="carnot:engine:businessObjectRelationships" Value="[{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;BaseWithoutNameData&quot;,&quot;modelId&quot;:&quot;BenchmarksModel&quot;},&quot;otherRole&quot;:&quot;BaseObjectsRole&quot;,&quot;otherCardinality&quot;:&quot;TO_MANY&quot;,&quot;otherForeignKeyField&quot;:&quot;BaseObjects&quot;,&quot;thisRole&quot;:&quot;BaseGroupWithoutNameRole&quot;,&quot;thisCardinality&quot;:&quot;TO_MANY&quot;,&quot;thisForeignKeyField&quot;:&quot;Groups&quot;}]"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -806,7 +824,7 @@
                                        <carnot:Symbol Kind="ACTIVITY" Oid="95" X="235" Y="232" Width="180" Height="50" ModelElement="gateway_Split"/>
                                        <carnot:Symbol Kind="ACTIVITY" Oid="101" X="235" Y="327" Width="180" Height="50" ModelElement="BenchmarkedSubProcess_SeparateData_Copy_"/>
                                        <carnot:Symbol Kind="ACTIVITY" Oid="105" X="448" Y="327" Width="180" Height="50" ModelElement="BenchmarkedSubProcess_AsyncCopy_"/>
-                                       <carnot:Symbol Kind="ACTIVITY" Oid="109" X="653" Y="327" Width="180" Height="50" ModelElement="BenchmarkedSubProcess_SeparateData_"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="109" X="679" Y="311" Width="180" Height="50" ModelElement="BenchmarkedSubProcess_SeparateData_"/>
                                        <carnot:Symbol Kind="ACTIVITY" Oid="113" X="235" Y="421" Width="180" Height="50" ModelElement="gateway_Join"/>
                                     </carnot:Symbols>
                                     <carnot:Connections/>
@@ -1206,7 +1224,7 @@
             <carnot:Attributes>
                <carnot:Attribute Name="carnot:engine:revision" Value="0" Type="int"/>
                <carnot:Attribute Name="ipp:criticalityFormula" Value="if(activityInstance.getActivity().getTargetExecutionTime() == 0)&#10;{&#10;  T = ${TDefault};&#10;}&#10;else&#10;{&#10;  T = activityInstance.getActivity().getTargetExecutionTime();&#10;}&#10;if(PROCESS_PRIORITY == -1)&#10;{&#10;  Cp = ${CLow};&#10;  Mp = ${MLow};&#10;}&#10;if(PROCESS_PRIORITY == 0)&#10;{&#10;   Cp = ${CMed};&#10;   Mp = ${MMed};&#10;}&#10;if(PROCESS_PRIORITY == 1)&#10;{&#10;   Cp = ${CHigh};&#10;   Mp = ${MHigh};&#10;}&#10;t = activityInstance.getAge() / 1000;&#10;&#10;Cp + (1- Cp) * t/(Mp * T);&#10;" Type="String"/>
-               <carnot:Attribute Name="ipp:model:modified" Value="Fri Sep 18 09:16:09 CEST 2015"/>
+               <carnot:Attribute Name="ipp:model:modified" Value="Fri Sep 18 14:24:30 CEST 2015"/>
                <carnot:Attribute Name="ipp:variables[0]:name" Value="TDefault" Type="String"/>
                <carnot:Attribute Name="ipp:variables[0]:defaultValue" Value="86400" Type="String"/>
                <carnot:Attribute Name="ipp:variables[0]:description" Value="Ziel-Ausführungszeit" Type="String"/>

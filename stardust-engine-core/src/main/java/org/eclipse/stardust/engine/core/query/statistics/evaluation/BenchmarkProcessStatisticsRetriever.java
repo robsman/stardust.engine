@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.core.query.statistics.evaluation;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 import javax.xml.namespace.QName;
@@ -66,6 +67,11 @@ public class BenchmarkProcessStatisticsRetriever
          return true;
       }
    };
+
+   static abstract class RowProcessor
+   {
+      abstract void processRow(ResultSet resultSet) throws SQLException;
+   }
 
    public CustomProcessInstanceQueryResult evaluateQuery(CustomProcessInstanceQuery query)
    {
@@ -133,13 +139,10 @@ public class BenchmarkProcessStatisticsRetriever
    private CustomProcessInstanceQueryResult evaluateBusinessObjectStatisticsQuery(
          BenchmarkProcessStatisticsQuery query, BusinessObjectPolicy boPolicy)
    {
-      final ModelManager modelManager = ModelManagerFactory.getCurrent();
-
       final BenchmarkBusinessObjectStatisticsResult result =
             new BenchmarkBusinessObjectStatisticsResult(query);
 
       BusinessObjectData filter = boPolicy.getFilter();
-      BusinessObjectData groupBy = boPolicy.getGroupBy();
 
       QName boName = new QName(filter.getModelId(), filter.getBusinessObjectId());
       BusinessObjectQuery boq = filter.getPrimaryKeyValues() == null
@@ -152,7 +155,7 @@ public class BenchmarkProcessStatisticsRetriever
       }
 
       BusinessObjectQueryPredicate boqEvaluator = new BusinessObjectQueryPredicate(boq);
-      Set<IData> allData = BusinessObjectUtils.collectData(modelManager, boqEvaluator);
+      Set<IData> allData = BusinessObjectUtils.collectData(ModelManagerFactory.getCurrent(), boqEvaluator);
       if (allData.isEmpty())
       {
          return result;
@@ -163,27 +166,55 @@ public class BenchmarkProcessStatisticsRetriever
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise("query","Business Object not uniquely specified."));
       }
 
-      fetchValues(result, allData, boqEvaluator.getPkValue(), boq, query, groupBy);
-      return result;
-   }
+      final BusinessObjectData groupBy = boPolicy.getGroupBy();
 
-   private static void fetchValues(BenchmarkBusinessObjectStatisticsResult result, Set<IData> allData,
-         Object pkValue, Query query, BenchmarkProcessStatisticsQuery piQuery, BusinessObjectData groupBy)
-   {
-      Map<Object, String> otherBOs = groupBy == null ? Collections.<Object, String>emptyMap() : fetchReferencedBOs(groupBy);
+      final Map<Object, String> otherBOs = groupBy == null ? Collections.<Object, String>emptyMap() : fetchReferencedBOs(groupBy);
 
       for (IData data : allData)
       {
          ProcessInstanceQuery pi = ProcessInstanceQuery.findAll();
-         BusinessObjectUtils.copyFilters(piQuery.getFilter(), pi.getFilter(), piFilterPredicate);
+         BusinessObjectUtils.copyFilters(query.getFilter(), pi.getFilter(), piFilterPredicate);
          ProcessInstanceQueryEvaluator eval = new ProcessInstanceQueryEvaluator(pi, QueryServiceUtils.getDefaultEvaluationContext());
          ParsedQuery parsedQuery = eval.parseQuery();
          List<Join> predicateJoins = parsedQuery.getPredicateJoins();
          PredicateTerm parsedTerm = parsedQuery.getPredicateTerm();
 
-         QueryDescriptor queryDescriptor = createFetchQuery(data, pkValue, predicateJoins, parsedTerm, groupBy);
-         fetchValues(result, data, queryDescriptor, query, groupBy, otherBOs);
+         QueryDescriptor queryDescriptor = createFetchQuery(data, boqEvaluator.getPkValue(), false, predicateJoins, parsedTerm, groupBy);
+         fetchValues(queryDescriptor, boq, new RowProcessor() {
+
+            protected void processRow(ResultSet resultSet)
+                        throws SQLException
+            {
+               long piOid = resultSet.getLong(1);
+               int piState = resultSet.getInt(2);
+               int piBenchmarkValue = resultSet.getInt(3);
+               Object boPk = resultSet.getObject(4);
+               Object boName = resultSet.getObject(5);
+               String name = boName == null ? boPk == null ? "" : boPk.toString() : boName.toString();
+
+               String groupByName = null;
+               if (groupBy != null)
+               {
+                  Object boFk = resultSet.getObject(6);
+                  groupByName = otherBOs.get(boFk);
+               }
+
+               switch (piState)
+               {
+               case ProcessInstanceState.ABORTED:
+               case ProcessInstanceState.ABORTING:
+                  result.addAbortedInstance(groupByName, name, piOid);
+                  break;
+               case ProcessInstanceState.COMPLETED:
+                  result.addCompletedInstance(groupByName, name, piOid);
+                  break;
+               case ProcessInstanceState.ACTIVE:
+                  result.registerBusinessObjectBenchmarkCategory(groupByName, name, piOid, piBenchmarkValue);
+               }
+            }
+         });
       }
+      return result;
    }
 
    private static Map<Object, String> fetchReferencedBOs(BusinessObjectData groupBy)
@@ -207,117 +238,30 @@ public class BenchmarkProcessStatisticsRetriever
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise("query","Business Object not uniquely specified."));
       }
 
-      Map<Object, String> result = new HashMap<Object, String>();
-      fetchPkAndNames(result, allData, boqEvaluator.getPkValue(), boq);
+      final Map<Object, String> result = new HashMap<Object, String>();
+      for (IData data : allData)
+      {
+         QueryDescriptor queryDescriptor = createFetchQuery(data, boqEvaluator.getPkValue(), true, null, null, null);
+         fetchValues(queryDescriptor, boq, new RowProcessor() {
+
+            @Override
+            void processRow(ResultSet resultSet) throws SQLException
+            {
+               Object boPk = resultSet.getObject(1);
+               Object boName = resultSet.getObject(2);
+
+               if (!result.containsKey(boPk))
+               {
+                  result.put(boPk, boName == null ? boPk == null ? "" : boPk.toString() : boName.toString());
+               }
+            }
+
+         });
+      }
       return result;
    }
 
-   private static void fetchPkAndNames(Map<Object, String> result, Set<IData> allData,
-         Object pkValue, BusinessObjectQuery boq)
-   {
-      for (IData data : allData)
-      {
-         QueryDescriptor queryDescriptor = createFetchQuery(data, pkValue);
-         fetchValues(result, queryDescriptor);
-      }
-   }
-
-   protected static void fetchValues(Map<Object, String> result, QueryDescriptor queryDescriptor)
-   {
-      Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-      ResultSet resultSet = session.executeQuery(queryDescriptor);
-      try
-      {
-         while (resultSet.next())
-         {
-            Object boPk = resultSet.getObject(1);
-            Object boName = resultSet.getObject(2);
-            String name = boName == null ? boPk == null ? "" : boPk.toString() : boName.toString();
-            if (!result.containsKey(boPk))
-            {
-               result.put(boPk, name);
-            }
-         }
-      }
-      catch (Exception e)
-      {
-         throw new PublicException(e);
-      }
-      finally
-      {
-         org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils.closeResultSet(resultSet);
-      }
-   }
-
-   protected static QueryDescriptor createFetchQuery(IData data, Object pkValue)
-   {
-      long modelOID = data.getModel().getModelOID();
-      long dataRtOID = ModelManagerFactory.getCurrent().getRuntimeOid(data);
-
-      String pk = data.getAttribute(PredefinedConstants.PRIMARY_KEY_ATT);
-      String name = data.getAttribute(PredefinedConstants.BUSINESS_OBJECT_NAMEEXPRESSION);
-
-      QueryDescriptor desc = QueryDescriptor
-            .from(ProcessInstanceBean.class);
-      Join dvJoin = desc
-            .innerJoin(DataValueBean.class)
-            .on(ProcessInstanceBean.FR__OID, DataValueBean.FIELD__PROCESS_INSTANCE);
-
-      List<PredicateTerm> predicates = CollectionUtils.newList();
-      predicates.add(Predicates.isEqual(ProcessInstanceBean.FR__PROCESS_DEFINITION, -1));
-      predicates.add(Predicates.isEqual(ProcessInstanceBean.FR__MODEL, modelOID));
-      predicates.add(Predicates.isEqual(dvJoin.fieldRef(DataValueBean.FIELD__DATA), dataRtOID));
-
-      Join pkSdvJoin = desc
-            .innerJoin(StructuredDataValueBean.class, "pk_" + StructuredDataValueBean.DEFAULT_ALIAS)
-            .on(ProcessInstanceBean.FR__OID, StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
-      Join pkSdJoin = desc
-            .innerJoin(StructuredDataBean.class, "pk_" + StructuredDataBean.DEFAULT_ALIAS)
-            .on(pkSdvJoin.fieldRef(StructuredDataValueBean.FIELD__XPATH), StructuredDataBean.FIELD__OID)
-            .andOn(dvJoin.fieldRef(DataValueBean.FIELD__MODEL), StructuredDataBean.FIELD__MODEL)
-            .andOn(dvJoin.fieldRef(DataValueBean.FIELD__DATA), StructuredDataBean.FIELD__DATA);
-      predicates.add(Predicates.isEqual(pkSdJoin.fieldRef(StructuredDataBean.FIELD__XPATH), pk));
-
-      Join nameSdvJoin = desc
-            .leftOuterJoin(StructuredDataValueBean.class, "name_" + StructuredDataValueBean.DEFAULT_ALIAS)
-            .on(ProcessInstanceBean.FR__OID, StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
-      Join nameSdJoin = desc
-            .leftOuterJoin(StructuredDataBean.class, "name_" + StructuredDataBean.DEFAULT_ALIAS)
-            .on(nameSdvJoin.fieldRef(StructuredDataValueBean.FIELD__XPATH), StructuredDataBean.FIELD__OID)
-            .andOn(dvJoin.fieldRef(DataValueBean.FIELD__MODEL), StructuredDataBean.FIELD__MODEL)
-            .andOn(dvJoin.fieldRef(DataValueBean.FIELD__DATA), StructuredDataBean.FIELD__DATA);
-      predicates.add(Predicates.isEqual(nameSdJoin.fieldRef(StructuredDataBean.FIELD__XPATH), name));
-
-      FieldRef pkValueField = getFieldRef(data, pk, pkSdvJoin);
-      FieldRef nameValueField = getFieldRef(data, name, nameSdvJoin);
-
-      if (pkValue instanceof Collection)
-      {
-         if (((Collection) pkValue).isEmpty())
-         {
-            pkValue = null;
-         }
-      }
-      if (pkValue != null)
-      {
-         int pkType = LargeStringHolderBigDataHandler.classifyType(data, pk);
-         if (pkValue instanceof Collection)
-         {
-            predicates.add(Predicates.inList(pkValueField, CollectionUtils.newList((Collection) pkValue)));
-         }
-         else
-         {
-            predicates.add(getIsEqualPredicate(pkType, pkValueField, pkValue));
-         }
-      }
-
-      desc.select(pkValueField, nameValueField);
-      desc.where(new AndTerm(predicates.toArray(new PredicateTerm[predicates.size()])));
-      return desc;
-   }
-
-   protected static int fetchValues(BenchmarkBusinessObjectStatisticsResult result,
-         IData data, QueryDescriptor queryDescriptor, Query query, BusinessObjectData groupBy, Map<Object, String> otherBOs)
+   protected static int fetchValues(QueryDescriptor queryDescriptor, Query query, RowProcessor processor)
    {
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
       ResultSet resultSet = session.executeQuery(queryDescriptor, QueryUtils.getTimeOut(query));
@@ -339,32 +283,7 @@ public class BenchmarkProcessStatisticsRetriever
                if (count < subsetPolicy.getMaxSize())
                {
                   count++;
-                  long piOid = resultSet.getLong(1);
-                  int piState = resultSet.getInt(2);
-                  int piBenchmarkValue = resultSet.getInt(3);
-                  Object boPk = resultSet.getObject(4);
-                  Object boName = resultSet.getObject(5);
-                  String name = boName == null ? boPk == null ? "" : boPk.toString() : boName.toString();
-
-                  String groupByName = null;
-                  if (groupBy != null)
-                  {
-                     Object boFk = resultSet.getObject(6);
-                     groupByName = otherBOs.get(boFk);
-                  }
-
-                  switch (piState)
-                  {
-                  case ProcessInstanceState.ABORTED:
-                  case ProcessInstanceState.ABORTING:
-                     result.addAbortedInstance(groupByName, name, piOid);
-                     break;
-                  case ProcessInstanceState.COMPLETED:
-                     result.addCompletedInstance(groupByName, name, piOid);
-                     break;
-                  case ProcessInstanceState.ACTIVE:
-                     result.registerBusinessObjectBenchmarkCategory(groupByName, name, piOid, piBenchmarkValue);
-                  }
+                  processor.processRow(resultSet);
                }
                else
                {
@@ -387,49 +306,84 @@ public class BenchmarkProcessStatisticsRetriever
       }
    }
 
-   protected static QueryDescriptor createFetchQuery(IData data, Object pkValue,
+   protected static QueryDescriptor createFetchQuery(IData data, Object pkValue, boolean boDataOnly,
          List<Join> predicateJoins, PredicateTerm parsedTerm, BusinessObjectData groupBy)
    {
-      long modelOID = data.getModel().getModelOID();
-      long dataRtOID = ModelManagerFactory.getCurrent().getRuntimeOid(data);
-
-      String pk = data.getAttribute(PredefinedConstants.PRIMARY_KEY_ATT);
-      String name = data.getAttribute(PredefinedConstants.BUSINESS_OBJECT_NAMEEXPRESSION);
-
       QueryDescriptor desc = QueryDescriptor
             .from(ProcessInstanceBean.class);
       Join dvJoin = desc
             .innerJoin(DataValueBean.class)
             .on(ProcessInstanceBean.FR__OID, DataValueBean.FIELD__PROCESS_INSTANCE);
+
       BusinessObjectUtils.applyRestrictions(desc, predicateJoins, joinFilterPredicate);
 
       List<PredicateTerm> predicates = CollectionUtils.newList();
-      predicates.add(Predicates.notEqual(ProcessInstanceBean.FR__PROCESS_DEFINITION, -1));
-      predicates.add(Predicates.isEqual(ProcessInstanceBean.FR__MODEL, modelOID));
-      predicates.add(Predicates.isEqual(dvJoin.fieldRef(DataValueBean.FIELD__DATA), dataRtOID));
+      predicates.add(boDataOnly
+            ? Predicates.isEqual(ProcessInstanceBean.FR__PROCESS_DEFINITION, -1)
+            : Predicates.notEqual(ProcessInstanceBean.FR__PROCESS_DEFINITION, -1));
+      predicates.add(Predicates.isEqual(ProcessInstanceBean.FR__MODEL, (long) data.getModel().getModelOID()));
+      predicates.add(Predicates.isEqual(dvJoin.fieldRef(DataValueBean.FIELD__DATA), ModelManagerFactory.getCurrent().getRuntimeOid(data)));
 
-      Join pkSdvJoin = desc
-            .innerJoin(StructuredDataValueBean.class, "pk_" + StructuredDataValueBean.DEFAULT_ALIAS)
-            .on(ProcessInstanceBean.FR__OID, StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
-      Join pkSdJoin = desc
-            .innerJoin(StructuredDataBean.class, "pk_" + StructuredDataBean.DEFAULT_ALIAS)
-            .on(pkSdvJoin.fieldRef(StructuredDataValueBean.FIELD__XPATH), StructuredDataBean.FIELD__OID)
-            .andOn(dvJoin.fieldRef(DataValueBean.FIELD__MODEL), StructuredDataBean.FIELD__MODEL)
-            .andOn(dvJoin.fieldRef(DataValueBean.FIELD__DATA), StructuredDataBean.FIELD__DATA);
-      predicates.add(Predicates.isEqual(pkSdJoin.fieldRef(StructuredDataBean.FIELD__XPATH), pk));
+      FieldRef pkValueField = createStructuredDataJoins(false, data.<String>getAttribute(PredefinedConstants.PRIMARY_KEY_ATT),
+            data, desc, dvJoin, predicates, "pk_", pkValue);
 
-      Join nameSdvJoin = desc
-            .leftOuterJoin(StructuredDataValueBean.class, "name_" + StructuredDataValueBean.DEFAULT_ALIAS)
-            .on(ProcessInstanceBean.FR__OID, StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
-      Join nameSdJoin = desc
-            .leftOuterJoin(StructuredDataBean.class, "name_" + StructuredDataBean.DEFAULT_ALIAS)
-            .on(nameSdvJoin.fieldRef(StructuredDataValueBean.FIELD__XPATH), StructuredDataBean.FIELD__OID)
-            .andOn(dvJoin.fieldRef(DataValueBean.FIELD__MODEL), StructuredDataBean.FIELD__MODEL)
-            .andOn(dvJoin.fieldRef(DataValueBean.FIELD__DATA), StructuredDataBean.FIELD__DATA);
-      predicates.add(Predicates.isEqual(nameSdJoin.fieldRef(StructuredDataBean.FIELD__XPATH), name));
+      FieldRef nameValueField = createStructuredDataJoins(true, data.<String>getAttribute(PredefinedConstants.BUSINESS_OBJECT_NAMEEXPRESSION),
+            data, desc, dvJoin, predicates, "name_", null);
 
-      FieldRef pkValueField = getFieldRef(data, pk, pkSdvJoin);
-      FieldRef nameValueField = getFieldRef(data, name, nameSdvJoin);
+      Column[] columns = new Column[] {pkValueField, nameValueField};
+
+      if (!boDataOnly)
+      {
+         columns = new Column[] {ProcessInstanceBean.FR__OID, ProcessInstanceBean.FR__STATE, ProcessInstanceBean.FR__BENCHMARK_VALUE,
+            pkValueField, nameValueField};
+
+         if (groupBy != null)
+         {
+            Map<String, BusinessObjectRelationship> relationships = BusinessObjectUtils.getBusinessObjectRelationships(data);
+            for (BusinessObjectRelationship rel : relationships.values())
+            {
+               if (new QName(rel.otherBusinessObject.modelId, rel.otherBusinessObject.id)
+                     .equals(new QName(groupBy.getModelId(), groupBy.getBusinessObjectId())))
+               {
+                  FieldRef fkValueField = createStructuredDataJoins(false, rel.otherForeignKeyField, data, desc, dvJoin,
+                        predicates, "fk_", groupBy.getPrimaryKeyValues());
+
+                  columns = new Column[] {ProcessInstanceBean.FR__OID, ProcessInstanceBean.FR__STATE, ProcessInstanceBean.FR__BENCHMARK_VALUE,
+                        pkValueField, nameValueField, fkValueField};
+                  break;
+               }
+            }
+         }
+
+         if (parsedTerm != null)
+         {
+            predicates.add(parsedTerm);
+         }
+      }
+
+      desc.select(columns);
+      desc.where(new AndTerm(predicates.toArray(new PredicateTerm[predicates.size()])));
+      return desc;
+   }
+
+   protected static FieldRef createStructuredDataJoins(boolean outerJoin, String pkFieldName, IData data,
+         QueryDescriptor queryDescriptor, Join dataValueJoin,
+         List<PredicateTerm> predicates, String prefix, Object pkValue)
+   {
+      Join fkSdvJoin = outerJoin
+            ? queryDescriptor.leftOuterJoin(StructuredDataValueBean.class, prefix + StructuredDataValueBean.DEFAULT_ALIAS)
+            : queryDescriptor.innerJoin(StructuredDataValueBean.class, prefix + StructuredDataValueBean.DEFAULT_ALIAS);
+      fkSdvJoin.on(ProcessInstanceBean.FR__OID, StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
+
+      Join fkSdJoin = outerJoin
+            ? queryDescriptor.leftOuterJoin(StructuredDataBean.class, prefix + StructuredDataBean.DEFAULT_ALIAS)
+            : queryDescriptor.innerJoin(StructuredDataBean.class, prefix + StructuredDataBean.DEFAULT_ALIAS);
+      fkSdJoin.on(fkSdvJoin.fieldRef(StructuredDataValueBean.FIELD__XPATH), StructuredDataBean.FIELD__OID)
+              .andOn(dataValueJoin.fieldRef(DataValueBean.FIELD__MODEL), StructuredDataBean.FIELD__MODEL)
+              .andOn(dataValueJoin.fieldRef(DataValueBean.FIELD__DATA), StructuredDataBean.FIELD__DATA);
+      predicates.add(Predicates.isEqual(fkSdJoin.fieldRef(StructuredDataBean.FIELD__XPATH), pkFieldName));
+
+      FieldRef fkValueField = getFieldRef(data, pkFieldName, fkSdvJoin);
 
       if (pkValue instanceof Collection)
       {
@@ -440,81 +394,27 @@ public class BenchmarkProcessStatisticsRetriever
       }
       if (pkValue != null)
       {
-         int pkType = LargeStringHolderBigDataHandler.classifyType(data, pk);
          if (pkValue instanceof Collection)
          {
-            predicates.add(Predicates.inList(pkValueField, CollectionUtils.newList((Collection) pkValue)));
+            predicates.add(Predicates.inList(fkValueField, CollectionUtils.newList((Collection) pkValue)));
          }
          else
          {
-            predicates.add(getIsEqualPredicate(pkType, pkValueField, pkValue));
-         }
-      }
-
-      Column[] columns = new Column[] {ProcessInstanceBean.FR__OID, ProcessInstanceBean.FR__STATE, ProcessInstanceBean.FR__BENCHMARK_VALUE, pkValueField, nameValueField};
-
-      if (groupBy != null)
-      {
-         Map<String, BusinessObjectRelationship> relationships = BusinessObjectUtils.getBusinessObjectRelationships(data);
-         for (BusinessObjectRelationship rel : relationships.values())
-         {
-            if (new QName(rel.otherBusinessObject.modelId, rel.otherBusinessObject.id)
-                  .equals(new QName(groupBy.getModelId(), groupBy.getBusinessObjectId())))
+            switch (LargeStringHolderBigDataHandler.classifyType(data, pkFieldName))
             {
-               String fk = rel.otherForeignKeyField;
-               Join fkSdvJoin = desc
-                     .innerJoin(StructuredDataValueBean.class, "fk_" + StructuredDataValueBean.DEFAULT_ALIAS)
-                     .on(ProcessInstanceBean.FR__OID, StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
-               Join fkSdJoin = desc
-                     .innerJoin(StructuredDataBean.class, "fk_" + StructuredDataBean.DEFAULT_ALIAS)
-                     .on(fkSdvJoin.fieldRef(StructuredDataValueBean.FIELD__XPATH), StructuredDataBean.FIELD__OID)
-                     .andOn(dvJoin.fieldRef(DataValueBean.FIELD__MODEL), StructuredDataBean.FIELD__MODEL)
-                     .andOn(dvJoin.fieldRef(DataValueBean.FIELD__DATA), StructuredDataBean.FIELD__DATA);
-               predicates.add(Predicates.isEqual(fkSdJoin.fieldRef(StructuredDataBean.FIELD__XPATH), fk));
-
-               FieldRef fkValueField = getFieldRef(data, fk, fkSdvJoin);
-               columns = new Column[] {ProcessInstanceBean.FR__OID, ProcessInstanceBean.FR__STATE, ProcessInstanceBean.FR__BENCHMARK_VALUE, pkValueField, nameValueField, fkValueField};
-
-               Object fkValue = groupBy.getPrimaryKeyValues();
-               if (fkValue instanceof Collection)
-               {
-                  if (((Collection) fkValue).isEmpty())
-                  {
-                     fkValue = null;
-                  }
-               }
-               if (fkValue != null)
-               {
-                  int fkType = LargeStringHolderBigDataHandler.classifyType(data, fk);
-                  if (fkValue instanceof Collection)
-                  {
-                     predicates.add(Predicates.inList(fkValueField, CollectionUtils.newList((Collection) fkValue)));
-                  }
-                  else
-                  {
-                     predicates.add(getIsEqualPredicate(fkType, fkValueField, fkValue));
-                  }
-               }
+            case BigData.STRING_VALUE:
+               predicates.add(Predicates.isEqual(fkValueField, pkValue.toString()));
+               break;
+            case BigData.NUMERIC_VALUE:
+               predicates.add(Predicates.isEqual(fkValueField, ((Number) pkValue).longValue()));
+               break;
+            default:
+               // (fh) throw internal exception ?
             }
          }
       }
 
-      if (parsedTerm != null)
-      {
-         predicates.add(parsedTerm);
-      }
-
-      desc.select(columns);
-      desc.where(new AndTerm(predicates.toArray(new PredicateTerm[predicates.size()])));
-      return desc;
-   }
-
-   protected static ComparisonTerm getIsEqualPredicate(int pkType, FieldRef pkValueField,
-         Object pkValue)
-   {
-      return pkType == BigData.NUMERIC_VALUE
-            ? Predicates.isEqual(pkValueField, ((Number) pkValue).longValue())
-            : Predicates.isEqual(pkValueField, pkValue.toString());
+      return fkValueField;
    }
 
    protected static FieldRef getFieldRef(IData data, String name, Join sdvJoin)

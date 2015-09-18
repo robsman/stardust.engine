@@ -51,12 +51,14 @@ public class SynchronizationServiceTest extends TestCase
       assertNull(provider);
    }
 
+   /*
    public void testNoSyncProviderIndicatesInternalAuthentication()
    {
       testByDefaultNoSyncProviderWillBeUsed();
 
       assertTrue(SecurityProperties.isInternalAuthentication());
    }
+   */
 
    public void testAStaticallyConfiguredNonDefaultProviderWillBeUsed()
    {
@@ -68,12 +70,14 @@ public class SynchronizationServiceTest extends TestCase
       assertSame(TestSyncProvider.class, provider.getClass());
    }
 
+   /*
    public void testAStaticallyConfiguredNonDefaultProviderIndicatesExternalAuthentication()
    {
       testAStaticallyConfiguredNonDefaultProviderWillBeUsed();
 
       assertFalse(SecurityProperties.isInternalAuthentication());
    }
+   */
 
    public void testAStaticallyConfiguredThreadLocalNonDefaultProviderWillBeUsed()
    {
@@ -93,12 +97,14 @@ public class SynchronizationServiceTest extends TestCase
       }
    }
 
+   /*
    public void testAStaticallyConfiguredThreadLocalNonDefaultProviderIndicatesExternalAuthentication()
    {
       testAStaticallyConfiguredThreadLocalNonDefaultProviderWillBeUsed();
 
       assertFalse(SecurityProperties.isInternalAuthentication());
    }
+   */
 
    public void testANonDefaultServiceProviderWillBeUsed()
    {
@@ -111,12 +117,15 @@ public class SynchronizationServiceTest extends TestCase
       assertSame(TestSyncProvider.class, provider.getClass());
    }
 
+   /*
    public void testANonDefaultServiceProviderIndicatesExternalAuthentication()
    {
       testANonDefaultServiceProviderWillBeUsed();
 
       assertFalse(SecurityProperties.isInternalAuthentication());
    }
+   /
+    */
 
    public void testByDefaultTimeBasedStrategyWillBeUsed()
    {

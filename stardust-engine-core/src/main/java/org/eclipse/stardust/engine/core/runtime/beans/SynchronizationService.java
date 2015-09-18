@@ -69,7 +69,8 @@ public abstract class SynchronizationService
 
    public static synchronized void flush()
    {
-      if ( !SecurityProperties.isInternalAuthentication())
+      // TODO: Clearify 
+      if ( getSynchronizationStrategy() != null)
       {
          DynamicParticipantSynchronizationStrategy synchronizationStrategy = getSynchronizationStrategy();
          if (synchronizationStrategy instanceof Flushable)
@@ -168,7 +169,7 @@ public abstract class SynchronizationService
    {
       IUserGroup group;
 
-      if (SecurityProperties.isInternalAuthentication()
+      if (SecurityProperties.isInternalAuthorization()
             || Parameters.instance().getBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL,
                   false))
       {
@@ -607,7 +608,7 @@ public abstract class SynchronizationService
 
    protected void synchronizeUnguarded(IUser user)
    {
-      if ( !SecurityProperties.isInternalAuthentication())
+      if (!SecurityProperties.isInternalAuthentication())
       {
          Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
          if (!session.isSynchronized(user) && getSynchronizationStrategy().isDirtyLogAware(user))
@@ -693,7 +694,7 @@ public abstract class SynchronizationService
 
    protected void synchronizeUnguarded(IUserGroup group)
    {
-      if (!SecurityProperties.isInternalAuthentication())
+      if (!SecurityProperties.isInternalAuthorization())
       {
          Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
          if (!session.isSynchronized(group) && getSynchronizationStrategy().isDirty(group))
@@ -769,7 +770,7 @@ public abstract class SynchronizationService
       if (department == null) return;
 
       /* do not synchronize if internal authentication is used */
-      if (SecurityProperties.isInternalAuthentication()) return;
+      if (SecurityProperties.isInternalAuthorization()) return;
 
       final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
       if (!session.isSynchronized(department) && getSynchronizationStrategy().isDirty(department))
@@ -1079,7 +1080,7 @@ public abstract class SynchronizationService
          {
             try
             {
-               group = SecurityProperties.isInternalAuthentication()
+               group = SecurityProperties.isInternalAuthorization()
                      ? null
                      : synchronizeExternalUserGroup(id);
             }

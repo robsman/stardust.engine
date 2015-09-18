@@ -846,7 +846,7 @@ public class QueryServiceImpl implements QueryService, Serializable
       }
 
       IDepartment department = null;
-      if ((SecurityProperties.isInternalAuthentication()
+      if ((SecurityProperties.isInternalAuthorization()
             || Parameters.instance().getBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL, false))
             && (parent == null || parent.getOID() > 0))
       {

@@ -12,27 +12,10 @@
 
 package org.eclipse.stardust.test.casepi;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-
-import java.util.concurrent.TimeoutException;
+import static org.junit.Assert.assertNotNull;
 
 import javax.xml.namespace.QName;
-
-import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.api.runtime.QueryService;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
-import org.eclipse.stardust.test.api.setup.TestClassSetup;
-import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
-import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
-import org.eclipse.stardust.test.api.util.UserHome;
-import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -40,6 +23,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+
+import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.test.api.setup.TestClassSetup;
+import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
+import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
+import org.eclipse.stardust.test.api.util.UserHome;
+import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
 /**
  * <p>
@@ -107,5 +99,22 @@ public class CaseProcessAbortTest
    {
       ActivityInstance ai = wfService.activateNextActivityInstanceForProcessInstance(pi.getOID());
       wfService.activateAndComplete(ai.getOID(), null, null);
+   }
+   
+   @Test
+   public void testCaseMergeCases()
+   {
+      ProcessInstance rootPI1 = wfService.startProcess(CASE_PROCESS1, null, true);
+      ProcessInstance rootPI2 = wfService.startProcess(CASE_PROCESS2, null, true);
+
+      long[] members = {rootPI1.getOID()};
+      ProcessInstance casePi1 = wfService.createCase("Case1", "Creating Case1", members);
+
+      long[] members2 = {rootPI2.getOID()};
+      ProcessInstance casePi2 = wfService.createCase("Case2", "Creating Case2", members2);
+
+      long[] srcGroups = {casePi2.getOID()};
+
+      wfService.mergeCases(casePi1.getOID(), srcGroups, null);
    }
 }

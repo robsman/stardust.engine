@@ -133,14 +133,21 @@ public class JsonTypeConverter
                Gson gson=gsonBuilder.create();
                
                String json = null;
+               long modelOid = new Long(dataMapping.getModelOID());
+               SDTConverter converter = new SDTConverter(dataMapping, modelOid);
+               Set<TypedXPath> allXPaths=converter.getxPathMap().getAllXPaths();
+               IXPathMap xPathMap = new ClientXPathMap(allXPaths);
+               TypedXPath rootXPath=    xPathMap.getRootXPath();
                if (dataMap instanceof IdScriptableObject)
                {
-                  long modelOid = new Long(dataMapping.getModelOID());
-                  SDTConverter converter = new SDTConverter(dataMapping, modelOid);
-                  Set<TypedXPath> allXPaths=converter.getxPathMap().getAllXPaths();
-                  IXPathMap xPathMap = new ClientXPathMap(allXPaths);
-                  TypedXPath rootXPath=    xPathMap.getRootXPath();
+//                  long modelOid = new Long(dataMapping.getModelOID());
+//                  SDTConverter converter = new SDTConverter(dataMapping, modelOid);
+//                  Set<TypedXPath> allXPaths=converter.getxPathMap().getAllXPaths();
+//                  IXPathMap xPathMap = new ClientXPathMap(allXPaths);
+//                  TypedXPath rootXPath=    xPathMap.getRootXPath();
                   json = gson.toJson(ScriptValueConverter.unwrapValue(dataMap,rootXPath));
+               }else if(!rootXPath.getEnumerationValues().isEmpty()){
+                  json=(String) dataMap;
                }
                else
                {

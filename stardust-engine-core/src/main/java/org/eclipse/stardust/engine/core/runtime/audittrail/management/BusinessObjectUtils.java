@@ -75,7 +75,7 @@ public class BusinessObjectUtils
       @Override
       public boolean accept(Object o)
       {
-         return o instanceof StructuredDataValueBean;
+         return StructuredDataValueBean.class.equals(o);
       }
    };
 
@@ -353,38 +353,42 @@ public class BusinessObjectUtils
          for (Join join : predicateJoins)
          {
             ITableDescriptor tDesc = join.getRhsTableDescriptor();
-            Class type = ((TypeDescriptor) tDesc).getType();
-            if (tDesc instanceof TypeDescriptor && predicate.accept(type)/*StructuredDataValueBean.class.equals(((TypeDescriptor) tDesc).getType())*/)
+            /*StructuredDataValueBean.class.equals(((TypeDescriptor) tDesc).getType())*/
+            if (tDesc instanceof TypeDescriptor)
             {
-               Join sdvJoin = null;
-               if (join.isRequired())
+               Class<?> type = ((TypeDescriptor) tDesc).getType();
+               if (predicate.accept(type))
                {
-                  sdvJoin = desc
-                        .innerJoin(type, join.getTableAlias());
-               }
-               else
-               {
-                  sdvJoin = desc
-                        .leftOuterJoin(type, join.getTableAlias());
-               }
-               for (JoinElement element : join.getJoinConditions())
-               {
-                  Pair<FieldRef, ? > condition = element.getJoinCondition();
-                  if (condition.getSecond() instanceof FieldRef)
+                  Join sdvJoin = null;
+                  if (join.isRequired())
                   {
-                     sdvJoin.addJoinCondition(condition.getFirst(), ((FieldRef) condition.getSecond()).fieldName, element.getJoinConditionType());
+                     sdvJoin = desc
+                           .innerJoin(type, join.getTableAlias());
                   }
                   else
                   {
-                     sdvJoin.addJoinConditionConstant(condition.getFirst(), (String) condition.getSecond(), element.getJoinConditionType());
+                     sdvJoin = desc
+                           .leftOuterJoin(type, join.getTableAlias());
                   }
-               }
-               AndTerm restriction = join.getRestriction();
-               if (restriction != null)
-               {
-                  for (PredicateTerm term : restriction.getParts())
+                  for (JoinElement element : join.getJoinConditions())
                   {
-                     sdvJoin.where(replace(term, join, sdvJoin));
+                     Pair<FieldRef, ? > condition = element.getJoinCondition();
+                     if (condition.getSecond() instanceof FieldRef)
+                     {
+                        sdvJoin.addJoinCondition(condition.getFirst(), ((FieldRef) condition.getSecond()).fieldName, element.getJoinConditionType());
+                     }
+                     else
+                     {
+                        sdvJoin.addJoinConditionConstant(condition.getFirst(), (String) condition.getSecond(), element.getJoinConditionType());
+                     }
+                  }
+                  AndTerm restriction = join.getRestriction();
+                  if (restriction != null)
+                  {
+                     for (PredicateTerm term : restriction.getParts())
+                     {
+                        sdvJoin.where(replace(term, join, sdvJoin));
+                     }
                   }
                }
             }

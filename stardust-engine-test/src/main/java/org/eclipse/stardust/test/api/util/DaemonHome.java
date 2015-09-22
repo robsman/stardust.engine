@@ -220,6 +220,14 @@ public class DaemonHome
          {
             return AdministrationService.CRITICALITY_DAEMON;
          }
+      },
+      BENCHMARK_DAEMON
+      {
+         @Override
+         public String id()
+         {
+            return AdministrationService.BENCHMARK_DAEMON;
+         }
       };
 
       public abstract String id();

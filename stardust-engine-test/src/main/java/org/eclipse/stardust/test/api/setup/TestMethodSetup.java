@@ -162,7 +162,7 @@ public class TestMethodSetup extends ExternalResource
       LOG.info(LOG_EYE_CATCHER);
    }
 
-   private void logRunningActivityThreads()
+   protected void logRunningActivityThreads()
    {
       if (testClassSetup.forkingServiceMode() == ForkingServiceMode.NATIVE_THREADING)
       {

@@ -179,7 +179,7 @@ public class BenchmarkProcessStatisticsRetriever
          List<Join> predicateJoins = parsedQuery.getPredicateJoins();
          PredicateTerm parsedTerm = parsedQuery.getPredicateTerm();
 
-         QueryDescriptor queryDescriptor = createFetchQuery(data, boqEvaluator.getPkValue(), false, predicateJoins, parsedTerm, groupBy);
+         final QueryDescriptor queryDescriptor = createFetchQuery(data, boqEvaluator.getPkValue(), false, predicateJoins, parsedTerm, groupBy);
          fetchValues(queryDescriptor, boq, new RowProcessor() {
 
             protected void processRow(ResultSet resultSet)
@@ -193,7 +193,7 @@ public class BenchmarkProcessStatisticsRetriever
                String name = boName == null ? boPk == null ? "" : boPk.toString() : boName.toString();
 
                String groupByName = null;
-               if (groupBy != null)
+               if (groupBy != null && queryDescriptor.getQueryExtension().getSelection().length >= 6)
                {
                   Object boFk = resultSet.getObject(6);
                   groupByName = otherBOs.get(boFk);
@@ -329,6 +329,10 @@ public class BenchmarkProcessStatisticsRetriever
 
       FieldRef nameValueField = createStructuredDataJoins(true, data.<String>getAttribute(PredefinedConstants.BUSINESS_OBJECT_NAMEEXPRESSION),
             data, desc, dvJoin, predicates, "name_", null);
+      if (nameValueField == null)
+      {
+         nameValueField = pkValueField;
+      }
 
       Column[] columns = new Column[] {pkValueField, nameValueField};
 
@@ -347,9 +351,11 @@ public class BenchmarkProcessStatisticsRetriever
                {
                   FieldRef fkValueField = createStructuredDataJoins(false, rel.otherForeignKeyField, data, desc, dvJoin,
                         predicates, "fk_", groupBy.getPrimaryKeyValues());
-
-                  columns = new Column[] {ProcessInstanceBean.FR__OID, ProcessInstanceBean.FR__STATE, ProcessInstanceBean.FR__BENCHMARK_VALUE,
-                        pkValueField, nameValueField, fkValueField};
+                  if (fkValueField != null)
+                  {
+                     columns = new Column[] {ProcessInstanceBean.FR__OID, ProcessInstanceBean.FR__STATE, ProcessInstanceBean.FR__BENCHMARK_VALUE,
+                           pkValueField, nameValueField, fkValueField};
+                  }
                   break;
                }
             }
@@ -366,47 +372,52 @@ public class BenchmarkProcessStatisticsRetriever
       return desc;
    }
 
-   protected static FieldRef createStructuredDataJoins(boolean outerJoin, String pkFieldName, IData data,
+   protected static FieldRef createStructuredDataJoins(boolean outerJoin, String fieldName, IData data,
          QueryDescriptor queryDescriptor, Join dataValueJoin,
-         List<PredicateTerm> predicates, String prefix, Object pkValue)
+         List<PredicateTerm> predicates, String prefix, Object value)
    {
-      Join fkSdvJoin = outerJoin
+      if (fieldName == null || fieldName.trim().isEmpty())
+      {
+         return null;
+      }
+
+      Join structDataValueJoin = outerJoin
             ? queryDescriptor.leftOuterJoin(StructuredDataValueBean.class, prefix + StructuredDataValueBean.DEFAULT_ALIAS)
             : queryDescriptor.innerJoin(StructuredDataValueBean.class, prefix + StructuredDataValueBean.DEFAULT_ALIAS);
-      fkSdvJoin.on(ProcessInstanceBean.FR__OID, StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
+      structDataValueJoin.on(ProcessInstanceBean.FR__OID, StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
 
-      Join fkSdJoin = outerJoin
+      Join structDataJoin = outerJoin
             ? queryDescriptor.leftOuterJoin(StructuredDataBean.class, prefix + StructuredDataBean.DEFAULT_ALIAS)
             : queryDescriptor.innerJoin(StructuredDataBean.class, prefix + StructuredDataBean.DEFAULT_ALIAS);
-      fkSdJoin.on(fkSdvJoin.fieldRef(StructuredDataValueBean.FIELD__XPATH), StructuredDataBean.FIELD__OID)
+      structDataJoin.on(structDataValueJoin.fieldRef(StructuredDataValueBean.FIELD__XPATH), StructuredDataBean.FIELD__OID)
               .andOn(dataValueJoin.fieldRef(DataValueBean.FIELD__MODEL), StructuredDataBean.FIELD__MODEL)
               .andOn(dataValueJoin.fieldRef(DataValueBean.FIELD__DATA), StructuredDataBean.FIELD__DATA);
-      predicates.add(Predicates.isEqual(fkSdJoin.fieldRef(StructuredDataBean.FIELD__XPATH), pkFieldName));
+      predicates.add(Predicates.isEqual(structDataJoin.fieldRef(StructuredDataBean.FIELD__XPATH), fieldName));
 
-      FieldRef fkValueField = getFieldRef(data, pkFieldName, fkSdvJoin);
+      FieldRef valueField = getFieldRef(data, fieldName, structDataValueJoin);
 
-      if (pkValue instanceof Collection)
+      if (value instanceof Collection)
       {
-         if (((Collection) pkValue).isEmpty())
+         if (((Collection) value).isEmpty())
          {
-            pkValue = null;
+            value = null;
          }
       }
-      if (pkValue != null)
+      if (value != null)
       {
-         if (pkValue instanceof Collection)
+         if (value instanceof Collection)
          {
-            predicates.add(Predicates.inList(fkValueField, CollectionUtils.newList((Collection) pkValue)));
+            predicates.add(Predicates.inList(valueField, CollectionUtils.newList((Collection) value)));
          }
          else
          {
-            switch (LargeStringHolderBigDataHandler.classifyType(data, pkFieldName))
+            switch (LargeStringHolderBigDataHandler.classifyType(data, fieldName))
             {
             case BigData.STRING_VALUE:
-               predicates.add(Predicates.isEqual(fkValueField, pkValue.toString()));
+               predicates.add(Predicates.isEqual(valueField, value.toString()));
                break;
             case BigData.NUMERIC_VALUE:
-               predicates.add(Predicates.isEqual(fkValueField, ((Number) pkValue).longValue()));
+               predicates.add(Predicates.isEqual(valueField, ((Number) value).longValue()));
                break;
             default:
                // (fh) throw internal exception ?
@@ -414,7 +425,7 @@ public class BenchmarkProcessStatisticsRetriever
          }
       }
 
-      return fkValueField;
+      return valueField;
    }
 
    protected static FieldRef getFieldRef(IData data, String name, Join sdvJoin)

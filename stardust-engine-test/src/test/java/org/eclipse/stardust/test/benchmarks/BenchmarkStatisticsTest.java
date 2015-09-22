@@ -53,15 +53,15 @@ public class BenchmarkStatisticsTest
          MOTU, MOTU);
 
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(
-         ADMIN_USER_PWD_PAIR, testClassSetup) 
+         ADMIN_USER_PWD_PAIR, testClassSetup)
          {
             @Override
             protected void after()
             {
                logRunningActivityThreads();
-      
+
                tearDownServiceFactory();
-      
+
                logAfterTestMethod();
             }
          };
@@ -109,7 +109,7 @@ public class BenchmarkStatisticsTest
 
    private static final String qualifiedBusinessDateId =
          new QName(MODEL_PREFIX, PredefinedConstants.BUSINESS_DATE).toString();
-   
+
    @BeforeClass
    public static void setup() throws Throwable
    {
@@ -138,7 +138,7 @@ public class BenchmarkStatisticsTest
             BENCHMARK_PROCESS, startOptions_withBenchmark);
       setupServiceFactory.getAdministrationService().abortProcessInstance(pi.getOID());
 
-      
+
 
       Map<String, Serializable> businessObjectData = CollectionUtils.newMap();
       businessObjectData.put("Ident", Integer.valueOf(1));
@@ -174,7 +174,7 @@ public class BenchmarkStatisticsTest
 
       setupServiceFactory.getWorkflowService().createBusinessObjectInstance(
          qualifiedGroupBusinessObjectId, businessObjectData);
-      
+
       businessObjectData = CollectionUtils.newMap();
       businessObjectData.put("Ident", Integer.valueOf(111));
       businessObjectData.put("BaseObjects", new ArrayList<Integer>(Arrays.asList(
@@ -240,28 +240,28 @@ public class BenchmarkStatisticsTest
       businessObjectData.put("Ident", Integer.valueOf(110));
       businessObjectData.put("Groups", new ArrayList<Integer>(Arrays.asList(
             Integer.valueOf(111))));
-      
+
       processData = CollectionUtils.newMap();
       processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance().getTimeInMillis());
       processData.put("BaseWithoutNameData", (Serializable)businessObjectData);
-      
+
       startOptions_withBenchmark = new StartOptions(processData, true, BENCHMARK_REF);
       setupServiceFactory.getWorkflowService().startProcess(
             BENCHMARK_PARENT_PROCESS, startOptions_withBenchmark);
-      
+
       // Business Object           |  BaseA  |     BaseB   | BaseC | 110 |
       // BenchmarkValue            | On Time | Almost Late | Late  |
       // BenchmarkedParentProcess  |    1    |       1     |   1   |  1  |
       // BenchmarkedSubProcess     |    2    |       2     |   2   |  2  |
-            
+
       runDaemon(setupServiceFactory);
    }
-   
+
    @Before
    public void setupTestCase()
    {
       businessObjects = CollectionUtils.newMap();
-      
+
       String qualifiedBusinessObjectId = new QName(MODEL_PREFIX, "BaseData").toString();
       BusinessObjectQuery businessObjectQuery = BusinessObjectQuery.findForBusinessObject(
             qualifiedBusinessObjectId);
@@ -274,7 +274,7 @@ public class BenchmarkStatisticsTest
       businessObjectQuery = BusinessObjectQuery.findForBusinessObject(
             qualifiedBusinessObjectId);
       businessObjectQuery.setPolicy(new BusinessObjectQuery.Policy(Option.WITH_DESCRIPTION));
-      
+
       bos = serviceFactory.getQueryService().getAllBusinessObjects(businessObjectQuery);
       businessObjects.put("BaseGroupData", bos.get(0));
    }
@@ -331,7 +331,7 @@ public class BenchmarkStatisticsTest
                         Integer.valueOf(2))));
 
       attachDefaultBenchmarkCondition(query);
-      
+
       BenchmarkBusinessObjectStatistics stats = (BenchmarkBusinessObjectStatistics) serviceFactory
             .getQueryService().getAllProcessInstances(query);
       Assert.assertNotNull(stats);
@@ -354,13 +354,13 @@ public class BenchmarkStatisticsTest
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 2), is(equalTo(0l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 3), is(equalTo(0l)));
    }
-   
+
    @Test
    public void queryProcessBenchmarkStatisticsByBusinessObjectsWithPkOnSubProcesses()
    {
       ProcessDefinition benchmarkProcess = serviceFactory.getQueryService()
             .getProcessDefinition(BENCHMARK_SUB_PROCESS);
-      
+
       BenchmarkProcessStatisticsQuery query = BenchmarkProcessStatisticsQuery
             .forProcessesAndBusinessObject(Collections.singleton(benchmarkProcess),
                   businessObjects.get("BaseData"), new HashSet<Serializable>(Arrays.asList(
@@ -391,7 +391,7 @@ public class BenchmarkStatisticsTest
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 2), is(equalTo(0l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 3), is(equalTo(0l)));
    }
-   
+
    @Test
    public void queryProcessBenchmarkStatisticsByBusinessObjectsWithoutName()
    {
@@ -411,7 +411,7 @@ public class BenchmarkStatisticsTest
       qualifiedBusinessObjectId = new QName(MODEL_PREFIX, "BaseGroupWithoutNameData").toString();
       businessObjectQuery = BusinessObjectQuery.findForBusinessObject(
             qualifiedBusinessObjectId);
-      
+
       bos = serviceFactory.getQueryService().getAllBusinessObjects(businessObjectQuery);
       baseGroupWithoutNameData = bos.get(0);
 
@@ -432,7 +432,7 @@ public class BenchmarkStatisticsTest
       Set<String> groupByValues = stats.getGroupByValues();
       Assert.assertThat(groupByValues.size(), is(equalTo(1)));
       Assert.assertThat(groupByValues, hasItem("111"));
-      Set<String> filterValues = stats.getFilterValues(null);
+      Set<String> filterValues = stats.getFilterValues("111");
       Assert.assertThat(filterValues.size(), is(equalTo(1)));
       Assert.assertThat(filterValues, hasItems("110"));
       Assert.assertThat(stats.getBenchmarkCategoryCount("111", "110", 0), is(equalTo(1l)));
@@ -494,7 +494,7 @@ public class BenchmarkStatisticsTest
       stats = (BenchmarkBusinessObjectStatistics) serviceFactory
             .getQueryService().getAllProcessInstances(query);
       Assert.assertNotNull(stats);
-      
+
       groupByValues = stats.getGroupByValues();
       Assert.assertThat(groupByValues.size(), is(equalTo(2)));
       Assert.assertThat(groupByValues, hasItems("GroupA", "GroupB"));
@@ -558,7 +558,7 @@ public class BenchmarkStatisticsTest
             Collections.<ProcessDefinition>emptySet(),
             businessObjects.get("BaseData"), new HashSet<Serializable>(Arrays.asList(1, 2)),
             businessObjects.get("BaseGroupData"), Collections.<Serializable>emptySet());
-      
+
       attachDefaultBenchmarkCondition(query);
 
       BenchmarkBusinessObjectStatistics stats = (BenchmarkBusinessObjectStatistics) serviceFactory
@@ -627,7 +627,7 @@ public class BenchmarkStatisticsTest
             Collections.<ProcessDefinition>emptySet(),
             businessObjects.get("BaseData"), new HashSet<Serializable>(Arrays.asList(1, 2)),
             businessObjects.get("BaseGroupData"), new HashSet<Serializable>(Arrays.asList(1)));
-      
+
       attachDefaultBenchmarkCondition(query);
 
       BenchmarkBusinessObjectStatistics stats = (BenchmarkBusinessObjectStatistics) serviceFactory
@@ -734,7 +734,7 @@ public class BenchmarkStatisticsTest
             .getDaemonExecutionState();
 
       assertEquals(DaemonExecutionState.OK, state);
-      
+
       // Wait for the benchmark.dameon until it has computed all benchmarkValues
       QueryService qService = serviceFactory.getQueryService();
       ProcessInstanceQuery query = ProcessInstanceQuery.findAll();
@@ -742,8 +742,8 @@ public class BenchmarkStatisticsTest
             .isEqual(getDeployedBenchmarkOid(serviceFactory)));
       query.where(ProcessInstanceQuery.BENCHMARK_VALUE.lessThan(1));
       query.where(DataFilter.in("BaseData", "Ident", Arrays.asList(1, 2, 3)));
-      
-      long count = 1; 
+
+      long count = 1;
       while(count > 0)
       {
          count = qService.getProcessInstancesCount(query);
@@ -755,7 +755,7 @@ public class BenchmarkStatisticsTest
          {
          }
       }
-      
+
       serviceFactory.getAdministrationService().stopDaemon(
             AdministrationService.BENCHMARK_DAEMON, true);
    }
@@ -795,7 +795,7 @@ public class BenchmarkStatisticsTest
 
       return now.getTime();// .getTime();//.getTime();
    }
-   
+
    private void attachDefaultBenchmarkCondition(BenchmarkProcessStatisticsQuery query)
    {
       // Only for the selected benchmark.

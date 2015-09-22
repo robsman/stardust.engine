@@ -25,7 +25,6 @@ import javax.xml.namespace.QName;
 import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.junit.runners.model.Statement;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
@@ -70,9 +69,15 @@ public class BenchmarkStatisticsTest
    public final TestServiceFactory serviceFactory = new TestServiceFactory(
          ADMIN_USER_PWD_PAIR);
 
-   @ClassRule
+   public static final TestServiceFactory setupServiceFactory = new TestServiceFactory(
+         ADMIN_USER_PWD_PAIR);
+
    public static final TestClassSetup testClassSetup = new TestClassSetup(
          ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, "BenchmarksModel");
+
+   @ClassRule
+   public static final TestRule classRuleChain = RuleChain.outerRule(testClassSetup)
+      .around(setupServiceFactory);
 
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(
@@ -108,162 +113,148 @@ public class BenchmarkStatisticsTest
    @BeforeClass
    public static void setup() throws Throwable
    {
-      // Workaround: Multiple @ClassRule's are invoked in an undefined order. So it could
-      // be that TestServiceFactory (if we would add the ClassRule annotation to it) 
-      // is executed before TestClassSetup which would result in an error
-      final TestServiceFactory serviceFactory = new TestServiceFactory(
-            ADMIN_USER_PWD_PAIR);
+      BenchmarkTestUtils.deployBenchmark("benchmarksTest.benchmark", setupServiceFactory);
 
-      serviceFactory.apply(new Statement() {
+      StartOptions startOptions_withBenchmark = new StartOptions(Collections.singletonMap(
+            PredefinedConstants.BUSINESS_DATE, Calendar.getInstance().getTimeInMillis()), true, BENCHMARK_REF);
+      StartOptions startOptions_withoutBenchmark = new StartOptions(null, true);
 
-         @Override
-         public void evaluate() throws Throwable
-         {
-            BenchmarkTestUtils.deployBenchmark("benchmarksTest.benchmark", serviceFactory);
+      // 2 with benchmark
+      setupServiceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
+            startOptions_withBenchmark);
+      setupServiceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
+            startOptions_withBenchmark);
 
-            StartOptions startOptions_withBenchmark = new StartOptions(Collections.singletonMap(
-                  PredefinedConstants.BUSINESS_DATE, Calendar.getInstance().getTimeInMillis()), true, BENCHMARK_REF);
-            StartOptions startOptions_withoutBenchmark = new StartOptions(null, true);
+      // 1 without benchmark
+      setupServiceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
+            startOptions_withoutBenchmark);
 
-            // 2 with benchmark
-            serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
-                  startOptions_withBenchmark);
-            serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
-                  startOptions_withBenchmark);
+      // 1 with benchmark (total of 3 now)
+      setupServiceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
+            startOptions_withBenchmark);
 
-            // 1 without benchmark
-            serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
-                  startOptions_withoutBenchmark);
+      // 1 aborted
+      ProcessInstance pi = setupServiceFactory.getWorkflowService().startProcess(
+            BENCHMARK_PROCESS, startOptions_withBenchmark);
+      setupServiceFactory.getAdministrationService().abortProcessInstance(pi.getOID());
 
-            // 1 with benchmark (total of 3 now)
-            serviceFactory.getWorkflowService().startProcess(BENCHMARK_PROCESS,
-                  startOptions_withBenchmark);
+      
 
-            // 1 aborted
-            ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
-                  BENCHMARK_PROCESS, startOptions_withBenchmark);
-            serviceFactory.getAdministrationService().abortProcessInstance(pi.getOID());
+      Map<String, Serializable> businessObjectData = CollectionUtils.newMap();
+      businessObjectData.put("Ident", Integer.valueOf(1));
+      businessObjectData.put("Name", "CategoryA");
+      businessObjectData.put("BaseObjects", new ArrayList<Integer>(Arrays.asList(Integer.valueOf(1),
+            Integer.valueOf(2))));
 
+      setupServiceFactory.getWorkflowService().createBusinessObjectInstance(
+         qualifiedCategoryBusinessObjectId, businessObjectData);
+
+      businessObjectData = CollectionUtils.newMap();
+      businessObjectData.put("Ident", Integer.valueOf(2));
+      businessObjectData.put("Name", "CategoryB");
+      businessObjectData.put("BaseObjects", new ArrayList<Integer>(Arrays.asList(Integer.valueOf(3))));
+
+      setupServiceFactory.getWorkflowService().createBusinessObjectInstance(
+         qualifiedCategoryBusinessObjectId, businessObjectData);
+
+      businessObjectData = CollectionUtils.newMap();
+      businessObjectData.put("Ident", Integer.valueOf(1));
+      businessObjectData.put("Name", "GroupA");
+      businessObjectData.put("BaseObjects", new ArrayList<Integer>(Arrays.asList(Integer.valueOf(1),
+            Integer.valueOf(2))));
+
+      setupServiceFactory.getWorkflowService().createBusinessObjectInstance(
+         qualifiedGroupBusinessObjectId, businessObjectData);
+
+      businessObjectData = CollectionUtils.newMap();
+      businessObjectData.put("Ident", Integer.valueOf(2));
+      businessObjectData.put("Name", "GroupB");
+      businessObjectData.put("BaseObjects", new ArrayList<Integer>(Arrays.asList(
+            Integer.valueOf(2), Integer.valueOf(3))));
+
+      setupServiceFactory.getWorkflowService().createBusinessObjectInstance(
+         qualifiedGroupBusinessObjectId, businessObjectData);
+      
+      businessObjectData = CollectionUtils.newMap();
+      businessObjectData.put("Ident", Integer.valueOf(111));
+      businessObjectData.put("BaseObjects", new ArrayList<Integer>(Arrays.asList(
+            Integer.valueOf(110))));
+
+      setupServiceFactory.getWorkflowService().createBusinessObjectInstance(
+            qualifiedGroupWithoutNameBusinessObjectId, businessObjectData);
+
+      //                      | GroupA | GroupB | CategoryA | CategoryB | GroupWithoutName(111)
+      // BaseA                |   x    |        |     x     |           |
+      // BaseB                |   x    |    x   |     x     |           |
+      // BaseC                |        |    x   |           |    x      |
+      // BaseWithoutName(110) |        |        |           |           |       x
+      businessObjectData = CollectionUtils.newMap();
+      businessObjectData.put("Ident", Integer.valueOf(1));
+      businessObjectData.put("Name", "BaseA");
+      businessObjectData.put("Groups", new ArrayList<Integer>(Arrays.asList(
+            Integer.valueOf(1))));
+      businessObjectData.put("Categories", new ArrayList<Integer>(Arrays.asList(
+            Integer.valueOf(1))));
+
+      Map<String, Serializable> processData = CollectionUtils.newMap();
+      processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance().getTimeInMillis());
+      processData.put("BaseData", (Serializable)businessObjectData);
+
+      startOptions_withBenchmark = new StartOptions(processData, true, BENCHMARK_REF);
+      setupServiceFactory.getWorkflowService().startProcess(
+            BENCHMARK_PARENT_PROCESS, startOptions_withBenchmark);
+
+      businessObjectData = CollectionUtils.newMap();
+      businessObjectData.put("Ident", Integer.valueOf(2));
+      businessObjectData.put("Name", "BaseB");
+      businessObjectData.put("Groups", new ArrayList<Integer>(Arrays.asList(
+            Integer.valueOf(1), Integer.valueOf(2))));
+      businessObjectData.put("Categories", new ArrayList<Integer>(Arrays.asList(
+            Integer.valueOf(1))));
+
+      processData = CollectionUtils.newMap();
+      processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance().getTimeInMillis());
+      processData.put("BaseData", (Serializable)businessObjectData);
+
+      startOptions_withBenchmark = new StartOptions(processData, true, BENCHMARK_REF);
+      setupServiceFactory.getWorkflowService().startProcess(
+            BENCHMARK_PARENT_PROCESS, startOptions_withBenchmark);
+
+      businessObjectData = CollectionUtils.newMap();
+      businessObjectData.put("Ident", Integer.valueOf(3));
+      businessObjectData.put("Name", "BaseC");
+      businessObjectData.put("Groups", new ArrayList<Integer>(Arrays.asList(
+            Integer.valueOf(2))));
+      businessObjectData.put("Categories", new ArrayList<Integer>(Arrays.asList(
+            Integer.valueOf(2))));
+
+      processData = CollectionUtils.newMap();
+      processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance().getTimeInMillis());
+      processData.put("BaseData", (Serializable)businessObjectData);
+
+      startOptions_withBenchmark = new StartOptions(processData, true, BENCHMARK_REF);
+      setupServiceFactory.getWorkflowService().startProcess(
+            BENCHMARK_PARENT_PROCESS, startOptions_withBenchmark);
+
+      businessObjectData = CollectionUtils.newMap();
+      businessObjectData.put("Ident", Integer.valueOf(110));
+      businessObjectData.put("Groups", new ArrayList<Integer>(Arrays.asList(
+            Integer.valueOf(111))));
+      
+      processData = CollectionUtils.newMap();
+      processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance().getTimeInMillis());
+      processData.put("BaseWithoutNameData", (Serializable)businessObjectData);
+      
+      startOptions_withBenchmark = new StartOptions(processData, true, BENCHMARK_REF);
+      setupServiceFactory.getWorkflowService().startProcess(
+            BENCHMARK_PARENT_PROCESS, startOptions_withBenchmark);
+      
+      // Business Object           |  BaseA  |     BaseB   | BaseC | 110 |
+      // BenchmarkValue            | On Time | Almost Late | Late  |
+      // BenchmarkedParentProcess  |    1    |       1     |   1   |  1  |
+      // BenchmarkedSubProcess     |    2    |       2     |   2   |  2  |
             
-
-            Map<String, Serializable> businessObjectData = CollectionUtils.newMap();
-            businessObjectData.put("Ident", Integer.valueOf(1));
-            businessObjectData.put("Name", "CategoryA");
-            businessObjectData.put("BaseObjects", new ArrayList<Integer>(Arrays.asList(Integer.valueOf(1),
-                  Integer.valueOf(2))));
-
-            serviceFactory.getWorkflowService().createBusinessObjectInstance(
-               qualifiedCategoryBusinessObjectId, businessObjectData);
-
-            businessObjectData = CollectionUtils.newMap();
-            businessObjectData.put("Ident", Integer.valueOf(2));
-            businessObjectData.put("Name", "CategoryB");
-            businessObjectData.put("BaseObjects", new ArrayList<Integer>(Arrays.asList(Integer.valueOf(3))));
-
-            serviceFactory.getWorkflowService().createBusinessObjectInstance(
-               qualifiedCategoryBusinessObjectId, businessObjectData);
-
-            businessObjectData = CollectionUtils.newMap();
-            businessObjectData.put("Ident", Integer.valueOf(1));
-            businessObjectData.put("Name", "GroupA");
-            businessObjectData.put("BaseObjects", new ArrayList<Integer>(Arrays.asList(Integer.valueOf(1),
-                  Integer.valueOf(2))));
-
-            serviceFactory.getWorkflowService().createBusinessObjectInstance(
-               qualifiedGroupBusinessObjectId, businessObjectData);
-
-            businessObjectData = CollectionUtils.newMap();
-            businessObjectData.put("Ident", Integer.valueOf(2));
-            businessObjectData.put("Name", "GroupB");
-            businessObjectData.put("BaseObjects", new ArrayList<Integer>(Arrays.asList(
-                  Integer.valueOf(2), Integer.valueOf(3))));
-
-            serviceFactory.getWorkflowService().createBusinessObjectInstance(
-               qualifiedGroupBusinessObjectId, businessObjectData);
-            
-            businessObjectData = CollectionUtils.newMap();
-            businessObjectData.put("Ident", Integer.valueOf(111));
-            businessObjectData.put("BaseObjects", new ArrayList<Integer>(Arrays.asList(
-                  Integer.valueOf(110))));
-
-           serviceFactory.getWorkflowService().createBusinessObjectInstance(
-                  qualifiedGroupWithoutNameBusinessObjectId, businessObjectData);
-
-            //                      | GroupA | GroupB | CategoryA | CategoryB | GroupWithoutName(111)
-            // BaseA                |   x    |        |     x     |           |
-            // BaseB                |   x    |    x   |     x     |           |
-            // BaseC                |        |    x   |           |    x      |
-            // BaseWithoutName(110) |        |        |           |           |       x
-            businessObjectData = CollectionUtils.newMap();
-            businessObjectData.put("Ident", Integer.valueOf(1));
-            businessObjectData.put("Name", "BaseA");
-            businessObjectData.put("Groups", new ArrayList<Integer>(Arrays.asList(
-                  Integer.valueOf(1))));
-            businessObjectData.put("Categories", new ArrayList<Integer>(Arrays.asList(
-                  Integer.valueOf(1))));
-
-            Map<String, Serializable> processData = CollectionUtils.newMap();
-            processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance().getTimeInMillis());
-            processData.put("BaseData", (Serializable)businessObjectData);
-
-            startOptions_withBenchmark = new StartOptions(processData, true, BENCHMARK_REF);
-            serviceFactory.getWorkflowService().startProcess(
-                  BENCHMARK_PARENT_PROCESS, startOptions_withBenchmark);
-
-            businessObjectData = CollectionUtils.newMap();
-            businessObjectData.put("Ident", Integer.valueOf(2));
-            businessObjectData.put("Name", "BaseB");
-            businessObjectData.put("Groups", new ArrayList<Integer>(Arrays.asList(
-                  Integer.valueOf(1), Integer.valueOf(2))));
-            businessObjectData.put("Categories", new ArrayList<Integer>(Arrays.asList(
-                  Integer.valueOf(1))));
-
-            processData = CollectionUtils.newMap();
-            processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance().getTimeInMillis());
-            processData.put("BaseData", (Serializable)businessObjectData);
-
-            startOptions_withBenchmark = new StartOptions(processData, true, BENCHMARK_REF);
-            serviceFactory.getWorkflowService().startProcess(
-                  BENCHMARK_PARENT_PROCESS, startOptions_withBenchmark);
-
-            businessObjectData = CollectionUtils.newMap();
-            businessObjectData.put("Ident", Integer.valueOf(3));
-            businessObjectData.put("Name", "BaseC");
-            businessObjectData.put("Groups", new ArrayList<Integer>(Arrays.asList(
-                  Integer.valueOf(2))));
-            businessObjectData.put("Categories", new ArrayList<Integer>(Arrays.asList(
-                  Integer.valueOf(2))));
-
-            processData = CollectionUtils.newMap();
-            processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance().getTimeInMillis());
-            processData.put("BaseData", (Serializable)businessObjectData);
-
-            startOptions_withBenchmark = new StartOptions(processData, true, BENCHMARK_REF);
-            serviceFactory.getWorkflowService().startProcess(
-                  BENCHMARK_PARENT_PROCESS, startOptions_withBenchmark);
-
-            businessObjectData = CollectionUtils.newMap();
-            businessObjectData.put("Ident", Integer.valueOf(110));
-            businessObjectData.put("Groups", new ArrayList<Integer>(Arrays.asList(
-                  Integer.valueOf(111))));
-            
-            processData = CollectionUtils.newMap();
-            processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance().getTimeInMillis());
-            processData.put("BaseWithoutNameData", (Serializable)businessObjectData);
-            
-            startOptions_withBenchmark = new StartOptions(processData, true, BENCHMARK_REF);
-            serviceFactory.getWorkflowService().startProcess(
-                  BENCHMARK_PARENT_PROCESS, startOptions_withBenchmark);
-            
-            // Business Object           |  BaseA  |     BaseB   | BaseC | 110 |
-            // BenchmarkValue            | On Time | Almost Late | Late  |
-            // BenchmarkedParentProcess  |    1    |       1     |   1   |  1  |
-            // BenchmarkedSubProcess     |    2    |       2     |   2   |  2  |
-                  
-            runDaemon(serviceFactory);
-         }
-         
-      }, null).evaluate();
+      runDaemon(setupServiceFactory);
    }
    
    @Before

@@ -10,6 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.security;
 
+import static java.util.Collections.emptyMap;
 import static org.eclipse.stardust.engine.api.model.PredefinedConstants.DEFAULT_PARTITION_ID;
 import static org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties.AUTHORIZATION_SYNC_CLASS_PROPERTY;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
@@ -35,6 +36,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.PartitionAwareExtensionsMa
 import org.eclipse.stardust.engine.core.runtime.beans.UserGroupBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
+import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 import org.eclipse.stardust.engine.core.spi.security.DynamicParticipantSynchronizationProvider;
 import org.eclipse.stardust.engine.core.spi.security.ExternalUserConfiguration;
 import org.eclipse.stardust.engine.core.spi.security.ExternalUserGroupConfiguration;
@@ -143,16 +145,22 @@ public class SynchronithationProviderTest extends AbstractSpringAuthenticationTe
       final GlobalParameters params = GlobalParameters.globals();
       try
       {
+         // create user should be allowed - but no password being required to be set
+         Role adminRole = (Role) sf.getQueryService().getParticipant(PredefinedConstants.ADMINISTRATOR_ROLE);
+         User user = UserHome.create(sf, REGULAR_USER_ID, adminRole);
+         final UserService userService = ServiceFactoryLocator.get(REGULAR_USER_ID, REGULAR_USER_ID).getUserService();
+
+         /* (the user service needs to be decorated to simulate HTTP invocation) */
+         addInBetweenInvocationHandler(userService);
+
+         /* ... now explicitly set the principal to an admin user ... */
+         currentInvokerPrincipal = new InvokerPrincipal(MOTU, emptyMap());
+         
          // set any synch provider
          setSynchProvider(RegulareUserWithConfigurableGroupsSyncProvider.class);
          params.set(SecurityProperties.AUTHORIZATION_MODE_PROPERTY, SecurityProperties.AUTHORIZATION_MODE_INTERNAL);
          params.set(SecurityProperties.AUTHENTICATION_MODE_PROPERTY, SecurityProperties.AUTHENTICATION_MODE_PRINCIPAL);
          
-         // create user should be allowed - but no password being required to be set
-         UserHome.UserCredentials userWithoutPW = new UserHome.UserCredentials(REGULAR_USER_ID, null);
-         Role adminRole = (Role) sf.getQueryService().getParticipant(PredefinedConstants.ADMINISTRATOR_ROLE);
-
-         User user = UserHome.create(sf, userWithoutPW, adminRole);
 
          // TODO: check that password is always empty, even if provided.
          // cannot be done with black box testing as API does not provide password data in user object
@@ -175,6 +183,7 @@ public class SynchronithationProviderTest extends AbstractSpringAuthenticationTe
       finally
       {
          params.set(SecurityProperties.AUTHORIZATION_MODE_PROPERTY, null);
+         params.set(SecurityProperties.AUTHENTICATION_MODE_PROPERTY, null);
          removeSynchProvider();
       }
    }

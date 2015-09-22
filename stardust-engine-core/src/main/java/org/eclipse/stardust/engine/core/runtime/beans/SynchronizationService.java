@@ -608,7 +608,7 @@ public abstract class SynchronizationService
 
    protected void synchronizeUnguarded(IUser user)
    {
-      if (!SecurityProperties.isInternalAuthentication())
+      if (!SecurityProperties.isInternalAuthentication() || !SecurityProperties.isInternalAuthorization())
       {
          Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
          if (!session.isSynchronized(user) && getSynchronizationStrategy().isDirtyLogAware(user))
@@ -664,14 +664,18 @@ public abstract class SynchronizationService
          Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
          if (!session.isSynchronized(user) && getSynchronizationStrategy().isDirtyLogAware(user))
          {
-            if (Parameters.instance().getBoolean(
-                  SecurityProperties.AUTHORIZATION_SYNC_TRACE_PROPERTY, false))
+            if ( !SecurityProperties.isInternalAuthentication())
             {
-               trace.info("Synchronizing user '" + user.getRealmQualifiedAccount()
-                     + "' with external registry.");
-            }
+               if (Parameters.instance().getBoolean(
+                     SecurityProperties.AUTHORIZATION_SYNC_TRACE_PROPERTY, false))
+               {
+                  trace.info("Synchronizing user '" + user.getRealmQualifiedAccount()
+                        + "' with external registry.");
+               }
 
-            synchronizeUserAttributes(user, userConf);
+               synchronizeUserAttributes(user, userConf);
+            }
+            
             if ( !SecurityProperties.isInternalAuthorization())
             {
                if (ModelManagerFactory.getCurrent().getAllModels().hasNext())

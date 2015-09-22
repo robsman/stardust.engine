@@ -763,7 +763,7 @@ public class UserServiceImpl implements UserService, Serializable
    {
       IUserGroup userGroup = UserGroupBean.findByOid(userGroupOid);
 
-      if ( !isInternalAuthentication())
+      if ( !isInternalAuthorization())
       {
          // TODO (sb): is it neccessary to synchronize? It's already done by
          // UserGroupLoader.

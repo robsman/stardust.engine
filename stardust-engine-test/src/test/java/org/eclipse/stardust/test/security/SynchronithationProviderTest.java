@@ -74,11 +74,16 @@ public class SynchronithationProviderTest extends AbstractSpringAuthenticationTe
       WorkflowService wfs_u2 = ServiceFactoryLocator.get(REGULAR_USER2_ID, REGULAR_USER2_ID).getWorkflowService();
 
       setSynchProvider(RegulareUserWithConfigurableGroupsSyncProvider.class);
-
+      
+      
       // call will synch with user group link creation
       final GlobalParameters params = GlobalParameters.globals();
       params.set(RETURN_GROUP_CONFIG, Boolean.TRUE.toString());
-
+      
+      params.set(SecurityProperties.AUTHENTICATION_MODE_PROPERTY, SecurityProperties.AUTHENTICATION_MODE_INTERNAL);
+      params.set(SecurityProperties.AUTHORIZATION_MODE_PROPERTY, SecurityProperties.AUTHORIZATION_MODE_EXTERNAL);
+      
+      
       wfs_u1.execute(new ServiceCommand()
       {
          private static final long serialVersionUID = 1L;
@@ -141,7 +146,8 @@ public class SynchronithationProviderTest extends AbstractSpringAuthenticationTe
          // set any synch provider
          setSynchProvider(RegulareUserWithConfigurableGroupsSyncProvider.class);
          params.set(SecurityProperties.AUTHORIZATION_MODE_PROPERTY, SecurityProperties.AUTHORIZATION_MODE_INTERNAL);
-
+         params.set(SecurityProperties.AUTHENTICATION_MODE_PROPERTY, SecurityProperties.AUTHENTICATION_MODE_PRINCIPAL);
+         
          // create user should be allowed - but no password being required to be set
          UserHome.UserCredentials userWithoutPW = new UserHome.UserCredentials(REGULAR_USER_ID, null);
          Role adminRole = (Role) sf.getQueryService().getParticipant(PredefinedConstants.ADMINISTRATOR_ROLE);

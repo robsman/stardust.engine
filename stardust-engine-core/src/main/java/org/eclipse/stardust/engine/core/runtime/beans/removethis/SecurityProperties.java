@@ -182,7 +182,7 @@ public final class SecurityProperties
       final String authenticationMode = Parameters.instance().getString(
             AUTHENTICATION_MODE_PROPERTY, AUTHENTICATION_MODE_INTERNAL);
 
-      return AUTHORIZATION_MODE_INTERNAL.equalsIgnoreCase(authenticationMode);
+      return AUTHENTICATION_MODE_INTERNAL.equalsIgnoreCase(authenticationMode);
 
    }
 

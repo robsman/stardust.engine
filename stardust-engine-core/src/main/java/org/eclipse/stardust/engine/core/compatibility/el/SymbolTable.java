@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.compatibility.el;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,73 +60,90 @@ public interface SymbolTable
       public static SymbolTable create(final IProcessInstance processInstance,
             final IProcessDefinition process)
       {
-         return new SymbolTable()
-         {
-            private IProcessInstance pi = processInstance;
-
-            private IModel model;
-
-            private IProcessDefinition pd = process;
-
-            public AccessPoint lookupSymbolType(String name)
-            {
-               if (PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT.equals(name))
+         return (IProcessInstance) Proxy.newProxyInstance(IProcessInstance.class.getClassLoader(),
+               new Class[] { IProcessInstance.class },
+               new InvocationHandler()
                {
-                  return pi.getProcessDefinition().getAccessPoint(PredefinedConstants.ENGINE_CONTEXT,
-                        PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT);
-               }
-               return getModel().findData(name);
-            }
+                  private IProcessInstance pi = processInstance;
 
-            public Object lookupSymbol(String name)
-            {
-               if (PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT.equals(name))
-               {
-                  PropertyLayer layer = null;
-                  Object object = null;
+                  private IModel model;
 
-                  try
+                  private IProcessDefinition pd = process;
+                  
+                  @Override
+                  public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
                   {
-                     Map<String, Object> props = new HashMap<String, Object>();
-                     props.put(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, false);
-                     layer = ParametersFacade.pushLayer(props);
-
-                     object = pi.getIntrinsicOutAccessPointValues().get(
-                           PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT);
-                  }
-                  finally
-                  {
-                     if (null != layer)
+                     String invocationMethodName = method.getName();
+                     if("lookupSymbolType".equals(invocationMethodName))
                      {
-                        ParametersFacade.popLayer();
+                        return lookupSymbolType((String) args[0]);
                      }
+                     else if("lookupSymbol".equals(invocationMethodName))
+                     {
+                        return lookupSymbol((String) args[0]);
+                     }
+                     return method.invoke(pi, args);
                   }
-                  return object;
-               }               
-               
-               return pi.lookupSymbol(name);
-            }
 
-            public IProcessDefinition getProcessDefinition()
-            {
-               if (pd == null)
-               {
-                  pd = pi.getProcessDefinition();
-               }
-               return pd;
+                  public AccessPoint lookupSymbolType(String name)
+                  {
+                     if (PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT.equals(name))
+                     {
+                        return pi.getProcessDefinition().getAccessPoint(PredefinedConstants.ENGINE_CONTEXT,
+                              PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT);
+                     }
+                     return getModel().findData(name);
+                  }
 
-            }
+                  public Object lookupSymbol(String name)
+                  {
+                     if (PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT.equals(name))
+                     {
+                        PropertyLayer layer = null;
+                        Object object = null;
 
-            public IModel getModel()
-            {
-               if (model == null)
-               {
-                  model = (IModel) getProcessDefinition().getModel();
-               }
-               return model;
-            }
+                        try
+                        {
+                           Map<String, Object> props = new HashMap<String, Object>();
+                           props.put(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, false);
+                           layer = ParametersFacade.pushLayer(props);
 
-         };
+                           object = pi.getIntrinsicOutAccessPointValues().get(
+                                 PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT);
+                        }
+                        finally
+                        {
+                           if (null != layer)
+                           {
+                              ParametersFacade.popLayer();
+                           }
+                        }
+                        return object;
+                     }               
+                     
+                     return pi.lookupSymbol(name);
+                  }
+
+                  public IProcessDefinition getProcessDefinition()
+                  {
+                     if (pd == null)
+                     {
+                        pd = pi.getProcessDefinition();
+                     }
+                     return pd;
+
+                  }
+
+                  public IModel getModel()
+                  {
+                     if (model == null)
+                     {
+                        model = (IModel) getProcessDefinition().getModel();
+                     }
+                     return model;
+                  }
+
+               });
       }
 
       public static SymbolTable create(final IActivityInstance activityInstance,

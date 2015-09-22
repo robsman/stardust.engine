@@ -41,7 +41,6 @@ import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.api.runtime.UserGroupInfo;
 import org.eclipse.stardust.engine.api.runtime.UserInfo;
 import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
-import org.eclipse.stardust.engine.core.benchmark.BenchmarkResultDetails;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -493,7 +492,10 @@ public class LazilyLoadingActivityInstanceDetails extends RuntimeObjectDetails
          /* initialize stuff that depends on the fields to be nulled out */
          getProcessInstanceDetails();
          getToStringInfo();
-
+         performedByUser = initPerformedByUser();
+         performer = initPerformer();
+         userPerformer = initUserPerformer();
+                  
          activity = null;
          activityInstance = null;
          useFullBlownAiDetailsObjects = true;

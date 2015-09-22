@@ -425,7 +425,7 @@
                      <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:model:uuid" Value="c096984f-2e40-4b0c-a946-07791c5a8415"/>
                      <carnot:Attribute Name="carnot:engine:primaryKey" Value="Ident"/>
-                     <carnot:Attribute Name="carnot:engine:businessObjectRelationships" Value="[{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;BaseGroupWithoutName&quot;,&quot;modelId&quot;:&quot;BenchmarksModel&quot;},&quot;otherRole&quot;:&quot;BaseGroupWithoutNameRole&quot;,&quot;otherCardinality&quot;:&quot;TO_MANY&quot;,&quot;otherForeignKeyField&quot;:&quot;Groups&quot;,&quot;thisRole&quot;:&quot;BaseObjectsRole&quot;,&quot;thisCardinality&quot;:&quot;TO_MANY&quot;,&quot;thisForeignKeyField&quot;:&quot;BaseObjects&quot;}]"/>
+                     <carnot:Attribute Name="carnot:engine:businessObjectRelationships" Value="[{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;BaseGroupWithoutNameData&quot;,&quot;modelId&quot;:&quot;BenchmarksModel&quot;},&quot;otherRole&quot;:&quot;BaseGroupWithoutNameRole&quot;,&quot;otherCardinality&quot;:&quot;TO_MANY&quot;,&quot;otherForeignKeyField&quot;:&quot;Groups&quot;,&quot;thisRole&quot;:&quot;BaseObjectsRole&quot;,&quot;thisCardinality&quot;:&quot;TO_MANY&quot;,&quot;thisForeignKeyField&quot;:&quot;BaseObjects&quot;}]"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>

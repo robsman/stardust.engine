@@ -711,7 +711,7 @@
                   <include>api/runtime/Daemon.java</include>
                   <include>api/runtime/DaemonExecutionState.java</include>
                   <include>api/runtime/DataCopyOptions.java</include>
-                  <include>api/runtime/DataValueConverter</include>
+                  <include>api/runtime/DataValueConverter.java</include>
                   <include>api/runtime/Department.java</include>
                   <include>api/runtime/DepartmentExistsException.java</include>
                   <include>api/runtime/DepartmentInfo.java</include>

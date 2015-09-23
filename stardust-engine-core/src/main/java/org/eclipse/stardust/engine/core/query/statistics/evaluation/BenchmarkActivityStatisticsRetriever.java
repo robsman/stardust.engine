@@ -10,12 +10,18 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.query.statistics.evaluation;
 
+import javax.xml.namespace.QName;
+
+import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQueryEvaluator;
+import org.eclipse.stardust.engine.api.query.BusinessObjectQuery;
 import org.eclipse.stardust.engine.api.query.QueryServiceUtils;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.query.statistics.api.BenchmarkActivityStatisticsQuery;
+import org.eclipse.stardust.engine.core.query.statistics.api.BusinessObjectPolicy;
+import org.eclipse.stardust.engine.core.query.statistics.api.BusinessObjectPolicy.BusinessObjectData;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQueryResult;
@@ -33,10 +39,26 @@ public class BenchmarkActivityStatisticsRetriever
    public CustomActivityInstanceQueryResult evaluateQuery(
          CustomActivityInstanceQuery query)
    {
+      if (!(query instanceof BenchmarkActivityStatisticsQuery))
+      {
+         throw new InternalException(
+               "Illegal argument: the query must be an instance of "
+                     + BenchmarkActivityStatisticsQuery.class.getName());
+      }
+      
       final BenchmarkActivityStatisticsQuery psq = (BenchmarkActivityStatisticsQuery) query;
 
+      BusinessObjectPolicy boPolicy = (BusinessObjectPolicy)
+            psq.getPolicy(BusinessObjectPolicy.class);
+
+      return boPolicy == null ? evaluateActivbityStatisticsQuery(psq) :
+         evaluateBusinessObjectStatisticsQuery(psq, boPolicy);
+   }
+
+   private CustomActivityInstanceQueryResult evaluateActivbityStatisticsQuery(BenchmarkActivityStatisticsQuery query)
+   {
       final BenchmarkActivityStatisticsResult result = new BenchmarkActivityStatisticsResult(
-            psq);
+            query);
 
       ResultIterator rawResult = null;
       try
@@ -78,6 +100,21 @@ public class BenchmarkActivityStatisticsRetriever
          }
       }
       return result;
+   }
+   
+   private CustomActivityInstanceQueryResult evaluateBusinessObjectStatisticsQuery(
+         BenchmarkActivityStatisticsQuery query, BusinessObjectPolicy boPolicy)
+   {
+      final BenchmarkBusinessObjectActivityStatisticsResult result =
+            new BenchmarkBusinessObjectActivityStatisticsResult(query);
 
+      BusinessObjectData filter = boPolicy.getFilter();
+
+      QName boName = new QName(filter.getModelId(), filter.getBusinessObjectId());
+      BusinessObjectQuery boq = filter.getPrimaryKeyValues() == null
+            ? BusinessObjectQuery.findForBusinessObject(boName.toString())
+            : BusinessObjectQuery.findWithPrimaryKey(boName.toString(), filter.getPrimaryKeyValues());
+            
+      return result;
    }
 }

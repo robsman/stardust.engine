@@ -87,7 +87,6 @@ public class BenchmarkProcessStatisticsRetriever
       BusinessObjectPolicy boPolicy = (BusinessObjectPolicy)
             psq.getPolicy(BusinessObjectPolicy.class);
 
-
       return boPolicy == null ? evaluateProcessStatisticsQuery(psq) :
          evaluateBusinessObjectStatisticsQuery(psq, boPolicy);
    }
@@ -139,8 +138,8 @@ public class BenchmarkProcessStatisticsRetriever
    private CustomProcessInstanceQueryResult evaluateBusinessObjectStatisticsQuery(
          BenchmarkProcessStatisticsQuery query, BusinessObjectPolicy boPolicy)
    {
-      final BenchmarkBusinessObjectStatisticsResult result =
-            new BenchmarkBusinessObjectStatisticsResult(query);
+      final BenchmarkBusinessObjectProcessStatisticsResult result =
+            new BenchmarkBusinessObjectProcessStatisticsResult(query);
 
       BusinessObjectData filter = boPolicy.getFilter();
 
@@ -203,13 +202,13 @@ public class BenchmarkProcessStatisticsRetriever
                {
                case ProcessInstanceState.ABORTED:
                case ProcessInstanceState.ABORTING:
-                  result.addAbortedInstance(groupByName, name, piOid);
+                  result.getBenchmarkStatistics().incrementAbortedPerItem(groupByName, name, piOid);
                   break;
                case ProcessInstanceState.COMPLETED:
-                  result.addCompletedInstance(groupByName, name, piOid);
+                  result.getBenchmarkStatistics().incrementCompletedPerItem(groupByName, name, piOid);
                   break;
                case ProcessInstanceState.ACTIVE:
-                  result.registerBusinessObjectBenchmarkCategory(groupByName, name, piOid, piBenchmarkValue);
+                  result.getBenchmarkStatistics().registerBenchmarkValue(groupByName, name, piOid, piBenchmarkValue);
                }
             }
          });

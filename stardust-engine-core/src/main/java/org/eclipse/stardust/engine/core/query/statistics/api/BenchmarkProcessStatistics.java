@@ -13,62 +13,86 @@ package org.eclipse.stardust.engine.core.query.statistics.api;
 import java.util.Collections;
 import java.util.Map;
 
+import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQueryResult;
+
 
 /**
  * @author roland.stamm
  * @version $Revision$
  */
-public abstract class BenchmarkProcessStatistics extends BenchmarkStatistics<String, Long>
+public abstract class BenchmarkProcessStatistics extends CustomProcessInstanceQueryResult
 {
    private static final long serialVersionUID = 1l;
+   
+   private final BenchmarkStatistics<String, Long> benchmarkStatistcs;
 
    protected BenchmarkProcessStatistics(BenchmarkProcessStatisticsQuery query)
    {
       super(query);
+      
+      benchmarkStatistcs = new BenchmarkStatistics<String, Long>() {
+
+         @Override
+         public long getCompletedCount(String key)
+         {
+            Long count = getCompletedPerItem().get(key);
+            return count == null ? 0 : count;
+         }
+
+         @Override
+         public long getAbortedCount(String key)
+         {
+            Long count = benchmarkStatistcs.getAbortedPerItem().get(key);
+            return count == null ? 0 : count;
+         }
+         
+      };
    }
 
    public BenchmarkCategoryCounts getBenchmarkCategoryCountsForProcess(String qualifiedProcessId)
    {
-      Map <String, BenchmarkCategoryCounts> benchmarkCategoryCountsPerItem = getBenchmarkCategoryCountsPerItem();
+      Map <String, BenchmarkCategoryCounts> benchmarkCategoryCountsPerItem = 
+            benchmarkStatistcs.getBenchmarkCategoryCountsPerItem();
       return benchmarkCategoryCountsPerItem.get(qualifiedProcessId);
    }
    
-   @Override
-   protected long getCompletedCount(String key)
-   {
-      Long count = getCompletedPerItem().get(key);
-      return count == null ? 0 : count;
-   }
-   
-   @Override
-   protected long getAbortedCount(String key)
-   {
-      Long count = getAbortedPerItem().get(key);
-      return count == null ? 0 : count;
-   }
-
    public Map<String, Long> getAbortedPerProcessId()
    {
-      return getAbortedPerItem();
+      return benchmarkStatistcs.getAbortedPerItem();
    }
 
    public long getAbortedCountForProcess(String qualifiedProcessId)
    {
-      return getAbortedCount(qualifiedProcessId);
+      return benchmarkStatistcs.getAbortedCount(qualifiedProcessId);
    }
 
    public Map<String, Long> getCompletedPerProcessId()
    {
-      return getCompletedPerItem();
+      return benchmarkStatistcs.getCompletedPerItem();
    }
 
    public long getCompletedCountForProcess(String qualifiedProcessId)
    {
-      return getCompletedCount(qualifiedProcessId);
+      return benchmarkStatistcs.getCompletedCount(qualifiedProcessId);
    }
    
    public Map<String, BenchmarkCategoryCounts> getBenchmarkCategoryCounts()
    {
-      return Collections.unmodifiableMap(getBenchmarkCategoryCountsPerItem());
+      return Collections.unmodifiableMap(benchmarkStatistcs.getBenchmarkCategoryCountsPerItem());
+   }
+   
+   protected Map<String, Long> getAbortedPerItem()
+   {
+      return benchmarkStatistcs.getAbortedPerItem();
+   }
+   
+   protected Map<String, Long> getCompletedPerItem()
+   {
+      return benchmarkStatistcs.getAbortedPerItem();
+   }
+   
+   protected Map<String, BenchmarkCategoryCounts> getBenchmarkCategoryCountsPerItem()
+   {
+      return benchmarkStatistcs.getBenchmarkCategoryCountsPerItem();
    }
 }

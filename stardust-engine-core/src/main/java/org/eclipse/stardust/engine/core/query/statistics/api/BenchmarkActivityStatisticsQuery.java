@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.query.statistics.api;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
@@ -17,6 +18,7 @@ import java.util.Set;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.query.*;
+import org.eclipse.stardust.engine.api.runtime.BusinessObject;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQuery;
@@ -81,6 +83,45 @@ public class BenchmarkActivityStatisticsQuery extends CustomActivityInstanceQuer
 
          processFilter.add(new ProcessDefinitionFilter(processId, false));
       }
+
+      return query;
+   }
+   
+   public static BenchmarkActivityStatisticsQuery forProcessesAndBusinessObject(
+         Set<ProcessDefinition> processes,
+         BusinessObject businessObjectId, Set<Serializable> businessObjectPrimaryKeys)
+   {
+      return forProcessesAndBusinessObject(processes, 
+            businessObjectId, businessObjectPrimaryKeys, null, null);
+   }
+   
+   public static BenchmarkActivityStatisticsQuery forProcessesAndBusinessObject(
+         Set<ProcessDefinition> processes,
+         BusinessObject businessObjectId, BusinessObject businessObjectGroup)
+   {
+      return forProcessesAndBusinessObject(processes, 
+            businessObjectId, null, businessObjectGroup, null);
+   }
+   
+   public static BenchmarkActivityStatisticsQuery forProcessesAndBusinessObject(
+         Set<ProcessDefinition> processes,
+         BusinessObject businessObject, Set<Serializable> businessObjectPrimaryKeys,
+         BusinessObject businessObjectGroup, Set<Serializable> businessObjectGroupPrimaryKeys)
+   {
+      BenchmarkActivityStatisticsQuery query = forProcesses(processes);
+
+      BusinessObjectPolicy boPolicy = BusinessObjectPolicy.filterFor(
+            businessObject.getModelId(), businessObject.getId(),
+            businessObjectPrimaryKeys);
+      
+      if(businessObjectGroup != null)
+      {
+         boPolicy.groupBy(businessObjectGroup.getModelId(),
+               businessObjectGroup.getId(),
+               businessObjectGroupPrimaryKeys);
+      }
+      
+      query.setPolicy(boPolicy);
 
       return query;
    }

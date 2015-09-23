@@ -13,21 +13,15 @@ package org.eclipse.stardust.engine.core.query.statistics.api;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQuery;
-import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQueryResult;
 
-public abstract class BenchmarkStatistics<K, V> extends CustomProcessInstanceQueryResult
+public abstract class BenchmarkStatistics<K, V>
 {
-   private static final long serialVersionUID = 1L;
-
    private Map<K, BenchmarkCategoryCounts> benchmarkCategoryCountsPerItem;
    private Map<K, V> abortedPerItem;
    private Map<K, V> completedPerItem;
    
-   public BenchmarkStatistics(CustomProcessInstanceQuery query)
+   public BenchmarkStatistics()
    {
-      super(query);
-      
       this.benchmarkCategoryCountsPerItem = CollectionUtils.newMap();
       this.abortedPerItem  = CollectionUtils.newMap();
       this.completedPerItem = CollectionUtils.newMap();

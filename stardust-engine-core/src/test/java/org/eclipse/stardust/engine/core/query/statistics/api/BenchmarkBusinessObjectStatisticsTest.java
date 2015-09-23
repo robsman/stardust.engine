@@ -20,18 +20,55 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import org.eclipse.stardust.engine.core.query.statistics.evaluation.BenchmarkBusinessObjectStatisticsResult;
+import org.eclipse.stardust.engine.core.query.statistics.evaluation.BenchmarkBusinessObjectProcessStatisticsResult;
 
 public class BenchmarkBusinessObjectStatisticsTest
 {
-   @Mock private BenchmarkProcessStatisticsQuery statisticsQuery;
+   static class BenchmarkBusinessObjectStatisticsResultTest extends
+   BenchmarkBusinessObjectProcessStatisticsResult
+   {
+      private static final long serialVersionUID = 1L;
+      @Mock private static BenchmarkProcessStatisticsQuery statisticsQuery;
+
+      BenchmarkBusinessObjectStatisticsResultTest()
+      {
+         super(statisticsQuery);
+      }
+      
+      @Override
+      protected BusinessObjectBenchmarkStatistics getBenchmarkStatistics()
+      {
+         return super.getBenchmarkStatistics();
+      }
+      
+      public void registerBusinessObjectBenchmarkCategory(String groupByValue,
+            String filterValue, long instanceOID, int benchmarkValue)
+      {
+         getBenchmarkStatistics().registerBenchmarkValue(
+               groupByValue, filterValue, instanceOID, benchmarkValue);
+      }
+      
+      public void addAbortedInstance(String groupByValue,
+            String filterValue, long instanceOID)
+      {
+         getBenchmarkStatistics().incrementAbortedPerItem(groupByValue, 
+               filterValue, instanceOID);
+      }
+      
+      public void addCompletedInstance(String groupByValue,
+            String filterValue, long instanceOID)
+      {
+         getBenchmarkStatistics().incrementCompletedPerItem(groupByValue, 
+               filterValue, instanceOID);
+      }
+   }
    
-   private BenchmarkBusinessObjectStatisticsResult bbosr;
+   private BenchmarkBusinessObjectStatisticsResultTest bbosr;
    
    @Before
    public void setUp() throws Exception
    {
-      bbosr = new BenchmarkBusinessObjectStatisticsResult(statisticsQuery);
+      bbosr = new BenchmarkBusinessObjectStatisticsResultTest();
    }
 
    @Test
@@ -254,7 +291,7 @@ public class BenchmarkBusinessObjectStatisticsTest
       final String GROUP1 = "group1";
       final String GROUP2 = "group2";
       
-      Set<Long> processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "filter1");
+      Set<Long> processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "filter1");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(0));
       
@@ -262,19 +299,19 @@ public class BenchmarkBusinessObjectStatisticsTest
       // Total: 1 (OID: 2)
       //   group1: 1 (OID: 2)
       //     filter1: 1 (OID: 2)
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "filter1");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "filter1");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItem(2l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, null);
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(2l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(2l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(null, null);
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(null, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(2l));
@@ -283,19 +320,19 @@ public class BenchmarkBusinessObjectStatisticsTest
       // Total: 1 (OID: 2,3)
       //   group1: 1 (OID: 2,3)
       //     filter1: 1 (OID: 2,3)
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "filter1");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "filter1");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, null);
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(null, null);
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(null, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
@@ -305,23 +342,23 @@ public class BenchmarkBusinessObjectStatisticsTest
       //   group1: 1 (OID: 2,3)
       //     filter1: 1 (OID: 2,3)
       //     filter2: 1 (OID: 3)
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "filter2");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "filter2");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "filter1");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "filter1");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, null);
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(null, null);
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(null, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
@@ -331,23 +368,23 @@ public class BenchmarkBusinessObjectStatisticsTest
       //   group1: 1 (OID: 2,3)
       //     filter1: 1 (OID: 2,3)
       //     filter2: 1 (OID: 3)
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "filter2");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "filter2");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "filter1");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "filter1");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, null);
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(null, null);
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(null, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
@@ -358,27 +395,27 @@ public class BenchmarkBusinessObjectStatisticsTest
       //     filter1: 1 (OID: 2,3)
       //     filter2: 1 (OID: 3)
       //     filter3: 1 (OID: 3)
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "filter3");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "filter3");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "filter2");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "filter2");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "filter1");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "filter1");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, null);
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(null, null);
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(null, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
@@ -391,31 +428,31 @@ public class BenchmarkBusinessObjectStatisticsTest
       //     filter3: 1 (OID: 3)
       //   group2: 1 (OID: 3)
       //     filter2: 1 (OID: 3)
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP2, "filter2");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP2, "filter2");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP2, null);
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP2, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "filter3");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "filter3");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "filter2");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "filter2");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "filter1");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "filter1");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, null);
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(null, null);
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(null, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
@@ -429,35 +466,35 @@ public class BenchmarkBusinessObjectStatisticsTest
       //   group2: 1 (OID: 3,4)
       //     filter2: 1 (OID: 3)
       //     filter3: 1 (OID: 4)
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP2, "filter3");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP2, "filter3");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(4l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP2, "filter2");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP2, "filter2");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP2, null);
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP2, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(3l,4l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "filter3");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "filter3");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "filter2");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "filter2");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, "filter1");
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, "filter1");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(GROUP1, null);
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(GROUP1, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getAbortedProcessInstanceOIDs(null, null);
+      processInstancesOIDs = bbosr.getAbortedInstanceOIDs(null, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(3));
       assertThat(processInstancesOIDs, hasItems(2l, 3l, 4l));
@@ -717,7 +754,7 @@ public class BenchmarkBusinessObjectStatisticsTest
       final String GROUP1 = "group1";
       final String GROUP2 = "group2";
       
-      Set<Long> processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "filter1");
+      Set<Long> processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "filter1");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(0));
       
@@ -725,19 +762,19 @@ public class BenchmarkBusinessObjectStatisticsTest
       // Total: 1 (OID: 2)
       //   group1: 1 (OID: 2)
       //     filter1: 1 (OID: 2)
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "filter1");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "filter1");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItem(2l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, null);
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(2l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(2l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(null, null);
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(null, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(2l));
@@ -746,19 +783,19 @@ public class BenchmarkBusinessObjectStatisticsTest
       // Total: 1 (OID: 2,3)
       //   group1: 1 (OID: 2,3)
       //     filter1: 1 (OID: 2,3)
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "filter1");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "filter1");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, null);
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(null, null);
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(null, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
@@ -768,23 +805,23 @@ public class BenchmarkBusinessObjectStatisticsTest
       //   group1: 1 (OID: 2,3)
       //     filter1: 1 (OID: 2,3)
       //     filter2: 1 (OID: 3)
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "filter2");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "filter2");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "filter1");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "filter1");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, null);
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(null, null);
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(null, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
@@ -794,23 +831,23 @@ public class BenchmarkBusinessObjectStatisticsTest
       //   group1: 1 (OID: 2,3)
       //     filter1: 1 (OID: 2,3)
       //     filter2: 1 (OID: 3)
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "filter2");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "filter2");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "filter1");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "filter1");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, null);
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(null, null);
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(null, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
@@ -821,27 +858,27 @@ public class BenchmarkBusinessObjectStatisticsTest
       //     filter1: 1 (OID: 2,3)
       //     filter2: 1 (OID: 3)
       //     filter3: 1 (OID: 3)
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "filter3");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "filter3");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "filter2");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "filter2");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "filter1");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "filter1");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, null);
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(null, null);
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(null, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
@@ -854,31 +891,31 @@ public class BenchmarkBusinessObjectStatisticsTest
       //     filter3: 1 (OID: 3)
       //   group2: 1 (OID: 3)
       //     filter2: 1 (OID: 3)
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP2, "filter2");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP2, "filter2");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP2, null);
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP2, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "filter3");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "filter3");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "filter2");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "filter2");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "filter1");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "filter1");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, null);
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(null, null);
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(null, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
@@ -892,35 +929,35 @@ public class BenchmarkBusinessObjectStatisticsTest
       //   group2: 1 (OID: 3,4)
       //     filter2: 1 (OID: 3)
       //     filter3: 1 (OID: 4)
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP2, "filter3");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP2, "filter3");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(4l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP2, "filter2");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP2, "filter2");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP2, null);
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP2, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(3l,4l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "filter3");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "filter3");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "filter2");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "filter2");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(1));
       assertThat(processInstancesOIDs, hasItems(3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, "filter1");
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, "filter1");
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(GROUP1, null);
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(GROUP1, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(2));
       assertThat(processInstancesOIDs, hasItems(2l, 3l));
-      processInstancesOIDs = bbosr.getCompletedProcessInstanceOIDs(null, null);
+      processInstancesOIDs = bbosr.getCompletedInstanceOIDs(null, null);
       assertNotNull(processInstancesOIDs);
       assertThat(processInstancesOIDs.size(), is(3));
       assertThat(processInstancesOIDs, hasItems(2l, 3l, 4l));
@@ -1178,11 +1215,11 @@ public class BenchmarkBusinessObjectStatisticsTest
       // Total:       1 (OID: 2)
       //   group1:    1 (OID: 2)
       //     filter1: 1 (OID: 2)
-      Set<Long> processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter1", 0);
+      Set<Long> processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter1", 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, null, 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(null, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(null, null, 0);
       assertThat(processInstances, hasItems(2l));
       
       bbosr.registerBusinessObjectBenchmarkCategory(GROUP1, "filter2", 2, 0);
@@ -1191,13 +1228,13 @@ public class BenchmarkBusinessObjectStatisticsTest
       //   group1:    1 (OID: 2)
       //     filter1: 1 (OID: 2)
       //     filter2: 1 (OID: 2)
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter1", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter1", 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, null, 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(null, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(null, null, 0);
       assertThat(processInstances, hasItems(2l));
       
       bbosr.registerBusinessObjectBenchmarkCategory(GROUP1, "filter2", 2, 1);
@@ -1206,19 +1243,19 @@ public class BenchmarkBusinessObjectStatisticsTest
       //   group1:    1 (OID: 2)       1 (OID: 2)
       //     filter1: 1 (OID: 2)
       //     filter2: 1 (OID: 2)       1 (OID: 2)
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 1);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter1", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter1", 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, null, 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(null, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(null, null, 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, null, 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, null, 1);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(null, null, 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(null, null, 1);
       assertThat(processInstances, hasItems(2l));
       
       bbosr.registerBusinessObjectBenchmarkCategory(GROUP1, "filter2", 2, 0);
@@ -1227,19 +1264,19 @@ public class BenchmarkBusinessObjectStatisticsTest
       //   group1:    1 (OID: 2)       1 (OID: 2)
       //     filter1: 1 (OID: 2)
       //     filter2: 1 (OID: 2)       1 (OID: 2)
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 1);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter1", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter1", 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, null, 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(null, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(null, null, 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, null, 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, null, 1);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(null, null, 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(null, null, 1);
       assertThat(processInstances, hasItems(2l));
       
       bbosr.registerBusinessObjectBenchmarkCategory(GROUP1, "filter3", 3, 0);
@@ -1249,21 +1286,21 @@ public class BenchmarkBusinessObjectStatisticsTest
       //     filter1: 1 (OID: 2)
       //     filter2: 1 (OID: 2)       1 (OID: 2)
       //     filter3: 1 (OID: 3)
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter3", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter3", 0);
       assertThat(processInstances, hasItems(3l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 1);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter1", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter1", 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, null, 0);
       assertThat(processInstances, hasItems(2l, 3l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(null, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(null, null, 0);
       assertThat(processInstances, hasItems(2l, 3l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, null, 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, null, 1);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(null, null, 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(null, null, 1);
       assertThat(processInstances, hasItems(2l));
       
       bbosr.registerBusinessObjectBenchmarkCategory(GROUP1, "filter2", 3, 0);
@@ -1273,21 +1310,21 @@ public class BenchmarkBusinessObjectStatisticsTest
       //     filter1: 1 (OID: 2)
       //     filter2: 1 (OID: 2,3)     1 (OID: 2)
       //     filter3: 1 (OID: 3)
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter3", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter3", 0);
       assertThat(processInstances, hasItems(3l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 1);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter1", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter1", 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 0);
       assertThat(processInstances, hasItems(2l, 3l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, null, 0);
       assertThat(processInstances, hasItems(2l, 3l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(null, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(null, null, 0);
       assertThat(processInstances, hasItems(2l, 3l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, null, 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, null, 1);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(null, null, 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(null, null, 1);
       assertThat(processInstances, hasItems(2l));
       
       // insert same PI for another groupbBy
@@ -1300,23 +1337,23 @@ public class BenchmarkBusinessObjectStatisticsTest
       //     filter3: 1 (OID: 3)
       //   group2:    1 (OID: 3)
       //     filter2: 1 (OID: 3)
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP2, "filter2", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP2, "filter2", 0);
       assertThat(processInstances, hasItems(3l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter3", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter3", 0);
       assertThat(processInstances, hasItems(3l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 1);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter1", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter1", 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 0);
       assertThat(processInstances, hasItems(2l, 3l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, null, 0);
       assertThat(processInstances, hasItems(2l, 3l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(null, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(null, null, 0);
       assertThat(processInstances, hasItems(2l, 3l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, null, 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, null, 1);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(null, null, 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(null, null, 1);
       assertThat(processInstances, hasItems(2l));
       
       bbosr.registerBusinessObjectBenchmarkCategory(GROUP2, "filter3", 4, 0);
@@ -1329,25 +1366,25 @@ public class BenchmarkBusinessObjectStatisticsTest
       //   group2:    1 (OID: 3,4)
       //     filter2: 1 (OID: 3)
       //     filter3: 1 (OID: 4)
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP2, "filter3", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP2, "filter3", 0);
       assertThat(processInstances, hasItems(4l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter3", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter3", 0);
       assertThat(processInstances, hasItems(3l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 1);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter1", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter1", 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 0);
       assertThat(processInstances, hasItems(2l, 3l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, null, 0);
       assertThat(processInstances, hasItems(2l, 3l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP2, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP2, null, 0);
       assertThat(processInstances, hasItems(3l, 4l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(null, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(null, null, 0);
       assertThat(processInstances, hasItems(3l, 4l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, null, 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, null, 1);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(null, null, 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(null, null, 1);
       assertThat(processInstances, hasItems(2l));
       
       bbosr.registerBusinessObjectBenchmarkCategory(GROUP2, "filter3", 4, 1);
@@ -1360,31 +1397,31 @@ public class BenchmarkBusinessObjectStatisticsTest
       //   group2:    1 (OID: 3,4)     1 (OID: 4)
       //     filter2: 1 (OID: 3)
       //     filter3: 1 (OID: 4)       1 (OID: 4)
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP2, "filter3", 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP2, "filter3", 1);
       assertThat(processInstances, hasItems(4l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP2, "filter3", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP2, "filter3", 0);
       assertThat(processInstances, hasItems(4l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter3", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter3", 0);
       assertThat(processInstances, hasItems(3l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 1);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter1", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter1", 0);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, "filter2", 0);
       assertThat(processInstances, hasItems(2l, 3l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, null, 0);
       assertThat(processInstances, hasItems(2l, 3l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP2, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP2, null, 0);
       assertThat(processInstances, hasItems(3l, 4l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP2, null, 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP2, null, 1);
       assertThat(processInstances, hasItems(4l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(null, null, 0);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(null, null, 0);
       assertThat(processInstances, hasItems(2l, 3l, 4l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP1, null, 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP1, null, 1);
       assertThat(processInstances, hasItems(2l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(GROUP2, null, 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(GROUP2, null, 1);
       assertThat(processInstances, hasItems(4l));
-      processInstances = bbosr.getProcessInstanceOIDsForBenchmarkCategory(null, null, 1);
+      processInstances = bbosr.getInstanceOIDsForBenchmarkCategory(null, null, 1);
       assertThat(processInstances, hasItems(2l, 4l));
    }
 }

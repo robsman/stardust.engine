@@ -31,7 +31,8 @@ public class BenchmarkProcessStatisticsResult extends BenchmarkProcessStatistics
 
    public void registerProcessBenchmarkCategory(String processId, int benchmarkValue)
    {
-      Map<String, BenchmarkCategoryCounts> benchmarkCategoryCountsPerItem = getBenchmarkCategoryCountsPerItem();
+      Map<String, BenchmarkCategoryCounts> benchmarkCategoryCountsPerItem = 
+            getBenchmarkCategoryCountsPerItem();
       BenchmarkCategoryCounts benchmarkCategoryCount = benchmarkCategoryCountsPerItem.get(processId);
 
       if (benchmarkCategoryCount == null)

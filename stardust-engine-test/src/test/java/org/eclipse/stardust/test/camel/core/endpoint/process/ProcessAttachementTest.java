@@ -257,7 +257,7 @@ public class ProcessAttachementTest extends AbstractCamelIntegrationTest
          @Override
          public void configure() throws Exception
          {
-            from("file:target/test-classes/binaryFiles?noop=true").id("AttachBinaryFileRoute")
+            from("file:target/test-classes/binaryFiles?noop=true&fileName=test-excel.xlsx").id("AttachBinaryFileRoute")
                   .to("ipp:authenticate:" + COMMAND_SET_CURRENT + "?user=motu&password=motu")
                   .to("ipp:process:start?processId=StartProcessAndAttachFile")
                   .to("ipp:process:continue")

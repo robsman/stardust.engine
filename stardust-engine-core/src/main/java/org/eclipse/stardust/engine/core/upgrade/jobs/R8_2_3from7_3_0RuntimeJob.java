@@ -283,6 +283,12 @@ public class R8_2_3from7_3_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    }
 
    @Override
+   public boolean isMandatory()
+   {
+      return false;
+   }
+
+   @Override
    public Version getVersion()
    {
       return VERSION;

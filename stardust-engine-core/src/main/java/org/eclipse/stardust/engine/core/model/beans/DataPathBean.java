@@ -20,6 +20,7 @@ import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.model.utils.SingleRef;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.struct.*;
+import org.eclipse.stardust.engine.core.struct.spi.StructDataTransformerKey;
 
 /**
  * @author ubirkemeyer
@@ -155,21 +156,21 @@ public class DataPathBean extends IdentifiableElementBean
          }
       }
       else
-      {         
-         String dataTypeId = data.getType().getId();         
+      {
+         String dataTypeId = data.getType().getId();
          if (PredefinedConstants.STRUCTURED_DATA.equals(dataTypeId))
-         {         
+         {
             IXPathMap xPathMap = StructuredTypeRtUtils.getXPathMap(data);
             if (xPathMap != null)
             {
-               if(!StringUtils.isEmpty(accessPath))
+               if (!StringUtils.isEmpty(accessPath))
                {
-                  String xPathWithoutIndexes = StructuredDataXPathUtils.getXPathWithoutIndexes(accessPath);
+                  String xPathWithoutIndexes = StructuredDataXPathUtils.getXPathWithoutIndexes(StructDataTransformerKey.stripTransformation(accessPath));
                   TypedXPath xPath = xPathMap.getXPath(xPathWithoutIndexes);
                   if (xPath == null)
                   {
                      BpmValidationError error = BpmValidationError.ACCESSPATH_INVALID_FOR_DATAPATH.raise(accessPath, getId());
-                     inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));                     
+                     inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                   }
                }
             }

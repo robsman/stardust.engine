@@ -30,6 +30,7 @@ import org.eclipse.stardust.engine.core.struct.IXPathMap;
 import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
+import org.eclipse.stardust.engine.core.struct.spi.StructDataTransformerKey;
 
 
 /**
@@ -88,7 +89,8 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
 
       // Rule: associated data must be part of the same model
       // if only dataPath is set and no data, then this is a CONSTANT
-      if (getData() == null && StringUtils.isEmpty(getDataPath()))
+      String dataPath = getDataPath();
+      if (getData() == null && StringUtils.isEmpty(dataPath))
       {
          BpmValidationError error = BpmValidationError.DATA_NO_DATA_SET_FOR_DATAMAPPING.raise(getErrorName());
          inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
@@ -131,24 +133,26 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                   inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
                }
             }
-            IData data = dataMapping.getData();
-            if(data != null)
+         }
+
+         IData data = getData();
+         if (data != null)
+         {
+            String dataTypeId = data.getType().getId();
+            if (PredefinedConstants.STRUCTURED_DATA.equals(dataTypeId))
             {
-               String dataTypeId = data.getType().getId();
-               if (PredefinedConstants.STRUCTURED_DATA.equals(dataTypeId))
+               IXPathMap xPathMap = StructuredTypeRtUtils.getXPathMap(data);
+               if (xPathMap != null)
                {
-                  IXPathMap xPathMap = StructuredTypeRtUtils.getXPathMap(data);
-                  if (xPathMap != null)
+                  if (!StringUtils.isEmpty(dataPath))
                   {
-                     if(!StringUtils.isEmpty(dataMapping.getDataPath()))
+                     String xPathWithoutIndexes = StructuredDataXPathUtils.getXPathWithoutIndexes(
+                           StructDataTransformerKey.stripTransformation(dataPath));
+                     TypedXPath xPath = xPathMap.getXPath(xPathWithoutIndexes);
+                     if (xPath == null)
                      {
-                        String xPathWithoutIndexes = StructuredDataXPathUtils.getXPathWithoutIndexes(dataMapping.getDataPath());
-                        TypedXPath xPath = xPathMap.getXPath(xPathWithoutIndexes);
-                        if (xPath == null)
-                        {
-                           BpmValidationError error = BpmValidationError.DATA_INVALID_DATAPATH_FOR_DATAMAPPING.raise(dataMapping.getId());
-                           inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
-                        }
+                        BpmValidationError error = BpmValidationError.DATA_INVALID_DATAPATH_FOR_DATAMAPPING.raise(getId());
+                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                      }
                   }
                }
@@ -207,9 +211,8 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                   ctxMissing = true;
                }
             }
-            if ( !ctxMissing && getData() != null)
+            if (!ctxMissing && data != null)
             {
-               IData data = getData();
                if (!BridgeObject.isValidMapping(context, direction, applicationAccessPointId, accessPoint, applicationPath,
                      data, dataPath, activity))
                {

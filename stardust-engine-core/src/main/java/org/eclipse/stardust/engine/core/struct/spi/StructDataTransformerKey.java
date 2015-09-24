@@ -14,7 +14,7 @@ package org.eclipse.stardust.engine.core.struct.spi;
 import org.eclipse.stardust.common.StringKey;
 
 /**
- * 
+ *
  * @author born
  */
 public class StructDataTransformerKey extends StringKey
@@ -42,5 +42,23 @@ public class StructDataTransformerKey extends StringKey
    private StructDataTransformerKey(String id)
    {
       super(id, id);
+   }
+
+   public static String stripTransformation(String xpath)
+   {
+      // Strip IPP specific transform operations from xpath before validating
+      if (xpath.charAt(xpath.length() - 1) == ')')
+      {
+         int ix = xpath.indexOf('(');
+         if (ix > 0)
+         {
+            StructDataTransformerKey transformerKey = StructDataTransformerKey.getKey(xpath.substring(0, ix));
+            if (transformerKey != null)
+            {
+               xpath = xpath.substring(ix + 1, xpath.length() - 1);
+            }
+         }
+      }
+      return xpath;
    }
 }

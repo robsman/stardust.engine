@@ -31,6 +31,8 @@ import org.eclipse.stardust.engine.api.model.Application;
 import org.eclipse.stardust.engine.api.model.DataMapping;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.LogCode;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AsynchronousApplicationInstance;
 
 
@@ -335,6 +337,9 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
 
          assembler.sendMail();
 
+         AuditTrailLogger.getInstance(LogCode.ENGINE).info(
+               MessageFormat.format("", new Object[] {}));
+         
          if (trace.isDebugEnabled())
          {
             trace.debug("Mail sent.");

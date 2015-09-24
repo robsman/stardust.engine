@@ -10,7 +10,11 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import java.util.List;
+
 import org.eclipse.stardust.common.Action;
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
+import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -22,6 +26,7 @@ import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityIn
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
+import org.eclipse.stardust.engine.core.spi.logging.IAuditTrailLoggingFilter;
 
 
 // @todo (france, ub): make this an appender
@@ -31,6 +36,9 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
  */
 public class AuditTrailLogger implements Logger
 {
+   private static final String KEY_SESSION_AUDITTRAIL_LOGGING_FILTER_MEDIATOR = AuditTrailLoggingFilterMediator.class.getName()
+         + ".RuntimeEnvironmentLoggingFilterMediator";
+   
    public static final Logger trace = LogManager.getLogger(AuditTrailLogger.class);
 
    private long user;
@@ -160,7 +168,15 @@ public class AuditTrailLogger implements Logger
          if ( !isTransientExecutionScenario)
          {
             short partitionOid = SecurityProperties.getPartitionOid();
-            logToAuditTrailDataBase(severity, message, processInstance, activityInstance, partitionOid);
+            
+            // Call AuditTrailLoggingFilter SPI
+       
+            if ( !getAuditTrailLoggingFilter().filterLogEntry(code, severity, context,
+                  partitionOid, o))
+            {
+               logToAuditTrailDataBase(severity, message, processInstance,
+                     activityInstance, partitionOid);
+            }
          }
       }
       message = message + " (" + SecurityProperties.getUser() + ")";
@@ -264,5 +280,53 @@ public class AuditTrailLogger implements Logger
          default:
             break;
       }
+   }
+   
+   private IAuditTrailLoggingFilter getAuditTrailLoggingFilter()
+   {
+      GlobalParameters globals = GlobalParameters.globals();
+
+      IAuditTrailLoggingFilter mediator = (IAuditTrailLoggingFilter) globals.get(KEY_SESSION_AUDITTRAIL_LOGGING_FILTER_MEDIATOR);
+
+      if (null == mediator)
+      {
+         mediator = new AuditTrailLoggingFilterMediator(
+               ExtensionProviderUtils.getExtensionProviders(IAuditTrailLoggingFilter.class));
+         globals.set(KEY_SESSION_AUDITTRAIL_LOGGING_FILTER_MEDIATOR, mediator);
+      }
+
+      return mediator;
+   }
+
+   private class AuditTrailLoggingFilterMediator implements IAuditTrailLoggingFilter
+   {
+      private static final String FAILED_BROADCASTING_AUDITTRAIL_LOGGING_FILTER_EVENT = "Failed broadcasting daemon execution monitor event.";
+      
+      private final List<IAuditTrailLoggingFilter> monitors;
+
+      public AuditTrailLoggingFilterMediator(List<IAuditTrailLoggingFilter> monitors)
+      {
+         this.monitors = monitors;
+      }
+
+      @Override
+      public boolean filterLogEntry(LogCode code, LogType severity, Object context,
+            long user, Object subject)
+      {
+         for (int i = 0; i < monitors.size(); ++i)
+         {
+            IAuditTrailLoggingFilter loggingFilter = monitors.get(i);
+            try
+            {
+               return loggingFilter.filterLogEntry(code, severity, context, user, subject);            
+            }
+            catch (Exception e)
+            {
+               trace.warn(FAILED_BROADCASTING_AUDITTRAIL_LOGGING_FILTER_EVENT, e);
+            }
+         }
+         return false;
+      }
+
    }
 }

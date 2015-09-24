@@ -209,8 +209,10 @@ public class BenchmarkDaemon implements IDaemon
                         greaterThan(ProcessInstanceBean.FR__BENCHMARK_OID, 0)),
                   greaterThan(ProcessInstanceBean.FR__OID, this.currentPiOid)));
 
+      // Log time before query execution
       ResultSet rs = session.executeQuery(query);
 
+      // Log tinme after query execution
       try
       {
          int copiedRows = 0;
@@ -240,7 +242,8 @@ public class BenchmarkDaemon implements IDaemon
       {
          QueryUtils.closeResultSet(rs);
       }
-
+      // Log Timestamp after result set iteration
+      
       return piBenchmarkMap;
    }
 

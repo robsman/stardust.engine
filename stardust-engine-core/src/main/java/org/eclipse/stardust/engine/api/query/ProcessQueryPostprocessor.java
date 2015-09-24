@@ -873,8 +873,15 @@ public class ProcessQueryPostprocessor
          // Only fetch INFO for EVENTS which are written on event execution
          logCodeTypePredicate.add(Predicates.andTerm(
                Predicates.isEqual(LogEntryBean.FR__CODE, LogCode.EVENT.getValue()),
-               Predicates.isEqual(LogEntryBean.FR__TYPE, LogType.INFO)));
+               Predicates.isEqual(LogEntryBean.FR__TYPE, LogType.INFO)));         
       }
+      if (isEventTypeSet(eventPolicy.getEventTypes(), HistoricalEventType.DATA_CHANGE))
+      {
+         // Only fetch INFO for EVENTS which are written on event execution
+         logCodeTypePredicate.add(Predicates.andTerm(
+               Predicates.isEqual(LogEntryBean.FR__CODE, LogCode.DATA.getValue()),
+               Predicates.isEqual(LogEntryBean.FR__TYPE, LogType.INFO)));
+      }      
       performPrefetch(LogEntryBean.class, //
             QueryExtension.where(Predicates.andTerm(piTermTemplate, logCodeTypePredicate)), //
             piTermTemplate, piSet, false, timeout, PREFETCH_BATCH_SIZE);

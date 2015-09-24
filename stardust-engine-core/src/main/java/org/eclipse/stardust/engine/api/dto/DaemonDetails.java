@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.api.dto;
 
 import java.util.Date;
+import java.util.TreeSet;
 
 import org.eclipse.stardust.engine.api.runtime.AcknowledgementState;
 import org.eclipse.stardust.engine.api.runtime.Daemon;
@@ -89,10 +90,9 @@ public class DaemonDetails
    {
       return des;
    }
-
-   @Override
    public DaemonExecutionLog getExecutionLog()
    {
       return log;
+
    }
 }

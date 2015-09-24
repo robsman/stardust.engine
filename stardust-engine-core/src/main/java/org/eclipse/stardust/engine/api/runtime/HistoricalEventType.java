@@ -39,9 +39,15 @@ public class HistoricalEventType extends IntKey
    public final static int STATE_CHANGE = 4;
 
    /**
+    * The HistoricalEvent describes a data change
+    */
+   public final static int DATA_CHANGE = 5;
+   
+   /**
     * The HistoricalEvent describes a delegation event.
     */
    public final static int DELEGATION = 8;
+   
 
    /**
     * The HistoricalEvent describes an event execution event.

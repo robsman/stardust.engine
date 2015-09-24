@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import static org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils.isSerialExecutionScenario;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.*;
 
 import javax.xml.XMLConstants;
@@ -1681,6 +1682,11 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       }
 
       processInstance.setOutDataValue(data, path.getAccessPath(), value);
+      
+      AuditTrailLogger.getInstance(LogCode.DATA, processInstance)
+            .info(MessageFormat.format(
+                  "Data ''{0}'' of Process Instance ''{1}'' has been changed through datapath ''{2}''",
+                  new Object[] {data.getId(), processInstance.getOID(), path.getId()}));
    }
 
    public DeployedModel getModel()

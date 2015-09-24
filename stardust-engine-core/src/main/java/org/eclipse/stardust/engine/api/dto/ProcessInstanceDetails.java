@@ -673,6 +673,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             lIter = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getCache(
                   LogEntryBean.class)
                   .iterator();
+            
          }
          while (lIter != null && lIter.hasNext())
          {
@@ -686,6 +687,31 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             }
          }
       }
+      
+      if (isEventTypeSet(eventTypes, HistoricalEventType.DATA_CHANGE))
+      {
+         Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+         Iterator lIter = null;
+         if (session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
+         {
+            lIter = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getCache(
+                  LogEntryBean.class)
+                  .iterator();
+            
+         }
+         while (lIter != null && lIter.hasNext())
+         {
+            PersistenceController pc = (PersistenceController) lIter.next();
+            ILogEntry logEntry = (ILogEntry) pc.getPersistent();
+            LogType logtype = LogType.getKey(logEntry.getType());
+            LogCode logcode = LogCode.getKey(logEntry.getCode());
+            if (logEntry.getProcessInstanceOID() == getOID()
+                  && LogType.Info.equals(logtype) && LogCode.DATA.equals(logcode))
+            {
+               historicalEvents.add(new HistoricalEventDetails(logEntry));
+            }
+         }
+      }      
 
       if (isEventTypeSet(eventTypes, HistoricalEventType.STATE_CHANGE))
       {

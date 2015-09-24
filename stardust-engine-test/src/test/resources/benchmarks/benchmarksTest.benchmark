@@ -289,7 +289,95 @@
                ],
                "enableBenchmark":"true",
                "expectedDuration":"0.0",
-               "activities":[]
+               "activities":[
+                  {
+                     "id":"BenchmarkedSubProcess_SharedData_",
+                     "enableBenchmark":"true",
+                     "categoryConditions":[
+                        {
+                           "categoryId":"77df2bb8-af69-426e-be59-84b18f04cc30",
+                           "type":"freeform",
+                           "freeformExpression":"BaseData.Name == 'BaseC';",
+                           "details":{
+                              "condition":{
+                                 "lhs":{
+                                    "id":"CURRENT_TIME",
+                                    "type":"attribute",
+                                    "deref":""
+                                 },
+                                 "operator":">",
+                                 "rhs":{
+                                    "id":"{BenchmarksModel}CURRENT_DATE",
+                                    "type":"data",
+                                    "deref":""
+                                 },
+                                 "offset":{
+                                    "applyOffset":false,
+                                    "useBusinessDays":true,
+                                    "amount":10,
+                                    "unit":"d",
+                                    "time":"00:01"
+                                 }
+                              }
+                           }
+                        },
+                        {
+                           "categoryId":"d1fee32c-cb5b-4637-bb5d-b611acfe636a",
+                           "type":"freeform",
+                           "freeformExpression":"BaseData.Name == 'BaseB';",
+                           "details":{
+                              "condition":{
+                                 "lhs":{
+                                    "id":"CURRENT_TIME",
+                                    "type":"attribute",
+                                    "deref":""
+                                 },
+                                 "operator":">",
+                                 "rhs":{
+                                    "id":"{BenchmarksModel}CURRENT_DATE",
+                                    "type":"data",
+                                    "deref":""
+                                 },
+                                 "offset":{
+                                    "applyOffset":false,
+                                    "useBusinessDays":true,
+                                    "amount":10,
+                                    "unit":"d",
+                                    "time":"00:01"
+                                 }
+                              }
+                           }
+                        },
+                        {
+                           "categoryId":"00910fc6-0637-47a0-ad33-19180090b967",
+                           "type":"freeform",
+                           "freeformExpression":"BaseData.Name == 'BaseA';",
+                           "details":{
+                              "condition":{
+                                 "lhs":{
+                                    "id":"CURRENT_TIME",
+                                    "type":"attribute",
+                                    "deref":""
+                                 },
+                                 "operator":">",
+                                 "rhs":{
+                                    "id":"{BenchmarksModel}CURRENT_DATE",
+                                    "type":"data",
+                                    "deref":""
+                                 },
+                                 "offset":{
+                                    "applyOffset":false,
+                                    "useBusinessDays":true,
+                                    "amount":10,
+                                    "unit":"d",
+                                    "time":"00:01"
+                                 }
+                              }
+                           }
+                        }
+                     ]
+                  }
+               ]
             },
             {
                "id":"{BenchmarksModel}BenchmarkedSubProcess",

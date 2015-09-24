@@ -17,6 +17,8 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.springframework.util.CollectionUtils;
+
 import org.eclipse.stardust.engine.api.query.EvaluationPolicy;
 
 /**
@@ -104,7 +106,8 @@ public class BusinessObjectPolicy implements EvaluationPolicy
       {
          this.modelId = modelId;
          this.businessObjectId = businessObjectId;
-         this.primaryKeyValues = primaryKeyValues == null ? null : new HashSet<Serializable>(primaryKeyValues);
+         this.primaryKeyValues = CollectionUtils.isEmpty(primaryKeyValues) ? 
+               null : new HashSet<Serializable>(primaryKeyValues);
       }
 
       public String getModelId()
@@ -119,7 +122,7 @@ public class BusinessObjectPolicy implements EvaluationPolicy
 
       public Set<Serializable> getPrimaryKeyValues()
       {
-         return Collections.unmodifiableSet(primaryKeyValues);
+         return primaryKeyValues == null ? null : Collections.unmodifiableSet(primaryKeyValues);
       }
    }
 }

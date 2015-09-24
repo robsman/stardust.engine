@@ -11,14 +11,16 @@
 package org.eclipse.stardust.test.benchmarks;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.Is.*;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
-import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsEqual.*;
+import static org.hamcrest.core.IsNull.*;
 import static org.junit.Assert.assertEquals;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.Map.Entry;
 
 import javax.xml.namespace.QName;
 
@@ -27,6 +29,7 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.engine.api.model.Activity;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.query.*;
@@ -330,7 +333,7 @@ public class BenchmarkStatisticsTest
                         Integer.valueOf(1),
                         Integer.valueOf(2))));
 
-      attachDefaultBenchmarkCondition(query);
+      attachDefaultProcessBenchmarkCondition(query);
 
       BenchmarkBusinessObjectStatistics stats = (BenchmarkBusinessObjectStatistics) serviceFactory
             .getQueryService().getAllProcessInstances(query);
@@ -367,7 +370,7 @@ public class BenchmarkStatisticsTest
                         Integer.valueOf(1),
                         Integer.valueOf(2))));
 
-      attachDefaultBenchmarkCondition(query);
+      attachDefaultProcessBenchmarkCondition(query);
 
       BenchmarkBusinessObjectStatistics stats = (BenchmarkBusinessObjectStatistics) serviceFactory
             .getQueryService().getAllProcessInstances(query);
@@ -424,7 +427,7 @@ public class BenchmarkStatisticsTest
                   baseGroupWithoutNameData, new HashSet<Serializable>(Arrays.asList(
                         Integer.valueOf(111))));
 
-      attachDefaultBenchmarkCondition(query);
+      attachDefaultProcessBenchmarkCondition(query);
 
       BenchmarkBusinessObjectStatistics stats = (BenchmarkBusinessObjectStatistics) serviceFactory
             .getQueryService().getAllProcessInstances(query);
@@ -457,7 +460,7 @@ public class BenchmarkStatisticsTest
                         Integer.valueOf(2),
                         Integer.valueOf(3)))*/ Collections.<Serializable>emptySet());
 
-      attachDefaultBenchmarkCondition(query);
+      attachDefaultProcessBenchmarkCondition(query);
 
       BenchmarkBusinessObjectStatistics stats = (BenchmarkBusinessObjectStatistics) serviceFactory
             .getQueryService().getAllProcessInstances(query);
@@ -489,7 +492,7 @@ public class BenchmarkStatisticsTest
             businessObjects.get("BaseData"), Collections.<Serializable>emptySet(),
             businessObjects.get("BaseGroupData"), Collections.<Serializable>emptySet());
 
-      attachDefaultBenchmarkCondition(query);
+      attachDefaultProcessBenchmarkCondition(query);
 
       stats = (BenchmarkBusinessObjectStatistics) serviceFactory
             .getQueryService().getAllProcessInstances(query);
@@ -559,7 +562,7 @@ public class BenchmarkStatisticsTest
             businessObjects.get("BaseData"), new HashSet<Serializable>(Arrays.asList(1, 2)),
             businessObjects.get("BaseGroupData"), Collections.<Serializable>emptySet());
 
-      attachDefaultBenchmarkCondition(query);
+      attachDefaultProcessBenchmarkCondition(query);
 
       BenchmarkBusinessObjectStatistics stats = (BenchmarkBusinessObjectStatistics) serviceFactory
             .getQueryService().getAllProcessInstances(query);
@@ -628,7 +631,7 @@ public class BenchmarkStatisticsTest
             businessObjects.get("BaseData"), new HashSet<Serializable>(Arrays.asList(1, 2)),
             businessObjects.get("BaseGroupData"), new HashSet<Serializable>(Arrays.asList(1)));
 
-      attachDefaultBenchmarkCondition(query);
+      attachDefaultProcessBenchmarkCondition(query);
 
       BenchmarkBusinessObjectStatistics stats = (BenchmarkBusinessObjectStatistics) serviceFactory
             .getQueryService().getAllProcessInstances(query);
@@ -683,7 +686,216 @@ public class BenchmarkStatisticsTest
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 2), is(equalTo(3l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 3), is(equalTo(0l)));
    }
+   
+   @Test
+   public void queryActivityBenchmarkStatisticsByBusinessObjects()
+   {
+      BenchmarkActivityStatisticsQuery query = BenchmarkActivityStatisticsQuery
+            .forProcessesAndBusinessObject(Collections.<ProcessDefinition>emptySet(), 
+                  businessObjects.get("BaseData"), Collections.<Serializable>emptySet());
+      
+      attachDefaultActivityBenchmarkCondition(query);
+      
+      BenchmarkBusinessObjectStatistics stats = (BenchmarkBusinessObjectStatistics) serviceFactory
+            .getQueryService().getAllActivityInstances(query);
+      
+      Set<String> groupByValues = stats.getGroupByValues();
+      Assert.assertThat(groupByValues.size(), is(equalTo(0)));
+      Assert.assertThat(groupByValues, hasItems(BenchmarkBusinessObjectStatistics.NO_GROUPBY_VALUE));
+      Set<String> filterValues = stats.getFilterValues(BenchmarkBusinessObjectStatistics.NO_GROUPBY_VALUE);
+      Assert.assertThat(filterValues.size(), is(equalTo(3)));
+      Assert.assertThat(filterValues, hasItems("BaseA", "BaseB", "BaseC"));
 
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseA", 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseA", 1), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseA", 2), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseA", 3), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseB", 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseB", 1), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseB", 2), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseB", 3), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 1), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 2), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 3), is(equalTo(0l)));
+
+      // total count
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 1), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 2), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 3), is(equalTo(1l)));
+   }
+   
+   @Test
+   public void queryActivityBenchmarkStatisticsByBusinessObjectsWithPk()
+   {
+      BenchmarkActivityStatisticsQuery query = BenchmarkActivityStatisticsQuery
+            .forProcessesAndBusinessObject(Collections.<ProcessDefinition>emptySet(), 
+                  businessObjects.get("BaseData"), new HashSet<Serializable>(Arrays.asList(1, 2)));
+      
+      attachDefaultActivityBenchmarkCondition(query);
+      
+      BenchmarkBusinessObjectStatistics stats = (BenchmarkBusinessObjectStatistics) serviceFactory
+            .getQueryService().getAllActivityInstances(query);
+      
+      Set<String> groupByValues = stats.getGroupByValues();
+      Assert.assertThat(groupByValues.size(), is(equalTo(0)));
+      Assert.assertThat(groupByValues, hasItems(BenchmarkBusinessObjectStatistics.NO_GROUPBY_VALUE));
+      Set<String> filterValues = stats.getFilterValues(BenchmarkBusinessObjectStatistics.NO_GROUPBY_VALUE);
+      Assert.assertThat(filterValues.size(), is(equalTo(2)));
+      Assert.assertThat(filterValues, hasItems("BaseA", "BaseB"));
+
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseA", 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseA", 1), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseA", 2), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseA", 3), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseB", 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseB", 1), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseB", 2), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseB", 3), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 1), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 2), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 3), is(equalTo(0l)));
+
+      // total count
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 1), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 2), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 3), is(equalTo(1l)));
+   }
+   
+   @Test
+   public void queryActivityBenchmarkStatisticsByBusinessObjectsWithGroupBy()
+   {
+      BenchmarkActivityStatisticsQuery query = BenchmarkActivityStatisticsQuery
+            .forProcessesAndBusinessObject(Collections.<ProcessDefinition>emptySet(), 
+                  businessObjects.get("BaseData"), businessObjects.get("BaseGroupData"));
+      
+      attachDefaultActivityBenchmarkCondition(query);
+      
+      BenchmarkBusinessObjectStatistics stats = (BenchmarkBusinessObjectStatistics) serviceFactory
+            .getQueryService().getAllActivityInstances(query);
+      
+      Set<String> groupByValues = stats.getGroupByValues();
+      Assert.assertThat(groupByValues.size(), is(equalTo(2)));
+      Assert.assertThat(groupByValues, hasItems("GroupA", "GroupB"));
+      Set<String> filterValues = stats.getFilterValues("GroupA");
+      Assert.assertThat(filterValues.size(), is(equalTo(2)));
+      Assert.assertThat(filterValues, hasItems("BaseA", "BaseB"));
+      filterValues = stats.getFilterValues("GroupB");
+      Assert.assertThat(filterValues.size(), is(equalTo(2)));
+      Assert.assertThat(filterValues, hasItems("BaseB", "BaseC"));
+
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseA", 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseA", 1), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseA", 2), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseA", 3), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseB", 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseB", 1), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseB", 2), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseB", 3), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseC", 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseC", 1), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseC", 2), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseC", 3), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseA", 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseA", 1), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseA", 2), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseA", 3), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseB", 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseB", 1), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseB", 2), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseB", 3), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseC", 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseC", 1), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseC", 2), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseC", 3), is(equalTo(0l)));
+
+      // group count
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", null, 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", null, 1), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", null, 2), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", null, 3), is(equalTo(1l)));
+      
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", null, 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", null, 1), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", null, 2), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", null, 3), is(equalTo(0l)));
+      
+      // total count
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 1), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 2), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 3), is(equalTo(1l)));
+   }
+   
+   @Test
+   public void queryActivityBenchmarkStatisticsByBusinessObjectsWithGroupByAndPk()
+   {
+      BenchmarkActivityStatisticsQuery query = BenchmarkActivityStatisticsQuery
+            .forProcessesAndBusinessObject(Collections.<ProcessDefinition>emptySet(), 
+                  businessObjects.get("BaseData"), new HashSet<Serializable>(Arrays.asList(1, 2, 3)),
+                  businessObjects.get("BaseGroupData"), new HashSet<Serializable>(Arrays.asList(1, 2)));
+      
+      attachDefaultActivityBenchmarkCondition(query);
+      
+      BenchmarkBusinessObjectStatistics stats = (BenchmarkBusinessObjectStatistics) serviceFactory
+            .getQueryService().getAllActivityInstances(query);
+      
+      Set<String> groupByValues = stats.getGroupByValues();
+      Assert.assertThat(groupByValues.size(), is(equalTo(2)));
+      Assert.assertThat(groupByValues, hasItems("GroupA", "GroupB"));
+      Set<String> filterValues = stats.getFilterValues("GroupA");
+      Assert.assertThat(filterValues.size(), is(equalTo(2)));
+      Assert.assertThat(filterValues, hasItems("BaseA", "BaseB"));
+      filterValues = stats.getFilterValues("GroupB");
+      Assert.assertThat(filterValues.size(), is(equalTo(2)));
+      Assert.assertThat(filterValues, hasItems("BaseB", "BaseC"));
+
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseA", 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseA", 1), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseA", 2), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseA", 3), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseB", 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseB", 1), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseB", 2), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseB", 3), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseC", 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseC", 1), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseC", 2), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", "BaseC", 3), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseA", 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseA", 1), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseA", 2), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseA", 3), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseB", 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseB", 1), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseB", 2), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseB", 3), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseC", 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseC", 1), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseC", 2), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", "BaseC", 3), is(equalTo(0l)));
+
+      // group count
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", null, 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", null, 1), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", null, 2), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupA", null, 3), is(equalTo(1l)));
+      
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", null, 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", null, 1), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", null, 2), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount("GroupB", null, 3), is(equalTo(0l)));
+      
+      // total count
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 0), is(equalTo(0l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 1), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 2), is(equalTo(1l)));
+      Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 3), is(equalTo(1l)));
+   }
+   
    @Test
    public void queryActivityBenchmarkStatistics()
    {
@@ -694,13 +906,7 @@ public class BenchmarkStatisticsTest
       // Do not add state filter to include aborted and completed.
       // query.where(ActivityStateFilter.ALIVE);
 
-      // Only for the selected benchmark.
-      query.where(BenchmarkActivityStatisticsQuery.BENCHMARK_OID
-            .isEqual(getDeployedBenchmarkOid(serviceFactory)));
-
-      // Only for BUSINESS_DATE today.
-      query.where(DataFilter.between(qualifiedBusinessDateId, getCurrentDayStart(),
-            getCurrentDayEnd()));
+      attachDefaultActivityBenchmarkCondition(query);
 
       BenchmarkActivityStatistics stats = (BenchmarkActivityStatistics) serviceFactory
             .getQueryService().getAllActivityInstances(query);
@@ -721,6 +927,64 @@ public class BenchmarkStatisticsTest
             stats.getAbortedCountForActivity(BENCHMARK_PROCESS, BENCHMARK_ACTIVITY));
       Assert.assertEquals(0,
             stats.getCompletedCountForActivity(BENCHMARK_PROCESS, BENCHMARK_ACTIVITY));
+   }
+
+   @Test
+   public void queryUniqueActivityBenchmarkStatistics()
+   {
+      // Query
+      BenchmarkActivityStatisticsQuery query = BenchmarkActivityStatisticsQuery
+            .forProcessId(BENCHMARK_PARENT_PROCESS);
+      
+      Map<String, String> benchmarkEnabledActivities = CollectionUtils.newMap();
+      benchmarkEnabledActivities.put(BENCHMARK_PARENT_PROCESS, "BenchmarkedSubProcess_SharedData_");
+
+      // attachDefaultActivityBenchmarkCondition(query);
+      query.where(BenchmarkActivityStatisticsQuery.BENCHMARK_OID
+            .isEqual(getDeployedBenchmarkOid(serviceFactory)));
+      query.where(BenchmarkActivityStatisticsQuery.BENCHMARK_VALUE
+            .greaterThan(0l));
+      FilterTerm activityFilter = query.getFilter().addOrTerm();
+      for(Entry<String,String> processAndActivity : benchmarkEnabledActivities.entrySet())
+      {
+         activityFilter.add(ActivityFilter.forProcess(
+               processAndActivity.getValue(), processAndActivity.getKey()));
+      }
+
+      BenchmarkActivityStatistics stats = (BenchmarkActivityStatistics) serviceFactory
+            .getQueryService().getAllActivityInstances(query);
+
+      BenchmarkCategoryCounts benchmarkCategoryCounts = stats
+            .getBenchmarkCategoryCountsForActivity(BENCHMARK_PARENT_PROCESS, "{BenchmarksModel}BenchmarkedSubProcess_SharedData_");
+      Map<Integer, Long> benchmarkCategoryCountMap = benchmarkCategoryCounts
+            .getBenchmarkCategoryCount();
+
+      Assert.assertThat(benchmarkCategoryCountMap.size(), is(equalTo(3)));
+      Assert.assertThat(benchmarkCategoryCountMap.get(1), is(equalTo(1l)));
+      Assert.assertThat(benchmarkCategoryCountMap.get(2), is(equalTo(1l)));
+      Assert.assertThat(benchmarkCategoryCountMap.get(3), is(equalTo(1l)));
+
+      Assert.assertThat(stats.getAbortedCountForActivity(BENCHMARK_PARENT_PROCESS, 
+                  "{BenchmarksModel}BenchmarkedSubProcess_SharedData_"),
+            is(equalTo(0l)));
+      Assert.assertThat(stats.getCompletedCountForActivity(BENCHMARK_PARENT_PROCESS, 
+                  "{BenchmarksModel}BenchmarkedSubProcess_SharedData_"),
+            is(equalTo(0l)));
+      
+      ProcessDefinition parentProcess =
+            serviceFactory.getQueryService().getProcessDefinition(BENCHMARK_PARENT_PROCESS);
+      @SuppressWarnings("unchecked")
+      List<Activity> activities = parentProcess.getAllActivities();
+      for(Activity activity : activities)
+      {
+         if("BenchmarkedSubProcess_SharedData_".equals(activity.getId()))
+         {
+            continue;
+         }
+         benchmarkCategoryCounts = stats.getBenchmarkCategoryCountsForActivity(
+               BENCHMARK_PARENT_PROCESS, "{BenchmarksModel}" + activity.getId());
+         Assert.assertThat(benchmarkCategoryCounts, is(nullValue()));
+      }
    }
 
    private static void runDaemon(ServiceFactory serviceFactory)
@@ -796,10 +1060,21 @@ public class BenchmarkStatisticsTest
       return now.getTime();// .getTime();//.getTime();
    }
 
-   private void attachDefaultBenchmarkCondition(BenchmarkProcessStatisticsQuery query)
+   private void attachDefaultProcessBenchmarkCondition(BenchmarkProcessStatisticsQuery query)
    {
       // Only for the selected benchmark.
       query.where(BenchmarkProcessStatisticsQuery.BENCHMARK_OID
+            .isEqual(getDeployedBenchmarkOid(serviceFactory)));
+
+      // Only for BUSINESS_DATE today.
+      query.where(DataFilter.between(qualifiedBusinessDateId, getCurrentDayStart(),
+            getCurrentDayEnd()));
+   }
+   
+   private void attachDefaultActivityBenchmarkCondition(BenchmarkActivityStatisticsQuery query)
+   {
+      // Only for the selected benchmark.
+      query.where(BenchmarkActivityStatisticsQuery.BENCHMARK_OID
             .isEqual(getDeployedBenchmarkOid(serviceFactory)));
 
       // Only for BUSINESS_DATE today.

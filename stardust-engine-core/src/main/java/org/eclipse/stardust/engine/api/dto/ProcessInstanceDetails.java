@@ -708,7 +708,10 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             if (logEntry.getProcessInstanceOID() == getOID()
                   && LogType.Info.equals(logtype) && LogCode.DATA.equals(logcode))
             {
-               historicalEvents.add(new HistoricalEventDetails(logEntry));
+               historicalEvents.add(new HistoricalEventDetails(
+                     HistoricalEventType.Exception, logEntry.getTimeStamp(),
+                     HistoricalEventDetails.getUser(logEntry.getUserOID()),
+                     logEntry.getSubject()));
             }
          }
       }      

@@ -336,9 +336,6 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
                attList);
 
          assembler.sendMail();
-
-         AuditTrailLogger.getInstance(LogCode.ENGINE).info(
-               MessageFormat.format("", new Object[] {}));
          
          if (trace.isDebugEnabled())
          {

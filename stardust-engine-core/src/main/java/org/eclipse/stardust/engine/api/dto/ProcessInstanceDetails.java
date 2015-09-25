@@ -709,7 +709,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
                   && LogType.Info.equals(logtype) && LogCode.DATA.equals(logcode))
             {
                historicalEvents.add(new HistoricalEventDetails(
-                     HistoricalEventType.Exception, logEntry.getTimeStamp(),
+                     HistoricalEventType.DataChange, logEntry.getTimeStamp(),
                      HistoricalEventDetails.getUser(logEntry.getUserOID()),
                      logEntry.getSubject()));
             }

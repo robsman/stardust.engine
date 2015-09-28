@@ -42,7 +42,7 @@ public abstract class BenchmarkProcessStatistics extends CustomProcessInstanceQu
          @Override
          public long getAbortedCount(String key)
          {
-            Long count = benchmarkStatistcs.getAbortedPerItem().get(key);
+            Long count = getAbortedPerItem().get(key);
             return count == null ? 0 : count;
          }
          
@@ -58,7 +58,7 @@ public abstract class BenchmarkProcessStatistics extends CustomProcessInstanceQu
    
    public Map<String, Long> getAbortedPerProcessId()
    {
-      return benchmarkStatistcs.getAbortedPerItem();
+      return Collections.unmodifiableMap(benchmarkStatistcs.getAbortedPerItem());
    }
 
    public long getAbortedCountForProcess(String qualifiedProcessId)
@@ -68,7 +68,7 @@ public abstract class BenchmarkProcessStatistics extends CustomProcessInstanceQu
 
    public Map<String, Long> getCompletedPerProcessId()
    {
-      return benchmarkStatistcs.getCompletedPerItem();
+      return Collections.unmodifiableMap(benchmarkStatistcs.getCompletedPerItem());
    }
 
    public long getCompletedCountForProcess(String qualifiedProcessId)
@@ -79,20 +79,5 @@ public abstract class BenchmarkProcessStatistics extends CustomProcessInstanceQu
    public Map<String, BenchmarkCategoryCounts> getBenchmarkCategoryCounts()
    {
       return Collections.unmodifiableMap(benchmarkStatistcs.getBenchmarkCategoryCountsPerItem());
-   }
-   
-   protected Map<String, Long> getAbortedPerItem()
-   {
-      return benchmarkStatistcs.getAbortedPerItem();
-   }
-   
-   protected Map<String, Long> getCompletedPerItem()
-   {
-      return benchmarkStatistcs.getAbortedPerItem();
-   }
-   
-   protected Map<String, BenchmarkCategoryCounts> getBenchmarkCategoryCountsPerItem()
-   {
-      return benchmarkStatistcs.getBenchmarkCategoryCountsPerItem();
    }
 }

@@ -19,6 +19,7 @@ public class ScriptingEngineFactory implements ScriptEngineFactory
    {
       names = new ArrayList<String>();
       names.add(ENGINE_NAME);
+      names.add("rhino");
       names.add("stardust-rhino-nonjdk");
       // names.add("javascript");
       names = Collections.unmodifiableList(names);
@@ -92,6 +93,10 @@ public class ScriptingEngineFactory implements ScriptEngineFactory
       else if (key.equals(ScriptEngine.LANGUAGE_VERSION))
       {
          return "1.7";
+      }
+      else if (key.equals("THREADING"))
+      {
+         return "MULTITHREADED";
       }
       else
       {

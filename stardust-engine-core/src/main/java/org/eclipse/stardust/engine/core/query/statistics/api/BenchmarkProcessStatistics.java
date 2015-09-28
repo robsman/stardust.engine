@@ -80,4 +80,19 @@ public abstract class BenchmarkProcessStatistics extends CustomProcessInstanceQu
    {
       return Collections.unmodifiableMap(benchmarkStatistcs.getBenchmarkCategoryCountsPerItem());
    }
+   
+   protected Map<String, Long> getAbortedPerItem()
+   {
+      return benchmarkStatistcs.getAbortedPerItem();
+   }
+   
+   protected Map<String, Long> getCompletedPerItem()
+   {
+      return benchmarkStatistcs.getAbortedPerItem();
+   }
+   
+   protected Map<String, BenchmarkCategoryCounts> getBenchmarkCategoryCountsPerItem()
+   {
+      return benchmarkStatistcs.getBenchmarkCategoryCountsPerItem();
+   }
 }

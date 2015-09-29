@@ -88,7 +88,7 @@ public abstract class BenchmarkProcessStatistics extends CustomProcessInstanceQu
    
    protected Map<String, Long> getCompletedPerItem()
    {
-      return benchmarkStatistcs.getAbortedPerItem();
+      return benchmarkStatistcs.getCompletedPerItem();
    }
    
    protected Map<String, BenchmarkCategoryCounts> getBenchmarkCategoryCountsPerItem()

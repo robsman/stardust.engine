@@ -249,15 +249,15 @@ public class UserServiceImpl implements UserService, Serializable
 
       user.lock();
 
+      if (isTeamLeader(user)
+            || SecurityProperties.getUser().hasRole(
+                  PredefinedConstants.ADMINISTRATOR_ROLE))
+      {
+         user.setQualityAssuranceProbability(changes.getQualityAssuranceProbability());
+      }
+      
       if (isInternalAuthentication())
       {
-         if (isTeamLeader(user)
-               || SecurityProperties.getUser().hasRole(
-                     PredefinedConstants.ADMINISTRATOR_ROLE))
-         {
-            user.setQualityAssuranceProbability(changes.getQualityAssuranceProbability());
-         }
-
          String previousPassword = user.getPassword();
          String newPassword = null;
 

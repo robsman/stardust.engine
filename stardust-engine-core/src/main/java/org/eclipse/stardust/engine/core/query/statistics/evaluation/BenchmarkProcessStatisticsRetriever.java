@@ -96,6 +96,11 @@ public class BenchmarkProcessStatisticsRetriever
                result.registerProcessBenchmarkCategory(qualifiedProcessId, benchmarkValue);
             }
          }
+
+         if (rawResult.hasTotalCount() && QueryUtils.getSubset(query).isEvaluatingTotalCount())
+         {
+            result.setTotalCount(rawResult.getTotalCount());
+         }
       }
       finally
       {
@@ -185,6 +190,11 @@ public class BenchmarkProcessStatisticsRetriever
                }
             }
          });
+      }
+
+      if (QueryUtils.getSubset(query).isEvaluatingTotalCount())
+      {
+         result.setTotalCount(total);
       }
       return result;
    }

@@ -317,6 +317,8 @@ public class BenchmarkStatisticsTest
 
       Assert.assertEquals(1, stats.getAbortedCountForProcess(BENCHMARK_PROCESS));
       Assert.assertEquals(0, stats.getCompletedCountForProcess(BENCHMARK_PROCESS));
+
+      Assert.assertTrue(stats.getTotalCount() > 0);
    }
 
    @Test
@@ -356,6 +358,8 @@ public class BenchmarkStatisticsTest
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 1), is(equalTo(0l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 2), is(equalTo(0l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 3), is(equalTo(0l)));
+
+      Assert.assertTrue(stats.getTotalCount() > 0);
    }
 
    @Test
@@ -393,6 +397,8 @@ public class BenchmarkStatisticsTest
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 1), is(equalTo(0l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 2), is(equalTo(0l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, "BaseC", 3), is(equalTo(0l)));
+
+      Assert.assertTrue(stats.getTotalCount() > 0);
    }
 
    @Test
@@ -443,6 +449,8 @@ public class BenchmarkStatisticsTest
 
       Assert.assertThat(stats.getBenchmarkCategoryCount("111", null, 0), is(equalTo(1l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 0), is(equalTo(1l)));
+
+      Assert.assertTrue(stats.getTotalCount() > 0);
    }
 
    @Test
@@ -550,6 +558,8 @@ public class BenchmarkStatisticsTest
       // So the final count is not 6 but 3
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 2), is(equalTo(3l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 3), is(equalTo(3l)));
+
+      Assert.assertTrue(stats.getTotalCount() > 0);
    }
 
    @Test
@@ -619,6 +629,8 @@ public class BenchmarkStatisticsTest
       // So the final count is not 6 but 3
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 2), is(equalTo(3l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 3), is(equalTo(0l)));
+
+      Assert.assertTrue(stats.getTotalCount() > 0);
    }
 
    @Test
@@ -685,6 +697,8 @@ public class BenchmarkStatisticsTest
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 1), is(equalTo(3l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 2), is(equalTo(3l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 3), is(equalTo(0l)));
+
+      Assert.assertTrue(stats.getTotalCount() > 0);
    }
 
    @Test
@@ -726,6 +740,8 @@ public class BenchmarkStatisticsTest
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 1), is(equalTo(1l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 2), is(equalTo(1l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 3), is(equalTo(1l)));
+
+      Assert.assertTrue(stats.getTotalCount() > 0);
    }
 
    @Test
@@ -767,6 +783,8 @@ public class BenchmarkStatisticsTest
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 1), is(equalTo(0l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 2), is(equalTo(1l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 3), is(equalTo(1l)));
+
+      Assert.assertTrue(stats.getTotalCount() > 0);
    }
 
    @Test
@@ -834,6 +852,8 @@ public class BenchmarkStatisticsTest
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 1), is(equalTo(1l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 2), is(equalTo(1l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 3), is(equalTo(1l)));
+
+      Assert.assertTrue(stats.getTotalCount() > 0);
    }
 
    @Test
@@ -902,6 +922,8 @@ public class BenchmarkStatisticsTest
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 1), is(equalTo(1l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 2), is(equalTo(1l)));
       Assert.assertThat(stats.getBenchmarkCategoryCount(null, null, 3), is(equalTo(1l)));
+
+      Assert.assertTrue(stats.getTotalCount() > 0);
    }
 
    @Test
@@ -935,6 +957,8 @@ public class BenchmarkStatisticsTest
             stats.getAbortedCountForActivity(BENCHMARK_PROCESS, BENCHMARK_ACTIVITY));
       Assert.assertEquals(0,
             stats.getCompletedCountForActivity(BENCHMARK_PROCESS, BENCHMARK_ACTIVITY));
+
+      Assert.assertTrue(stats.getTotalCount() > 0);
    }
 
    @Test
@@ -993,6 +1017,8 @@ public class BenchmarkStatisticsTest
                BENCHMARK_PARENT_PROCESS, "{BenchmarksModel}" + activity.getId());
          Assert.assertThat(benchmarkCategoryCounts, is(nullValue()));
       }
+
+      Assert.assertTrue(stats.getTotalCount() > 0);
    }
 
    private static void runDaemon(ServiceFactory serviceFactory)
@@ -1012,7 +1038,6 @@ public class BenchmarkStatisticsTest
          {
          }
       }
-      //System.err.println("Waited " + (60000 + System.currentTimeMillis() - timeout) + "ms.");
 
       // Daemon execution
       serviceFactory.getAdministrationService().startDaemon(
@@ -1047,7 +1072,6 @@ public class BenchmarkStatisticsTest
          {
          }
       }
-      //System.err.println("Waited " + (10000 + System.currentTimeMillis() - timeout) + "ms.");
 
       serviceFactory.getAdministrationService().stopDaemon(
             AdministrationService.BENCHMARK_DAEMON, true);

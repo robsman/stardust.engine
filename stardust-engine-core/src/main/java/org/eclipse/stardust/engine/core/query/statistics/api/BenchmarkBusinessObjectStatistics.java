@@ -41,4 +41,5 @@ public interface BenchmarkBusinessObjectStatistics extends Serializable
 
    Set<Long> getCompletedInstanceOIDs(String groupByValue, String filterValue);
 
+   long getTotalCount();
 }

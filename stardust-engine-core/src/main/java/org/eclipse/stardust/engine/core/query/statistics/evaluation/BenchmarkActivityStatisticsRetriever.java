@@ -76,11 +76,11 @@ public class BenchmarkActivityStatisticsRetriever
       BusinessObjectPolicy boPolicy = (BusinessObjectPolicy)
             psq.getPolicy(BusinessObjectPolicy.class);
 
-      return boPolicy == null ? evaluateActivbityStatisticsQuery(psq) :
+      return boPolicy == null ? evaluateActivityStatisticsQuery(psq) :
          evaluateBusinessObjectStatisticsQuery(psq, boPolicy);
    }
 
-   private CustomActivityInstanceQueryResult evaluateActivbityStatisticsQuery(BenchmarkActivityStatisticsQuery query)
+   private CustomActivityInstanceQueryResult evaluateActivityStatisticsQuery(BenchmarkActivityStatisticsQuery query)
    {
       final BenchmarkActivityStatisticsResult result = new BenchmarkActivityStatisticsResult(
             query);
@@ -115,6 +115,11 @@ public class BenchmarkActivityStatisticsRetriever
                result.registerActivityBenchmarkCategory(qualifiedProcessId,
                      qualifiedActivityId, benchmarkValue);
             }
+         }
+
+         if (rawResult.hasTotalCount() && QueryUtils.getSubset(query).isEvaluatingTotalCount())
+         {
+            result.setTotalCount(rawResult.getTotalCount());
          }
       }
       finally
@@ -161,6 +166,7 @@ public class BenchmarkActivityStatisticsRetriever
 
       final Map<Object, String> otherBOs = BenchmarkProcessStatisticsRetriever.fetchReferencedBOs(groupBy);
 
+      long total = 0;
       for (IData data : allData)
       {
          ActivityInstanceQuery pi = ActivityInstanceQuery.findAll();
@@ -171,7 +177,7 @@ public class BenchmarkActivityStatisticsRetriever
          PredicateTerm parsedTerm = parsedQuery.getPredicateTerm();
 
          final QueryDescriptor queryDescriptor = createFetchQuery(data, boqEvaluator.getPkValue(), predicateJoins, parsedTerm, groupBy);
-         fetchValues(queryDescriptor, boq, new RowProcessor() {
+         total += fetchValues(queryDescriptor, boq, new RowProcessor() {
 
             protected void processRow(ResultSet resultSet)
                         throws SQLException
@@ -201,14 +207,16 @@ public class BenchmarkActivityStatisticsRetriever
                   break;
                //case ActivityInstanceState.APPLICATION:
                default:
-                  System.err.println("Registered benchmark value grouped by '" + groupByName + "': '" + name
-                        + "[" + aiOid + "," + ActivityInstanceState.getString(aiState) + "]=" + aiBenchmarkValue);
                   result.getBenchmarkStatistics().registerBenchmarkValue(groupByName, name, aiOid, aiBenchmarkValue);
                }
             }
          });
       }
 
+      if (QueryUtils.getSubset(query).isEvaluatingTotalCount())
+      {
+         result.setTotalCount(total);
+      }
       return result;
    }
 

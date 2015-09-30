@@ -21,16 +21,16 @@ public class BenchmarkBusinessObjectProcessStatisticsResult
    extends CustomProcessInstanceQueryResult implements BenchmarkBusinessObjectStatistics
 {
    private static final long serialVersionUID = 1L;
-   
+
    private final BusinessObjectBenchmarkStatistics benchmarkStatistics;
 
    public BenchmarkBusinessObjectProcessStatisticsResult(CustomProcessInstanceQuery query)
    {
       super(query);
-      
+
       benchmarkStatistics = new BusinessObjectBenchmarkStatistics();
    }
-   
+
    protected BusinessObjectBenchmarkStatistics getBenchmarkStatistics()
    {
       return benchmarkStatistics;
@@ -100,5 +100,10 @@ public class BenchmarkBusinessObjectProcessStatisticsResult
    public Set<Long> getCompletedInstanceOIDs(String groupByValue, String filterValue)
    {
       return benchmarkStatistics.getCompletedInstanceOIDs(groupByValue, filterValue);
+   }
+
+   void setTotalCount(long total)
+   {
+      totalCount = total;
    }
 }

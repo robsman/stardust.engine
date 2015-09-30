@@ -56,12 +56,12 @@ public abstract class AbstractBenchmarkStatisticsRetriever
       {
          return null;
       }
-   
+
       Join structDataValueJoin = outerJoin
             ? queryDescriptor.leftOuterJoin(StructuredDataValueBean.class, prefix + StructuredDataValueBean.DEFAULT_ALIAS)
             : queryDescriptor.innerJoin(StructuredDataValueBean.class, prefix + StructuredDataValueBean.DEFAULT_ALIAS);
       structDataValueJoin.on(ProcessInstanceBean.FR__OID, StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
-   
+
       Join structDataJoin = outerJoin
             ? queryDescriptor.leftOuterJoin(StructuredDataBean.class, prefix + StructuredDataBean.DEFAULT_ALIAS)
             : queryDescriptor.innerJoin(StructuredDataBean.class, prefix + StructuredDataBean.DEFAULT_ALIAS);
@@ -69,9 +69,9 @@ public abstract class AbstractBenchmarkStatisticsRetriever
               .andOn(dataValueJoin.fieldRef(DataValueBean.FIELD__MODEL), StructuredDataBean.FIELD__MODEL)
               .andOn(dataValueJoin.fieldRef(DataValueBean.FIELD__DATA), StructuredDataBean.FIELD__DATA);
       predicates.add(Predicates.isEqual(structDataJoin.fieldRef(StructuredDataBean.FIELD__XPATH), fieldName));
-   
+
       FieldRef valueField = getFieldRef(data, fieldName, structDataValueJoin);
-   
+
       if (value instanceof Collection)
       {
          if (((Collection) value).isEmpty())
@@ -100,7 +100,7 @@ public abstract class AbstractBenchmarkStatisticsRetriever
             }
          }
       }
-   
+
       return valueField;
    }
 
@@ -121,40 +121,44 @@ public abstract class AbstractBenchmarkStatisticsRetriever
       return nameValueField;
    }
 
-   protected static int fetchValues(QueryDescriptor queryDescriptor, Query query, RowProcessor processor)
+   protected static long fetchValues(QueryDescriptor queryDescriptor, Query query, RowProcessor processor)
    {
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
       ResultSet resultSet = session.executeQuery(queryDescriptor, QueryUtils.getTimeOut(query));
       SubsetPolicy subsetPolicy = QueryUtils.getSubset(query);
       try
       {
-         int skipped = 0;
-         int count = 0;
-         int total = 0;
+         long startFrom = subsetPolicy.getSkippedEntries();
+         long maxSize = subsetPolicy.getMaxSize();
+         boolean isEvaluatingTotalCount = subsetPolicy.isEvaluatingTotalCount();
+
+         long skipped = 0;
+         long count = 0;
+         long total = 0;
          while (resultSet.next())
          {
             total++;
-            if (skipped < subsetPolicy.getSkippedEntries())
+            if (skipped < startFrom)
             {
                skipped++;
             }
             else
             {
-               if (count < subsetPolicy.getMaxSize())
+               if (count < maxSize)
                {
                   count++;
                   processor.processRow(resultSet);
                }
                else
                {
-                  if (!subsetPolicy.isEvaluatingTotalCount())
+                  if (!isEvaluatingTotalCount)
                   {
                      break;
                   }
                }
             }
          }
-         return subsetPolicy.isEvaluatingTotalCount() ? total : 0;
+         return isEvaluatingTotalCount ? total : 0;
       }
       catch (Exception e)
       {

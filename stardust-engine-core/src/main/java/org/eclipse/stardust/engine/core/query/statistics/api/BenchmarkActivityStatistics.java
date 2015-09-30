@@ -76,4 +76,9 @@ public abstract class BenchmarkActivityStatistics
       Long count = completedPerActivityId.get(key);
       return count == null ? 0 : count;
    }
+
+   public void setTotalCount(long totalCount)
+   {
+      this.totalCount = totalCount;
+   }
 }

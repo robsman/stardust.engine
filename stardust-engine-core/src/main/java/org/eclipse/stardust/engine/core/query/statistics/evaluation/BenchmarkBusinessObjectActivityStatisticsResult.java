@@ -22,14 +22,14 @@ public class BenchmarkBusinessObjectActivityStatisticsResult
       implements BenchmarkBusinessObjectStatistics
 {
    private static final long serialVersionUID = 1L;
-   
+
    private final BusinessObjectBenchmarkStatistics benchmarkStatistics;
 
    public BenchmarkBusinessObjectActivityStatisticsResult(
          BenchmarkActivityStatisticsQuery query)
    {
       super(query);
-      
+
       benchmarkStatistics = new BusinessObjectBenchmarkStatistics();
    }
 
@@ -94,5 +94,10 @@ public class BenchmarkBusinessObjectActivityStatisticsResult
    public Set<Long> getCompletedInstanceOIDs(String groupByValue, String filterValue)
    {
       return benchmarkStatistics.getCompletedInstanceOIDs(groupByValue, filterValue);
+   }
+
+   public void setTotalCount(long totalCount)
+   {
+      this.totalCount = totalCount;
    }
 }

@@ -23,13 +23,13 @@ import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQueryResu
 public abstract class BenchmarkProcessStatistics extends CustomProcessInstanceQueryResult
 {
    private static final long serialVersionUID = 1l;
-   
+
    private final BenchmarkStatistics<String, Long> benchmarkStatistcs;
 
    protected BenchmarkProcessStatistics(BenchmarkProcessStatisticsQuery query)
    {
       super(query);
-      
+
       benchmarkStatistcs = new BenchmarkStatistics<String, Long>() {
 
          @Override
@@ -45,17 +45,17 @@ public abstract class BenchmarkProcessStatistics extends CustomProcessInstanceQu
             Long count = getAbortedPerItem().get(key);
             return count == null ? 0 : count;
          }
-         
+
       };
    }
 
    public BenchmarkCategoryCounts getBenchmarkCategoryCountsForProcess(String qualifiedProcessId)
    {
-      Map <String, BenchmarkCategoryCounts> benchmarkCategoryCountsPerItem = 
+      Map <String, BenchmarkCategoryCounts> benchmarkCategoryCountsPerItem =
             benchmarkStatistcs.getBenchmarkCategoryCountsPerItem();
       return benchmarkCategoryCountsPerItem.get(qualifiedProcessId);
    }
-   
+
    public Map<String, Long> getAbortedPerProcessId()
    {
       return Collections.unmodifiableMap(benchmarkStatistcs.getAbortedPerItem());
@@ -75,24 +75,29 @@ public abstract class BenchmarkProcessStatistics extends CustomProcessInstanceQu
    {
       return benchmarkStatistcs.getCompletedCount(qualifiedProcessId);
    }
-   
+
    public Map<String, BenchmarkCategoryCounts> getBenchmarkCategoryCounts()
    {
       return Collections.unmodifiableMap(benchmarkStatistcs.getBenchmarkCategoryCountsPerItem());
    }
-   
+
    protected Map<String, Long> getAbortedPerItem()
    {
       return benchmarkStatistcs.getAbortedPerItem();
    }
-   
+
    protected Map<String, Long> getCompletedPerItem()
    {
       return benchmarkStatistcs.getCompletedPerItem();
    }
-   
+
    protected Map<String, BenchmarkCategoryCounts> getBenchmarkCategoryCountsPerItem()
    {
       return benchmarkStatistcs.getBenchmarkCategoryCountsPerItem();
+   }
+
+   public void setTotalCount(long totalCount)
+   {
+      this.totalCount = totalCount;
    }
 }

@@ -10,11 +10,14 @@
  *******************************************************************************/
 package org.eclipse.stardust.common.reflect;
 
+import static java.lang.reflect.Modifier.isPublic;
+import static java.lang.reflect.Modifier.isStatic;
+import static java.lang.reflect.Modifier.isTransient;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -472,7 +475,7 @@ public class Reflect
          Method getMethod = allPublicMethods[i];
          String getMethodName = getMethod.getName();
 
-         if (Modifier.isStatic(getMethod.getModifiers()))
+         if (isStatic(getMethod.getModifiers()))
          {
             continue;
          }
@@ -597,18 +600,13 @@ public class Reflect
             }
          }
 
-//         Method method = type.getMethod(name, args);
-
-//       no need for searching in interfaces. If the method is defined in an
-//       interface, then it must be public in the implementing class
-/*         if (!method.isAccessible())
+         if (!isPublic(type.getModifiers()))
          {
-            Class[] interfaces = type.getInterfaces();
-            for (int i = 0; i < interfaces.length; i++)
+            for (Class<?> intf : type.getInterfaces())
             {
                try
                {
-                  Method intfMethod = interfaces[i].getMethod(name, args);
+                  Method intfMethod = intf.getMethod(method.getName(), method.getParameterTypes());
                   if (intfMethod != null)
                   {
                      return intfMethod;
@@ -619,8 +617,27 @@ public class Reflect
                   // go to the next interface
                }
             }
-            // fall back to original method
-         }*/
+
+            //nothing found so far, go to the supertype
+            Class<?> superType = type.getSuperclass();
+            while (!isPublic(superType.getModifiers()))
+            {
+               superType = type.getSuperclass();
+            }
+            try
+            {
+               Method superMethod = superType.getMethod(method.getName(), method.getParameterTypes());
+               if (superMethod != null)
+               {
+                  return superMethod;
+               }
+            }
+            catch (Exception ex)
+            {
+               // go to the next interface
+            }
+            Assert.lineNeverReached();
+         }
          return method;
       }
       catch (Exception e)
@@ -649,7 +666,6 @@ public class Reflect
       }
       return match;
    }
-
 
    public static <T> Constructor<T> decodeConstructor(Class<T> type, String constructorName)
    {
@@ -682,7 +698,7 @@ public class Reflect
             Constructor<T> ctor = constructors[i];
             Class<?>[] params = ctor.getParameterTypes();
             // constructors have no names
-            if (/*ctor.getName().equals(name) &&*/ params.length == args.length)
+            if (params.length == args.length)
             {
                int match = match(params, args);
                if (match >= 0)
@@ -879,8 +895,8 @@ public class Reflect
          for (int i = 0; i < fields.length; i++)
          {
             Field field = fields[i];
-            if (Modifier.isStatic(field.getModifiers()) ||
-                Modifier.isTransient(field.getModifiers()))
+            if (isStatic(field.getModifiers()) ||
+                isTransient(field.getModifiers()))
             {
                // static & transient fields are skipped
                continue;
@@ -891,7 +907,7 @@ public class Reflect
             {
                Field annotationCandidate = fields[j];
                if (annotationCandidate.getName().startsWith(annotationPrefix)
-                     && Modifier.isStatic(annotationCandidate.getModifiers()))
+                     && isStatic(annotationCandidate.getModifiers()))
                {
                   if (annotatedField == null)
                   {
@@ -973,7 +989,7 @@ public class Reflect
       Object value = null;
 
       Field field = getField(clazz, name);
-      if (field != null && Modifier.isStatic(field.getModifiers()))
+      if (field != null && isStatic(field.getModifiers()))
       {
          field.setAccessible(true);
          try
@@ -1053,7 +1069,7 @@ public class Reflect
          for (int i = 0; i < fields.length; i++)
          {
             Field field = fields[i];
-            if (Modifier.isStatic(field.getModifiers()))
+            if (isStatic(field.getModifiers()))
             {
                continue;
             }

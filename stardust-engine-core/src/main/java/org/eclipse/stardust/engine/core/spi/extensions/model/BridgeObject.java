@@ -36,6 +36,7 @@ public class BridgeObject
 {
    private final Class endClass;
    private final Direction direction;
+   private boolean genericType;
 
    /**
     * Creates a bridge object representing the dereferenced {@link AccessPoint}.
@@ -60,14 +61,20 @@ public class BridgeObject
       }
       else
       {
-         return new BridgeObject(Object.class, direction);
+         return new BridgeObject(Object.class, direction, false);
       }
    }
 
    public BridgeObject(Class endClass, Direction direction)
    {
+      this(endClass, direction, false);
+   }
+
+   public BridgeObject(Class endClass, Direction direction, boolean genericType)
+   {
       this.endClass = endClass;
       this.direction = direction;
+      this.genericType = genericType;
    }
 
    /**
@@ -90,6 +97,16 @@ public class BridgeObject
    public Direction getDirection()
    {
       return direction;
+   }
+
+   /**
+    * Retrieves if this bridge object is a generic type.
+    *
+    * @return true if the end class or any class in the path from the source class to the end class is a generic type.
+    */
+   public boolean isGenericType()
+   {
+      return genericType;
    }
 
    /**
@@ -187,15 +204,10 @@ public class BridgeObject
             }
          }
       }
-      
-      // validation will be skipped if a generic type is involved
-      if (leftBridge == null || rightBridge == null)
-      {
-         return true;
-      }
 
+      // validation will be skipped if a generic type is involved
       return Direction.IN.equals(direction)
-            ? leftBridge.acceptAssignmentFrom(rightBridge)
-            : rightBridge.acceptAssignmentFrom(leftBridge);
+            ? rightBridge.isGenericType() || leftBridge.acceptAssignmentFrom(rightBridge)
+            : leftBridge.isGenericType() || rightBridge.acceptAssignmentFrom(leftBridge);
    }
 }

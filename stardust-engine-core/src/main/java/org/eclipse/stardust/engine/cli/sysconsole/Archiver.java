@@ -3153,24 +3153,20 @@ public class Archiver
       {
          stmt = session.getConnection().createStatement();
 
-         int match = 0;
          if(update)
          {
             if (trace.isDebugEnabled())
             {
                trace.debug(updBuf.toString());
             }
-            match = stmt.executeUpdate(updBuf.toString());
+            stmt.executeUpdate(updBuf.toString());
          }
 
          if (trace.isDebugEnabled())
          {
             trace.debug(insBuf.toString());
          }
-         if(match == 0)
-         {
-            stmt.executeUpdate(insBuf.toString());
-         }
+         stmt.executeUpdate(insBuf.toString());
       }
       catch (SQLException e)
       {

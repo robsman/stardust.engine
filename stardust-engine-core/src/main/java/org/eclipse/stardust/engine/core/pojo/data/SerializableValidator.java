@@ -99,16 +99,25 @@ public class SerializableValidator implements ExtendedDataValidator, Stateless
          this.context = context;
       }
 
+      @Override
       public Direction getDirection()
       {
          return bridgeObject.getDirection();
       }
 
+      @Override
       public Class getEndClass()
       {
          return bridgeObject.getEndClass();
       }
 
+      @Override
+      public boolean isGenericType()
+      {
+         return bridgeObject.isGenericType();
+      }
+
+      @Override
       public boolean acceptAssignmentFrom(BridgeObject rhs)
       {
          if (null != context

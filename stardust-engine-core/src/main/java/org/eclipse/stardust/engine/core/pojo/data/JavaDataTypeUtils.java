@@ -302,6 +302,7 @@ public class JavaDataTypeUtils
       Class accessPointType = getReferenceClass(point, javaExpected);
       Direction direction = null;
       Class currentType = accessPointType;
+      boolean genericType = false;
       if (!StringUtils.isEmpty(path))
       {
          direction = Direction.OUT;
@@ -320,7 +321,7 @@ public class JavaDataTypeUtils
                   {
                      if (isGenericType(type))
                      {
-                        return null;
+                        genericType = true;
                      }
                   }
                   //we have found a setter here
@@ -334,7 +335,7 @@ public class JavaDataTypeUtils
                   // the exact generic type information is not available at runtime
                   if (isGenericType(decodeMethod.getGenericReturnType()))
                   {
-                     return null;
+                     genericType = true;
                   }
                   currentType = decodeMethod.getReturnType();
                }
@@ -352,9 +353,9 @@ public class JavaDataTypeUtils
          }
       }
 
-      return new BridgeObject(currentType, direction);
+      return new BridgeObject(currentType, direction, genericType);
    }
-   
+
    public static boolean isGenericType(java.lang.reflect.Type type)
    {
       boolean genericType = false;
@@ -385,7 +386,6 @@ public class JavaDataTypeUtils
             try
             {
                Method method = Reflect.decodeMethod(value.getClass(), element);
-
                value = method.invoke(value);
             }
             catch (InvocationTargetException x)

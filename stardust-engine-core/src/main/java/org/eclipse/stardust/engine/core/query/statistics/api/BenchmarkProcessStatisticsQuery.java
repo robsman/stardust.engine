@@ -41,13 +41,16 @@ public class BenchmarkProcessStatisticsQuery extends CustomProcessInstanceQuery
    {
       BenchmarkProcessStatisticsQuery query = new BenchmarkProcessStatisticsQuery();
 
-      FilterOrTerm processFilter = query.getFilter().addOrTerm();
-
-      for (Iterator<ProcessDefinition> i = processes.iterator(); i.hasNext();)
+      if(processes != null && !processes.isEmpty())
       {
-         ProcessDefinition process = i.next();
-
-         processFilter.add(PROCESS_DEFINITION_OID.isEqual(process.getRuntimeElementOID()));
+         FilterOrTerm processFilter = query.getFilter().addOrTerm();
+   
+         for (Iterator<ProcessDefinition> i = processes.iterator(); i.hasNext();)
+         {
+            ProcessDefinition process = i.next();
+   
+            processFilter.add(PROCESS_DEFINITION_OID.isEqual(process.getRuntimeElementOID()));
+         }
       }
 
       return query;
@@ -57,34 +60,101 @@ public class BenchmarkProcessStatisticsQuery extends CustomProcessInstanceQuery
    {
       BenchmarkProcessStatisticsQuery query = new BenchmarkProcessStatisticsQuery();
 
-      FilterOrTerm processFilter = query.getFilter().addOrTerm();
-
-      for (Iterator<String> i = processes.iterator(); i.hasNext();)
+      if(processes != null && !processes.isEmpty())
       {
-         String processId = (String) i.next();
-
-         processFilter.add(new ProcessDefinitionFilter(processId, false));
+         FilterOrTerm processFilter = query.getFilter().addOrTerm();
+   
+         for (Iterator<String> i = processes.iterator(); i.hasNext();)
+         {
+            String processId = (String) i.next();
+   
+            processFilter.add(new ProcessDefinitionFilter(processId, false));
+         }
       }
 
       return query;
    }
    
+   /**
+    * Creates a <code>BenchmarkProcessStatisticsQuery</code> where only process instances
+    * should be considered which are:
+    * <ul>
+    *   <li>Of a type which is included in the <code>processes</code> set or of any type
+    *     if this argument is an empty set or null 
+    *   <li>Using a business object instance that are of the same type as 
+    *     <code>businessObject</code>. <strong>Please note</strong> that this parameter
+    *     is mandantory and cannot be null</li>
+    * </ul>
+    * Furthermore if the set from <code>businessObjectPrimaryKeys</code> contains  
+    * entries then the result set is additionally restricted to the given primary keys.
+    * @param processes Set of process definitions, an empty set or null
+    * @param businessObject Business object type which is used as a filter argument
+    * @param businessObjectPrimaryKeys Primary key values of the business object if the
+    *    business object instances should be restricted to these values or an
+    *    empty set resp. null if no restrictions to the business object should be applied.
+    */
    public static BenchmarkProcessStatisticsQuery forProcessesAndBusinessObject(
          Set<ProcessDefinition> processes,
-         BusinessObject businessObjectId, Set<Serializable> businessObjectPrimaryKeys)
+         BusinessObject businessObject, Set<Serializable> businessObjectPrimaryKeys)
    {
       return forProcessesAndBusinessObject(processes, 
-            businessObjectId, businessObjectPrimaryKeys, null, null);
+            businessObject, businessObjectPrimaryKeys, null, null);
    }
    
+   /**
+    * Creates a <code>BenchmarkProcessStatisticsQuery</code> where only process instances
+    * should be considered which are:
+    * <ul>
+    *   <li>Of a type which is included in the <code>processes</code> set or of any type
+    *     if this argument is an empty set or null 
+    *   <li>Using a business object instance that are of the same type as 
+    *     <code>businessObject</code>. <strong>Please note</strong> that this parameter
+    *     is mandatory and cannot be null</li>
+    *   <li>Using a business object instance which have a relation to the business
+    *     object which is given by <code>businessObjectGroup</code></li>
+    * </ul>
+    * @param processes Set of process definitions, an empty set or null
+    * @param businessObject Business object type which is used as a filter argument
+    * @param businessObjectGroup Business object type which is used as a groupBy argument
+    *   which means that the instances of <code>businessObject</code> must have a 
+    *   relation to instances of <code>businessObjectGroup</code>
+    */
    public static BenchmarkProcessStatisticsQuery forProcessesAndBusinessObject(
          Set<ProcessDefinition> processes,
-         BusinessObject businessObjectId, BusinessObject businessObjectGroup)
+         BusinessObject businessObject, BusinessObject businessObjectGroup)
    {
       return forProcessesAndBusinessObject(processes, 
-            businessObjectId, null, businessObjectGroup, null);
+            businessObject, null, businessObjectGroup, null);
    }
    
+   /**
+    * Creates a <code>BenchmarkProcessStatisticsQuery</code> where only process instances
+    * should be considered which are:
+    * <ul>
+    *   <li>Of a type which is included in the <code>processes</code> set or of any type
+    *     if this argument is an empty set or null 
+    *   <li>Using a business object instance that are of the same type as 
+    *     <code>businessObject</code>. <strong>Please note</strong> that this parameter
+    *     is mandatory and cannot be null</li>
+    *   <li>Using a business object instance which have a relation to the business
+    *     object which is given by <code>businessObjectGroup</code></li>
+    * </ul>
+    * Furthermore if the set from <code>businessObjectPrimaryKeys</code> and/or
+    * <code>businessObjectGroupPrimaryKeys</code> contains entries then the result set 
+    * is additionally restricted to the given primary keys.
+    * @param processes Set of process definitions, an empty set or null
+    * @param businessObject Business object type which is used as a filter argument
+    * @param businessObjectPrimaryKeys Primary key values of the business object if the
+    *    business object instances should be restricted to these values or an
+    *    empty set resp. null if no restrictions to the business object should be applied.
+    * @param businessObjectGroup Business object type which is used as a groupBy argument
+    *   which means that the instances of <code>businessObject</code> must have a 
+    *   relation to instances of <code>businessObjectGroup</code>
+    * @param businessObjectGroupPrimaryKeys Primary key values of the groupBy business 
+    *    object if the groupBy business object instances should be restricted to these 
+    *    values or an empty set resp. null if no restrictions to the groupBy business 
+    *    object should be applied.
+    */
    public static BenchmarkProcessStatisticsQuery forProcessesAndBusinessObject(
          Set<ProcessDefinition> processes,
          BusinessObject businessObject, Set<Serializable> businessObjectPrimaryKeys,

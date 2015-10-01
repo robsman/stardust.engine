@@ -326,7 +326,8 @@ public class ProcessQueryPostprocessor
          {
             int eventTypes = eventPolicy.getEventTypes();
             props.setProperty(HistoricalEventPolicy.PRP_PROPVIDE_EVENT_TYPES, new Integer(eventTypes));
-            if(isEventTypeSet(eventTypes, HistoricalEventType.EXCEPTION))
+            if (isEventTypeSet(eventTypes, HistoricalEventType.EXCEPTION)
+                  || isEventTypeSet(eventTypes, HistoricalEventType.DATA_CHANGE))
             {
                prefetchLogEntries(queryResult.iterator(), QueryUtils.getTimeOut(query), eventPolicy);
             }

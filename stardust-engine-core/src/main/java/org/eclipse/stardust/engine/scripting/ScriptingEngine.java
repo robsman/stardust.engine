@@ -57,7 +57,7 @@ public class ScriptingEngine extends AbstractScriptEngine
 
    public Object eval(Reader reader, ScriptContext context) throws ScriptException
    {
-
+      this.context=Context.enter();
       Scriptable runtimeScope = new ExternalScriptable(context);
       runtimeScope.setPrototype(topLevel);
       runtimeScope.put("context", runtimeScope, context);

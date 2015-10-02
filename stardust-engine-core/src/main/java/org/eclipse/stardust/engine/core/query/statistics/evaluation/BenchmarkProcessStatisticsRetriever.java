@@ -91,6 +91,8 @@ public class BenchmarkProcessStatisticsRetriever
             else
             {
                // Count benchmark results only for Alive processes.
+               // ProcessInstanceState.Active, ProcessInstanceState.Interrupted,
+               // ProcessInstanceState.Aborting
                int benchmarkValue = process.getBenchmarkValue();
 
                result.registerProcessBenchmarkCategory(qualifiedProcessId, benchmarkValue);
@@ -178,15 +180,16 @@ public class BenchmarkProcessStatisticsRetriever
 
                switch (piState)
                {
-               case ProcessInstanceState.ABORTED:
-               case ProcessInstanceState.ABORTING:
-                  result.getBenchmarkStatistics().incrementAbortedPerItem(groupByName, name, piOid);
-                  break;
-               case ProcessInstanceState.COMPLETED:
-                  result.getBenchmarkStatistics().incrementCompletedPerItem(groupByName, name, piOid);
-                  break;
-               case ProcessInstanceState.ACTIVE:
-                  result.getBenchmarkStatistics().registerBenchmarkValue(groupByName, name, piOid, piBenchmarkValue);
+                  case ProcessInstanceState.ABORTED:
+                     result.getBenchmarkStatistics().incrementAbortedPerItem(groupByName, name, piOid);
+                     break;
+                  case ProcessInstanceState.COMPLETED:
+                     result.getBenchmarkStatistics().incrementCompletedPerItem(groupByName, name, piOid);
+                     break;
+                  default:
+                     // ProcessInstanceState.ACTIVE, ProcessInstanceState.INTERRUPTED,
+                     // ProcessInstanceState.ABORTING
+                     result.getBenchmarkStatistics().registerBenchmarkValue(groupByName, name, piOid, piBenchmarkValue);
                }
             }
          });

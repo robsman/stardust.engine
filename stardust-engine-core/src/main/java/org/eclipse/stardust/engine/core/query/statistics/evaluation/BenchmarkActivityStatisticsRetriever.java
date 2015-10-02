@@ -109,7 +109,10 @@ public class BenchmarkActivityStatisticsRetriever
             }
             else
             {
-               // Count benchmark results only for Alive processes.
+               // Count benchmark results only for activities which are in state:
+               // ActivityInstanceState.Application, ActivityInstanceState.Suspended,
+               // ActivityInstanceState.Hibernated, ActivityInstanceState.Aborting,
+               // ActivityInstanceState.Interrupted
                int benchmarkValue = activity.getBenchmarkValue();
 
                result.registerActivityBenchmarkCategory(qualifiedProcessId,
@@ -198,16 +201,17 @@ public class BenchmarkActivityStatisticsRetriever
 
                switch (aiState)
                {
-               case ActivityInstanceState.ABORTED:
-               case ActivityInstanceState.ABORTING:
-                  result.getBenchmarkStatistics().incrementAbortedPerItem(groupByName, name, aiOid);
-                  break;
-               case ActivityInstanceState.COMPLETED:
-                  result.getBenchmarkStatistics().incrementCompletedPerItem(groupByName, name, aiOid);
-                  break;
-               //case ActivityInstanceState.APPLICATION:
-               default:
-                  result.getBenchmarkStatistics().registerBenchmarkValue(groupByName, name, aiOid, aiBenchmarkValue);
+                  case ActivityInstanceState.ABORTED:
+                     result.getBenchmarkStatistics().incrementAbortedPerItem(groupByName, name, aiOid);
+                     break;
+                  case ActivityInstanceState.COMPLETED:
+                     result.getBenchmarkStatistics().incrementCompletedPerItem(groupByName, name, aiOid);
+                     break;
+                  default: 
+                     // ActivityInstanceState.APPLICATION, ActivityInstanceState.SUSPENDED,
+                     // ActivityInstanceState.INTERRUPTED, ActivityInstanceState.ABORTING,
+                     // ActivityInstanceState.HIBERNATED
+                     result.getBenchmarkStatistics().registerBenchmarkValue(groupByName, name, aiOid, aiBenchmarkValue);
                }
             }
          });

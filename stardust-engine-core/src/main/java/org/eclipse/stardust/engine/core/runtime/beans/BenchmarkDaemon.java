@@ -36,6 +36,7 @@ import org.eclipse.stardust.engine.core.persistence.Join;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
+import org.eclipse.stardust.engine.core.persistence.jdbc.ResultSetIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.DaemonExecutionLog.ExecutionLogEntry;
@@ -63,16 +64,16 @@ public class BenchmarkDaemon implements IDaemon
    private long currentPiOid = 0;
 
    private int nInstance;
-   
+
    private DaemonExecutionLog executionLog = new DaemonExecutionLog();
 
    @Override
    public ExecutionResult execute(long batchSize)
    {
       daemonLogger.info("Benchmark Daemon, perform synchronisation.");
-      
+
       executionLog.log("Start Daemon Execution");
-      
+
       ForkingServiceFactory factory = (ForkingServiceFactory) Parameters.instance().get(
             EngineProperties.FORKING_SERVICE_HOME);
 
@@ -88,11 +89,10 @@ public class BenchmarkDaemon implements IDaemon
          Map<Long, Integer> benchmarkAIMap = CollectionUtils.newMap();
 
          executionLog.log("Start to retrieve Benchmark Update Map");
-         
+
          // Create update map
          Map<Long, PiBenchmarkDetails> benchmarkUpdateMap = this.getBenchmarkUpdateMap(batchSize);
 
-         
          Set<Long> updateList = benchmarkUpdateMap.keySet();
 
          for (Iterator i = updateList.iterator(); i.hasNext();)
@@ -125,7 +125,6 @@ public class BenchmarkDaemon implements IDaemon
             Map<Long, String> aiBenchmarkMap = benchmarkDetails.getAiBenchmarkMap();
             Set<Long> aiUpdateList = aiBenchmarkMap.keySet();
 
-
             for (Iterator ai = aiUpdateList.iterator(); ai.hasNext();)
             {
                long aiOid = (Long) ai.next();
@@ -140,13 +139,12 @@ public class BenchmarkDaemon implements IDaemon
          executionLog.log("Finished retrieval of Update Map");
 
          executionLog.log("Start synchronizingBenchmarks to disk");
-         
+
          jobManager.performSynchronousJob(new SyncBenchmarksToDiskAction(benchmarkPIMap,
                benchmarkAIMap));
-         
-         
+
          currentPiOid = lastPiOid;
-         nInstance = nInstance + benchmarkPIMap.size();         
+         nInstance = nInstance + benchmarkPIMap.size();
 
          executionLog.log("Finished synchronizing Benchmarks to disk");
 
@@ -162,7 +160,7 @@ public class BenchmarkDaemon implements IDaemon
       if (nInstance < batchSize)
       {
          executionLog.log("Finished Daemon Job");
-                  
+
          this.currentPiOid = 0;
          return IDaemon.WORK_DONE;
       }
@@ -172,9 +170,11 @@ public class BenchmarkDaemon implements IDaemon
 
    private Map<Long, PiBenchmarkDetails> getBenchmarkUpdateMap(long batchSize)
    {
-      Map<Long, PiBenchmarkDetails> piBenchmarkMap = CollectionUtils.newMap();
+      Map<Long, PiBenchmarkDetails> piBenchmarkMap = CollectionUtils.newTreeMap();
 
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+
+      trace.info("----Current OID : " + this.currentPiOid);
 
       QueryDescriptor query = from(ActivityInstanceBean.class).select(
             ActivityInstanceBean.FR__OID, AuditTrailActivityBean.FR__ID,
@@ -196,18 +196,20 @@ public class BenchmarkDaemon implements IDaemon
                         ActivityInstanceBean.FR__PROCESS_INSTANCE,
                         ProcessInstanceBean.FIELD__OID));
 
-      query.getQueryExtension().
+      query.getQueryExtension()
+            .
 
-      setWhere(
-            andTerm(
+            setWhere(
                   andTerm(
                         andTerm(
-                              notEqual(ActivityInstanceBean.FR__STATE,
-                                    ActivityInstanceState.ABORTED),
-                              notEqual(ActivityInstanceBean.FR__STATE,
-                                    ActivityInstanceState.COMPLETED)),
-                        greaterThan(ProcessInstanceBean.FR__BENCHMARK_OID, 0)),
-                  greaterThan(ProcessInstanceBean.FR__OID, this.currentPiOid)));
+                              andTerm(
+                                    notEqual(ActivityInstanceBean.FR__STATE,
+                                          ActivityInstanceState.ABORTED),
+                                    notEqual(ActivityInstanceBean.FR__STATE,
+                                          ActivityInstanceState.COMPLETED)),
+                              greaterThan(ProcessInstanceBean.FR__BENCHMARK_OID, 0)),
+                        greaterThan(ProcessInstanceBean.FR__OID, this.currentPiOid)))
+            .addOrderBy(ProcessInstanceBean.FR__OID, true);
 
       // Log time before query execution
       ResultSet rs = session.executeQuery(query);
@@ -225,10 +227,12 @@ public class BenchmarkDaemon implements IDaemon
 
             if ( !piBenchmarkMap.containsKey(oid))
             {
-               trace.debug("Add PI with OID <" + oid + "> to update map");
+               trace.info("Add PI with OID <" + oid + "> to update map");
                piBenchmarkMap.put(oid, new PiBenchmarkDetails(benchmarkOid));
                copiedRows++ ;
             }
+
+            trace.info("----- Copied Rows = " + copiedRows + " Batch Size = " + batchSize);
 
             piBenchmarkMap.get(oid).addAiBenchmark(aiOid, activityId);
          }
@@ -243,7 +247,7 @@ public class BenchmarkDaemon implements IDaemon
          QueryUtils.closeResultSet(rs);
       }
       // Log Timestamp after result set iteration
-      
+
       return piBenchmarkMap;
    }
 

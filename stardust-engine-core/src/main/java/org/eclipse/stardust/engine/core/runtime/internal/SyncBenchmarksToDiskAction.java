@@ -113,23 +113,27 @@ public class SyncBenchmarksToDiskAction extends Procedure
 
                // Update all AI Instances
                int batchSize = 0;
-               for (Iterator i = aiUpdateMap.entrySet().iterator(); i.hasNext();)
+               for (String updateTableSql : updateAiTableList)
                {
 
-                  Map.Entry entry = (Map.Entry) i.next();
+                  Iterator i = aiUpdateMap.entrySet().iterator();
 
-                  final Long aiOid = (Long) entry.getKey();
-                  final int benchmarkValue = (Integer) entry.getValue();
-
-                  if (trace.isDebugEnabled())
+                  while (i.hasNext())
                   {
-                     trace.debug("Update benchmark value for AI <" + aiOid + "> to <"
-                           + benchmarkValue + ">");
-                  }
+                     batchSize++ ;
 
-                  // Execute update for all defined tables
-                  for (String updateTableSql : updateAiTableList)
-                  {
+                     Map.Entry entry = (Map.Entry) i.next();
+
+                     final Long aiOid = (Long) entry.getKey();
+                     final int benchmarkValue = (Integer) entry.getValue();
+
+                     if (trace.isDebugEnabled())
+                     {
+                        trace.debug("Update benchmark value for AI <" + aiOid + "> to <"
+                              + benchmarkValue + ">");
+                     }
+
+                     // Execute update for all defined tables
                      if (jdbcSession.isUsingPreparedStatements(UserSessionBean.class))
                      {
                         if (null == stmt)
@@ -167,7 +171,7 @@ public class SyncBenchmarksToDiskAction extends Procedure
                      }
                   }
                }
-               
+
                // Update all PI Instances
                for (Iterator i = piUpdateMap.entrySet().iterator(); i.hasNext();)
                {
@@ -183,50 +187,49 @@ public class SyncBenchmarksToDiskAction extends Procedure
                            + benchmarkValue + ">");
                   }
 
-
-                     if (jdbcSession.isUsingPreparedStatements(UserSessionBean.class))
+                  if (jdbcSession.isUsingPreparedStatements(UserSessionBean.class))
+                  {
+                     if (null == stmt)
                      {
-                        if (null == stmt)
-                        {
-                           stmt = con.prepareStatement(MessageFormat.format(
-                                 updatePiTableSql, new Object[] {"?", "?"}));
-                        }
-                        ((PreparedStatement) stmt).setInt(1, benchmarkValue);
-                        ((PreparedStatement) stmt).setLong(2, piOid);
-                        ((PreparedStatement) stmt).addBatch();
+                        stmt = con.prepareStatement(MessageFormat.format(
+                              updatePiTableSql, new Object[] {"?", "?"}));
                      }
-                     else
+                     ((PreparedStatement) stmt).setInt(1, benchmarkValue);
+                     ((PreparedStatement) stmt).setLong(2, piOid);
+                     ((PreparedStatement) stmt).addBatch();
+                  }
+                  else
+                  {
+                     if (null == stmt)
                      {
-                        if (null == stmt)
-                        {
-                           stmt = con.createStatement();
-                        }
-
-                        stmt.addBatch(MessageFormat.format(
-                              updatePiTableSql,
-                              new Object[] {
-                                    DmlManager.getSQLValue(Integer.TYPE, new Integer(
-                                          benchmarkValue), jdbcSession.getDBDescriptor()),
-                                    DmlManager.getSQLValue(Long.TYPE, new Long(piOid),
-                                          jdbcSession.getDBDescriptor())}));
+                        stmt = con.createStatement();
                      }
 
-                     if ((batchSize >= maxBatchSize) || !i.hasNext())
-                     {
-                        stmt.executeBatch();
-                        QueryUtils.closeStatement(stmt);
+                     stmt.addBatch(MessageFormat.format(
+                           updatePiTableSql,
+                           new Object[] {
+                                 DmlManager.getSQLValue(Integer.TYPE, new Integer(
+                                       benchmarkValue), jdbcSession.getDBDescriptor()),
+                                 DmlManager.getSQLValue(Long.TYPE, new Long(piOid),
+                                       jdbcSession.getDBDescriptor())}));
+                  }
 
-                        stmt = null;
-                        batchSize = 0;
-                     }
-                  
+                  if ((batchSize >= maxBatchSize) || !i.hasNext())
+                  {
+                     stmt.executeBatch();
+                     QueryUtils.closeStatement(stmt);
+
+                     stmt = null;
+                     batchSize = 0;
+                  }
+
                }
             }
             finally
             {
                QueryUtils.closeStatement(stmt);
-//               con.commit();
-//               con.close();
+               // con.commit();
+               // con.close();
             }
          }
          catch (SQLException e)

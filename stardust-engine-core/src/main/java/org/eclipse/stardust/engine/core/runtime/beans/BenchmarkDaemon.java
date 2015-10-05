@@ -174,8 +174,6 @@ public class BenchmarkDaemon implements IDaemon
 
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 
-      trace.info("----Current OID : " + this.currentPiOid);
-
       QueryDescriptor query = from(ActivityInstanceBean.class).select(
             ActivityInstanceBean.FR__OID, AuditTrailActivityBean.FR__ID,
             ProcessInstanceBean.FR__OID, ProcessInstanceBean.FR__BENCHMARK_OID);
@@ -227,12 +225,10 @@ public class BenchmarkDaemon implements IDaemon
 
             if ( !piBenchmarkMap.containsKey(oid))
             {
-               trace.info("Add PI with OID <" + oid + "> to update map");
+               trace.debug("Add PI with OID <" + oid + "> to update map");
                piBenchmarkMap.put(oid, new PiBenchmarkDetails(benchmarkOid));
                copiedRows++ ;
             }
-
-            trace.info("----- Copied Rows = " + copiedRows + " Batch Size = " + batchSize);
 
             piBenchmarkMap.get(oid).addAiBenchmark(aiOid, activityId);
          }

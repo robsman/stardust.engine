@@ -228,7 +228,15 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
             maybeTriggerTxRollback(invocation, e);
 
             LogUtils.traceException(e, false);
-            throw new InternalException(e.getMessage());
+
+            if (e instanceof ApplicationException)
+            {
+               throw e;
+            }
+            else
+            {
+               throw new InternalException(e.getMessage());
+            }
          }
       }
 

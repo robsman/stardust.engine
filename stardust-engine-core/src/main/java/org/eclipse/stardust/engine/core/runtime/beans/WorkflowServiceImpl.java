@@ -135,16 +135,35 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
             Map<String, Serializable> defaults = defaultBenchmarkPrefs.getPreferences();
 
-            QName qualifedProcessDefinitionId = new QName(processDefinition.getModel()
-                  .getId(), processDefinition.getId());
+            String modelId = processDefinition.getModel()
+                  .getId();
+            String qualifedProcessDefinitionId = new QName(modelId, processDefinition.getId()).toString();
 
-            if (defaults.containsKey(qualifedProcessDefinitionId.toString()))
+            String benchmarkArtifactId = null;
+            if (defaults.containsKey(qualifedProcessDefinitionId))
+            {
+               Serializable value = defaults.get(qualifedProcessDefinitionId);
+
+               if (value != null)
+               {
+                  if ("0".equals(value.toString()))
+                  {
+                     // use model default benchmark
+                     benchmarkArtifactId = (String) defaults.get(modelId);
+                  }
+                  else
+                  {
+                     // process definition benchmark
+                     benchmarkArtifactId = value.toString();
+                  }
+               }
+            }
+
+            if (benchmarkArtifactId != null)
             {
                DeployedRuntimeArtifact artifact = ArtifactManagerFactory.getCurrent()
-                     .getActiveDeployedArtifact(
-                           BenchmarkDefinitionArtifactType.TYPE_ID,
-                           defaults.get(qualifedProcessDefinitionId.toString())
-                                 .toString());
+                     .getActiveDeployedArtifact(BenchmarkDefinitionArtifactType.TYPE_ID,
+                           benchmarkArtifactId);
 
                if (artifact != null)
                {
@@ -153,7 +172,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                else
                {
                   throw new ObjectNotFoundException(
-                        BpmRuntimeError.BPMRT_BENCHMARK_NOT_FOUND.raise(options.getBenchmarkId()));
+                        BpmRuntimeError.BPMRT_BENCHMARK_NOT_FOUND.raise(options
+                              .getBenchmarkId()));
                }
             }
          }
@@ -1682,7 +1702,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       }
 
       processInstance.setOutDataValue(data, path.getAccessPath(), value);
-      
+
       AuditTrailLogger.getInstance(LogCode.DATA, processInstance)
             .info(MessageFormat.format(
                   "Data ''{0}'' of Process Instance ''{1}'' has been changed through datapath ''{2}''",

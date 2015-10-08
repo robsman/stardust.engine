@@ -20,7 +20,6 @@ import java.text.MessageFormat;
 import java.util.*;
 
 import org.eclipse.stardust.common.*;
-import org.eclipse.stardust.common.TimeMeasure;
 import org.eclipse.stardust.common.config.CurrentVersion;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
@@ -47,7 +46,7 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 public class DDLManager
 {
    private static final String SEQUENCE_TABLE_NAME = "sequence";
-
+   
    public static final Logger trace = LogManager.getLogger(DDLManager.class);
 
    private DBDescriptor dbDescriptor;
@@ -121,9 +120,10 @@ public class DDLManager
       return isPredefined;
    }
 
-   public static void executeOrSpoolStatement(String statement, Connection connection,
+   public static int executeOrSpoolStatement(String statement, Connection connection,
          PrintStream spoolFile) throws SQLException
    {
+      int result = 0;
       if (null == spoolFile)
       {
          org.eclipse.stardust.engine.core.persistence.Session auditTrailSession
@@ -140,7 +140,7 @@ public class DDLManager
             stmt = connection.createStatement();
 
             final TimeMeasure timer = new TimeMeasure();
-            stmt.executeUpdate(statement);
+            result = stmt.executeUpdate(statement);
             timer.stop();
             if(jdbcSession != null)
             {
@@ -157,6 +157,7 @@ public class DDLManager
          spoolFile.print(statement);
          spoolFile.println(";");
       }
+      return result;
    }
 
 
@@ -2040,8 +2041,9 @@ public class DDLManager
    }
 
    public void synchronizeDataCluster(boolean performDeleteOrInsert, DataClusterSynchronizationInfo syncInfo, Connection connection,
-         String schemaName, PrintStream spoolFile, String statementDelimiter)
+         String schemaName, PrintStream spoolFile, String statementDelimiter, PrintStream consoleLog)
    {
+      int count = 0;
       for(DataCluster dataCluster : syncInfo.getClusters())
       {
          final String processInstanceScopeTable = getQualifiedName(schemaName,
@@ -2062,6 +2064,15 @@ public class DDLManager
 
          try
          {
+            int result = 0;
+            if (!containsTable(schemaName, dataCluster.getTableName(), connection))
+            {
+               createDataClusterTable(dataCluster, connection, schemaName, null, null);
+               String message = "Cluster table " + clusterTable
+                     + " does not exist: Created table now.";
+               printLogMessage(message, consoleLog);
+               count++;
+            }
             if(performDeleteOrInsert)
             {
                String syncDelSql = MessageFormat.format(
@@ -2086,8 +2097,16 @@ public class DDLManager
                          getStateListValues(dataCluster)
                    });
                syncDelSql = syncDelSql.trim();
-               executeOrSpoolStatement(syncDelSql, connection, spoolFile);
-
+               result = executeOrSpoolStatement(syncDelSql, connection, spoolFile);
+               if (result > 0)
+               {
+                  String message = "Inconsistent cluster table "
+                        + clusterTable
+                        + ": deleted cluster entries that referenced non existing process instances.";
+                  printLogMessage(message, consoleLog);
+                  count++;
+               }
+                  
                String syncInsSql = MessageFormat.format(
                      "INSERT INTO {0} ({1}) "
                    + "SELECT DISTINCT PIS.{3} "
@@ -2110,7 +2129,15 @@ public class DDLManager
                          ProcessInstanceBean.FIELD__OID,
                          ProcessInstanceBean.FIELD__STATE,
                          getStateListValues(dataCluster)});
-               executeOrSpoolStatement(syncInsSql, connection, spoolFile);
+               result = executeOrSpoolStatement(syncInsSql, connection, spoolFile);
+               if (result > 0)
+               {
+                  String message = "Inconsistent cluster table "
+                        + clusterTable
+                        + ": Inserted missing existing process instances into cluster table.";
+                  printLogMessage(message, consoleLog);
+                  count++;
+               }
             }
 
             // synchronizing slot values
@@ -2215,7 +2242,17 @@ public class DDLManager
                      }
                   }
 
-                  executeOrSpoolStatement(buffer.toString(), connection, spoolFile);
+                  result = executeOrSpoolStatement(buffer.toString(), connection, spoolFile);
+                  if (result > 0)
+                  {
+                     String message = "Inconsistent cluster table "
+                           + clusterTable
+                           + ": Fixed cluster entries that contained invalid data values for slot '"
+                           + dataSlot.getDataId() + "' attributeName '"
+                           + dataSlot.getAttributeName() + "'.";
+                     printLogMessage(message, consoleLog);
+                     count++;
+                  }
                }
             }
          }
@@ -2227,6 +2264,21 @@ public class DDLManager
             trace.warn(message, x);
             DataClusterHelper.deleteDataClusterSetup();
          }
+      }
+      if (count != 0)
+      {
+         StringBuilder message = new StringBuilder();
+         message.append("Synchronized data cluster: ");
+         message.append(count == 1 ? "There was 1 inconsistency. " : "There were "
+               + count + " inconsistencies. ");
+         message.append("All inconsistencies have been resolved now.");
+         printLogMessage(message.toString(), consoleLog != null ? consoleLog : System.out);
+      }
+      else
+      {
+         printLogMessage(
+               "Synchronized data cluster. There were no inconsistencies to be resolved.",
+               consoleLog != null ? consoleLog : System.out);
       }
    }
 
@@ -2341,11 +2393,12 @@ public class DDLManager
 
       return result;
    }
-
+   
    public void verifyClusterTable(DataCluster dataCluster, Connection connection,
-         String schemaName)
+         String schemaName, PrintStream consoleLog)
    {
       final String clusterTable = getQualifiedName(schemaName, dataCluster.getTableName());
+      int count = 0;
 
       Statement verifyStmt = null;
       ResultSet resultSet = null;
@@ -2355,9 +2408,8 @@ public class DDLManager
          if ( !containsTable(schemaName, dataCluster.getTableName(), connection))
          {
             String message = "Cluster table " + clusterTable + " does not exist.";
-
-            System.out.println(message);
-            trace.warn(message);
+            printLogMessage(message, consoleLog);
+            count++;
          }
          else
          {
@@ -2381,9 +2433,8 @@ public class DDLManager
                      + clusterTable
                      + " is not consistent: non existing process instances are referenced by cluster entry.";
 
-               System.out.println(message);
-               trace.warn(message);
-               return;
+               printLogMessage(message, consoleLog);
+               count++;
             }
 
             syncStringTemplate =
@@ -2404,9 +2455,8 @@ public class DDLManager
                      + clusterTable
                      + " is not consistent: existing process instances are not referenced by cluster entries.";
 
-               System.out.println(message);
-               trace.warn(message);
-               return;
+               printLogMessage(message, consoleLog);
+               count++;
             }
 
             syncStringTemplate =
@@ -2481,9 +2531,8 @@ public class DDLManager
                         + dataSlot.getQualifiedDataId() + "' attributeName '"
                         + dataSlot.getAttributeName() + "' are not matching.";
 
-                  System.out.println(message);
-                  trace.warn(message);
-                  return;
+                  printLogMessage(message, consoleLog);
+                  count++;
                }
             }
 
@@ -2520,9 +2569,8 @@ public class DDLManager
                         + dataSlot.getAttributeName()
                         + "' are not completely set to null.";
 
-                  System.out.println(message);
-                  trace.warn(message);
-                  return;
+                  printLogMessage(message, consoleLog);
+                  count++;
                }
             }
 
@@ -2566,11 +2614,25 @@ public class DDLManager
                         + dataSlot.getAttributeName()
                         + "' are not referenced by cluster entry.";
 
-                  System.out.println(message);
-                  trace.warn(message);
-                  return;
+                  printLogMessage(message, consoleLog);
+                  count++;
                }
             }
+         }
+         if (count != 0)
+         {
+            StringBuilder message = new StringBuilder();
+            message.append("The data cluster is invalid. ");
+            message.append(count == 1 ? "There is 1 inconsistency." : "There are "
+                  + count + " inconsistencies.");
+            printLogMessage(message.toString(), consoleLog != null
+                  ? consoleLog
+                  : System.out);
+         }
+         else
+         {
+            printLogMessage("Verified data cluster. There are no inconsistencies.",
+                  consoleLog != null ? consoleLog : System.out);
          }
       }
       catch (SQLException x)
@@ -2585,6 +2647,24 @@ public class DDLManager
       {
          QueryUtils.closeStatementAndResultSet(verifyStmt, resultSet);
       }
+      
+      try
+      {
+         connection.commit();
+      }
+      catch (SQLException e)
+      {
+         throw new InternalException(e);
+      }
+   }
+
+   private void printLogMessage(String message, PrintStream consoleLog)
+   {
+      if (consoleLog != null)
+      {
+         consoleLog.println(message);
+      }
+      trace.info(message);
    }
 
    public void dropClusterTable(DataCluster dataCluster, Connection connection,

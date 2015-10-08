@@ -1341,7 +1341,7 @@ public class SchemaHelper
                      .println("/* DML-statements for synchronization of cluster tables */");
             }
 
-            ddlManager.synchronizeDataCluster(true, changeObserver.getDataClusterSynchronizationInfo(), consoleSession.getConnection(), schemaName, spoolFile, statementDelimiter);         
+            ddlManager.synchronizeDataCluster(true, changeObserver.getDataClusterSynchronizationInfo(), consoleSession.getConnection(), schemaName, spoolFile, statementDelimiter, null);         
          }
 
          if (null != spoolFile)
@@ -1358,7 +1358,7 @@ public class SchemaHelper
       }
    }
 
-   public static void alterAuditTrailVerifyDataClusterTables(String sysconPassword)
+   public static void alterAuditTrailVerifyDataClusterTables(String sysconPassword, PrintStream consoleLog)
          throws SQLException
    {
       Session session = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
@@ -1383,10 +1383,50 @@ public class SchemaHelper
 
          for (int idx = 0; idx < cluster.length; ++idx)
          {
-            ddlManager.verifyClusterTable(cluster[idx], session.getConnection(), schemaName);
+            ddlManager.verifyClusterTable(cluster[idx], session.getConnection(), schemaName, consoleLog);
          }
 
          session.save();
+      }
+      finally
+      {
+         ParametersFacade.popLayer();
+      }
+   }
+
+   public static void alterAuditTrailSynchronizeDataClusterTables(String sysconPassword,
+         PrintStream consoleLog, PrintStream spoolFile, String statementDelimiter)
+         throws SQLException
+   {
+      Session session = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
+
+      Map locals = new HashMap();
+      locals.put(SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SESSION_SUFFIX,
+            session);
+
+      try
+      {
+         ParametersFacade.pushLayer(locals);
+
+         verifySysopPassword(session, sysconPassword);
+
+         DBDescriptor dbDescriptor = session.getDBDescriptor();
+         DDLManager ddlManager = new DDLManager(dbDescriptor);
+
+         DataCluster[] cluster = RuntimeSetup.instance().getDataClusterSetup();
+
+         final String schemaName = Parameters.instance().getString(
+               SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX,
+               Parameters.instance().getString(
+                     SessionFactory.AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX));
+
+         for (DataCluster dataCluster : cluster)
+         {
+            ddlManager.synchronizeDataCluster(true,
+                  DataClusterHelper.getDataClusterSynchronizationInfo(dataCluster, null),
+                  session.getConnection(), schemaName, spoolFile, statementDelimiter, consoleLog);
+            session.save();
+         }
       }
       finally
       {

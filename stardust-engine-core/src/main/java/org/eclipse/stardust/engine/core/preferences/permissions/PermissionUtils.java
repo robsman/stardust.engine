@@ -110,13 +110,12 @@ public class PermissionUtils
       final Map<String, Serializable> permissions = getPreferences(preferenceStore);
       List<String> values = (List<String>) permissions.get(internalPermissionId);
 
-      if (includeDefaultPermissions)
+      if (values == null || values.isEmpty())
       {
-         if (values == null || values.isEmpty())
+         String defaultPermission = getModelDefaultPermissions().get(internalPermissionId);
+         if (!StringUtils.isEmpty(defaultPermission))
          {
-            String defaultPermission = getModelDefaultPermissions().get(
-                  internalPermissionId);
-            if ( !StringUtils.isEmpty(defaultPermission))
+            if (includeDefaultPermissions || ClientPermission.isDeniedPermissionId(internalPermissionId))
             {
                values = new LinkedList<String>();
                values.add(defaultPermission);

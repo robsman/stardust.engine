@@ -52,6 +52,7 @@ public class AuditorRoleAuthorizationTest
    private static final String MODEL_NAME = "AuthorizationModel";
 
    private static final String AUDITOR_ROLE_USER_ID = "auditor_user";
+   private static final String AUDITOR_ROLE_USER_ID2 = "auditor_user2";
 
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(
          MOTU, MOTU);
@@ -64,6 +65,8 @@ public class AuditorRoleAuthorizationTest
 
    private TestServiceFactory auditorUserSf = new TestServiceFactory(
          new UsernamePasswordPair(AUDITOR_ROLE_USER_ID, AUDITOR_ROLE_USER_ID));
+   private TestServiceFactory auditorUser2Sf = new TestServiceFactory(
+         new UsernamePasswordPair(AUDITOR_ROLE_USER_ID2, AUDITOR_ROLE_USER_ID2));
 
    @ClassRule
    public static final TestClassSetup testClassSetup = new TestClassSetup(
@@ -74,7 +77,7 @@ public class AuditorRoleAuthorizationTest
 
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
-         .around(serviceFactory).around(auditorUserSf);
+         .around(serviceFactory).around(auditorUserSf).around(auditorUser2Sf);
 
    private DocumentManagementService adminDMS;
 
@@ -98,12 +101,17 @@ public class AuditorRoleAuthorizationTest
       Models models = queryService.getModels(findForId(PREDEFINED_MODEL_ID));
       Participant auditorParticipant = queryService.getParticipant(models.get(0)
             .getModelOID(), PredefinedConstants.AUDITOR_ROLE);
+      models = queryService.getModels(findForId(MODEL_NAME));
+      Participant role1Participant = queryService.getParticipant(models.get(0)
+            .getModelOID(), "Role1");
       UserHome.create(serviceFactory, AUDITOR_ROLE_USER_ID,
-            (ModelParticipantInfo) auditorParticipant);
+            (ModelParticipantInfo) auditorParticipant);      
+      UserHome.create(serviceFactory, AUDITOR_ROLE_USER_ID2,
+            (ModelParticipantInfo) auditorParticipant, (ModelParticipantInfo) role1Participant);
+            
       auditorDMS = auditorUserSf.getDocumentManagementService();
       auditorWorkflowService = auditorUserSf.getWorkflowService();
       auditorAdminService = auditorUserSf.getAdministrationService();
-
    }
 
    @Test
@@ -142,6 +150,14 @@ public class AuditorRoleAuthorizationTest
       auditorWorkflowService.startProcess("SourceProcess", null, true);
    }
 
+   @Test
+   public void testStartProcessWithAuditorUserRole1()
+   {
+      exception.expect(AccessForbiddenException.class);      
+      ProcessInstance rootPI1 = auditorUser2Sf.getWorkflowService().startProcess("Role1Process", null,
+            true);
+   }
+      
    @Test
    public void testAbortProcessWithAuditorUser()
    {

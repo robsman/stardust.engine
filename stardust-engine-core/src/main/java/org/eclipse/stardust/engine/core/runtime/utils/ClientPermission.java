@@ -335,6 +335,11 @@ public final class ClientPermission
       return deniedIds;
    }
 
+   public static boolean isDeniedPermissionId(String permissionId)
+   {
+      return permissionId != null && permissionId.startsWith(DENY_PREFIX);
+   }
+
    protected static ClientPermission getPermission(Method method)
    {
       ClientPermission cp = permissionCache.get(method);

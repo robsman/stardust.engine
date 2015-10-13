@@ -39,7 +39,8 @@ public class LoginServiceFactory
       String loginMode = Parameters.instance().getString(
             SecurityProperties.AUTHENTICATION_MODE_PROPERTY,
             SecurityProperties.AUTHENTICATION_MODE_INTERNAL);
-      if (SecurityProperties.AUTHENTICATION_MODE_INTERNAL.equals(loginMode))
+      if (SecurityProperties.AUTHENTICATION_MODE_INTERNAL.equals(loginMode)
+            || SecurityProperties.AUTHENTICATION_MODE_EXTERNAL.equalsIgnoreCase(loginMode))
       {
          try
          {

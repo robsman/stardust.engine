@@ -88,6 +88,8 @@ public final class SecurityProperties
    public static final String AUTHENTICATION_MODE_JAAS = "jaas";
 
    public static final String AUTHENTICATION_MODE_IMPLICIT = "implicit";
+   
+   public static final String AUTHENTICATION_MODE_EXTERNAL = "external";
 
    @ConfigurationProperty(status = Status.Stable, useRestriction = UseRestriction.Public)
    public static final String AUTHORIZATION_MODE_PROPERTY = "Security.Authorization.Mode";

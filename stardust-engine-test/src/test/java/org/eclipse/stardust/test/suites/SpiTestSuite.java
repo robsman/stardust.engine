@@ -11,12 +11,10 @@
 package org.eclipse.stardust.test.suites;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.MODEL_NAME;
 
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-import org.eclipse.stardust.test.bo.BusinessObjectsModelExtenderTest;
 import org.eclipse.stardust.test.spi.FastCachingSequenceGeneratorTest;
 import org.eclipse.stardust.test.spi.PartitionMonitorTest;
 import org.junit.ClassRule;
@@ -36,14 +34,10 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
                 FastCachingSequenceGeneratorTest.class,
-                PartitionMonitorTest.class,
-                BusinessObjectsModelExtenderTest.class
+                PartitionMonitorTest.class
               })
 public class SpiTestSuite
 {
-   private static final String[] MODEL_NAME_ARRAY = new String[]{"BasicWorkflowModel","BusinessObjects",
-      "BusinessObjectsProcess"}; 
-   
    @ClassRule
-   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, MODEL_NAME_ARRAY);
+   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, "BasicWorkflowModel");
 }

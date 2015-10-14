@@ -10,14 +10,9 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.suites;
 
-import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-import static org.eclipse.stardust.test.department.DepartmentModelConstants.MODEL_NAME;
-
-import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
-import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
-import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.eclipse.stardust.test.authorization.AuditorRoleAuthorizationTest;
 import org.eclipse.stardust.test.authorization.DataAuthorizationTest;
-import org.junit.ClassRule;
+
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -29,11 +24,9 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-      DataAuthorizationTest.class
+      DataAuthorizationTest.class,
+      AuditorRoleAuthorizationTest.class
 })
 public class AuthorizationTestSuite
 {
-   @ClassRule
-   public static final TestSuiteSetup testSuiteSetup =
-         new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
 }

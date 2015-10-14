@@ -151,6 +151,8 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 // todo: use everywhere qualified user schema
 public class Archiver
 {
+   private static final String ENABLE_USER_PARTICIPANT_TAB_FIX = Archiver.class.getName() + ".EnableUserPartitionTableFix";
+
    private static final String FIELD_PARTITION = "partition";
    private static final String SPACE = " ";
    private static final String DOT = ".";
@@ -3916,60 +3918,54 @@ public class Archiver
    }
 
    /**
-    * This deletes entries from table for {@link UserParticipantLink} which have dangling references to
-    * table for {@link AuditTrailParticipantBean}. This was caused by bug which is fixed with CRNT-38649.
+    * This deletes entries from table for {@link UserParticipantLink} in archive schema which have
+    * dangling references to table for {@link AuditTrailParticipantBean}. This was caused by a bug
+    * which has been fixed with CRNT-38649.
+    *
+    * This requires flag archive to be true (i.e. option "-noBackup" to be false) in order to have
+    * access to archive schema.
     *
     * All entries for current partition will be deleted from {@link UserParticipantLink} in archive.
     * In order to reduce to entries for current partition only also join to user and user realm
-    * in production (source) schema is perormed. As Users never will be deleted but only invalidated
+    * in production (source) schema is performed. As users never will be deleted but only invalidated
     * this should be stable.
     *
     */
    public void fixUserParticipantLinkTableEntries()
    {
-//       delete FROM IPP_81X_ARC.user_participant
-//       WHERE IPP_81X_ARC.user_participant.oid IN
-//            (
-//                select ump.oid
-//                FROM IPP_81X_ARC.user_participant ump
-//       -- inner join with source users to restrict deletion to current partition
-//                INNER JOIN IPP_81X.workflowuser u ON (ump.workflowuser = u.oid)
-//                INNER JOIN IPP_81X.wfuser_realm ur ON (u.realm = ur.OID)
-//       -- outer join with archive participants to restrict deletion to dangling references
-//                LEFT OUTER JOIN IPP_81X_ARC.participant p ON (ump.participant = p.oid)
-//                WHERE p.oid is null AND ur.PARTITION = 1
-//               )
-       // Inner query
-       QueryDescriptor innerQuery = QueryDescriptor
-          .from(archiveSchema, UserParticipantLink.class, UserParticipantLink.DEFAULT_ALIAS)
-          .select(UserParticipantLink.FIELD__OID);
+      final boolean enableFix = Parameters.instance().getBoolean(
+            ENABLE_USER_PARTICIPANT_TAB_FIX, true);
+      if ( !archive || !enableFix)
+      {
+         return;
+      }
 
-       // inner join with source users to restrict deletion to current partition
-       Join uJoin = new Join(srcSchema, UserBean.class, UserBean.DEFAULT_ALIAS)
-          .on(innerQuery.fieldRef(UserParticipantLink.FIELD__USER), UserBean.FIELD__OID);
-       uJoin.setRequired(true);
+      DeleteDescriptor delete = DeleteDescriptor.from(archiveSchema,
+            UserParticipantLink.class);
 
-       Join urJoin = new Join(srcSchema, UserRealmBean.class, UserRealmBean.DEFAULT_ALIAS)
-          .on(uJoin.fieldRef(UserBean.FIELD__REALM), UserRealmBean.FIELD__OID);
-       urJoin.setDependency(uJoin);
-       urJoin.setRequired(true);
+      // @formatter:off
+      // inner join with source users to restrict deletion to current partition
+      Join uJoin = new Join(srcSchema, UserBean.class, UserBean.DEFAULT_ALIAS)
+         .on(delete.fieldRef(UserParticipantLink.FIELD__USER), UserBean.FIELD__OID);
+      uJoin.setRequired(true);
 
-       // outer join with archive participants to restrict deletion to dangling references
-       Join pJoin = new Join(archiveSchema, AuditTrailParticipantBean.class, AuditTrailParticipantBean.DEFAULT_ALIAS)
-          .on(innerQuery.fieldRef(UserParticipantLink.FIELD__PARTICIPANT), AuditTrailParticipantBean.FIELD__OID);
-       pJoin.setDependency(urJoin);
-       pJoin.setRequired(false);
+      Join urJoin = new Join(srcSchema, UserRealmBean.class, UserRealmBean.DEFAULT_ALIAS)
+            .on(uJoin.fieldRef(UserBean.FIELD__REALM), UserRealmBean.FIELD__OID);
+      urJoin.setDependency(uJoin);
+      urJoin.setRequired(true);
 
-       innerQuery.getQueryExtension().addJoin(uJoin).addJoin(urJoin).addJoin(pJoin);
-       innerQuery.where(Predicates.andTerm(
-             Predicates.isNull(pJoin.fieldRef(AuditTrailParticipantBean.FIELD__OID)),
-             Predicates.isEqual(urJoin.fieldRef(UserRealmBean.FIELD__PARTITION), partitionOid)));
+      // outer join with archive participants to restrict deletion to dangling references
+      Join pJoin = new Join(archiveSchema, AuditTrailParticipantBean.class, AuditTrailParticipantBean.DEFAULT_ALIAS)
+         .on(delete.fieldRef(UserParticipantLink.FIELD__PARTICIPANT), AuditTrailParticipantBean.FIELD__OID);
+      pJoin.setDependency(urJoin);
+      pJoin.setRequired(false);
 
-       // Delete using inner query
-       DeleteDescriptor delete = DeleteDescriptor
-             .from(archiveSchema, UserParticipantLink.class)
-             .where(Predicates.inList(UserParticipantLink.FR__OID, innerQuery));
+      delete.getQueryExtension().addJoin(uJoin).addJoin(urJoin).addJoin(pJoin);
+      delete.where(Predicates.andTerm(
+            Predicates.isNull(pJoin.fieldRef(AuditTrailParticipantBean.FIELD__OID)),
+            Predicates.isEqual(urJoin.fieldRef(UserRealmBean.FIELD__PARTITION), partitionOid)));
+      // @formatter:on
 
-       session.executeDelete(delete);
+      session.executeDelete(delete);
    }
 }

@@ -41,7 +41,6 @@ import org.eclipse.stardust.test.dms.DmsModelConstants;
 @FixMethodOrder(MethodSorters.JVM)
 public class ArtifactSanityTest
 {
-
    private static final String ARTIFACT_TYPE_ID = BenchmarkDefinitionArtifactType.TYPE_ID;
 
    private static final String ARTIFACT_NAME1 = "Benchmark One";
@@ -72,6 +71,17 @@ public class ArtifactSanityTest
    public void setup() throws InterruptedException
    {
       AdministrationService as = sf.getAdministrationService();
+      DeployedRuntimeArtifacts runtimeArtifacts = sf.getQueryService()
+            .getRuntimeArtifacts(DeployedRuntimeArtifactQuery.findAll());
+      if ( !runtimeArtifacts.isEmpty())
+      {
+         for (DeployedRuntimeArtifact artifact : runtimeArtifacts)
+         {
+            as.deleteRuntimeArtifact(artifact.getOid());
+         }
+      }
+      
+      sf.getAdministrationService().cleanupRuntime(true);
 
       as.deployRuntimeArtifact(getRuntimeArtifact1(ARTIFACT_ID1));
    }

@@ -10,17 +10,8 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.suites;
 
-import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.MODEL_NAME;
+import org.eclipse.stardust.test.workflow.*;
 
-import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
-import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
-import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-import org.eclipse.stardust.test.workflow.ActivityInstanceWorkflowTest;
-import org.eclipse.stardust.test.workflow.EmbeddedServiceFactoryTest;
-import org.eclipse.stardust.test.workflow.ProcessInstanceWorkflowTest;
-import org.eclipse.stardust.test.workflow.RollbackOnErrorTest;
-import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -38,10 +29,11 @@ import org.junit.runners.Suite.SuiteClasses;
                ActivityInstanceWorkflowTest.class,
                ProcessInstanceWorkflowTest.class,
                EmbeddedServiceFactoryTest.class,
-               RollbackOnErrorTest.class
+               RollbackOnErrorTest.class,
+               TransientUsersWorkflowTest.class,
+               AbortActivityTest.class,
+               ResubmissionTest.class
              })
 public class BasicWorkflowTestSuite
 {
-   @ClassRule
-   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
 }

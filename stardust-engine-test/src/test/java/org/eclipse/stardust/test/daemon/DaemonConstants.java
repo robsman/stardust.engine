@@ -28,10 +28,10 @@ public class DaemonConstants
    /**
     * dms related constants
     */      
-   public static final String FOLDER = "/business-calendars";
-   public static final String CALENDAR = "test.bpmcal";   
-   public static final String BLOCK_CALENDAR = "block.bpmcalx";
-   public static final String IMPORTED_CALENDAR = "common.bpmcalx";
+   public static final String FOLDER = "/business-calendars/processingCalendar";
+   public static final String CALENDAR = "test.json";   
+   public static final String BLOCK_CALENDAR = "block.json";
+   public static final String IMPORTED_CALENDAR = "common.json";
 
    public static final String BO_FUND = "{BusinessObjectManagement}Fund";
    public static final String BO_GROUP = "{BusinessObjectManagement}FundGroup";

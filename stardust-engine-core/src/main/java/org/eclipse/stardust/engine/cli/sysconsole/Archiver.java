@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -101,6 +101,8 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 // todo: use everywhere qualified user schema
 public class Archiver
 {
+   private static final String ENABLE_USER_PARTICIPANT_TAB_FIX = Archiver.class.getName() + ".EnableUserPartitionTableFix";
+
    private static final String FIELD_PARTITION = "partition";
    private static final String SPACE = " ";
    private static final String DOT = ".";
@@ -2255,9 +2257,12 @@ public class Archiver
 
    private void synchronizeUserParticipantLinkTable(Long modelOid) throws SQLException
    {
-      Join sourceParticipantsJoin = new Join(srcSchema, AuditTrailParticipantBean.class, "p")
+      // Here source and target joins need to be on Archive Schema:
+      // * First delete all UserParticipantLinks from archive which have valid references in *archive* on model participants
+      // * After that insert UserParticipantLinks from source which have valid references in *archive* on model participants
+      Join sourceParticipantsJoin = new Join(archiveSchema, AuditTrailParticipantBean.class, "p")
          .on(UserParticipantLink.FR__PARTICIPANT, AuditTrailParticipantBean.FIELD__OID);
-      Join sourceModelsJoin = new Join(srcSchema, ModelPersistorBean.class, "m")
+      Join sourceModelsJoin = new Join(archiveSchema, ModelPersistorBean.class, "m")
          .on(sourceParticipantsJoin.fieldRef(AuditTrailParticipantBean.FIELD__MODEL), ModelPersistorBean.FIELD__OID);
       Joins sourceJoins = new Joins().add(sourceParticipantsJoin).add(sourceModelsJoin);
 
@@ -3860,5 +3865,57 @@ public class Archiver
       }
 
       return referingModels;
+   }
+
+   /**
+    * This deletes entries from table for {@link UserParticipantLink} in archive schema which have
+    * dangling references to table for {@link AuditTrailParticipantBean}. This was caused by a bug
+    * which has been fixed with CRNT-38649.
+    *
+    * This requires flag archive to be true (i.e. option "-noBackup" to be false) in order to have
+    * access to archive schema.
+    *
+    * All entries for current partition will be deleted from {@link UserParticipantLink} in archive.
+    * In order to reduce to entries for current partition only also join to user and user realm
+    * in production (source) schema is performed. As users never will be deleted but only invalidated
+    * this should be stable.
+    *
+    */
+   public void fixUserParticipantLinkTableEntries()
+   {
+      final boolean enableFix = Parameters.instance().getBoolean(
+            ENABLE_USER_PARTICIPANT_TAB_FIX, true);
+      if ( !archive || !enableFix)
+      {
+         return;
+      }
+
+      DeleteDescriptor delete = DeleteDescriptor.from(archiveSchema,
+            UserParticipantLink.class);
+
+      // @formatter:off
+      // inner join with source users to restrict deletion to current partition
+      Join uJoin = new Join(srcSchema, UserBean.class, UserBean.DEFAULT_ALIAS)
+         .on(delete.fieldRef(UserParticipantLink.FIELD__USER), UserBean.FIELD__OID);
+      uJoin.setRequired(true);
+
+      Join urJoin = new Join(srcSchema, UserRealmBean.class, UserRealmBean.DEFAULT_ALIAS)
+            .on(uJoin.fieldRef(UserBean.FIELD__REALM), UserRealmBean.FIELD__OID);
+      urJoin.setDependency(uJoin);
+      urJoin.setRequired(true);
+
+      // outer join with archive participants to restrict deletion to dangling references
+      Join pJoin = new Join(archiveSchema, AuditTrailParticipantBean.class, AuditTrailParticipantBean.DEFAULT_ALIAS)
+         .on(delete.fieldRef(UserParticipantLink.FIELD__PARTICIPANT), AuditTrailParticipantBean.FIELD__OID);
+      pJoin.setDependency(urJoin);
+      pJoin.setRequired(false);
+
+      delete.getQueryExtension().addJoin(uJoin).addJoin(urJoin).addJoin(pJoin);
+      delete.where(Predicates.andTerm(
+            Predicates.isNull(pJoin.fieldRef(AuditTrailParticipantBean.FIELD__OID)),
+            Predicates.isEqual(urJoin.fieldRef(UserRealmBean.FIELD__PARTITION), partitionOid)));
+      // @formatter:on
+
+      session.executeDelete(delete);
    }
 }

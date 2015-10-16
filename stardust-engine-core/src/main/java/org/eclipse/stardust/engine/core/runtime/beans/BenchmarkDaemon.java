@@ -130,7 +130,7 @@ public class BenchmarkDaemon implements IDaemon
                long aiOid = (Long) ai.next();
 
                benchmarkAIMap.put(
-                     oid,
+                     aiOid,
                      evaluator.getBenchmarkForActivityInstance(aiOid,
                            aiBenchmarkMap.get(aiOid)));
             }

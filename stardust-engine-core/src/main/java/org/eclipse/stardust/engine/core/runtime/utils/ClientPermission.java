@@ -161,7 +161,7 @@ public final class ClientPermission
             map.put(permission, cp);
          }
       }
-      
+
       if (!permissionCache.containsKey(method))
       {
          permissionCache.put(method, cp);
@@ -361,7 +361,7 @@ public final class ClientPermission
       }
       addDefaultPermission(defaultPermissions, MANAGE_AUTHORIZATION);
       addDefaultPermission(defaultPermissions, SAVE_OWN_REALM_SCOPE_PREFERENCES);
-      
+
       return defaultPermissions;
    }
 
@@ -375,7 +375,7 @@ public final class ClientPermission
          {
             String permissionId = ExecutionPermission.Scope.model.equals(permission
                   .scope()) ? permission.id().name() : permission.toString();
-            defaultPermissions.put(DENY_PREFIX + permissionId, PredefinedConstants.AUDITOR_ROLE);
+            defaultPermissions.put(DENY_PREFIX + permissionId, PredefinedConstants.QUALIFIED_AUDITOR_ID);
          }
       }
    }

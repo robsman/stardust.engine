@@ -30,6 +30,8 @@ public final class PredefinedConstants
    public static final String ENGINE_SCOPE = "carnot:engine:";
    public static final String PWH_SCOPE = "carnot:pwh:";
 
+   public static final String PREDEFINED_MODEL_ID = "PredefinedModel";
+
    // predefined application type IDs
    public static final String SESSIONBEAN_APPLICATION = "sessionBean";
    public static final String PLAINJAVA_APPLICATION = "plainJava";
@@ -127,6 +129,7 @@ public final class PredefinedConstants
    public static final String MOTU_FIRST_NAME = "Master";
    public static final String MOTU_LAST_NAME = "Of the Universe";
    public static final String AUDITOR_ROLE = "Auditor";
+   public static final String QUALIFIED_AUDITOR_ID = '{' + PREDEFINED_MODEL_ID + '}' + AUDITOR_ROLE;
 
    public static final String SYSTEM = "system_carnot_engine";
    public static final String SYSTEM_FIRST_NAME = SYSTEM;
@@ -592,7 +595,6 @@ public final class PredefinedConstants
 
    public static final String CASE_PROCESS_ID = "CaseProcess";
    public static final String DEFAULT_CASE_ACTIVITY_ID = "DefaultCaseActivity";
-   public static final String PREDEFINED_MODEL_ID = "PredefinedModel";
    public static final String CASE_DATA_ID = "CaseInfo";
    public static final String CASE_NAME_ELEMENT = "CaseName";
    public static final String CASE_DESCRIPTION_ELEMENT = "CaseDescription";

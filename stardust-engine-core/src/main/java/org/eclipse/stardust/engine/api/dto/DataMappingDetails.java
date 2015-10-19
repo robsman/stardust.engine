@@ -18,10 +18,12 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.core.pojo.data.PrimitiveValidator;
 import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
+import org.eclipse.stardust.engine.core.struct.spi.StructuredDataXMLValidator;
 
 
 /**
@@ -84,7 +86,7 @@ public class DataMappingDetails extends ModelElementDetails implements DataMappi
          final boolean isArchiveAuditTrail = Parameters.instance().getBoolean(
                Constants.CARNOT_ARCHIVE_AUDITTRAIL, false);
 
-         type = isArchiveAuditTrail
+         type = isArchiveAuditTrail && !isPrimitiveOrStructValidator(validator)
                   ? FALLBACK_TYPE_NAME
                   : validator.getBridgeObject(mapping.getData(),
                         mapping.getDataPath(),
@@ -104,6 +106,12 @@ public class DataMappingDetails extends ModelElementDetails implements DataMappi
 
       this.context = mapping.getContext();
       this.dataId = mapping.getData().getId();
+   }
+
+   private boolean isPrimitiveOrStructValidator(ExtendedDataValidator validator)
+   {
+      return validator instanceof PrimitiveValidator
+            || validator instanceof StructuredDataXMLValidator;
    }
 
    public String getApplicationPath()

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -251,12 +251,12 @@ public class UserServiceImpl implements UserService, Serializable
 
       if (isInternalAuthentication())
       {
-         if(isTeamLeader(user) || SecurityProperties.getUser().hasRole(PredefinedConstants.ADMINISTRATOR_ROLE));
+         if (isTeamLeader(user)
+               || SecurityProperties.getUser().hasRole(
+                     PredefinedConstants.ADMINISTRATOR_ROLE))
          {
             user.setQualityAssuranceProbability(changes.getQualityAssuranceProbability());
          }
-
-         user.setQualityAssuranceProbability(changes.getQualityAssuranceProbability());
 
          String previousPassword = user.getPassword();
          String newPassword = null;
@@ -893,7 +893,23 @@ public class UserServiceImpl implements UserService, Serializable
 
          UserUtils.removeExistingDeputy(user.getOID(), deputyUserBean);
 
-         DeputyBean db = new DeputyBean(userBean.getOID(), options.getFromDate(),
+         final Date now = TimestampProviderUtils.getTimeStamp();
+         // toDate is not allowed to be in the past
+         Date toDate = options.getToDate();
+         if(toDate != null && now.compareTo(toDate) > 0)
+         {
+            throw new InvalidArgumentException(
+                  BpmRuntimeError.ATDB_DEPUTY_TO_DATE_NOT_ALLOWED_TO_BE_IN_PAST.raise(toDate));
+         }
+
+         // fromDate should not be set to past - use now instead.
+         Date fromDate = options.getFromDate();
+         if(now.compareTo(fromDate) > 0)
+         {
+            fromDate = now;
+         }
+
+         DeputyBean db = new DeputyBean(userBean.getOID(), fromDate,
                options.getToDate(), options.getParticipants());
 
          deputyUserBean.setPropertyValue(UserUtils.IS_DEPUTY_OF, db.toString());

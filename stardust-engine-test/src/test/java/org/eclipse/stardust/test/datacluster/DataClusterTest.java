@@ -30,6 +30,7 @@ import org.junit.rules.TestRule;
 
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
@@ -93,6 +94,8 @@ public class DataClusterTest
 
    private static final String PROCESS_DEF_ID_1 = "ProcessDefinition1";
 
+   private static final String PROCESS_DEF_ID_2 = "ProcessDefinition2";
+
    private QueryService queryService;
 
    @Before
@@ -109,7 +112,7 @@ public class DataClusterTest
    public void testSynchronizeDataClusterTableNotExist() throws Exception
    {
       wfService.startProcess(PROCESS_DEF_ID_1, null, true);
-      long oid = findFirstAliveActivityInstanceOid();
+      long oid = findFirstAliveActivityInstanceOid(PROCESS_DEF_ID_1);
       Map<String, Object> datas = new HashMap<String, Object>();
       datas.put(STRING_DATA, STRING_DATA_VAL);
       datas.put(INT_DATA, 123);
@@ -156,7 +159,7 @@ public class DataClusterTest
    public void testSynchronizeDataClusterWithNonExistingPI() throws Exception
    {
       wfService.startProcess(PROCESS_DEF_ID_1, null, true);
-      long oid = findFirstAliveActivityInstanceOid();
+      long oid = findFirstAliveActivityInstanceOid(PROCESS_DEF_ID_1);
       Map<String, Object> datas = new HashMap<String, Object>();
       datas.put(STRING_DATA, STRING_DATA_VAL);
       datas.put(INT_DATA, 123);
@@ -208,14 +211,14 @@ public class DataClusterTest
    public void testSynchronizeDataClusterWithMissingPIInDataCluster() throws Exception
    {
       wfService.startProcess(PROCESS_DEF_ID_1, null, true);
-      long oid = findFirstAliveActivityInstanceOid();
+      long oid = findFirstAliveActivityInstanceOid(PROCESS_DEF_ID_1);
       Map<String, Object> datas = new HashMap<String, Object>();
       datas.put(STRING_DATA, STRING_DATA_VAL);
       datas.put(INT_DATA, 123);
       datas.put(LONG_DATA, 45678);
       wfService.activateAndComplete(oid, null, datas);
       ProcessInstance process = wfService.startProcess(PROCESS_DEF_ID_1, null, true);
-      oid = findFirstAliveActivityInstanceOid();
+      oid = findFirstAliveActivityInstanceOid(PROCESS_DEF_ID_1);
       wfService.activateAndComplete(oid, null, datas);
       Session session = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
       String deletePiStmt = "DELETE FROM "
@@ -258,14 +261,14 @@ public class DataClusterTest
    public void testSynchronizeDataClusterWithNonExistingDV() throws Exception
    {
       wfService.startProcess(PROCESS_DEF_ID_1, null, true);
-      long oid = findFirstAliveActivityInstanceOid();
+      long oid = findFirstAliveActivityInstanceOid(PROCESS_DEF_ID_1);
       Map<String, Object> datas = new HashMap<String, Object>();
       datas.put(STRING_DATA, STRING_DATA_VAL);
       datas.put(INT_DATA, 123);
       datas.put(LONG_DATA, 45678);
       wfService.activateAndComplete(oid, null, datas);
       ProcessInstance process = wfService.startProcess(PROCESS_DEF_ID_1, null, true);
-      oid = findFirstAliveActivityInstanceOid();
+      oid = findFirstAliveActivityInstanceOid(PROCESS_DEF_ID_1);
       wfService.activateAndComplete(oid, null, datas);
       Session session = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
       String updatePiStmt = "UPDATE "
@@ -312,14 +315,14 @@ public class DataClusterTest
    public void testSynchronizeDataClusterEmptyDCEntryNotNull() throws Exception
    {
       wfService.startProcess(PROCESS_DEF_ID_1, null, true);
-      long oid = findFirstAliveActivityInstanceOid();
+      long oid = findFirstAliveActivityInstanceOid(PROCESS_DEF_ID_1);
       Map<String, Object> datas = new HashMap<String, Object>();
       datas.put(STRING_DATA, STRING_DATA_VAL);
       datas.put(INT_DATA, 123);
       datas.put(LONG_DATA, 45678);
       wfService.activateAndComplete(oid, null, datas);
       ProcessInstance process = wfService.startProcess(PROCESS_DEF_ID_1, null, true);
-      oid = findFirstAliveActivityInstanceOid();
+      oid = findFirstAliveActivityInstanceOid(PROCESS_DEF_ID_1);
       wfService.activateAndComplete(oid, null, datas);
       Session session = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
       String updatePiStmt = "UPDATE " + DDLManager.getQualifiedName(DB_SCHEMA, DC_TABLE)
@@ -363,14 +366,14 @@ public class DataClusterTest
    public void testSynchronizeDataClusterWithDVNotReferencedByDC() throws Exception
    {
       wfService.startProcess(PROCESS_DEF_ID_1, null, true);
-      long oid = findFirstAliveActivityInstanceOid();
+      long oid = findFirstAliveActivityInstanceOid(PROCESS_DEF_ID_1);
       Map<String, Object> datas = new HashMap<String, Object>();
       datas.put(STRING_DATA, STRING_DATA_VAL);
       datas.put(INT_DATA, 123);
       datas.put(LONG_DATA, 45678);
       wfService.activateAndComplete(oid, null, datas);
       ProcessInstance process = wfService.startProcess(PROCESS_DEF_ID_1, null, true);
-      oid = findFirstAliveActivityInstanceOid();
+      oid = findFirstAliveActivityInstanceOid(PROCESS_DEF_ID_1);
       wfService.activateAndComplete(oid, null, datas);
       Session session = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
       String updatePiStmt = "UPDATE "
@@ -393,7 +396,7 @@ public class DataClusterTest
             logEntryBeforeSync));
       String logEntry = logEntryBeforeSync.toString();
       assertTrue(logEntry.startsWith("Cluster table " + DB_SCHEMA + "." + DC_TABLE
-            + " is not consistent: " + "existing data values for slot"));
+            + " is not consistent: existing data values for slot"));
       assertTrue(logEntry.endsWith("are not referenced by cluster entry.\r\n"
             + "The data cluster is invalid. There is 1 inconsistency.\r\n"));
       SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(SYSOP, new PrintStream(
@@ -416,17 +419,17 @@ public class DataClusterTest
    public void testSynchronizeDataClusterDifferentInconsistencies() throws Exception
    {
       ProcessInstance process1 = wfService.startProcess(PROCESS_DEF_ID_1, null, true);
-      long oid = findFirstAliveActivityInstanceOid();
+      long oid = findFirstAliveActivityInstanceOid(PROCESS_DEF_ID_1);
       Map<String, Object> datas = new HashMap<String, Object>();
       datas.put(STRING_DATA, STRING_DATA_VAL);
       datas.put(INT_DATA, 123);
       datas.put(LONG_DATA, 45678);
       wfService.activateAndComplete(oid, null, datas);
       ProcessInstance process2 = wfService.startProcess(PROCESS_DEF_ID_1, null, true);
-      oid = findFirstAliveActivityInstanceOid();
+      oid = findFirstAliveActivityInstanceOid(PROCESS_DEF_ID_1);
       wfService.activateAndComplete(oid, null, datas);
       ProcessInstance process3 = wfService.startProcess(PROCESS_DEF_ID_1, null, true);
-      oid = findFirstAliveActivityInstanceOid();
+      oid = findFirstAliveActivityInstanceOid(PROCESS_DEF_ID_1);
       wfService.activateAndComplete(oid, null, datas);
       Session session = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
       String updatePiStmt = "UPDATE " + DDLManager.getQualifiedName(DB_SCHEMA, DC_TABLE)
@@ -461,21 +464,128 @@ public class DataClusterTest
             + process3.getOID() + " AND oid_anInt=1234";
       result = selectStmt.executeQuery(selectString);
       assertTrue(result.next());
-      SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, System.out);
-      SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(SYSOP, System.out, null,
-            null);
+      
+      ByteArrayOutputStream logEntryBeforeSync = new ByteArrayOutputStream();
+      ByteArrayOutputStream logEntrySync = new ByteArrayOutputStream();
       ByteArrayOutputStream logEntryAfterSync = new ByteArrayOutputStream();
+      SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
+            logEntryBeforeSync));
+      String logEntry = logEntryBeforeSync.toString();
+      assertTrue(logEntry.startsWith("Cluster table " + DB_SCHEMA + "." + DC_TABLE
+            + " is not consistent: existing process instances are not referenced by cluster entries."));
+      assertTrue(logEntry.endsWith("The data cluster is invalid. There are 5 inconsistencies.\r\n"));
+      SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(SYSOP, new PrintStream(
+            logEntrySync), null,
+            null);
+      logEntry = logEntrySync.toString();
+      assertTrue(logEntry.startsWith("Inconsistent cluster table " + DB_SCHEMA + "."
+            + DC_TABLE
+            + ": Inserted missing existing process instances into cluster table."));
+      assertTrue(logEntry
+            .endsWith("Synchronized data cluster: There were 4 inconsistencies. All inconsistencies have been resolved now.\r\n"));
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryAfterSync));
       assertEquals("Verified data cluster. There are no inconsistencies.\r\n",
             logEntryAfterSync.toString());
    }
 
-   private long findFirstAliveActivityInstanceOid()
+   @Test
+   public void testSynchronizeDataClusterDifferentInconsistenciesScopePI()
+         throws Exception
    {
-      final ActivityInstanceQuery aiQuery = ActivityInstanceQuery
-            .findAlive(PROCESS_DEF_ID_1);
+      ProcessInstance process1 = wfService.startProcess(PROCESS_DEF_ID_2, null, true);
+      long oid = findFirstAliveActivityInstanceOid(PROCESS_DEF_ID_2);
+      Map<String, Object> datas = new HashMap<String, Object>();
+      datas.put(STRING_DATA, STRING_DATA_VAL);
+      datas.put(INT_DATA, 123);
+      datas.put(LONG_DATA, 45678);
+      wfService.activateAndComplete(oid, null, datas);
+      long completedSubPiOid = findFirstCompletedProcessInstanceOid(PROCESS_DEF_ID_2);
+      ProcessInstance process2 = wfService.startProcess(PROCESS_DEF_ID_2, null, true);
+      oid = findFirstAliveActivityInstanceOid(PROCESS_DEF_ID_2);
+      wfService.activateAndComplete(oid, null, datas);
+      ProcessInstance process3 = wfService.startProcess(PROCESS_DEF_ID_2, null, true);
+      oid = findFirstAliveActivityInstanceOid(PROCESS_DEF_ID_2);
+      wfService.activateAndComplete(oid, null, datas);
+      Session session = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
+      String insertPiStmt = "INSERT INTO "
+            + DDLManager.getQualifiedName(DB_SCHEMA, DC_TABLE)
+            + " (processInstance) VALUES (" + completedSubPiOid + ")";
+      Connection connection = session.getConnection();
+      DDLManager.executeOrSpoolStatement(insertPiStmt, connection, null);
+      connection.commit();
+      Statement selectStmt = connection.createStatement();
+      String selectString = "SELECT processinstance FROM " + DC_TABLE
+            + " WHERE processinstance=" + completedSubPiOid;
+      ResultSet result = selectStmt.executeQuery(selectString);
+      assertTrue(result.next());
+      String updatePiStmt = "UPDATE " + DDLManager.getQualifiedName(DB_SCHEMA, DC_TABLE)
+            + " SET oid_anint=NULL WHERE processinstance=" + process1.getOID();
+      DDLManager.executeOrSpoolStatement(updatePiStmt, connection, null);
+      connection.commit();
+      selectString = "SELECT processinstance FROM "
+            + DDLManager.getQualifiedName(DB_SCHEMA, DC_TABLE)
+            + " WHERE oid_anint IS NULL";
+      selectStmt = connection.createStatement();
+      result = selectStmt.executeQuery(selectString);
+      assertTrue(result.next());
+      String deletePiStmt = "DELETE FROM "
+            + DDLManager.getQualifiedName(DB_SCHEMA, DC_TABLE)
+            + " WHERE processinstance=" + process2.getOID();
+      DDLManager.executeOrSpoolStatement(deletePiStmt, connection, null);
+      connection.commit();
+      selectStmt = connection.createStatement();
+      selectString = "SELECT processinstance FROM dv_mqt01 WHERE processinstance="
+            + process2.getOID();
+      result = selectStmt.executeQuery(selectString);
+      assertFalse(result.next());
+      updatePiStmt = "UPDATE "
+            + DDLManager.getQualifiedName(DB_SCHEMA, DC_TABLE)
+            + " SET oid_anInt=1234,oid_aString=5678,oid_aLong=123445 WHERE processinstance="
+            + process3.getOID();
+      DDLManager.executeOrSpoolStatement(updatePiStmt, connection, null);
+      connection.commit();
+      selectStmt = connection.createStatement();
+      selectString = "SELECT processinstance FROM dv_mqt01 WHERE processinstance="
+            + process3.getOID() + " AND oid_anInt=1234";
+      result = selectStmt.executeQuery(selectString);
+      assertTrue(result.next());
+      
+      ByteArrayOutputStream logEntryBeforeSync = new ByteArrayOutputStream();
+      ByteArrayOutputStream logEntrySync = new ByteArrayOutputStream();
+      ByteArrayOutputStream logEntryAfterSync = new ByteArrayOutputStream();
+      SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
+            logEntryBeforeSync));
+      String logEntry = logEntryBeforeSync.toString();
+      assertTrue(logEntry.startsWith("Cluster table " + DB_SCHEMA + "." + DC_TABLE
+            + " is not consistent: non existing process instances are referenced by cluster entry."));
+      assertTrue(logEntry.endsWith("The data cluster is invalid. There are 6 inconsistencies.\r\n"));
+      SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(SYSOP, new PrintStream(
+            logEntrySync), null,
+            null);
+      logEntry = logEntrySync.toString();
+      assertTrue(logEntry.startsWith("Inconsistent cluster table " + DB_SCHEMA + "."
+            + DC_TABLE
+            + ": deleted cluster entries that referenced non existing process instances."));
+      assertTrue(logEntry
+            .endsWith("Synchronized data cluster: There were 5 inconsistencies. All inconsistencies have been resolved now.\r\n"));
+      SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
+            logEntryAfterSync));
+      assertEquals("Verified data cluster. There are no inconsistencies.\r\n",
+            logEntryAfterSync.toString());
+   }
+
+   private long findFirstAliveActivityInstanceOid(String processID)
+   {
+      final ActivityInstanceQuery aiQuery = ActivityInstanceQuery.findAlive(processID);
       final ActivityInstance ai = queryService.findFirstActivityInstance(aiQuery);
       return ai.getOID();
+   }
+
+   private long findFirstCompletedProcessInstanceOid(String processID)
+   {
+      final ProcessInstanceQuery query = ProcessInstanceQuery.findCompleted(processID);
+      final ProcessInstance pi = queryService.findFirstProcessInstance(query);
+      return pi.getOID();
    }
 }

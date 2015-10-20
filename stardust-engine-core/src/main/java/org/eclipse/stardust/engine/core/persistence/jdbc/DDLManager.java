@@ -2339,6 +2339,7 @@ public class DDLManager
             .getProcessInstanceColumn());
       result = StringUtils.replace(result, "_$PI_TAB$_", processInstanceTable);
       result = StringUtils.replace(result, "_$PI_OID$_", ProcessInstanceBean.FIELD__OID);
+      result = StringUtils.replace(result, "_$PI_SCOPE_PI$_", ProcessInstanceBean.FIELD__SCOPE_PROCESS_INSTANCE);
       result = StringUtils.replace(result, "_$PI_MODEL$_",
             ProcessInstanceBean.FIELD__MODEL);
       result = StringUtils.replace(result, "_$D_TAB$_", dataTable);
@@ -2419,7 +2420,7 @@ public class DDLManager
                "SELECT 'x' FROM _$CLUSTER_TAB$_ dc " +
                "WHERE NOT EXISTS( SELECT 'x' " +
                                  "FROM _$PI_TAB$_ pi " +
-                                 "WHERE dc._$DC_PROCINSTANCE$_ = pi._$PI_OID$_ )";
+                                 "WHERE dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ )";
 
             String syncStmtString = replaceSqlFragmentsByCluster(syncStringTemplate,
                   dataCluster, schemaName);
@@ -2441,7 +2442,7 @@ public class DDLManager
                "SELECT 'x' FROM _$PI_TAB$_ pi " +
                "WHERE NOT EXISTS( SELECT 'x' " +
                                  "FROM _$CLUSTER_TAB$_ dc " +
-                                 "WHERE pi._$PI_OID$_ = dc._$DC_PROCINSTANCE$_ )";
+                                 "WHERE pi._$PI_SCOPE_PI$_ = dc._$DC_PROCINSTANCE$_ )";
 
             syncStmtString = replaceSqlFragmentsByCluster(syncStringTemplate,
                   dataCluster, schemaName);
@@ -2462,7 +2463,7 @@ public class DDLManager
             syncStringTemplate =
                "SELECT 'x' FROM _$CLUSTER_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m " +
                "WHERE " +
-                  "dc._$DC_PROCINSTANCE$_ = pi._$PI_OID$_ AND " +
+                  "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
                   "dc._$DC_OID$_ IS NOT NULL AND " +
                   "pi._$PI_MODEL$_ = m._$M_OID$_ AND " +
                   "m._$M_ID$_ = '_$SLOT_MODEL_ID_VALUE$_' AND " +
@@ -2474,7 +2475,7 @@ public class DDLManager
                         "d._$D_MODEL$_ = pi._$PI_MODEL$_ AND " +
                         "d._$D_OID$_ = dv._$DV_DATA$_ AND " +
                         "d._$D_MODEL$_ = dv._$DV_MODEL$_ AND " +
-                        "dv._$DV_PROCINSTANCE$_ = pi._$PI_OID$_ AND " +
+                        "dv._$DV_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
                         "dv._$DV_OID$_ = dc._$DC_OID$_ AND " +
                         "dv._$DV_TYPE_KEY$_ = dc._$DC_TYPE_KEY$_ AND " +
                         "(dv._$DV_VALUE$_ = dc._$DC_VALUE$_ OR " +
@@ -2485,7 +2486,7 @@ public class DDLManager
             String syncStringTemplateStruct =
                "SELECT 'x' FROM _$CLUSTER_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m " +
                "WHERE " +
-                  "dc._$DC_PROCINSTANCE$_ = pi._$PI_OID$_ AND " +
+                  "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
                   "dc._$DC_OID$_ IS NOT NULL AND " +
                   "pi._$PI_MODEL$_ = m._$M_OID$_ AND " +
                   "m._$M_ID$_ = '_$SLOT_MODEL_ID_VALUE$_' AND " +
@@ -2497,7 +2498,7 @@ public class DDLManager
                         "d._$D_MODEL$_ = pi._$PI_MODEL$_ AND " +
                         "d._$D_OID$_ = dv._$DV_DATA$_ AND " +
                         "d._$D_MODEL$_ = dv._$DV_MODEL$_ AND " +
-                        "dv._$DV_PROCINSTANCE$_ = pi._$PI_OID$_ AND " +
+                        "dv._$DV_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
                         "sdv._$SDV_PROCESSINSTANCE$_ = dv._$DV_NUMBERVALUE$_ AND " +
                         "sdv._$SDV_XPATH$_ = sd._$SD_OID$_ AND " +
                         "sd._$SD_XPATH$_ = '_$SLOT_ATTRIBUTE_NAME$_' AND " +
@@ -2539,7 +2540,7 @@ public class DDLManager
             syncStringTemplate =
                "SELECT 'x' FROM _$CLUSTER_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m " +
                "WHERE " +
-                  "dc._$DC_PROCINSTANCE$_ = pi._$PI_OID$_ AND " +
+                  "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
                   "dc._$DC_OID$_ IS NULL AND " +
                   "pi._$PI_MODEL$_ = m._$M_OID$_ AND " +
                   "m._$M_ID$_ = '_$SLOT_MODEL_ID_VALUE$_' AND " +
@@ -2577,7 +2578,7 @@ public class DDLManager
             syncStringTemplate =
                "SELECT 'x' FROM _$CLUSTER_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m " +
                "WHERE " +
-                  "dc._$DC_PROCINSTANCE$_ = pi._$PI_OID$_ AND " +
+                  "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
                   "dc._$DC_OID$_ IS NULL AND " +
                   "dc._$DC_TYPE_KEY$_ IS NULL AND " +
                   "dc._$DC_VALUE$_ IS NULL AND " +
@@ -2591,7 +2592,7 @@ public class DDLManager
                         "d._$D_MODEL$_ = pi._$PI_MODEL$_ AND " +
                         "d._$D_OID$_ = dv._$DV_DATA$_ AND " +
                         "d._$D_MODEL$_ = dv._$DV_MODEL$_ AND " +
-                        "dv._$DV_PROCINSTANCE$_ = pi._$PI_OID$_)";
+                        "dv._$DV_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_)";
 
             syncStringTemplate = replaceSqlFragmentsByCluster(syncStringTemplate,
                   dataCluster, schemaName);

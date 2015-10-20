@@ -222,9 +222,9 @@
                <carnot:DataField Oid="76" Type="primitive">
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:type" Value="long" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
                      <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="long" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -319,6 +319,240 @@
                                  <carnot:Connection Kind="DATA_FLOW" Oid="68" SourceSymbol="54" TargetSymbol="60"/>
                                  <carnot:Connection Kind="DATA_FLOW" Oid="70" SourceSymbol="56" TargetSymbol="60"/>
                                  <carnot:Connection Kind="DATA_FLOW" Oid="79" SourceSymbol="77" TargetSymbol="60"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
+      <WorkflowProcess Id="ProcessDefinition2" Name="Process Definition 2" AccessLevel="PUBLIC">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="SubprocessActivity1" Name="Process Definition 3">
+               <Implementation>
+                  <SubFlow Id="ProcessDefinition3" Execution="SYNCHR"/>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="99" Implementation="Subprocess" IsHibernatedOnCreation="false">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:subprocess:copyAllData" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="ManualActivity1" Name="Manual Activity 1">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer>Administrator</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="101" Implementation="Manual">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="130" Id="aLong" Name="aLong" Direction="IN" Context="default">
+                              <carnot:DataRef Id="aLong"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="132" Id="aLong" Name="aLong" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="aLong"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="133" Id="anInt" Name="anInt" Direction="IN" Context="default">
+                              <carnot:DataRef Id="anInt"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="135" Id="anInt" Name="anInt" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="anInt"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="136" Id="aString" Name="aString" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="aString"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="138" Id="aString" Name="aString" Direction="IN" Context="default">
+                              <carnot:DataRef Id="aString"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions>
+            <Transition Id="Transition1" Name="Transition 1" From="ManualActivity1" To="SubprocessActivity1">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="107"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="83">
+                  <carnot:Triggers>
+                     <carnot:Trigger Oid="109" Id="ManualTrigger1" Name="Manual Trigger 1" Type="manual">
+                        <carnot:AccessPoints/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:participant" Value="Administrator"/>
+                        </carnot:Attributes>
+                     </carnot:Trigger>
+                  </carnot:Triggers>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="82" Name="Default" Orientation="Vertical" Mode="MODE_4_0_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="81" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="100" X="300" Y="250" Width="180" Height="50" ModelElement="SubprocessActivity1"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="102" X="300" Y="150" Width="180" Height="50" ModelElement="ManualActivity1"/>
+                                 <carnot:Symbol Kind="STARTEVENT" Oid="110" X="40" Y="150" Width="110" Height="50" ModelElement="ManualTrigger1"/>
+                                 <carnot:Symbol Kind="ROLE" Oid="112" X="50" Y="265" Width="90" Height="40" ModelElement="Administrator"/>
+                                 <carnot:Symbol Kind="DATA" Oid="115" X="265" Y="15" Width="50" Height="70" ModelElement="aLong"/>
+                                 <carnot:Symbol Kind="DATA" Oid="116" X="385" Y="15" Width="50" Height="70" ModelElement="anInt"/>
+                                 <carnot:Symbol Kind="DATA" Oid="117" X="530" Y="15" Width="60" Height="70" ModelElement="aString"/>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="TRANSITION" Oid="108" ModelElement="Transition1" SourceSymbol="102" TargetSymbol="100" SourceAnchor="center" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="111" SourceSymbol="110" TargetSymbol="102" SourceAnchor="center" TargetAnchor="left"/>
+                                 <carnot:Connection Kind="TRIGGERS" Oid="113" SourceSymbol="112" TargetSymbol="110"/>
+                                 <carnot:Connection Kind="PERFORMS" Oid="114" SourceSymbol="112" TargetSymbol="102"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="131" SourceSymbol="115" TargetSymbol="102"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="134" SourceSymbol="116" TargetSymbol="102"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="137" SourceSymbol="117" TargetSymbol="102"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
+      <WorkflowProcess Id="ProcessDefinition3" Name="Process Definition 3" AccessLevel="PRIVATE">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="RouteActivity1" Name="Route Activity 1">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="89" IsHibernatedOnCreation="false">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="121" Id="aLong" Name="aLong" Direction="IN" Context="default">
+                              <carnot:DataRef Id="aLong"/>
+                              <carnot:AccessPointRef Id="aLong"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="123" Id="aLong" Name="aLong" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="aLong"/>
+                              <carnot:AccessPointRef Id="aLong"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="124" Id="anInt" Name="anInt" Direction="IN" Context="default">
+                              <carnot:DataRef Id="anInt"/>
+                              <carnot:AccessPointRef Id="anInt"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="126" Id="anInt" Name="anInt" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="anInt"/>
+                              <carnot:AccessPointRef Id="anInt"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="127" Id="aString" Name="aString" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="aString"/>
+                              <carnot:AccessPointRef Id="aString"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="129" Id="aString" Name="aString" Direction="IN" Context="default">
+                              <carnot:DataRef Id="aString"/>
+                              <carnot:AccessPointRef Id="aString"/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="88">
+                  <carnot:Triggers/>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="87" Name="Default" Orientation="Vertical" Mode="MODE_4_0_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="86" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="90" X="350" Y="225" Width="180" Height="50" ModelElement="RouteActivity1"/>
+                                 <carnot:Symbol Kind="DATA" Oid="118" X="200" Y="60" Width="50" Height="70" ModelElement="aLong"/>
+                                 <carnot:Symbol Kind="DATA" Oid="119" X="405" Y="70" Width="50" Height="70" ModelElement="anInt"/>
+                                 <carnot:Symbol Kind="DATA" Oid="120" X="560" Y="80" Width="60" Height="70" ModelElement="aString"/>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="122" SourceSymbol="118" TargetSymbol="90"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="125" SourceSymbol="119" TargetSymbol="90"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="128" SourceSymbol="120" TargetSymbol="90"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>

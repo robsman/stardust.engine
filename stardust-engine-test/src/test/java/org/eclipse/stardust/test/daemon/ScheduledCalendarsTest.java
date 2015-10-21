@@ -196,8 +196,7 @@ public class ScheduledCalendarsTest
             property("otherBusinessObject", BO_FUND),
             property("otherForeignKeyField", "funds")));
       calendarContent.add("businessObjectInstance", json(
-            property("modelId", MODEL_NAME),
-            property("businessObjectId", "FundGroup"),
+            property("businessObjectId", BO_GROUP),
             property("primaryKey", "g1")));
       dms.updateDocument(calendar,
             calendarContent.toString().getBytes("UTF-8"), "UTF-8",

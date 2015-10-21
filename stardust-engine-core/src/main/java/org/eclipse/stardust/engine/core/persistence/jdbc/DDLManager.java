@@ -46,7 +46,7 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 public class DDLManager
 {
    private static final String SEQUENCE_TABLE_NAME = "sequence";
-   
+
    public static final Logger trace = LogManager.getLogger(DDLManager.class);
 
    private DBDescriptor dbDescriptor;
@@ -1504,7 +1504,8 @@ public class DDLManager
             outStream.print(getDropTableStatementString(schemaName, tm.getTableName()));
             outStream.println(statementDelimiter);
 
-            if (dbDescriptor.supportsSequences())
+            if (dbDescriptor.supportsSequences()
+                  && !StringUtils.isEmpty(tm.getPkSequence()))
             {
                String ddlSql = dbDescriptor.getDropPKSequenceStatementString(schemaName,
                      tm.getPkSequence());
@@ -2106,7 +2107,7 @@ public class DDLManager
                   printLogMessage(message, consoleLog);
                   count++;
                }
-                  
+
                String syncInsSql = MessageFormat.format(
                      "INSERT INTO {0} ({1}) "
                    + "SELECT DISTINCT PIS.{3} "
@@ -2394,7 +2395,7 @@ public class DDLManager
 
       return result;
    }
-   
+
    public void verifyClusterTable(DataCluster dataCluster, Connection connection,
          String schemaName, PrintStream consoleLog)
    {
@@ -2648,7 +2649,7 @@ public class DDLManager
       {
          QueryUtils.closeStatementAndResultSet(verifyStmt, resultSet);
       }
-      
+
       try
       {
          connection.commit();

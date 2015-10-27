@@ -12,11 +12,14 @@ package org.eclipse.stardust.test.suites;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.camel.application.sql.SqlApplicationTest.MODEL_ID;
+import static org.eclipse.stardust.test.camel.application.sql.SqlApplicationMultiModelTest.COMMON_MODEL_ID;
+import static org.eclipse.stardust.test.camel.application.sql.SqlApplicationMultiModelTest.CONSUMER_MODEL_ID;
 
 import org.eclipse.stardust.test.api.setup.AbstractCamelIntegrationTest;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.eclipse.stardust.test.camel.application.sql.SqlApplicationMultiModelTest;
 import org.eclipse.stardust.test.camel.application.sql.SqlApplicationTest;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
@@ -32,9 +35,9 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author Nicolas.Werlein
  */
 @RunWith(Suite.class)
-@SuiteClasses({ SqlApplicationTest.class })
+@SuiteClasses({ SqlApplicationTest.class,SqlApplicationMultiModelTest.class })
 public class CamelIntegrationSqlComponentTestSuite extends AbstractCamelIntegrationTest
 {
    @ClassRule
-   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, MODEL_ID);
+   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, MODEL_ID, COMMON_MODEL_ID, CONSUMER_MODEL_ID);
 }

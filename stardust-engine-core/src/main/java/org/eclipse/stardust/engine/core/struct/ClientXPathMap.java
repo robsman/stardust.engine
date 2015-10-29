@@ -20,29 +20,26 @@ import java.util.Set;
 import org.eclipse.stardust.engine.api.model.Data;
 import org.eclipse.stardust.engine.api.model.Model;
 
-
-
 public class ClientXPathMap implements IXPathMap, Serializable
 {
-
    private static final long serialVersionUID = -4818442739246293253L;
-   
-   private Map /*<String,TypedXPath>*/ typedXPaths;
-   private Set /*<TypedXPath>*/ allXPaths;
-   
+
+   private Map<String,TypedXPath> typedXPaths;
+   private Set<TypedXPath> allXPaths;
+
    /**
     * Retrieves the XPath map corresponding to the data argument.
-    * 
+    *
     * @param model the model containing the type declaration the data is referring to.
     * @param data the data object for which we want to retrive the xpath map.
     * @return the XPath map (may be empty).
     */
    public static IXPathMap getXpathMap(Model model, Data data)
    {
-      return StructuredTypeRtUtils.getXPathMap(model, data); 
+      return StructuredTypeRtUtils.getXPathMap(model, data);
    }
-   
-   public ClientXPathMap (Set /*<TypedXPath>*/ allXPaths)
+
+   public ClientXPathMap (Set<TypedXPath> allXPaths)
    {
       this.allXPaths = Collections.unmodifiableSet(allXPaths);
       this.typedXPaths = new HashMap();
@@ -52,7 +49,7 @@ public class ClientXPathMap implements IXPathMap, Serializable
          typedXPaths.put(p.getXPath(), p);
       }
    }
-   
+
    public Set getAllXPaths()
    {
       return this.allXPaths;
@@ -72,7 +69,7 @@ public class ClientXPathMap implements IXPathMap, Serializable
    {
       return this.getXPath("");
    }
-   
+
    public Long getXPathOID(String path)
    {
       throw new RuntimeException("Client XPath map does not know XPath OIDs");
@@ -82,7 +79,7 @@ public class ClientXPathMap implements IXPathMap, Serializable
    {
       throw new RuntimeException("Client XPath map does not know XPath OIDs");
    }
-   
+
    public Set getAllXPathOids()
    {
       throw new RuntimeException("Client XPath map does not know XPath OIDs");

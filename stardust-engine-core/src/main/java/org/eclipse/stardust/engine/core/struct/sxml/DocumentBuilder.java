@@ -135,6 +135,13 @@ public class DocumentBuilder
                elements.peek().appendChild(subElement);
             }
 
+            for (int i = 0; i < xmlReader.getNamespaceCount(); i++)
+            {
+               String prefix = xmlReader.getNamespacePrefix(i);
+               String namespaceURI = xmlReader.getNamespaceURI(i);
+               subElement.setNamespaceDeclaration(prefix == null ? "" : prefix, namespaceURI == null ? "" : namespaceURI);
+            }
+
             for (int i = 0; i < xmlReader.getAttributeCount(); ++i)
             {
                if (null != xmlReader.getAttributePrefix(i))
@@ -142,13 +149,15 @@ public class DocumentBuilder
                   subElement.addAttribute(new org.eclipse.stardust.engine.core.struct.sxml.Attribute(
                         xmlReader.getAttributeLocalName(i),
                         xmlReader.getAttributeNamespace(i),
-                        xmlReader.getAttributePrefix(i), xmlReader.getAttributeValue(i)));
+                        xmlReader.getAttributePrefix(i),
+                        xmlReader.getAttributeValue(i)));
                }
                else
                {
                   subElement.addAttribute(new org.eclipse.stardust.engine.core.struct.sxml.Attribute(
                         xmlReader.getAttributeLocalName(i),
-                        xmlReader.getAttributeNamespace(i), xmlReader.getAttributeValue(i)));
+                        xmlReader.getAttributeNamespace(i),
+                        xmlReader.getAttributeValue(i)));
                }
             }
 

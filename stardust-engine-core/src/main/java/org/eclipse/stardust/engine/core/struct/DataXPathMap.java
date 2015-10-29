@@ -31,7 +31,7 @@ public class DataXPathMap implements IXPathMap, Serializable
    private Map<Long, TypedXPath> oidToXPath;
 
    private Map<String, Long> xPathToOid;
-   
+
    private Map<String, TypedXPath> xPathToTypedXPath;
 
    private Set<Long> allXPathOids;
@@ -79,6 +79,7 @@ public class DataXPathMap implements IXPathMap, Serializable
       return xPathMap;
    }
 
+   @Deprecated
    public DataXPathMap(Map<Long, TypedXPath> xPaths)
    {
       this(xPaths, null);
@@ -87,11 +88,11 @@ public class DataXPathMap implements IXPathMap, Serializable
    public DataXPathMap(Map<Long, TypedXPath> xPaths, IAccessPoint accessPoint)
    {
       oidToXPath = new HashMap(xPaths);
-      
+
       xPathToOid = new HashMap(xPaths.size());
       allXPathOids = new HashSet(xPaths.size());
       xPathToTypedXPath = new HashMap(xPaths.size());
-      
+
       for (Entry<Long, TypedXPath> e : xPaths.entrySet())
       {
          Long oid = e.getKey();
@@ -100,7 +101,7 @@ public class DataXPathMap implements IXPathMap, Serializable
          xPathToTypedXPath.put(xPath.getXPath(), xPath);
          allXPathOids.add(oid);
       }
-      
+
       allXPaths = Collections.unmodifiableSet(new HashSet(oidToXPath.values()));
       this.accessPoint = accessPoint;
    }
@@ -109,7 +110,7 @@ public class DataXPathMap implements IXPathMap, Serializable
    {
       return oidToXPath.get(xPathOID);
    }
-   
+
    public TypedXPath getXPath(String xPath)
    {
       TypedXPath typedPath = xPathToTypedXPath.get(xPath);
@@ -118,7 +119,7 @@ public class DataXPathMap implements IXPathMap, Serializable
          throw new IllegalOperationException(
                BpmRuntimeError.MDL_UNKNOWN_XPATH.raise(xPath));
       }
-      
+
       return typedPath;
    }
 
@@ -141,7 +142,7 @@ public class DataXPathMap implements IXPathMap, Serializable
    {
       return getXPath("");
    }
-   
+
    public Set getAllXPathOids()
    {
       return Collections.unmodifiableSet(allXPathOids);
@@ -213,10 +214,18 @@ public class DataXPathMap implements IXPathMap, Serializable
                   {
                      continue;
                   }
-                  int ix = xref.lastIndexOf('/');
+                  int ix = xref.lastIndexOf("{");
                   if (ix >= 0)
                   {
-                     xref = xref.substring(ix + 1);
+                     xref = xref.substring(ix);
+                  }
+                  else
+                  {
+                     ix = xref.lastIndexOf('/');
+                     if (ix >= 0)
+                     {
+                        xref = xref.substring(ix + 1);
+                     }
                   }
                   xref = xref.trim();
                   if (xref.isEmpty())
@@ -271,5 +280,15 @@ public class DataXPathMap implements IXPathMap, Serializable
    {
       IXpdlType type = declaration.getXpdlType();
       return type instanceof ISchemaType || type instanceof IExternalReference;
+   }
+
+   public TypedXPath resolve(QName xsiType, TypedXPath xPath)
+   {
+      TypedXPath other = getRootXPath(xsiType.toString());
+      if (other != null)
+      {
+         return other;
+      }
+      return xPath;
    }
 }

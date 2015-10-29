@@ -114,6 +114,18 @@ public class DOMConverter
    {
       org.w3c.dom.Document domDoc = domTarget.getOwnerDocument();
 
+      for (String prefix : sxmlSrc.getNamespaceDeclarations())
+      {
+         if (prefix.isEmpty())
+         {
+            domTarget.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns", sxmlSrc.getNamespaceURI(prefix));
+         }
+         else
+         {
+            domTarget.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:" + prefix, sxmlSrc.getNamespaceURI(prefix));
+         }
+      }
+
       for (int i = 0, nAttribs = sxmlSrc.getAttributeCount(); i < nAttribs; i++ )
       {
          Attribute attr = sxmlSrc.getAttribute(i);
@@ -175,8 +187,15 @@ public class DOMConverter
          for (int i = 0, nAttrs = attrs.getLength(); i < nAttrs; i++ )
          {
             org.w3c.dom.Attr attr = (Attr) attrs.item(i);
-            if ( !(areEqual("xmlns", attr.getName()) || areEqual("xmlns",
-                  attr.getPrefix())))
+            if (areEqual("xmlns", attr.getName()))
+            {
+               xmlTarget.setNamespaceDeclaration("", attr.getValue());
+            }
+            else if (areEqual("xmlns", attr.getPrefix()))
+            {
+               xmlTarget.setNamespaceDeclaration(attr.getLocalName(), attr.getValue());
+            }
+            else
             {
                // convert all attributes but namespace declarations
                xmlTarget.addAttribute(new Attribute(attr.getName(), attr.getNamespaceURI(),
@@ -212,7 +231,7 @@ public class DOMConverter
          child = child.getNextSibling();
       }
    }
-   
+
    private static String getLocalElementName(org.w3c.dom.Element element)
    {
       return element.getLocalName() == null ? element.getNodeName() : element.getLocalName();

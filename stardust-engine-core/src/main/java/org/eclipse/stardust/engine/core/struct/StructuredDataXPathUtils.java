@@ -1048,6 +1048,11 @@ public class StructuredDataXPathUtils
 
    private static void copyAttributes(Element contextElement, Element newNode)
    {
+      for (String prefix : newNode.getNamespaceDeclarations())
+      {
+         contextElement.setNamespaceDeclaration(prefix, newNode.getNamespaceURI(prefix));
+      }
+
       for (int i=0; i<newNode.getAttributeCount(); i++)
       {
          Attribute attribute = newNode.getAttribute(i);
@@ -1362,7 +1367,7 @@ public class StructuredDataXPathUtils
          return;
       }
 
-      if ( !hasMultipleSteps(xPath))
+      if (!hasMultipleSteps(xPath))
       {
          if (-1 == getLastXPathPart(xPath).indexOf('@'))
          {

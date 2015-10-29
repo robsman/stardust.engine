@@ -11,14 +11,20 @@
 package org.eclipse.stardust.engine.core.struct.sxml;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableList;
 import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
+import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.common.CompareHelper.areEqual;
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
 
 import java.io.StringWriter;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -42,6 +48,8 @@ public class Element extends ParentNode implements NamedNode
    private final String nsPrefix;
 
    private List<Attribute> attribs = emptyList();
+
+   private Map<String, String> namespaceDeclarations = emptyMap();
 
    /**
     * Creates a new element, without namespace.
@@ -378,7 +386,29 @@ public class Element extends ParentNode implements NamedNode
    @Override
    void toXML(XMLStreamWriter xmlWriter) throws XMLStreamException
    {
+      // declare local prefixes
+      for (String prefix : namespaceDeclarations.keySet())
+      {
+         String val = namespaceDeclarations.get(prefix);
+         if (prefix.isEmpty())
+         {
+            xmlWriter.setDefaultNamespace(val);
+         }
+         else
+         {
+            xmlWriter.setPrefix(prefix, val);
+         }
+      }
+
       xmlWriter.writeStartElement(getNamespacePrefix(), getLocalName(), getNamespaceURI());
+
+      // write namespace declarations
+      for (String prefix : namespaceDeclarations.keySet())
+      {
+         String val = namespaceDeclarations.get(prefix);
+         xmlWriter.writeNamespace(prefix, val);
+
+      }
 
       // write attribute values
       for (int i = 0; i < getAttributeCount(); i++ )
@@ -389,5 +419,47 @@ public class Element extends ParentNode implements NamedNode
       super.toXML(xmlWriter);
 
       xmlWriter.writeEndElement();
+   }
+
+   public QName resolve(String name)
+   {
+      String prefix = "";
+      String localName = name;
+      int ix = name.indexOf(':');
+      if (ix > 0)
+      {
+         prefix = name.substring(0,  ix);
+         localName = name.substring(ix + 1);
+      }
+      return new QName(resolveNamespace(prefix), localName);
+   }
+
+   private String resolveNamespace(String prefix)
+   {
+      if (namespaceDeclarations.containsKey(prefix))
+      {
+         return namespaceDeclarations.get(prefix);
+      }
+      ParentNode parent = getParent();
+      return parent instanceof Element ? ((Element) parent).resolveNamespace(prefix) : "";
+   }
+
+   public void setNamespaceDeclaration(String prefix, String namespaceURI)
+   {
+      if (namespaceDeclarations.isEmpty())
+      {
+         namespaceDeclarations = newHashMap();
+      }
+      namespaceDeclarations.put(prefix, namespaceURI == null ? "" : namespaceURI);
+   }
+
+   public Collection<String> getNamespaceDeclarations()
+   {
+      return Collections.unmodifiableCollection(namespaceDeclarations.keySet());
+   }
+
+   public String getNamespaceURI(String prefix)
+   {
+      return namespaceDeclarations.get(prefix);
    }
 }

@@ -713,16 +713,19 @@ public class ExportImportSupport
       for (String key : descriptorObjects.keySet())
       {
          Object value = descriptorObjects.get(key);
-         String stringValue;
-         if (value instanceof Date)
+         if (value != null)
          {
-            stringValue = df.format((Date) value);
+            String stringValue;
+            if (value instanceof Date)
+            {
+               stringValue = df.format((Date) value);
+            }
+            else
+            {
+               stringValue = value.toString();
+            }
+            descriptors.put(key, stringValue);
          }
-         else
-         {
-            stringValue = value.toString();
-         }
-         descriptors.put(key, stringValue);
       }
       return descriptors;
    }

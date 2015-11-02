@@ -3230,7 +3230,8 @@ public class Archiver
                   + " WHERE m." + dbDescriptor.quoteIdentifier(ModelPersistorBean.FIELD__PARTITION) + " = " + partitionOid.toString() + ")");
          }
       }
-      if(null != fieldPartition)
+
+      if (null != fieldPartition)
       {
          // TODO (kafka, rsauer) remove o.partition=bo.partition predicate, as it is implicitly satisfied by OID predicate?
          updBuf.append(" AND o." + fieldPartition + " = " + updTabRefPrefix + fieldPartition)
@@ -3956,8 +3957,16 @@ public class Archiver
 
    private void synchronizeModelTables(Long modelOid)
    {
-      synchronizePkStableTables(ModelRefBean.class, modelOid);
-      synchronizePkStableTables(ModelDeploymentBean.class, modelOid);
+      try
+      {
+         synchronizePkStableTables(ModelDeploymentBean.class, modelOid);
+         synchronizePkInstableTables(ModelRefBean.class, ModelRefBean.FIELD__MODEL_OID, modelOid, null);
+      }
+      catch (SQLException ex)
+      {
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_SYNCHRONIZING_MODEL_TABLE_ARCHIVE.raise(), ex);
+      }
    }
 
    private void synchronizeProcessInstanceLinkTypeArchive()

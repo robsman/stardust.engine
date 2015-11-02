@@ -321,6 +321,10 @@ public class ScriptingApplicationRouteContext extends ProducerRouteContext
          {
             script.append(ap.getId() + " = new java.util.Date();\n");
          }
+         if (type == null)
+         {
+            script.append(ap.getId() + " = {};\n");
+         }
          script.append("}");
       }
 

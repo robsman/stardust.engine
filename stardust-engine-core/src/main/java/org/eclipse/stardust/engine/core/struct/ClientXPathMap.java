@@ -39,7 +39,7 @@ public class ClientXPathMap implements IXPathMap, Serializable
       return StructuredTypeRtUtils.getXPathMap(model, data);
    }
 
-   public ClientXPathMap (Set<TypedXPath> allXPaths)
+   public ClientXPathMap (Set/*<TypedXPath>*/ allXPaths)
    {
       this.allXPaths = Collections.unmodifiableSet(allXPaths);
       this.typedXPaths = new HashMap();

@@ -103,6 +103,14 @@ public final class CamelConstants
    public static final String GROOVY="Groovy";
    public static final String PYTHON="Python";
    
+   public static final String TEMPLATING_LOCATION = "CamelTemplatingLocation";
+   public static final String TEMPLATING_TEMPLATE_CONTENT = "CamelTemplatingTemplateContent";
+   public static final String TEMPLATING_FORMAT = "CamelTemplatingFormat";
+   public static final String TEMPLATING_TEMPLATE = "CamelTemplatingTemplate";
+   public static final String TEMPLATING_OUTPUT_NAME = "CamelTemplatingOutputName";
+   public static final String TEMPLATING_CONVERT_TO_PDF = "CamelTemplatingConvertToPdf";
+   public static final String TEMPLATING_REQUEST_METADATA= "CamelTemplatingMetaData";
+   
    private CamelConstants()
    {}
    

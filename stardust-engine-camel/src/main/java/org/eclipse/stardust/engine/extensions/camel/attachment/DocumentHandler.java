@@ -1,14 +1,12 @@
 package org.eclipse.stardust.engine.extensions.camel.attachment;
 
 import static org.apache.camel.Exchange.FILE_NAME_ONLY;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.DOCUMENT_REQUEST_AP_ID;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MAIL_ATTACHMENTS_AP_ID;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MAIL_TEMPLATE_CONFIGURATION_ATT;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.*;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.DOCUMENT_CONTENT;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.DOCUMENT_NAME;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PROCESS_ATTACHMENTS;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.TARGET_PATH;
-import static org.eclipse.stardust.engine.extensions.camel.app.mail.TemplateConfigurationUtils.toTemplateConfigurations;
+import static org.eclipse.stardust.engine.extensions.camel.app.mail.TemplateConfigurationUtils.*;
 import static org.eclipse.stardust.engine.extensions.camel.util.CamelDmsUtils.getDocumentUsingRepositoryLocation;
 
 import java.io.ByteArrayOutputStream;
@@ -40,7 +38,6 @@ import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
 import org.eclipse.stardust.engine.extensions.camel.CamelMessage;
 import org.eclipse.stardust.engine.extensions.camel.app.mail.TemplateConfiguration;
-import org.eclipse.stardust.engine.extensions.camel.app.mail.TemplateConfigurationUtils;
 import org.eclipse.stardust.engine.extensions.camel.converter.BpmTypeConverter;
 import org.eclipse.stardust.engine.extensions.camel.trigger.exceptions.CreateDocumentException;
 import org.eclipse.stardust.engine.extensions.camel.util.CamelDmsUtils;
@@ -83,36 +80,37 @@ public class DocumentHandler
 
    public void createAttachmentFromExchangeBody(Exchange exchange)
    {
-      boolean convertedToPdf = (Boolean) exchange.getIn().getHeader(
-            "CamelTemplatingConvertToPdf");
-      String outputName = (String) exchange.getIn()
-            .getHeader("CamelTemplatingOutputName");
+      boolean convertedToPdf = exchange.getIn().getHeader(TEMPLATING_CONVERT_TO_PDF,Boolean.class);
+      String outputName = exchange.getIn().getHeader(TEMPLATING_OUTPUT_NAME,String.class);
       if (convertedToPdf)
       {
-         exchange.getIn().addAttachment(outputName + ".pdf",
-               new DataHandler(exchange.getIn().getBody(), "application/pdf"));
+            exchange.getIn().addAttachment(checkFileNameHavingExtension(outputName,"pdf"), new DataHandler(exchange.getIn().getBody(), "application/pdf"));
       }
       else
       {
-         if (((String) exchange.getIn().getHeader("CamelTemplatingTemplate") != null && ((String) exchange
-               .getIn().getHeader("CamelTemplatingTemplate")).endsWith(".docx"))
-               || (exchange.getIn().getHeader("CamelTemplatingFormat") != null && exchange
-                     .getIn().getHeader("CamelTemplatingFormat").equals("docx")))
+         String camelTemplatingTemplate=exchange.getIn().getHeader(TEMPLATING_TEMPLATE,String.class);
+         String camelTemplatingFormat=exchange.getIn().getHeader(TEMPLATING_FORMAT,String.class);
+         
+         if ((StringUtils.isNotEmpty(camelTemplatingTemplate) && camelTemplatingTemplate.endsWith(".docx"))
+               || (StringUtils.isNotEmpty(camelTemplatingFormat)&& camelTemplatingFormat.equals("docx"))
+             )
          {
-            exchange.getIn().addAttachment(outputName + ".docx",
-                  new DataHandler(exchange.getIn().getBody(), "application/msword"));
+            exchange.getIn().addAttachment(checkFileNameHavingExtension(outputName,"docx"),new DataHandler(exchange.getIn().getBody(), "application/msword"));
          }
          else
          {
-            String content = exchange.getContext().getTypeConverter()
-                  .convertTo(String.class, exchange, exchange.getIn().getBody());
-            exchange.getIn().addAttachment(outputName + ".txt",
-                  new DataHandler(content, "text/plain"));
+            String content = exchange.getContext().getTypeConverter().convertTo(String.class, exchange, exchange.getIn().getBody());
+            exchange.getIn().addAttachment(checkFileNameHavingExtension(outputName,"txt"),new DataHandler(content, "text/plain"));
          }
       }
       exchange.getIn().setBody(null);
    }
-
+   
+   private String checkFileNameHavingExtension(String fileName, String extension){
+      if(fileName.endsWith("."+extension))
+         return fileName;
+      return fileName+"."+extension;
+   }
    private ProcessDefinition findProcessDefinitionByProcessInstance(ServiceFactory sf,ProcessInstance pi){
       DeployedModel model=sf.getQueryService().getModel(pi.getModelOID());
       ProcessDefinition processDefinition = sf.getQueryService().getProcessDefinition("{"+model.getId()+"}"+pi.getProcessID());
@@ -298,13 +296,11 @@ public class DocumentHandler
       Map<String, Object> dynamicTemplateConfigurations = null;
       Map<String, Object> documentRequest = null;
       List<TemplateConfiguration> templateConfigurations = null;
-      List<ActivityInstance> instances = BpmTypeConverter
-            .lookupActivityInstance(exchange);
+      List<ActivityInstance> instances = BpmTypeConverter.lookupActivityInstance(exchange);
       for (Iterator<ActivityInstance> i = instances.iterator(); i.hasNext();)
       {
          ActivityInstance activityInstance = i.next();
-         Map<String, Object> extendedAttributes = activityInstance.getActivity()
-               .getApplication().getAllAttributes();
+         Map<String, Object> extendedAttributes = activityInstance.getActivity().getApplication().getAllAttributes();
          if (extendedAttributes != null && extendedAttributes.size() > 0)
          {
             dynamicTemplateConfigurations = exchange.getIn().getHeader(MAIL_ATTACHMENTS_AP_ID, Map.class);
@@ -356,21 +352,19 @@ public class DocumentHandler
             CamelMessage camelMessage = new CamelMessage();
             camelMessage.copyFrom(exchange.getIn());
             newExchange.setIn(camelMessage);
-            newExchange.getIn().setHeader("CamelTemplatingLocation", template.getSource());
-            newExchange
-                  .getIn()
-                  .setHeader(
-                        "CamelTemplatingFormat",
-                        (template != null && StringUtils.isNotEmpty(template.getPath()) && template
-                              .getPath().endsWith(".docx")) ? "docx" : "text");
-            newExchange.getIn().setHeader("CamelTemplatingTemplate", (template.getPath()));
-            newExchange.getIn().setHeader("CamelTemplatingOutputName", template.getName());
-            newExchange
-                  .getIn()
-                  .setHeader(
-                        "CamelTemplatingConvertToPdf",
-                        (template != null && StringUtils.isNotEmpty(template.getFormat()) && template
-                              .getFormat().equalsIgnoreCase("pdf")) ? true : false);
+            newExchange.getIn().setHeader(TEMPLATING_LOCATION, template.getSource());
+            String format=(template != null && StringUtils.isNotEmpty(template.getPath()) && template.getPath().endsWith(".docx")) ? "docx" : "text";
+            newExchange.getIn().setHeader(TEMPLATING_FORMAT,format);
+            newExchange.getIn().setHeader(TEMPLATING_TEMPLATE, (template.getPath()));
+            
+            if(StringUtils.isEmpty(template.getName()))
+               newExchange.getIn().setHeader(TEMPLATING_OUTPUT_NAME, template.getPath());
+            else
+               newExchange.getIn().setHeader(TEMPLATING_OUTPUT_NAME, template.getName());
+            
+            boolean convertToPdf=(template != null && StringUtils.isNotEmpty(template.getFormat()) && template.getFormat().equalsIgnoreCase("pdf")) ? true : false;
+            newExchange.getIn().setHeader(TEMPLATING_CONVERT_TO_PDF,convertToPdf);
+            
             Exchange reponse = null;
             if (template.getSource().equalsIgnoreCase("repository"))
             {
@@ -399,10 +393,10 @@ public class DocumentHandler
                      newExchange
                      .getIn()
                      .setHeader(
-                           "CamelTemplatingFormat", "docx");
+                           TEMPLATING_FORMAT, "docx");
                   }
                   byte[] content = dms.retrieveDocumentContent(document.getId());
-                  newExchange.getIn().setHeader("CamelTemplatingTemplateContent", content);
+                  newExchange.getIn().setHeader(TEMPLATING_TEMPLATE_CONTENT, content);
                   reponse = producer.send("direct://templateFromData", newExchange);
                   // delete processed template document from header
                   exchange.getIn().removeHeader(template.getName());
@@ -484,20 +478,22 @@ public class DocumentHandler
    private static void processRepositoryDocumentForDocumentRequest(Exchange exchange,
          ModelCamelContext camelContext, ProducerTemplate producer, Map<String, Object> documentRequest)
    {
-      if (documentRequest.size() == 1)
+      List<Map<String, Object>> documents=getDocuments(documentRequest);
+      if (documents!=null && !documents.isEmpty() )
       {
-         List<Map<String, Object>> documents = (List<Map<String, Object>>) documentRequest
-         .get("Documents");
-         
+         DocumentManagementService dms = getDocumentManagementService();
          for (Map<String, Object> requestItem : documents)
          {
-            if (TemplateConfigurationUtils.IsAttachment(requestItem)
-                  && !((Boolean) requestItem.get("IsTemplate")))
+            if (IsAttachment(requestItem)&& !IsTemplate(requestItem))
             {
-               String repositoryLocation = (String) requestItem.get("DocumentLocation");
+               String repositoryLocation = getTemplateId(requestItem);
+               if(StringUtils.isEmpty(repositoryLocation)){
+                  Document document=dms.getDocument(getOutgoingDocumentId(requestItem));
+                  repositoryLocation=document.getId();
+               }
                String documentRequestItemExtension = FilenameUtils.getExtension(repositoryLocation);
-               if(Arrays.asList("docx","xml","csv","txt").contains(documentRequestItemExtension)
-                     && (Boolean) requestItem.get("ConvertToPDF"))
+               if(//Arrays.asList("docx","xml","csv","txt","vm").contains(documentRequestItemExtension)&&
+                    IsConvertToPDF(requestItem))
                {
                   // only process txt, docx, xml, csv document: better exploit of pdf conversion functionality 
                   // provided by engine template
@@ -505,9 +501,8 @@ public class DocumentHandler
                   CamelMessage camelMessage = new CamelMessage();
                   camelMessage.copyFrom(exchange.getIn());
                   newExchange.setIn(camelMessage);
-                  newExchange.getIn().setHeader("CamelTemplatingConvertToPdf",
-                        (Boolean) requestItem.get("ConvertToPDF"));
-                  newExchange.getIn().setHeader("CamelTemplatingOutputName", (String) requestItem.get("Name"));
+                  newExchange.getIn().setHeader(TEMPLATING_CONVERT_TO_PDF,IsConvertToPDF(requestItem));
+                  newExchange.getIn().setHeader(TEMPLATING_OUTPUT_NAME, getName(requestItem));
                   newExchange.getIn().setBody(requestItem);
                   Exchange reponse = null;
                   reponse = producer.send("direct://templateDocumentRequest", newExchange);
@@ -515,15 +510,20 @@ public class DocumentHandler
                   
                } else
                {
-                  DocumentManagementService dms = getDocumentManagementService();
-                  Document document = getDocumentUsingRepositoryLocation(dms, repositoryLocation);
+                  Document document;
+                  if(StringUtils.isNotEmpty(getTemplateId(requestItem))){
+                     document = getDocumentUsingRepositoryLocation(dms, repositoryLocation);
+                  }else{
+                     document = dms.getDocument(getOutgoingDocumentId(requestItem));
+                  }
+                   
                   if(document != null)
                   {
                      byte[] content = dms.retrieveDocumentContent(document.getId());
-                     addDocumentToExchangeAttachment(exchange, content,
-                           (String) requestItem.get("Name") + "."
-                                 + documentRequestItemExtension,
-                           document.getContentType());
+                     String fileName=repositoryLocation;
+                     if(!fileName.endsWith("."+documentRequestItemExtension))
+                        fileName=getTemplateId(requestItem) + "."+ documentRequestItemExtension;
+                     addDocumentToExchangeAttachment(exchange, content,fileName,document.getContentType());
                   }
                }
                

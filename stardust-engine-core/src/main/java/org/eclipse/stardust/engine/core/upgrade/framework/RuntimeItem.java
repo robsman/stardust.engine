@@ -14,13 +14,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Map;
+import java.sql.*;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
@@ -192,10 +188,11 @@ public class RuntimeItem implements UpgradableItem
       if (version == null)
       {
          String versionString;
-
+         String productName;
          try
          {
             versionString = getProperty(Constants.CARNOT_VERSION);
+            productName = getProperty(Constants.PRODUCT_NAME);
 
             if (null == versionString)
             {
@@ -208,7 +205,7 @@ public class RuntimeItem implements UpgradableItem
             throw new UpgradeException("SQL error: " + e.getMessage());
          }
 
-         version = new Version(versionString);
+         version = Version.createVersion(productName, versionString);
       }
 
       return version;

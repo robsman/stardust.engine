@@ -14,6 +14,7 @@ import static org.eclipse.stardust.engine.api.query.DeployedModelQuery.findForId
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.businessobject.BusinessObjectModelConstants.*;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
@@ -27,6 +28,8 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.ObjectExistsException;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.query.BusinessObjectQuery;
+import org.eclipse.stardust.engine.api.query.BusinessObjects;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
@@ -64,6 +67,36 @@ public class CreateBusinessObjectTest
                                           .around(sf);
 
    @Test
+   public void testCleanupAuditTrailKeepBO()
+   {
+      Map<String, Object> initialValue = CollectionUtils.newMap();
+      initialValue.put("name", "Company A"); // PK
+      initialValue.put("street", "Dark way");
+      initialValue.put("price", 300);
+                  
+      BusinessObject businessObjectInstance = sf.getWorkflowService().createBusinessObjectInstance(qualifiedBusinessObjectId1, initialValue);
+      assertNotNull(businessObjectInstance);
+      assertThat(businessObjectInstance.getId(), is(getBOId(qualifiedBusinessObjectId1)));
+
+      sf.getAdministrationService().cleanupRuntime(true, true);
+      
+      BusinessObjectQuery query = BusinessObjectQuery.findForBusinessObject(qualifiedBusinessObjectId1);
+      query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
+      BusinessObjects bos = sf.getQueryService().getAllBusinessObjects(query);
+      assertThat(bos.size(), is(not(0)));
+      businessObjectInstance = bos.get(0);
+      assertNotNull(businessObjectInstance);
+      assertThat(businessObjectInstance.getId(), is(getBOId(qualifiedBusinessObjectId1)));
+      
+      sf.getAdministrationService().cleanupRuntime(true, false);
+      
+      query = BusinessObjectQuery.findForBusinessObject(qualifiedBusinessObjectId1);
+      query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
+      bos = sf.getQueryService().getAllBusinessObjects(query);
+      assertThat(bos.size(), is(0));
+   }
+      
+   @Test
    public void testCreateBO()
    {
       Map<String, Object> initialValue = CollectionUtils.newMap();
@@ -100,7 +133,7 @@ public class CreateBusinessObjectTest
                   
       BusinessObject businessObjectInstance = sf.getWorkflowService().createBusinessObjectInstance(qualifiedBusinessObjectId1, initialValue);
       assertNotNull(businessObjectInstance);
-      businessObjectInstance = sf.getWorkflowService().createBusinessObjectInstance(qualifiedBusinessObjectId1, initialValue);
+      businessObjectInstance = sf.getWorkflowService().createBusinessObjectInstance(qualifiedBusinessObjectId1, initialValue);      
    }   
       
    @Test

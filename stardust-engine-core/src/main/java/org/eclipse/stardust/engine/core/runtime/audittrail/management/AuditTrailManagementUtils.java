@@ -2,6 +2,7 @@ package org.eclipse.stardust.engine.core.runtime.audittrail.management;
 
 import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
 import static org.eclipse.stardust.engine.core.persistence.Predicates.isEqual;
+import static org.eclipse.stardust.engine.core.persistence.Predicates.notEqual;
 import static org.eclipse.stardust.engine.core.persistence.QueryExtension.where;
 import static org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils.closeResultSet;
 
@@ -18,6 +19,7 @@ import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.Column;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
+import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
@@ -115,12 +117,29 @@ public class AuditTrailManagementUtils
    public static void deleteAllProcessInstancesFromPartition(short partitionOid,
          Session session)
    {
+      deleteAllProcessInstancesFromPartition(partitionOid, session, false);
+   }
+      
+   public static void deleteAllProcessInstancesFromPartition(short partitionOid,
+         Session session, boolean keepBO)
+   {
+      PredicateTerm predicate;
+      if (keepBO)
+      {
+         predicate = Predicates.andTerm(isEqual(ModelPersistorBean.FR__PARTITION, partitionOid),
+                        notEqual(ProcessInstanceBean.FR__PROCESS_DEFINITION, -1));         
+      }
+      else
+      {
+         predicate = isEqual(ModelPersistorBean.FR__PARTITION, partitionOid);         
+      }      
+      
       // select PIs from the current partition
       QueryDescriptor qd = QueryDescriptor //
             .from(ProcessInstanceBean.class) //
             .select(ProcessInstanceBean.FR__OID) //
-            .where(isEqual(ModelPersistorBean.FR__PARTITION, partitionOid));
-
+            .where(predicate);
+      
       // ensure the model table is properly joined, required for filtering against
       // partition OID
       qd.innerJoin(ModelPersistorBean.class) //

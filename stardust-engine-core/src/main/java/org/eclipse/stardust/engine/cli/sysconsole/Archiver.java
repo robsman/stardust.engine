@@ -642,7 +642,7 @@ public class Archiver
                break;
             }
 
-            archiveData(modelID, value, Math.min(tsStart + interval, tsStop));
+            archiveData(modelID, value, ids, Math.min(tsStart + interval, tsStop));
          }
          while (true);
       }
@@ -1421,7 +1421,7 @@ public class Archiver
          deletePiParts(piOids, ProcessInstanceScopeBean.class,
                ProcessInstanceScopeBean.FR__PROCESS_INSTANCE);
 
-         // TODO: finally deleting rows from data clusters in archive schema
+         deleteDataClusterParts(piOids, true);
 
          return deletePiParts(piOids, ProcessInstanceBean.class,
                ProcessInstanceBean.FR__OID, null);
@@ -1619,7 +1619,7 @@ public class Archiver
 
       backupDepParts();
 
-      // TODO how about data clusters?
+      backupDataCluster(piOids);
 
       return nProcesses;
    }
@@ -1789,7 +1789,7 @@ public class Archiver
       return deadModels;
    }
 
-   private void archiveData(String modelId, List<String> ids, long tsBefore)
+   private void archiveData(String modelId, List<String> ids, String[] fqIds, long tsBefore)
    {
       final int nData;
 
@@ -1891,7 +1891,7 @@ public class Archiver
          final DataCluster[] dClusters = RuntimeSetup.instance().getDataClusterSetup();
          for (int idx = 0; idx < dClusters.length; ++idx)
          {
-            synchronizeDataCluster(dClusters[idx], ids);
+            synchronizeDataCluster(dClusters[idx], Arrays.asList(fqIds));
          }
 // ###
 // ???? call to referencing models
@@ -2190,16 +2190,6 @@ public class Archiver
                PropertyPersistor.FR__PARTITION, new long[] { -1, partitionOid });
          synchronizePkInstableTables(PropertyPersistor.class, null, null, partitionPredicate);
 
-         // deleting runtime config property, if existent, as it currently only controls
-         // data cluster deployments, which are not supported in archive audit trails
-         session.executeDelete(DeleteDescriptor.from(archiveSchema,
-               PropertyPersistor.class).where( //
-               Predicates.andTerm( //
-                     Predicates.isEqual( //
-                           PropertyPersistor.FR__NAME, //
-                           RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION),
-                     partitionPredicate)));
-
          stmt = session.getConnection().createStatement();
 
          long maxOid = findMaxValue(archiveSchema, PropertyPersistor.class,
@@ -2472,6 +2462,14 @@ public class Archiver
       deletePiParts(piOids, ProcessInstanceLinkBean.class,
             ProcessInstanceLinkBean.FR__PROCESS_INSTANCE);
 
+      deleteDataClusterParts(piOids, false);
+
+      return deletePiParts(piOids, ProcessInstanceBean.class,
+            ProcessInstanceBean.FR__OID, null);
+   }
+
+   private void deleteDataClusterParts(List piOids, boolean isArchiveSchema)
+   {
       // finally deleting rows from data clusters
       final DataCluster[] dClusters = RuntimeSetup.instance().getDataClusterSetup();
 
@@ -2480,13 +2478,19 @@ public class Archiver
          final DataCluster dCluster = dClusters[idx];
 
          Statement stmt = null;
+         String tableName = dCluster.getTableName();
          try
          {
             stmt = session.getConnection().createStatement();
             DBDescriptor dbDescriptor = session.getDBDescriptor();
             StringBuffer buffer = new StringBuffer(100 + piOids.size() * 10);
-            buffer.append("DELETE FROM ").append(getSrcObjName(dbDescriptor.quoteIdentifier(dCluster.getTableName())))
-                  .append(" WHERE ").append(getInClause(dCluster.getProcessInstanceColumn(), piOids));
+            String quotedTableName = dbDescriptor.quoteIdentifier(tableName);
+            buffer.append("DELETE FROM ")
+                  .append(
+                        isArchiveSchema
+                              ? getArchiveObjName(quotedTableName)
+                              : getSrcObjName(quotedTableName)).append(" WHERE ")
+                  .append(getInClause(dCluster.getProcessInstanceColumn(), piOids));
 
             if (trace.isDebugEnabled())
             {
@@ -2498,16 +2502,15 @@ public class Archiver
          {
             throw new PublicException(
                   BpmRuntimeError.ARCH_FAILED_DELETING_ENTRIES_FROM_DATA_CLUSTER_TABLE.raise(
-                        getSrcObjName(dCluster.getTableName()), e.getMessage()), e);
+                        isArchiveSchema
+                              ? getArchiveObjName(tableName)
+                              : getSrcObjName(tableName), e.getMessage()), e);
          }
          finally
          {
             QueryUtils.closeStatement(stmt);
          }
       }
-
-      return deletePiParts(piOids, ProcessInstanceBean.class,
-            ProcessInstanceBean.FR__OID, null);
    }
 
    protected static String getInClause(String columnName, List inEntries)
@@ -2679,6 +2682,10 @@ public class Archiver
                if ( !StringUtils.isEmpty(dataSlot.getSValueColumn()))
                {
                   buffer.append(", ").append(dataSlot.getSValueColumn()).append("=NULL");
+               }
+               if ( !StringUtils.isEmpty(dataSlot.getDValueColumn()))
+               {
+                  buffer.append(", ").append(dataSlot.getDValueColumn()).append("=NULL");
                }
 
                buffer.append(" WHERE NOT EXISTS (SELECT 'x'")//
@@ -2946,6 +2953,50 @@ public class Archiver
    {
       backup2ndLevelPiParts(piOids, targetType, fkPiPartFieldName, DataValueBean.class,
             ActivityInstanceBean.FIELD__PROCESS_INSTANCE, restriction);
+   }
+   
+   private void backupDataCluster(List piOids)
+   {
+      // insert into table select * from table where primarykey=1
+      final DataCluster[] dClusters = RuntimeSetup.instance().getDataClusterSetup();
+
+      for (int idx = 0; idx < dClusters.length; ++idx)
+      {
+         final DataCluster dCluster = dClusters[idx];
+
+         Statement stmt = null;
+         try
+         {
+            stmt = session.getConnection().createStatement();
+            DBDescriptor dbDescriptor = session.getDBDescriptor();
+            StringBuffer buffer = new StringBuffer(100 + piOids.size() * 10);
+            buffer.append("INSERT INTO ")
+                  .append(
+                        getArchiveObjName(dbDescriptor.quoteIdentifier(dCluster
+                              .getTableName())))
+                  .append(" SELECT * FROM ")
+                  .append(
+                        getSrcObjName(dbDescriptor.quoteIdentifier(dCluster
+                              .getTableName()))).append(" WHERE ")
+                  .append(getInClause(dCluster.getProcessInstanceColumn(), piOids));
+
+            if (trace.isDebugEnabled())
+            {
+               trace.debug(buffer);
+            }
+            stmt.executeUpdate(buffer.toString());
+         }
+         catch (SQLException e)
+         {
+            throw new PublicException(
+                  BpmRuntimeError.ARCH_FAILED_DELETING_ENTRIES_FROM_DATA_CLUSTER_TABLE.raise(
+                        getSrcObjName(dCluster.getTableName()), e.getMessage()), e);
+         }
+         finally
+         {
+            QueryUtils.closeStatement(stmt);
+         }
+      }
    }
 
    private void backupDepParts()

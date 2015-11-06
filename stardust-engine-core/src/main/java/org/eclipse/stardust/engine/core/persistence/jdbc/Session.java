@@ -168,6 +168,8 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
    private final boolean forceImmediateInsert;
 
+   private boolean usingDCArchiveAuditTrail;
+
    public Session(String name)
    {
       this(name, Parameters.instance(), DBDescriptor.create(name),
@@ -233,7 +235,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          }
       }
    }
-
+   
    public boolean isReadOnly()
    {
       return this.isArchiveAuditTrail || this.isreadOnly;
@@ -289,6 +291,16 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       DataCluster[] clusterSetup = getClusterSetup();
       return (null != clusterSetup) && (0 < clusterSetup.length);
    }
+   
+   public boolean isUsingDataClusterOnArchiveAuditTrail() 
+   {
+      return usingDCArchiveAuditTrail;
+   }
+   
+   public void setUsingDataClusterOnArchiveAuditTrail(boolean usingDCArchiveAuditTrail) 
+   {
+      this.usingDCArchiveAuditTrail = usingDCArchiveAuditTrail;
+   }
 
    /**
     *
@@ -323,12 +335,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
    public void cluster(Persistent persistent)
    {
-      if (isArchiveAuditTrail)
-      {
-         // readonly
-         throw new PublicException(
-               BpmRuntimeError.JDBC_ARCHIVE_AUDITTRAIL_DOES_NOT_ALLOW_CHANGES.raise());
-      }
+//      if (isArchiveAuditTrail)
+//      {
+////          readonly
+//         throw new PublicException(
+//               BpmRuntimeError.JDBC_ARCHIVE_AUDITTRAIL_DOES_NOT_ALLOW_CHANGES.raise());
+//      }
 
 
       String stmtString = null;
@@ -1564,7 +1576,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
     */
    public void flush()
    {
-      if (isReadOnly())
+      if (isReadOnly() && !isUsingDataClusterOnArchiveAuditTrail())
       {
          // readonly
          return;

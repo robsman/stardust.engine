@@ -1213,7 +1213,9 @@ public class SchemaHelper
             = new PropertyPersistor(RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION, "dummy");
          LargeStringHolder.setLargeString(newSetupPersistor.getOID(), PropertyPersistor.class,
                newSetup.getXml());
+         session.setUsingDataClusterOnArchiveAuditTrail(true);
          session.save();
+         session.setUsingDataClusterOnArchiveAuditTrail(false);
          
          //force loading of new setup - to verify its working without problems
          Parameters.instance().set(RuntimeSetup.RUNTIME_SETUP_PROPERTY, null);

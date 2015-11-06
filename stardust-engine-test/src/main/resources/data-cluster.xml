@@ -40,6 +40,70 @@
                  </data-cluster-index>
                </data-cluster-indexes>
             </data-cluster>
+            <data-cluster
+               tableName="dv_mqt02"
+               processInstanceColumn="processInstance">
+               <data-slots>
+                  <data-slot
+                     modelId="DataClusterModel"
+                     dataId="aDouble"
+                     oidColumn="oid_aDouble"
+                     typeColumn="tk_aDouble"
+                     dValueColumn="dval_aDouble"
+                     sValueColumn="sval_aDouble" />
+               </data-slots>
+               <data-cluster-indexes>
+                 <data-cluster-index indexName="DV_MQT02_IDX1" unique="true">
+                    <column name="processInstance"/>
+                 </data-cluster-index>
+                 <data-cluster-index indexName="DV_MQT02_IDX2" unique="false">
+                    <column name="dval_aDouble"/>
+                    <column name="tk_aDouble"/>
+                    <column name="processInstance"/>
+                 </data-cluster-index>
+               </data-cluster-indexes>
+            </data-cluster>
+            <data-cluster
+               tableName="dv_mqt03"
+               processInstanceColumn="processInstance">
+               <data-slots>
+                  <data-slot
+                     modelId="DataClusterModel"
+                     dataId="BOData"
+                     attributeName="name"
+                     oidColumn="oid_name"
+                     typeColumn="tk_name"
+                     sValueColumn="sval_name" />
+                  <data-slot
+                     modelId="DataClusterModel"
+                     dataId="BOData"
+                     attributeName="street"
+                     oidColumn="oid_street"
+                     typeColumn="tk_street"
+                     sValueColumn="sval_street" />
+                  <data-slot
+                     modelId="DataClusterModel"
+                     dataId="BOData"
+                     attributeName="price"
+                     oidColumn="oid_price"
+                     typeColumn="tk_price"
+                     nValueColumn="nval_price" />
+               </data-slots>
+               <data-cluster-indexes>
+                 <data-cluster-index indexName="DV_MQT03_IDX1" unique="true">
+                    <column name="processInstance"/>
+                 </data-cluster-index>
+                 <data-cluster-index indexName="DV_MQT03_IDX2" unique="false">
+                    <column name="sval_name"/>
+                    <column name="tk_name"/>
+                    <column name="sval_street"/>
+                    <column name="tk_street"/>
+                    <column name="nval_price"/>
+                    <column name="tk_price"/>
+                    <column name="processInstance"/>
+                 </data-cluster-index>
+               </data-cluster-indexes>
+            </data-cluster>
          </data-clusters>
       </audit-trail>
    </runtime-setup>

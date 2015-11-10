@@ -104,7 +104,7 @@ public class ArchiveTest
     * Tests archiving using batch size.
     * 
     * <p> See also <a
-    * href="https://www.csa.sungard.com/jira/browse/CRNT-37305">CRNT-38830</a>. </p> 
+    * href="https://www.csa.sungard.com/jira/browse/CRNT-38830">CRNT-38830</a>. </p> 
     */
    @Test
    public void testArchivingUsingBatchSize() throws Exception

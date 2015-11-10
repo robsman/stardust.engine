@@ -584,7 +584,7 @@ public class ArchiveDataClusterTest
             logEntryBeforeSync));
       String logEntry = logEntryBeforeSync.toString();
       assertTrue(logEntry
-            .startsWith("Cluster table "
+            .contains("Cluster table "
                   + ArchiveTestUtils.ARC_SCHEMA
                   + "."
                   + DC_TABLE_1
@@ -594,7 +594,7 @@ public class ArchiveDataClusterTest
       SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(SYSOP, new PrintStream(
             logEntrySync), null, null);
       logEntry = logEntrySync.toString();
-      assertTrue(logEntry.startsWith("Inconsistent cluster table "
+      assertTrue(logEntry.contains("Inconsistent cluster table "
             + ArchiveTestUtils.ARC_SCHEMA + "." + DC_TABLE_1
             + ": Inserted missing existing process instances into cluster table."));
       assertTrue(logEntry

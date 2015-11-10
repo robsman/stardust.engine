@@ -1033,8 +1033,6 @@ public class AdministrationServiceImpl
       }
    }
    
-   
-   
    /**
     * Removes all CARNOT-specific tables from the audit trail database.
     * All audit trail information is lost after calling this method.
@@ -1048,7 +1046,7 @@ public class AdministrationServiceImpl
 
       try
       {
-         cleanupRuntime(keepUsers, false);
+         cleanupRuntime(keepUsers, true, false);
       }
       finally
       {
@@ -1110,7 +1108,7 @@ public class AdministrationServiceImpl
                   BpmRuntimeError.MDL_MODEL_MANAGER_UNAVAILABLE.raise());
          }
 
-         cleanupRuntime(false, false);
+         cleanupRuntime(false, false, false);
 
          Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 

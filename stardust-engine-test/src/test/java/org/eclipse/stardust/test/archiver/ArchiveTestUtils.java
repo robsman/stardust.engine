@@ -103,8 +103,6 @@ public class ArchiveTestUtils
       SchemaHelper.alterAuditTrailCreateDataClusterTables("sysop",
             configFile.getAbsolutePath(), false, true, null);
       RuntimeSetup arcDCSetup = RuntimeSetup.instance();
-      // RuntimeSetup arcDCSetup = (RuntimeSetup) Parameters.instance().get(
-      // RuntimeSetup.RUNTIME_SETUP_PROPERTY);
       Parameters.instance().set(ARCHIVE_DATACLUSTER_SETUP, arcDCSetup);
       Parameters.instance().setBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL, false);
       Parameters.instance().set(RuntimeSetup.RUNTIME_SETUP_PROPERTY, setup);

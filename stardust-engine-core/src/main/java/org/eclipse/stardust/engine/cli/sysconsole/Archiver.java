@@ -882,7 +882,7 @@ public class Archiver
       PiLinkVisitationContext visitationContext = new PiLinkVisitationContext();
 
       // only evaluate pi root oids which have links
-      List<Long> rootPiOidsWithLinks = findRootPiOidsHavingLinks(rootPiOids);
+      Set<Long> rootPiOidsWithLinks = findRootPiOidsHavingLinks(rootPiOids);
 
       for (Long oid : rootPiOidsWithLinks)
       {
@@ -901,37 +901,66 @@ public class Archiver
       return resultRootPiOids;
    }
 
-   private List<Long> findRootPiOidsHavingLinks(List<Long> rootPiOids)
+   private Set<Long> findRootPiOidsHavingLinks(List<Long> rootPiOids)
    {
-      QueryDescriptor qFindLinkedPis = QueryDescriptor.from(ProcessInstanceBean.class)
-            .selectDistinct(ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE)
-            .where(splitUpOidsSubList(rootPiOids, ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE));
+      List<Long> rootPiOidsBatch = new ArrayList<Long>(rootPiOids);
+      Set<Long> rootPiOidsWithLink = new HashSet<Long>(stmtBatchSizeLimit);
 
-      qFindLinkedPis.innerJoin(ProcessInstanceLinkBean.class, "PIL_PI")
-            .on(ProcessInstanceBean.FR__OID,
-                  ProcessInstanceLinkBean.FIELD__PROCESS_INSTANCE)
-            .orOn(ProcessInstanceBean.FR__OID,
-                  ProcessInstanceLinkBean.FIELD__LINKED_PROCESS_INSTANCE);
-
-      ResultSet rsLinkedPis = session.executeQuery(qFindLinkedPis, Session.NO_TIMEOUT);
-
-      List<Long> rootPiOidsWithLink = new LinkedList<Long>();
-      try
+      while (!rootPiOidsBatch.isEmpty())
       {
-         while (rsLinkedPis.next())
+         int txBatchSize = 0;
+
+         Set<Long> stmtBatchRootPiOids = new HashSet<Long>();
+         for (Long rootPiOid : rootPiOidsBatch)
          {
-            long piOid = rsLinkedPis.getLong(1);
-            rootPiOidsWithLink.add(piOid);
+            if ((stmtBatchRootPiOids.size() < stmtBatchSizeLimit)
+                  && (txBatchSize < txBatchSizeLimit))
+            {
+               stmtBatchRootPiOids.add(rootPiOid);
+               ++txBatchSize;
+            }
+            else
+            {
+               break;
+            }
          }
-      }
-      catch (SQLException sqle)
-      {
-         throw new PublicException(
-               BpmRuntimeError.ARCH_FAILED_VERIFYING_PRECONDITIONS.raise(), sqle);
-      }
-      finally
-      {
-         QueryUtils.closeResultSet(rsLinkedPis);
+
+         QueryDescriptor qFindLinkedPis = QueryDescriptor
+               .from(ProcessInstanceBean.class)
+               .selectDistinct(ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE)
+               .where(
+                     splitUpOidsSubList(new ArrayList(stmtBatchRootPiOids),
+                           ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE));
+
+         qFindLinkedPis
+               .innerJoin(ProcessInstanceLinkBean.class, "PIL_PI")
+               .on(ProcessInstanceBean.FR__OID,
+                     ProcessInstanceLinkBean.FIELD__PROCESS_INSTANCE)
+               .orOn(ProcessInstanceBean.FR__OID,
+                     ProcessInstanceLinkBean.FIELD__LINKED_PROCESS_INSTANCE);
+
+         ResultSet rsLinkedPis = session.executeQuery(qFindLinkedPis, Session.NO_TIMEOUT);
+
+         try
+         {
+            while (rsLinkedPis.next())
+            {
+               long piOid = rsLinkedPis.getLong(1);
+               rootPiOidsWithLink.add(piOid);
+            }
+         }
+         catch (SQLException sqle)
+         {
+            throw new PublicException(
+                  BpmRuntimeError.ARCH_FAILED_VERIFYING_PRECONDITIONS.raise(), sqle);
+         }
+         finally
+         {
+            QueryUtils.closeResultSet(rsLinkedPis);
+         }
+
+         rootPiOidsBatch.removeAll(stmtBatchRootPiOids);
+
       }
       return rootPiOidsWithLink;
    }
@@ -2142,40 +2171,62 @@ public class Archiver
     */
    private List<Long> findModels(List<Long> rootPiOids)
    {
-      List<Long> result = new ArrayList<Long>();
+      List<Long> rootPiOidsBatch = new ArrayList<Long>(rootPiOids);
+      Set<Long> result = new HashSet<Long>(stmtBatchSizeLimit);
 
-      QueryDescriptor query = QueryDescriptor
-            .from(srcSchema, ModelPersistorBean.class)
-            .select(ModelPersistorBean.FR__OID);
-
-      ResultSet rs = null;
-      try
+      while (!rootPiOidsBatch.isEmpty())
       {
-         QueryDescriptor piSubQuery = QueryDescriptor
-               .from(srcSchema, ProcessInstanceBean.class)
-               .selectDistinct(ProcessInstanceBean.FIELD__MODEL)
-               .where(splitUpOidsSubList(rootPiOids,
-                     ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE));
+         int txBatchSize = 0;
 
-         rs = session.executeQuery(query
-               .where(Predicates
-                     .inList(ModelPersistorBean.FR__OID, piSubQuery)));
-
-         while (rs.next())
+         Set<Long> stmtBatchRootPiOids = new HashSet<Long>();
+         for (Long rootPiOid : rootPiOidsBatch)
          {
-            result.add(new Long(rs.getLong(1)));
+            if ((stmtBatchRootPiOids.size() < stmtBatchSizeLimit)
+                  && (txBatchSize < txBatchSizeLimit))
+            {
+               stmtBatchRootPiOids.add(rootPiOid);
+               ++txBatchSize;
+            }
+            else
+            {
+               break;
+            }
          }
-      }
-      catch (Exception e)
-      {
-         throw new PublicException(BpmRuntimeError.ARCH_FAILED_FINDING_MODELS.raise(), e);
-      }
-      finally
-      {
-         QueryUtils.closeResultSet(rs);
-      }
 
-      return result;
+         QueryDescriptor query = QueryDescriptor
+               .from(srcSchema, ModelPersistorBean.class).select(
+                     ModelPersistorBean.FR__OID);
+
+         ResultSet rs = null;
+         try
+         {
+            QueryDescriptor piSubQuery = QueryDescriptor
+                  .from(srcSchema, ProcessInstanceBean.class)
+                  .selectDistinct(ProcessInstanceBean.FIELD__MODEL)
+                  .where(
+                        splitUpOidsSubList(new ArrayList(stmtBatchRootPiOids),
+                              ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE));
+
+            rs = session.executeQuery(query.where(Predicates.inList(
+                  ModelPersistorBean.FR__OID, piSubQuery)));
+
+            while (rs.next())
+            {
+               result.add(new Long(rs.getLong(1)));
+            }
+         }
+         catch (Exception e)
+         {
+            throw new PublicException(BpmRuntimeError.ARCH_FAILED_FINDING_MODELS.raise(),
+                  e);
+         }
+         finally
+         {
+            QueryUtils.closeResultSet(rs);
+         }
+         rootPiOidsBatch.removeAll(stmtBatchRootPiOids);
+      }
+      return new ArrayList(result);
    }
 
    private void synchronizeUtilityTableArchive()

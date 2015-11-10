@@ -24,6 +24,7 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.dto.ComplexType;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.model.beans.XMLConstants;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
@@ -196,8 +197,21 @@ public class StructuredDataConverter
          }
 
          Element node = (Element) nodelist.get(0);
+         if (rootNode != node)
+         {
+            currentXPath = findXPath(currentXPath, rootNode, node);
+         }
          return createComplexType(currentXPath, rootNode, node);
       }
+   }
+
+   private TypedXPath findXPath(TypedXPath currentXPath, Element rootNode, Element node)
+   {
+      if (node.getParent() != rootNode)
+      {
+         currentXPath = findXPath(currentXPath, rootNode, (Element) node.getParent());
+      }
+      return getXPath(currentXPath, rootNode, node);
    }
 
    private boolean hasSameNameChild(Element rootNode, String targetElementName)
@@ -302,7 +316,10 @@ public class StructuredDataConverter
 
    private Map createComplexType(TypedXPath parentXPath, final Element rootNode, Element parentNode)
    {
-      Map complexType = new HashMap();
+      Attribute xsiTypeAttribute = parentNode.getAttribute(ComplexType.XSI_TYPE.getLocalPart(), ComplexType.XSI_TYPE.getNamespaceURI());
+      ComplexType complexType = xsiTypeAttribute == null
+            ? new ComplexType()
+            : ComplexType.withXSIType(parentNode.resolve(xsiTypeAttribute.getValue()));
 
       // node value
       if (parentXPath == null)
@@ -460,8 +477,6 @@ public class StructuredDataConverter
             QName currentType = new QName(xPath.getXsdTypeNs(), xPath.getXsdTypeName());
             if (!currentType.equals(xsiType))
             {
-               // TODO: search the corresponding xpath !!!
-               System.out.println(xsiType + " <> " + currentType);
                if (xPathMap instanceof DataXPathMap)
                {
                   xPath = ((DataXPathMap) xPathMap).resolve(xsiType, xPath);
@@ -578,7 +593,7 @@ public class StructuredDataConverter
          {
             // complexType
             Element node = StructuredDataXPathUtils.createElement(typedXPath, namespaceAware);
-            fillComplexType((Map)object, node, xPathWithoutIndexes, namespaceAware, ignoreUnknownXPaths);
+            fillComplexType(typedXPath, (Map) object, node, xPathWithoutIndexes, namespaceAware, ignoreUnknownXPaths);
             return new Element[]{node};
          }
          else
@@ -649,38 +664,55 @@ public class StructuredDataConverter
       return null;
    }
 
-   private void fillComplexType(Map /* <String,Object> */complexType, Element node,
+   static class XPathKey implements Comparable<XPathKey>
+   {
+      String key;
+      Pair<String, TypedXPath> xpath;
+      Object value;
+
+      XPathKey(String key, Pair<String, TypedXPath> xpath, Object value)
+      {
+         this.key = key;
+         this.xpath = xpath;
+         this.value = value;
+      }
+
+      @Override
+      public int compareTo(XPathKey other)
+      {
+         TypedXPath childXPath1 = xpath.getSecond();
+         int orderKey1 = (childXPath1 == null) ? -1 : childXPath1.getOrderKey();
+         TypedXPath childXPath2 = other.xpath.getSecond();
+         int orderKey2 = (childXPath2 == null) ? -1 :childXPath2.getOrderKey();
+         int result = new Integer(orderKey1).compareTo(new Integer(orderKey2));
+         return result == 0 ? key.compareTo(other.key) : result;
+      }
+   }
+
+   private void fillComplexType(TypedXPath typedXPath, final Map<String, Object> complexType, Element node,
          final String xPath, boolean namespaceAware, final boolean ignoreUnknownXPaths)
    {
-      SortedSet /*<String>*/ sortedKeys = new TreeSet(new Comparator ()
+      SortedSet<XPathKey> sortedKeys = new TreeSet();
+
+      for (Map.Entry<String, ?> entry : complexType.entrySet())
       {
-         public int compare(Object o1, Object o2)
-         {
-            TypedXPath childXPath1 = composeChildXPath(xPath, (String) o1, ignoreUnknownXPaths).getSecond();
-            int orderKey1 = (childXPath1 == null) ? -1 : childXPath1.getOrderKey();
-            TypedXPath childXPath2 = composeChildXPath(xPath, (String) o2, ignoreUnknownXPaths).getSecond();
-            int orderKey2 = (childXPath2 == null) ? -1 :childXPath2.getOrderKey();
-            int result = new Integer(orderKey1).compareTo(new Integer(orderKey2));
-            return result == 0 ? ((String) o1).compareTo((String) o2) : result;
-         }
-      });
-      sortedKeys.addAll(complexType.keySet());
+         String key = entry.getKey();
+         Object value = entry.getValue();
+         sortedKeys.add(new XPathKey(key,
+               composeChildXPath(typedXPath, value, xPath, key, ignoreUnknownXPaths), value));
+      }
 
-      for (Iterator i = sortedKeys.iterator(); i.hasNext(); )
+      for (XPathKey xPathKey : sortedKeys)
       {
-         String key = (String) i.next();
-         Object value = complexType.get(key);
-
-         Pair<String, TypedXPath> childXPath = composeChildXPath(xPath, key, ignoreUnknownXPaths);
-
-         if (childXPath.getSecond() != null && childXPath.getSecond().getAnnotations().isPersistent())
+         if (xPathKey.xpath.getSecond() != null && xPathKey.xpath.getSecond().getAnnotations().isPersistent())
          {
-            processObject(value, key, childXPath, node, namespaceAware, ignoreUnknownXPaths);
+            processObject(xPathKey.value, xPathKey.key, xPathKey.xpath, node, namespaceAware, ignoreUnknownXPaths);
          }
       }
    }
 
-   private Pair<String, TypedXPath> composeChildXPath (String parentXPath, String child, boolean ignoreUnknownXPaths)
+   private Pair<String, TypedXPath> composeChildXPath (TypedXPath typedXPath, Object complexType,
+         String parentXPath, String child, boolean ignoreUnknownXPaths)
    {
       // node value in a complex type
       if (child.equals(NODE_VALUE_KEY))
@@ -689,16 +721,32 @@ public class StructuredDataConverter
       }
       else
       {
+         TypedXPath resolvedXPath = null;
+         if (complexType instanceof ComplexType && ((ComplexType) complexType).hasProperty(ComplexType.XSI_TYPE) && xPathMap instanceof DataXPathMap)
+         {
+            String xsiType = ((ComplexType) complexType).getProperty(ComplexType.XSI_TYPE);
+            resolvedXPath = ((DataXPathMap) xPathMap).resolve(QName.valueOf(xsiType), null);
+         }
+         if (resolvedXPath == null)
+         {
+            resolvedXPath = typedXPath.getChildXPath(child);
+         }
          if (StructuredDataXPathUtils.isRootXPath(parentXPath))
          {
+            if (resolvedXPath != null)
+            {
+               return new Pair(child, resolvedXPath);
+            }
             return getXPathIfExists(child, ignoreUnknownXPaths);
          }
          else
          {
-            StringBuffer childXPath = new StringBuffer(parentXPath);
-            childXPath.append("/");
-            childXPath.append(child);
-            return getXPathIfExists(childXPath.toString(), ignoreUnknownXPaths);
+            String path = parentXPath + "/" + child;
+            if (resolvedXPath != null)
+            {
+               return new Pair(path, resolvedXPath);
+            }
+            return getXPathIfExists(path, ignoreUnknownXPaths);
          }
       }
    }
@@ -714,8 +762,7 @@ public class StructuredDataConverter
       {
          xPath = ((DataXPathMap) xPathMap).findXPath(Arrays.asList(path.split("/")));
       }
-      return new Pair(path,
-            xPath == null && !ignoreUnknownXPaths && isStrict ? xPathMap.getXPath(path) : xPath);
+      return new Pair(path, xPath == null && !ignoreUnknownXPaths && isStrict ? xPathMap.getXPath(path) : xPath);
    }
 
    private void fillNodeList(List complexTypeList, Element node, Pair<String, TypedXPath> childXPath,
@@ -752,8 +799,25 @@ public class StructuredDataConverter
       }
       else if (value instanceof Map)
       {
-         Element childNode = StructuredDataXPathUtils.createElement(path, namespaceAware);
-         fillComplexType((Map) value, childNode, childXPath.getFirst(), namespaceAware, ignoreUnknownXPaths);
+         Element childNode = path.getXPath().isEmpty()
+               ? StructuredDataXPathUtils.createElement(key, namespaceAware)
+               : StructuredDataXPathUtils.createElement(path, namespaceAware);
+         if (value instanceof ComplexType && ((ComplexType) value).hasProperty(ComplexType.XSI_TYPE))
+         {
+            String type = ((ComplexType) value).getProperty(ComplexType.XSI_TYPE);
+            if (!StringUtils.isEmpty(type))
+            {
+               childNode.setNamespaceDeclaration("xsi", ComplexType.XSI_TYPE.getNamespaceURI());
+               QName qName = QName.valueOf(type);
+               if (!qName.getNamespaceURI().isEmpty())
+               {
+                  childNode.setNamespaceDeclaration("t", qName.getNamespaceURI());
+                  type = "t:" + qName.getLocalPart();
+               }
+               childNode.addAttribute(new Attribute("xsi:" + ComplexType.XSI_TYPE.getLocalPart(), ComplexType.XSI_TYPE.getNamespaceURI(), type));
+            }
+         }
+         fillComplexType(path, (Map) value, childNode, childXPath.getFirst(), namespaceAware, ignoreUnknownXPaths);
          parentNode.appendChild(childNode);
       }
       else if ( -1 != key.indexOf('@'))

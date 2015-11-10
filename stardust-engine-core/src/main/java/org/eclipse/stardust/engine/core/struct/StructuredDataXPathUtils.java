@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import javax.xml.namespace.QName;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -1493,8 +1494,20 @@ public class StructuredDataXPathUtils
       return new Attribute(getAttributeName(typedXPath.getXPath()), /*typedXPath.getXsdTypeNs(),*/ valueString);
    }
 
-   public static Element createElement(TypedXPath typedXPath,
-         boolean namespaceAware)
+   public static Element createElement(String name, boolean namespaceAware)
+   {
+      if (namespaceAware)
+      {
+         QName qName = QName.valueOf(name);
+         return new Element(qName.getLocalPart(), qName.getNamespaceURI());
+      }
+      else
+      {
+         return new Element(name);
+      }
+   }
+
+   public static Element createElement(TypedXPath typedXPath, boolean namespaceAware)
    {
       String elementName;
       if (isRootXPath(typedXPath.getXPath()))

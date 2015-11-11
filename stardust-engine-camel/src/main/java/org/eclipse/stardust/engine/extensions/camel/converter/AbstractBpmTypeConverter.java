@@ -6,12 +6,16 @@ package org.eclipse.stardust.engine.extensions.camel.converter;
 
 import java.util.*;
 import java.util.Map.Entry;
-
 import org.apache.camel.Exchange;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.dto.ModelDetails;
+import org.eclipse.stardust.engine.api.dto.TypeDeclarationDetails;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
+import org.eclipse.stardust.engine.core.model.beans.TypeDeclarationBean;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
@@ -26,7 +30,7 @@ import org.eclipse.xsd.XSDSchema;
 
 import com.google.gson.*;
 
-public abstract class AbstractBpmTypeConverter 
+public abstract class AbstractBpmTypeConverter
 {
    protected Exchange exchange;
 
@@ -43,12 +47,13 @@ public abstract class AbstractBpmTypeConverter
       }
       else
       {
-         throw new RuntimeException("Model: " + model.getModelOID() + " Type: "
-               + typeDeclaration.getId());
+         throw new RuntimeException(
+               "Model: " + model.getModelOID() + " Type: " + typeDeclaration.getId());
       }
    }
 
-   protected static XSDSchema loadXsdSchema(IModel model, ITypeDeclaration typeDeclaration)
+   protected static XSDSchema loadXsdSchema(IModel model,
+         ITypeDeclaration typeDeclaration)
    {
       if (model != null && typeDeclaration != null)
       {
@@ -56,8 +61,8 @@ public abstract class AbstractBpmTypeConverter
       }
       else
       {
-         throw new RuntimeException("Model: " + model.getOID() + " Type: "
-               + typeDeclaration.getId());
+         throw new RuntimeException(
+               "Model: " + model.getOID() + " Type: " + typeDeclaration.getId());
       }
    }
 
@@ -212,18 +217,18 @@ public abstract class AbstractBpmTypeConverter
          }
       }
    }
-
+   protected IData getData(IModel model, String dataId){
+      return model.findData(dataId);
+   }
    protected Object getTypeDeclaration(IModel model, String dataId)
    {
-      IData data = model.findData(dataId);
+      IData data = getData(model,dataId);
       return StructuredTypeRtUtils.getTypeDeclaration(data, model);
    }
 
    protected Object getTypeDeclaration(IModel model, DataMapping mapping)
    {
       return getTypeDeclaration(model, mapping.getDataId());
-      // IData data = model.findData(mapping.getDataId());
-      // return StructuredTypeRtUtils.getTypeDeclaration(data, model);
    }
 
    protected Object getTypeDeclaration(Model model, DataMapping mapping)
@@ -256,16 +261,37 @@ public abstract class AbstractBpmTypeConverter
 
    protected String getTypeDeclarationId(DataMapping mapping)
    {
-      AccessPoint ap = mapping.getApplicationAccessPoint();
-
-      Object dataType = ap.getAttribute("carnot:engine:dataType");
-      String namespace = mapping.getNamespace();
-
-      if (dataType != null && namespace != null)
+      Object o = lookupModel(mapping.getModelOID());
+      if (o instanceof ModelBean)
       {
-         return "{" + namespace + "}" + dataType;
+         ModelBean model = (ModelBean) o;
+         IData data=getData(model, mapping.getDataId());
+         TypeDeclarationBean typeDeclaration = (TypeDeclarationBean) getTypeDeclaration(model, mapping);
+         
+         if (typeDeclaration != null && StructuredTypeRtUtils.isStructuredType(data))
+         {
+            return "{" + typeDeclaration.getModel().getId() + "}"
+                  + typeDeclaration.getId();
+         }
+         else
+         {
+            return null;
+         }
       }
-
+      else if (o instanceof ModelDetails)
+      {
+         ModelDetails modelDetails = (ModelDetails) o;
+         TypeDeclarationDetails typeDeclarationDetails = (TypeDeclarationDetails) getTypeDeclaration(
+               modelDetails, mapping);
+         if (modelDetails != null && typeDeclarationDetails != null)
+         {
+            return "{" + modelDetails.getId() + "}" + typeDeclarationDetails.getId();
+         }
+         else
+         {
+            return null;
+         }
+      }
       return null;
    }
 
@@ -297,16 +323,14 @@ public abstract class AbstractBpmTypeConverter
       }
       else
       {
-    	  ServiceFactory sf = ClientEnvironment.getCurrentServiceFactory();
-    	  return fetchModel(sf, RetrieveModelDetailsCommand.retrieveModelByOid(modelOid));
+        ServiceFactory sf = ClientEnvironment.getCurrentServiceFactory();
+        return fetchModel(sf, RetrieveModelDetailsCommand.retrieveModelByOid(modelOid));
       }
    }
-   
-  
-   
+
    public Model getModel(long modelOid)
    {
-	  ServiceFactory sf = ClientEnvironment.getCurrentServiceFactory();
+     ServiceFactory sf = ClientEnvironment.getCurrentServiceFactory();
       return fetchModel(sf, RetrieveModelDetailsCommand.retrieveModelByOid(modelOid));
    }
    
@@ -314,14 +338,14 @@ public abstract class AbstractBpmTypeConverter
    {
       final Model model = (Model) sf.getWorkflowService().execute(command);
       if (model instanceof ModelDetails){
-    	  ModelDetails.SchemaLocatorAdapter schemaLocatorAdapter = new ModelDetails.SchemaLocatorAdapter(model)
-    	   {
-    	      protected Model getModel(long oid)
-    	      {
-    	         return AbstractBpmTypeConverter.this.getModel((int) oid);
-    	      }
-    	   };
-    	   ((ModelDetails) model).setSchemaLocatorAdapter(schemaLocatorAdapter);
+        ModelDetails.SchemaLocatorAdapter schemaLocatorAdapter = new ModelDetails.SchemaLocatorAdapter(model)
+         {
+            protected Model getModel(long oid)
+            {
+               return AbstractBpmTypeConverter.this.getModel((int) oid);
+            }
+         };
+         ((ModelDetails) model).setSchemaLocatorAdapter(schemaLocatorAdapter);
       }
       return model;
    }
@@ -329,14 +353,14 @@ public abstract class AbstractBpmTypeConverter
    protected class SDTConverter
    {
       private StructuredDataConverter converter;
-
+      private DataMapping dataMapping;
       private XSDSchema xsdSchema;
 
       private IXPathMap xPathMap;
 
       protected SDTConverter(DataMapping dataMapping, long modelOid)
       {
-
+         this.dataMapping=dataMapping;
          Object obj = lookupModel(modelOid);
 
          XSDNamedComponent component = null;
@@ -372,8 +396,8 @@ public abstract class AbstractBpmTypeConverter
       protected SDTConverter(IModel iModel, String dataId)
       {
          XSDNamedComponent component = null;
-         ITypeDeclaration iTypeDeclaration = (ITypeDeclaration) getTypeDeclaration(
-               iModel, dataId);
+         ITypeDeclaration iTypeDeclaration = (ITypeDeclaration) getTypeDeclaration(iModel,
+               dataId);
          this.xsdSchema = loadXsdSchema(iModel, iTypeDeclaration);
          component = StructuredTypeRtUtils.findElementOrTypeDeclaration(xsdSchema,
                iTypeDeclaration.getId(), false);
@@ -395,6 +419,12 @@ public abstract class AbstractBpmTypeConverter
          this.converter = converter;
       }
 
+      public String getDataPath(){
+         if(this.dataMapping!=null &&StringUtils.isNotEmpty(dataMapping.getDataPath()))
+            return dataMapping.getDataPath();
+         return "";
+      }
+      
       protected XSDSchema getXsdSchema()
       {
          return xsdSchema;
@@ -427,7 +457,9 @@ public abstract class AbstractBpmTypeConverter
       }
    }
 
-   protected Map<String,Object> parseJson(SDTConverter converter,String json, String accessPointId){
+   protected Map<String, Object> parseJson(SDTConverter converter, String json,
+         String accessPointId)
+   {
       JsonParser parser = new JsonParser();
       JsonElement element = parser.parse(json);
 
@@ -437,18 +469,19 @@ public abstract class AbstractBpmTypeConverter
       {
 
          JsonObject jObj = element.getAsJsonObject();
-         processJsonObject(jObj, complexType, "", converter.getxPathMap());
+         processJsonObject(jObj, complexType,converter.getDataPath(), converter.getxPathMap());
 
       }
       else if (element.isJsonArray())
       {
 
          List<Object> list = new ArrayList<Object>();
-         processJsonArray(element.getAsJsonArray(), list, accessPointId, converter.getxPathMap());
+         processJsonArray(element.getAsJsonArray(), list, accessPointId,
+               converter.getxPathMap());
          complexType.put(accessPointId, list);
 
       }
-      
+
       return complexType;
    }
 

@@ -96,7 +96,7 @@ public class DataClusterTest
    private static final String PROCESS_DEF_ID_1 = "ProcessDefinition1";
 
    private static final String PROCESS_DEF_ID_2 = "ProcessDefinition2";
-   
+
    private static final String PROCESS_DEF_ID_3 = "ProcessDefinition3";
 
    private QueryService queryService;
@@ -135,31 +135,26 @@ public class DataClusterTest
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryBeforeSync));
       String logEntry = logEntryBeforeSync.toString();
-      assertTrue(logEntry.contains(
-            "Cluster table "
-                  + DB_SCHEMA
-                  + "."
-                  + DC_TABLE
-                  + " does not exist.\r\nThe data cluster is invalid. There is 1 inconsistency.\r\n"));
+      assertTrue(logEntry.contains("Cluster table " + DB_SCHEMA + "." + DC_TABLE
+            + " does not exist."));
+      assertTrue(logEntry
+            .contains("The data cluster is invalid. There is 1 inconsistency."));
       SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(SYSOP, new PrintStream(
             logEntrySync), null, null);
       logEntry = logEntrySync.toString();
-      assertTrue(logEntry.startsWith("Cluster table " + DB_SCHEMA + "." + DC_TABLE
-            + " does not exist: Created table now.\r\nInconsistent cluster table "
-            + DB_SCHEMA + "." + DC_TABLE
-            + ": Inserted missing existing process instances into cluster table.\r\n"));
-      assertTrue(logEntry
-            .contains("Synchronized data cluster table: "
-                  + DB_SCHEMA
-                  + "."
-                  + DC_TABLE
-                  + ". There were 5 inconsistencies. "
-                  + "All inconsistencies have been resolved now.\r\n"));
+      assertTrue(logEntry.contains("Cluster table " + DB_SCHEMA + "." + DC_TABLE
+            + " does not exist: Created table now."));
+      assertTrue(logEntry.contains("Inconsistent cluster table " + DB_SCHEMA + "."
+            + DC_TABLE
+            + ": Inserted missing existing process instances into cluster table."));
+      assertTrue(logEntry.contains("Synchronized data cluster table: " + DB_SCHEMA + "."
+            + DC_TABLE + ". There were 5 inconsistencies. "
+            + "All inconsistencies have been resolved now."));
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryAfterSync));
       logEntry = logEntryAfterSync.toString();
       assertTrue(logEntry
-            .contains("Verified data cluster. There are no inconsistencies.\r\n"));
+            .contains("Verified data cluster. There are no inconsistencies."));
       assertTrue(ddlManager.containsTable(DB_SCHEMA, DC_TABLE, session.getConnection()));
    }
 
@@ -192,9 +187,11 @@ public class DataClusterTest
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryBeforeSync));
       String logEntry = logEntryBeforeSync.toString();
-      assertTrue(logEntry.contains("Cluster table " + DB_SCHEMA + "." + DC_TABLE + " is not consistent: "
-            + "non existing process instances are referenced by cluster entry.\r\n"
-            + "The data cluster is invalid. There is 1 inconsistency.\r\n"));
+      assertTrue(logEntry.contains("Cluster table " + DB_SCHEMA + "." + DC_TABLE
+            + " is not consistent: "
+            + "non existing process instances are referenced by cluster entry."));
+      assertTrue(logEntry
+            .contains("The data cluster is invalid. There is 1 inconsistency."));
       SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(SYSOP, new PrintStream(
             logEntrySync), null, null);
       logEntry = logEntrySync.toString();
@@ -203,22 +200,19 @@ public class DataClusterTest
                   + DB_SCHEMA
                   + "."
                   + DC_TABLE
-                  + ": deleted cluster entries that referenced non existing process instances.\r\n"));
-      assertTrue(logEntry
-            .contains("Synchronized data cluster table: "
-                  + DB_SCHEMA
-                  + "."
-                  + DC_TABLE
-                  + ". There was 1 inconsistency. All inconsistencies have been resolved now.\r\n"));
+                  + ": deleted cluster entries that referenced non existing process instances."));
+      assertTrue(logEntry.contains("Synchronized data cluster table: " + DB_SCHEMA + "."
+            + DC_TABLE
+            + ". There was 1 inconsistency. All inconsistencies have been resolved now."));
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryAfterSync));
       logEntry = logEntryAfterSync.toString();
       assertTrue(logEntry
-            .contains("Verified data cluster. There are no inconsistencies.\r\n"));
+            .contains("Verified data cluster. There are no inconsistencies."));
       result = selectStmt.executeQuery(selectString);
       assertFalse(result.next());
    }
-   
+
    @Test
    public void testSynchronizeDataClusterWithNoInconsistencies() throws Exception
    {
@@ -236,21 +230,17 @@ public class DataClusterTest
             logEntryBeforeSync));
       String logEntry = logEntryBeforeSync.toString();
       assertTrue(logEntry
-            .contains("Verified data cluster. There are no inconsistencies.\r\n"));
+            .contains("Verified data cluster. There are no inconsistencies."));
       SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(SYSOP, new PrintStream(
             logEntrySync), null, null);
       logEntry = logEntrySync.toString();
-      assertTrue(logEntry
-            .contains("Synchronized data cluster table: "
-                  + DB_SCHEMA
-                  + "."
-                  + DC_TABLE
-                  + ". There were no inconsistencies to be resolved.\r\n"));
+      assertTrue(logEntry.contains("Synchronized data cluster table: " + DB_SCHEMA + "."
+            + DC_TABLE + ". There were no inconsistencies to be resolved."));
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryAfterSync));
       logEntry = logEntryAfterSync.toString();
       assertTrue(logEntry
-            .contains("Verified data cluster. There are no inconsistencies.\r\n"));
+            .contains("Verified data cluster. There are no inconsistencies."));
    }
 
    @Test
@@ -284,26 +274,28 @@ public class DataClusterTest
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryBeforeSync));
       String logEntry = logEntryBeforeSync.toString();
-      assertTrue(logEntry.contains("Cluster table " + DB_SCHEMA + "." + DC_TABLE + " is not consistent: "
-            + "existing process instances are not referenced by cluster entries.\r\n"
-            + "The data cluster is invalid. There is 1 inconsistency.\r\n"));
+      assertTrue(logEntry.contains("Cluster table " + DB_SCHEMA + "." + DC_TABLE
+            + " is not consistent: "
+            + "existing process instances are not referenced by cluster entries."));
+      assertTrue(logEntry
+            .contains("The data cluster is invalid. There is 1 inconsistency."));
       SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(SYSOP, new PrintStream(
             logEntrySync), null, null);
       logEntry = logEntrySync.toString();
-      assertTrue(logEntry.startsWith("Inconsistent cluster table " + DB_SCHEMA + "."
+      assertTrue(logEntry.contains("Inconsistent cluster table " + DB_SCHEMA + "."
             + DC_TABLE
-            + ": Inserted missing existing process instances into cluster table.\r\n"));
+            + ": Inserted missing existing process instances into cluster table."));
       assertTrue(logEntry
             .contains("Synchronized data cluster table: "
                   + DB_SCHEMA
                   + "."
                   + DC_TABLE
-                  + ". There were 4 inconsistencies. All inconsistencies have been resolved now.\r\n"));
+                  + ". There were 4 inconsistencies. All inconsistencies have been resolved now."));
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryAfterSync));
       logEntry = logEntryAfterSync.toString();
       assertTrue(logEntry
-            .contains("Verified data cluster. There are no inconsistencies.\r\n"));
+            .contains("Verified data cluster. There are no inconsistencies."));
       result = selectStmt.executeQuery(selectString);
       assertTrue(result.next());
    }
@@ -341,28 +333,28 @@ public class DataClusterTest
             logEntryBeforeSync));
       String logEntry = logEntryBeforeSync.toString();
       assertTrue(logEntry
-            .startsWith("Cluster table " + DB_SCHEMA + "." + DC_TABLE
+            .contains("Cluster table " + DB_SCHEMA + "." + DC_TABLE
                   + " is not consistent: "
                   + "referenced data values by cluster entry for slot"));
-      assertTrue(logEntry.contains("attributeName '' are not matching.\r\n"
-            + "The data cluster is invalid. There are 3 inconsistencies.\r\n"));
+      assertTrue(logEntry.contains("attributeName '' are not matching."));
+      assertTrue(logEntry
+            .contains("The data cluster is invalid. There are 3 inconsistencies."));
       SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(SYSOP, new PrintStream(
             logEntrySync), null, null);
       logEntry = logEntrySync.toString();
-      assertTrue(logEntry.startsWith("Inconsistent cluster table " + DB_SCHEMA + "."
-            + DC_TABLE
-            + ": Fixed cluster entries for slot"));
+      assertTrue(logEntry.contains("Inconsistent cluster table " + DB_SCHEMA + "."
+            + DC_TABLE + ": Fixed cluster entries for slot"));
       assertTrue(logEntry
             .contains("Synchronized data cluster table: "
                   + DB_SCHEMA
                   + "."
                   + DC_TABLE
-                  + ". There were 3 inconsistencies. All inconsistencies have been resolved now.\r\n"));
+                  + ". There were 3 inconsistencies. All inconsistencies have been resolved now."));
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryAfterSync));
       logEntry = logEntryAfterSync.toString();
       assertTrue(logEntry
-            .contains("Verified data cluster. There are no inconsistencies.\r\n"));
+            .contains("Verified data cluster. There are no inconsistencies."));
       result = selectStmt.executeQuery(selectString);
       assertFalse(result.next());
    }
@@ -398,27 +390,24 @@ public class DataClusterTest
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryBeforeSync));
       String logEntry = logEntryBeforeSync.toString();
-      assertTrue(logEntry.startsWith("Cluster table " + DB_SCHEMA + "." + DC_TABLE
+      assertTrue(logEntry.contains("Cluster table " + DB_SCHEMA + "." + DC_TABLE
             + " is not consistent: " + "empty cluster entries for slot"));
-      assertTrue(logEntry.contains("are not completely set to null.\r\n"
-            + "The data cluster is invalid. There is 1 inconsistency.\r\n"));
+      assertTrue(logEntry.contains("are not completely set to null."));
+      assertTrue(logEntry
+            .contains("The data cluster is invalid. There is 1 inconsistency."));
       SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(SYSOP, new PrintStream(
             logEntrySync), null, null);
       logEntry = logEntrySync.toString();
-      assertTrue(logEntry.startsWith("Inconsistent cluster table " + DB_SCHEMA + "."
+      assertTrue(logEntry.contains("Inconsistent cluster table " + DB_SCHEMA + "."
+            + DC_TABLE + ": Fixed empty cluster entries for slot"));
+      assertTrue(logEntry.contains("Synchronized data cluster table: " + DB_SCHEMA + "."
             + DC_TABLE
-            + ": Fixed empty cluster entries for slot"));
-      assertTrue(logEntry
-            .contains("Synchronized data cluster table: "
-                  + DB_SCHEMA
-                  + "."
-                  + DC_TABLE
-                  + ". There was 1 inconsistency. All inconsistencies have been resolved now.\r\n"));
+            + ". There was 1 inconsistency. All inconsistencies have been resolved now."));
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryAfterSync));
       logEntry = logEntryAfterSync.toString();
       assertTrue(logEntry
-            .contains("Verified data cluster. There are no inconsistencies.\r\n"));
+            .contains("Verified data cluster. There are no inconsistencies."));
       result = selectStmt.executeQuery(selectString);
       assertFalse(result.next());
    }
@@ -456,27 +445,28 @@ public class DataClusterTest
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryBeforeSync));
       String logEntry = logEntryBeforeSync.toString();
-      assertTrue(logEntry.startsWith("Cluster table " + DB_SCHEMA + "." + DC_TABLE
+      assertTrue(logEntry.contains("Cluster table " + DB_SCHEMA + "." + DC_TABLE
             + " is not consistent: existing data values for slot"));
-      assertTrue(logEntry.contains("are not referenced by cluster entry.\r\n"
-            + "The data cluster is invalid. There is 1 inconsistency.\r\n"));
+      assertTrue(logEntry.contains("are not referenced by cluster entry."));
+      assertTrue(logEntry
+            .contains("The data cluster is invalid. There is 1 inconsistency."));
       SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(SYSOP, new PrintStream(
             logEntrySync), null, null);
       logEntry = logEntrySync.toString();
-      assertTrue(logEntry.startsWith("Inconsistent cluster table " + DB_SCHEMA + "."
-            + DC_TABLE
-            + ": Fixed cluster entries that have not referenced existing data values for slot"));
       assertTrue(logEntry
-            .contains("Synchronized data cluster table: "
+            .contains("Inconsistent cluster table "
                   + DB_SCHEMA
                   + "."
                   + DC_TABLE
-                  + ". There was 1 inconsistency. All inconsistencies have been resolved now.\r\n"));
+                  + ": Fixed cluster entries that have not referenced existing data values for slot"));
+      assertTrue(logEntry.contains("Synchronized data cluster table: " + DB_SCHEMA + "."
+            + DC_TABLE
+            + ". There was 1 inconsistency. All inconsistencies have been resolved now."));
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryAfterSync));
       logEntry = logEntryAfterSync.toString();
       assertTrue(logEntry
-            .contains("Verified data cluster. There are no inconsistencies.\r\n"));
+            .contains("Verified data cluster. There are no inconsistencies."));
       result = selectStmt.executeQuery(selectString);
       assertFalse(result.next());
    }
@@ -530,21 +520,25 @@ public class DataClusterTest
             + process3.getOID() + " AND oid_anInt=1234";
       result = selectStmt.executeQuery(selectString);
       assertTrue(result.next());
-      
+
       ByteArrayOutputStream logEntryBeforeSync = new ByteArrayOutputStream();
       ByteArrayOutputStream logEntrySync = new ByteArrayOutputStream();
       ByteArrayOutputStream logEntryAfterSync = new ByteArrayOutputStream();
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryBeforeSync));
       String logEntry = logEntryBeforeSync.toString();
-      assertTrue(logEntry.startsWith("Cluster table " + DB_SCHEMA + "." + DC_TABLE
-            + " is not consistent: existing process instances are not referenced by cluster entries."));
-      assertTrue(logEntry.contains("The data cluster is invalid. There are 5 inconsistencies.\r\n"));
+      assertTrue(logEntry
+            .contains("Cluster table "
+                  + DB_SCHEMA
+                  + "."
+                  + DC_TABLE
+                  + " is not consistent: existing process instances are not referenced by cluster entries."));
+      assertTrue(logEntry
+            .contains("The data cluster is invalid. There are 5 inconsistencies."));
       SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(SYSOP, new PrintStream(
-            logEntrySync), null,
-            null);
+            logEntrySync), null, null);
       logEntry = logEntrySync.toString();
-      assertTrue(logEntry.startsWith("Inconsistent cluster table " + DB_SCHEMA + "."
+      assertTrue(logEntry.contains("Inconsistent cluster table " + DB_SCHEMA + "."
             + DC_TABLE
             + ": Inserted missing existing process instances into cluster table."));
       assertTrue(logEntry
@@ -552,12 +546,12 @@ public class DataClusterTest
                   + DB_SCHEMA
                   + "."
                   + DC_TABLE
-                  + ". There were 8 inconsistencies. All inconsistencies have been resolved now.\r\n"));
+                  + ". There were 8 inconsistencies. All inconsistencies have been resolved now."));
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryAfterSync));
       logEntry = logEntryAfterSync.toString();
       assertTrue(logEntry
-            .contains("Verified data cluster. There are no inconsistencies.\r\n"));
+            .contains("Verified data cluster. There are no inconsistencies."));
    }
 
    @Test
@@ -624,34 +618,41 @@ public class DataClusterTest
             + process3.getOID() + " AND oid_anInt=1234";
       result = selectStmt.executeQuery(selectString);
       assertTrue(result.next());
-      
+
       ByteArrayOutputStream logEntryBeforeSync = new ByteArrayOutputStream();
       ByteArrayOutputStream logEntrySync = new ByteArrayOutputStream();
       ByteArrayOutputStream logEntryAfterSync = new ByteArrayOutputStream();
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryBeforeSync));
       String logEntry = logEntryBeforeSync.toString();
-      assertTrue(logEntry.startsWith("Cluster table " + DB_SCHEMA + "." + DC_TABLE
-            + " is not consistent: non existing process instances are referenced by cluster entry."));
-      assertTrue(logEntry.contains("The data cluster is invalid. There are 6 inconsistencies.\r\n"));
+      assertTrue(logEntry
+            .contains("Cluster table "
+                  + DB_SCHEMA
+                  + "."
+                  + DC_TABLE
+                  + " is not consistent: non existing process instances are referenced by cluster entry."));
+      assertTrue(logEntry
+            .contains("The data cluster is invalid. There are 6 inconsistencies."));
       SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(SYSOP, new PrintStream(
-            logEntrySync), null,
-            null);
+            logEntrySync), null, null);
       logEntry = logEntrySync.toString();
-      assertTrue(logEntry.startsWith("Inconsistent cluster table " + DB_SCHEMA + "."
-            + DC_TABLE
-            + ": deleted cluster entries that referenced non existing process instances."));
+      assertTrue(logEntry
+            .contains("Inconsistent cluster table "
+                  + DB_SCHEMA
+                  + "."
+                  + DC_TABLE
+                  + ": deleted cluster entries that referenced non existing process instances."));
       assertTrue(logEntry
             .contains("Synchronized data cluster table: "
                   + DB_SCHEMA
                   + "."
                   + DC_TABLE
-                  + ". There were 9 inconsistencies. All inconsistencies have been resolved now.\r\n"));
+                  + ". There were 9 inconsistencies. All inconsistencies have been resolved now."));
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryAfterSync));
       logEntry = logEntryAfterSync.toString();
       assertTrue(logEntry
-            .contains("Verified data cluster. There are no inconsistencies.\r\n"));
+            .contains("Verified data cluster. There are no inconsistencies."));
    }
 
    private long findFirstAliveActivityInstanceOid(String processID)

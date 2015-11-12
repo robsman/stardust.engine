@@ -133,6 +133,7 @@ public class ArchiveDataClusterTest
    @After
    public void tearDown() throws SQLException
    {
+      ArchiveTestUtils.resetProperties();
       ArchiveTestUtils.dropArchiveAuditTrail(archiveConnection);
       archiveConnection.close();
       connection.close();
@@ -253,18 +254,18 @@ public class ArchiveDataClusterTest
             logEntryBeforeSync));
       String logEntry = logEntryBeforeSync.toString();
       assertTrue(logEntry
-            .contains("Verified data cluster. There are no inconsistencies.\r\n"));
+            .contains("Verified data cluster. There are no inconsistencies."));
       SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(SYSOP, new PrintStream(
             logEntrySync), null, null);
       logEntry = logEntrySync.toString();
       assertTrue(logEntry.contains("Synchronized data cluster table: "
             + ArchiveTestUtils.ARC_SCHEMA + "." + DC_TABLE_1
-            + ". There were no inconsistencies to be resolved.\r\n"));
+            + ". There were no inconsistencies to be resolved."));
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryAfterSync));
       logEntry = logEntryAfterSync.toString();
       assertTrue(logEntry
-            .contains("Verified data cluster. There are no inconsistencies.\r\n"));
+            .contains("Verified data cluster. There are no inconsistencies."));
       ArchiveTestUtils.resetProperties();
    }
 
@@ -590,7 +591,7 @@ public class ArchiveDataClusterTest
                   + DC_TABLE_1
                   + " is not consistent: existing process instances are not referenced by cluster entries."));
       assertTrue(logEntry
-            .contains("The data cluster is invalid. There are 5 inconsistencies.\r\n"));
+            .contains("The data cluster is invalid. There are 5 inconsistencies."));
       SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(SYSOP, new PrintStream(
             logEntrySync), null, null);
       logEntry = logEntrySync.toString();
@@ -602,12 +603,12 @@ public class ArchiveDataClusterTest
                   + ArchiveTestUtils.ARC_SCHEMA
                   + "."
                   + DC_TABLE_1
-                  + ". There were 8 inconsistencies. All inconsistencies have been resolved now.\r\n"));
+                  + ". There were 8 inconsistencies. All inconsistencies have been resolved now."));
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryAfterSync));
       logEntry = logEntryAfterSync.toString();
       assertTrue(logEntry
-            .contains("Verified data cluster. There are no inconsistencies.\r\n"));
+            .contains("Verified data cluster. There are no inconsistencies."));
       ArchiveTestUtils.resetProperties();
    }
 
@@ -698,7 +699,7 @@ public class ArchiveDataClusterTest
                   + DC_TABLE_1
                   + " is not consistent: non existing process instances are referenced by cluster entry."));
       assertTrue(logEntry
-            .contains("The data cluster is invalid. There are 6 inconsistencies.\r\n"));
+            .contains("The data cluster is invalid. There are 6 inconsistencies."));
       SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(SYSOP, new PrintStream(
             logEntrySync), null, null);
       logEntry = logEntrySync.toString();
@@ -713,12 +714,12 @@ public class ArchiveDataClusterTest
                   + ArchiveTestUtils.ARC_SCHEMA
                   + "."
                   + DC_TABLE_1
-                  + ". There were 9 inconsistencies. All inconsistencies have been resolved now.\r\n"));
+                  + ". There were 9 inconsistencies. All inconsistencies have been resolved now."));
       SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
             logEntryAfterSync));
       logEntry = logEntryAfterSync.toString();
       assertTrue(logEntry
-            .contains("Verified data cluster. There are no inconsistencies.\r\n"));
+            .contains("Verified data cluster. There are no inconsistencies."));
       ArchiveTestUtils.resetProperties();
    }
 

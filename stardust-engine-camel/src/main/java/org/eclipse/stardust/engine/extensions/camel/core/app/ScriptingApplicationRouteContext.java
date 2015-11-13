@@ -48,28 +48,13 @@ public class ScriptingApplicationRouteContext extends ProducerRouteContext
       super(application, partitionId, camelContextId);
    }
 
-   @Override
-   public String getUserProvidedRouteConfiguration()
-   {
-      String providedRoute = Util.getProducerRouteConfiguration(this.application);
-      if (StringUtils.isEmpty(providedRoute))
-      {
-         logger.debug("The extended attribute " + PRODUCER_ROUTE_ATT
-               + " is not found. The new route generation strategy will be used.");
-         return generateRoute(this.application);
-      }
-      logger.debug("The extended attribute " + PRODUCER_ROUTE_ATT
-            + " is found. The route generation strategy will not be used. ");
-      return providedRoute;
-   }
-
    /**
     * Contains the internal logic to generate a Camel route for each Scripting language.
     * 
     * @param application
     * @return
     */
-   private String generateRoute(IApplication application)
+   protected String generateRoute(IApplication application)
    {
       if (Util.getScriptingLanguge(application).equalsIgnoreCase(JAVASCRIPT))
       {

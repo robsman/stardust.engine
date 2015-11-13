@@ -102,6 +102,11 @@ public final class CamelConstants
    public static final String JAVASCRIPT="JavaScript";
    public static final String GROOVY="Groovy";
    public static final String PYTHON="Python";
+   public static final String TEMPLATING_OVERLAY="templatingIntegrationOverlay";
+   public static final String DOCX_FORMAT="docx";
+   public static final String EMBEDDED_LOCATION="embedded";
+   public static final String DATA_LOCATION="data";
+   public static final String PRIMITIVE_TYPE="primitive"; 
    
    public static final String TEMPLATING_LOCATION = "CamelTemplatingLocation";
    public static final String TEMPLATING_TEMPLATE_CONTENT = "CamelTemplatingTemplateContent";

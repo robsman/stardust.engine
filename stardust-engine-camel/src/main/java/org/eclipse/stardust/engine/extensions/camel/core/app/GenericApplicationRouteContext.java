@@ -19,4 +19,11 @@ public class GenericApplicationRouteContext extends ProducerRouteContext
       return Util.getProducerRouteConfiguration(application);
    }
 
+   @Override
+   protected String generateRoute(IApplication application)
+   {
+      //The route for generic camel application should be generated in client side.
+      return null;
+   }
+
 }

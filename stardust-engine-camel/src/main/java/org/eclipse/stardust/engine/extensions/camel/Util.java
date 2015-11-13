@@ -15,6 +15,7 @@ import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.core.model.beans.*;
 import org.eclipse.stardust.engine.core.model.utils.Link;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.extensions.camel.trigger.AccessPointProperties;
 
@@ -198,7 +199,17 @@ public class Util
 
    }
 
-
+   public static boolean isPrimitiveType(AccessPointBean accessPoint){
+      return (accessPoint!=null && accessPoint.getType().getId().equalsIgnoreCase(PRIMITIVE_TYPE));
+   }
+   public static boolean isDocumentType(AccessPointBean accessPoint){
+      return (accessPoint!=null && accessPoint.getType().getId().equalsIgnoreCase("dmsDocument"));
+   }
+   public static boolean isStringType(AccessPointBean accessPoint){
+      Type type=(Type) accessPoint.getAttribute("carnot:engine:type");
+      return type!=null && type==Type.String;
+   }
+   
    /**
     * return the value of carnot:engine:camel::producerInboundConversion attribute defined in the trigger.
     * otherwise fromXML as a default value
@@ -674,6 +685,20 @@ public class Util
       return null;
    }
 
+   public static AccessPointBean getAccessPointById(String accesspointId,Iterator  accessPoints){
+      AccessPointBean accessPoint=null;
+      while (accessPoints.hasNext())
+      {
+         AccessPointBean ap= (AccessPointBean) accessPoints.next();
+         if (accesspointId.equalsIgnoreCase(ap.getId()))
+         {
+            accessPoint=ap;
+            break;
+         }
+      }
+      return accessPoint;
+   }
+   
    /**
     *
     * @param Trigger
@@ -747,5 +772,10 @@ public class Util
    public static String getScriptCode(final IApplication application){
       return application.getAttribute(SCRIPT_CODE_CONTENT);
    }
+   
+   public static <T>T getAttributeValue(String attributeId,IApplication application){
+      return application.getAttribute(attributeId);
+   }
+
    
 }

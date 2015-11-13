@@ -29,6 +29,7 @@ import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.model.utils.ConnectionBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
@@ -45,6 +46,7 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
 
    static final String ID_ATT = "Id";
    private String id;
+   private String qualifiedId;
    private String name;
 
    static final String DIRECTION_ATT = "Direction";
@@ -421,5 +423,15 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
       IApplication application = activity.getApplication();
       return activity.getImplementationType().equals(ImplementationType.Application)
             && application != null && application.isInteractive();
+   }
+
+   @Override
+   public String getQualifiedId()
+   {
+      if(null == qualifiedId)
+      {
+         qualifiedId = ModelUtils.getQualifiedId(getModel(), getId());
+      }
+      return qualifiedId;
    }
 }

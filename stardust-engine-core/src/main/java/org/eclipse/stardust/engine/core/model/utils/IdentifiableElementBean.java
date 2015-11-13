@@ -30,6 +30,8 @@ public abstract class IdentifiableElementBean extends ModelElementBean
 {
    private String id;
 
+   private String qualifiedId;
+
    private String name;
 
    protected IdentifiableElementBean()
@@ -68,6 +70,23 @@ public abstract class IdentifiableElementBean extends ModelElementBean
    {
       markModified();
       this.id = id;
+   }
+   
+   @Override
+   public void setParent(ModelElement parent)
+   {
+      qualifiedId = null;
+      super.setParent(parent);
+   }
+   
+   @Override
+   public String getQualifiedId()
+   {
+      if(null == qualifiedId)
+      {
+         qualifiedId = ModelUtils.getQualifiedId(getModel(), getId());
+      }
+      return qualifiedId;
    }
 
    protected void checkConsistency(List<Inconsistency> inconsistencies)

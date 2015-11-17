@@ -455,9 +455,9 @@ public class StructuredDataConverter
          {
             xPath = xPathMap.getXPath(path);
          }
-         else if (!path.isEmpty() && xPathMap instanceof DataXPathMap)
+         else if (!path.isEmpty() && xPathMap instanceof IXPathMap.Resolver)
          {
-            xPath = ((DataXPathMap) xPathMap).findXPath(getNodeXPath(node, rootNode));
+            xPath = ((IXPathMap.Resolver) xPathMap).findXPath(getNodeXPath(node, rootNode));
          }
 
          // (fh) no xpaths found, giving up
@@ -477,9 +477,9 @@ public class StructuredDataConverter
             QName currentType = new QName(xPath.getXsdTypeNs(), xPath.getXsdTypeName());
             if (!currentType.equals(xsiType))
             {
-               if (xPathMap instanceof DataXPathMap)
+               if (xPathMap instanceof IXPathMap.Resolver)
                {
-                  xPath = ((DataXPathMap) xPathMap).resolve(xsiType, xPath);
+                  xPath = ((IXPathMap.Resolver) xPathMap).resolve(xsiType, xPath);
                }
             }
          }
@@ -722,10 +722,11 @@ public class StructuredDataConverter
       else
       {
          TypedXPath resolvedXPath = null;
-         if (complexType instanceof ComplexType && ((ComplexType) complexType).hasProperty(ComplexType.XSI_TYPE) && xPathMap instanceof DataXPathMap)
+         if (complexType instanceof ComplexType && ((ComplexType) complexType).hasProperty(ComplexType.XSI_TYPE)
+               && xPathMap instanceof IXPathMap.Resolver)
          {
             String xsiType = ((ComplexType) complexType).getProperty(ComplexType.XSI_TYPE);
-            resolvedXPath = ((DataXPathMap) xPathMap).resolve(QName.valueOf(xsiType), null);
+            resolvedXPath = ((IXPathMap.Resolver) xPathMap).resolve(QName.valueOf(xsiType), null);
          }
          if (resolvedXPath == null)
          {
@@ -758,9 +759,9 @@ public class StructuredDataConverter
       {
          xPath = xPathMap.getXPath(path);
       }
-      else if (!path.isEmpty() && xPathMap instanceof DataXPathMap)
+      else if (!path.isEmpty() && xPathMap instanceof IXPathMap.Resolver)
       {
-         xPath = ((DataXPathMap) xPathMap).findXPath(Arrays.asList(path.split("/")));
+         xPath = ((IXPathMap.Resolver) xPathMap).findXPath(Arrays.asList(path.split("/")));
       }
       return new Pair(path, xPath == null && !ignoreUnknownXPaths && isStrict ? xPathMap.getXPath(path) : xPath);
    }

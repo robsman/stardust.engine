@@ -447,8 +447,8 @@ public class StructuredDataXPathUtils
 
    private static TypedXPath getTypedXPath(String xPath, IXPathMap xPathMap)
    {
-      return xPathMap instanceof DataXPathMap
-            ? ((DataXPathMap) xPathMap).findXPath(Arrays.asList(xPath.split("/")))
+      return xPathMap instanceof IXPathMap.Resolver
+            ? ((IXPathMap.Resolver) xPathMap).findXPath(Arrays.asList(xPath.split("/")))
             : xPathMap.containsXPath(xPath)
                   ? xPathMap.getXPath(xPath)
                   : null;

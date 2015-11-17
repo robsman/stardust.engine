@@ -753,7 +753,7 @@ public class DataFlowUtils
 
       return res;
    }
-   
+
 
 
    public static Map<String, ? extends Serializable> unmarshalProcessInstanceProperties(
@@ -900,7 +900,7 @@ public class DataFlowUtils
       return unmarshalDataValue(model, data, dm.getDataPath(), dm.getMappedType(), param, resolver);
    }
 
-   
+
    public static Serializable unmarshalBusinessObjectDataValue(Model model, String qualifiedBusinessObjectId, ParameterXto param)
    {
       QName qname = QName.valueOf(qualifiedBusinessObjectId);
@@ -908,21 +908,21 @@ public class DataFlowUtils
       String businessObjectId = qname.getLocalPart();
 
       ModelResolver env = currentWebServiceEnvironment();
-      
+
       if (model == null)
       {
          throw new ObjectNotFoundException(BpmRuntimeError.MDL_NO_ACTIVE_MODEL_WITH_ID.raise(modelId));
       }
-      
+
       Data data = model.getData(businessObjectId);
       if (data == null)
       {
          throw new ObjectNotFoundException(BpmRuntimeError.MDL_UNKNOWN_DATA_ID.raise(businessObjectId));
       }
-      
+
       return unmarshalDataValue(model, data, null, null, param, env);
    }
-   
+
    public static Serializable unmarshalDataValue(Model model, Data data,
          String rootXPath, Class< ? > mappedType, ParameterXto param, ModelResolver resolver)
    {
@@ -1963,7 +1963,7 @@ public class DataFlowUtils
       if (null != typeDeclaration)
       {
          IXPathMap xPathMap = new ClientXPathMap(StructuredTypeRtUtils.getAllXPaths(
-               model, typeDeclaration));
+               model, typeDeclaration), model);
 
          return marshalStructValue(xPathMap, derefPath, value);
       }
@@ -1976,7 +1976,7 @@ public class DataFlowUtils
       if (null != typeDeclaration)
       {
          IXPathMap xPathMap = new ClientXPathMap(StructuredTypeRtUtils.getAllXPaths(
-               model, typeDeclaration));
+               model, typeDeclaration), model);
 
          marshalStructValue(xPathMap, derefPath, value, parameterXto);
       }
@@ -2096,12 +2096,21 @@ public class DataFlowUtils
       if (null != typeDeclaration)
       {
          Set<TypedXPath> xPaths = StructuredTypeRtUtils.getAllXPaths(model, typeDeclaration);
-         return unmarshalStructValue(xPaths, rootXPath, value);
+         return unmarshalStructValue(model, xPaths, rootXPath, value);
       }
       return null;
    }
 
+   /**
+    * @deprecated
+    */
    public static Serializable unmarshalStructValue(Set<TypedXPath> xPaths,
+         String rootXPath, Object value)
+   {
+      return unmarshalStructValue(null, xPaths, rootXPath, value);
+   }
+
+   public static Serializable unmarshalStructValue(Model model, Set<TypedXPath> xPaths,
          String rootXPath, Object value)
    {
       Serializable result = null;
@@ -2112,7 +2121,7 @@ public class DataFlowUtils
 
       if (value instanceof Element)
       {
-         IXPathMap xPathMap = new ClientXPathMap(xPaths);
+         IXPathMap xPathMap = new ClientXPathMap(xPaths, model);
 
          StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap, true);
 
@@ -2143,7 +2152,7 @@ public class DataFlowUtils
                StructuredDataXPathUtils.getLastXPathPart(rootXPath));
          element.appendChild(new Text((String) value));
 
-         IXPathMap xPathMap = new ClientXPathMap(xPaths);
+         IXPathMap xPathMap = new ClientXPathMap(xPaths, model);
 
          StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap, true);
 
@@ -2156,7 +2165,7 @@ public class DataFlowUtils
          List<Serializable> list = new ArrayList<Serializable>(((List<?>) value).size());
          for (Object element : (List<?>) value)
          {
-            list.add(unmarshalStructValue(xPaths, rootXPath, element));
+            list.add(unmarshalStructValue(model, xPaths, rootXPath, element));
          }
          result = (Serializable) list;
       }

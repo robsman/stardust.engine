@@ -16,7 +16,6 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.runtime.beans.EventUtils;
@@ -52,16 +51,8 @@ public class CompleteActivityEventAction implements EventActionInstance
             {
                IActivityInstance ai = (IActivityInstance) EventUtils
                      .getEventSourceInstance(event);
-               try
-               {
-                  new WorkflowServiceImpl().activateAndComplete(ai.getOID(), null,
-                        Collections.EMPTY_MAP, true);
-               }
-               catch (IllegalStateChangeException e)
-               {
-                  AuditTrailLogger.getInstance(LogCode.EVENT, ai).error(
-                        "Unable to complete activity.", e);
-               }
+               new WorkflowServiceImpl().activateAndComplete(ai.getOID(), null,
+                     Collections.EMPTY_MAP, true);
             }
             catch (ObjectNotFoundException e)
             {

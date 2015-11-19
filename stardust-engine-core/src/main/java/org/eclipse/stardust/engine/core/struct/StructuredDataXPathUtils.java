@@ -13,16 +13,7 @@ package org.eclipse.stardust.engine.core.struct;
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.FactoryConfigurationError;
@@ -39,13 +30,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
-import org.eclipse.stardust.engine.core.struct.sxml.Attribute;
-import org.eclipse.stardust.engine.core.struct.sxml.Document;
-import org.eclipse.stardust.engine.core.struct.sxml.Element;
-import org.eclipse.stardust.engine.core.struct.sxml.LeafNode;
-import org.eclipse.stardust.engine.core.struct.sxml.NamedNode;
-import org.eclipse.stardust.engine.core.struct.sxml.Node;
-import org.eclipse.stardust.engine.core.struct.sxml.Text;
+import org.eclipse.stardust.engine.core.struct.sxml.*;
 import org.eclipse.stardust.engine.core.struct.sxml.xpath.XPathEvaluator;
 import org.eclipse.stardust.engine.core.struct.sxml.xpath.XPathException;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
@@ -1494,12 +1479,17 @@ public class StructuredDataXPathUtils
       return new Attribute(getAttributeName(typedXPath.getXPath()), /*typedXPath.getXsdTypeNs(),*/ valueString);
    }
 
-   public static Element createElement(String name, boolean namespaceAware)
+   public static Element createElement(String name, TypedXPath typedXPath, boolean namespaceAware)
    {
       if (namespaceAware)
       {
          QName qName = QName.valueOf(name);
-         return new Element(qName.getLocalPart(), qName.getNamespaceURI());
+         String namespaceURI = qName.getNamespaceURI();
+         if (namespaceAware && StringUtils.isEmpty(namespaceURI))
+         {
+            namespaceURI = typedXPath.getXsdElementNs();
+         }
+         return new Element(qName.getLocalPart(), namespaceURI);
       }
       else
       {
@@ -1512,17 +1502,14 @@ public class StructuredDataXPathUtils
       String elementName;
       if (isRootXPath(typedXPath.getXPath()))
       {
-         if ( !StringUtils.isEmpty(typedXPath.getXsdElementName()))
-         {
-            elementName = typedXPath.getXsdElementName();
-         }
-         else if ( !StringUtils.isEmpty(typedXPath.getXsdTypeName()))
+         elementName = typedXPath.getXsdElementName();
+         if (StringUtils.isEmpty(elementName))
          {
             elementName = typedXPath.getXsdTypeName();
-         }
-         else
-         {
-            elementName = IStructuredDataValue.ROOT_ELEMENT_NAME;
+            if (StringUtils.isEmpty(elementName))
+            {
+               elementName = IStructuredDataValue.ROOT_ELEMENT_NAME;
+            }
          }
       }
       else

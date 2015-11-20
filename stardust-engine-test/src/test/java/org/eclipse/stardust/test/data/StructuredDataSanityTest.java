@@ -11,21 +11,27 @@
 package org.eclipse.stardust.test.data;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-import static org.eclipse.stardust.test.data.DataModelConstants.MODEL_NAME;
-import static org.eclipse.stardust.test.data.DataModelConstants.MY_STRUC_DATA_ID;
-import static org.eclipse.stardust.test.data.DataModelConstants.MY_STRUC_OUT_DATA_PATH;
-import static org.eclipse.stardust.test.data.DataModelConstants.PROCESS_ID_3;
+import static org.eclipse.stardust.test.data.DataModelConstants.*;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.*;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
+
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.error.InvalidArgumentException;
+import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.query.DataFilter;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceFilter;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
@@ -34,13 +40,6 @@ import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
 
 /**
  * /**
@@ -55,10 +54,23 @@ import org.junit.rules.TestRule;
 public class StructuredDataSanityTest
 {
 
+   private static final String XPATH_ID = "IntValue";
+
+   private static final String DEFAULT_CONTEXT = "default";
+
+   private static final String OUT_DATA_ID = "TestData";
+
+   private static final String XPATH_VALUE = "Test";
+
+   private static final String XPATH_NOT_DEFINED_ID = "NotDefinedId";
+
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
 
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
+   
+   @Rule
+   public final ExpectedException exception = ExpectedException.none();
 
    @ClassRule
    public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
@@ -207,6 +219,59 @@ public class StructuredDataSanityTest
       {
          Assert.assertFalse(shouldExist);
       }
+   }
+   
+   /**
+    * Tests if a more specific exception subclass of
+    * org.eclipse.stardust.common.error.PublicException is thrown in case
+    * WorkflowService.complete() is called using a structured data that has an undefined
+    * element id.
+    * 
+    * <p>
+    * See also <a
+    * href="https://www.csa.sungard.com/jira/browse/CRNT-27698">CRNT-27698</a>.
+    * </p>
+    */
+   @Test
+   public void testCompleteWithNotDefinedElementId()
+   {
+      WorkflowService wfService = sf.getWorkflowService();
+      ProcessInstance procInst = wfService.startProcess(PROCESS_ID_4, null, true);
+      ActivityInstance actInst = wfService
+            .activateNextActivityInstanceForProcessInstance(procInst.getOID());
+      Map<String, String> testData = new HashMap<String, String>();
+      testData.put(XPATH_NOT_DEFINED_ID, XPATH_VALUE);
+      Map<String, Object> outData = new HashMap<String, Object>();
+      outData.put(OUT_DATA_ID, testData);
+      exception.expect(InvalidArgumentException.class);
+      wfService.complete(actInst.getOID(), DEFAULT_CONTEXT, outData);
+   }
+   
+   /**
+    * Tests if a more specific exception subclass of
+    * org.eclipse.stardust.common.error.PublicException is thrown in case
+    * WorkflowService.complete() is called using a structured data that has an invalid
+    * number value.
+    * 
+    * <p>
+    * See also <a
+    * href="https://www.csa.sungard.com/jira/browse/CRNT-27698">CRNT-27698</a>.
+    * </p>
+    */
+   @Test
+   public void testCompleteWithInvalidDataType()
+   {
+      WorkflowService wfService = sf.getWorkflowService();
+      ProcessInstance procInst = wfService.startProcess(PROCESS_ID_4, null, true);
+      ActivityInstance actInst = wfService
+            .activateNextActivityInstanceForProcessInstance(procInst.getOID());
+      Map<String, String> testData = new HashMap<String, String>();
+      testData.put(XPATH_ID, XPATH_VALUE);
+
+      Map<String, Object> outData = new HashMap<String, Object>();
+      outData.put(OUT_DATA_ID, testData);
+      exception.expect(InvalidValueException.class);
+      wfService.complete(actInst.getOID(), DEFAULT_CONTEXT, outData);
    }
 
    private long startProcess()

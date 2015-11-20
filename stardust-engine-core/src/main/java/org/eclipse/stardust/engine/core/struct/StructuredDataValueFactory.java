@@ -40,111 +40,120 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
 
    public static Object convertTo(int typeKey, String stringValue)
    {
-      if (stringValue == null)
+      try
       {
-         return null;
-      }
-
-      if (typeKey == BigData.NULL)
-      {
-         return "";
-      }
-      else if (typeKey == BigData.SHORT)
-      {
-         return new Short(stringValue);
-      }
-      else if (typeKey == BigData.INTEGER)
-      {
-         return new Integer(stringValue);
-      }
-      else if (typeKey == BigData.LONG)
-      {
-         return new Long(stringValue);
-      }
-      else if (typeKey == BigData.BYTE)
-      {
-         return new Byte(stringValue);
-      }
-      else if (typeKey == BigData.BOOLEAN)
-      {
-         return new Boolean(stringValue);
-      }
-      else if (typeKey == BigData.DATE)
-      {
-         SimpleDateFormat df;
-         try
+         if (stringValue == null)
          {
-            df = new SimpleDateFormat(XSD_DATETIME_FORMAT);
-            df.setLenient(false);
-            return df.parse(stringValue);
+            return null;
          }
-         catch (Exception e1)
+
+         if (typeKey == BigData.NULL)
          {
+            return "";
+         }
+         else if (typeKey == BigData.SHORT)
+         {
+            return new Short(stringValue);
+         }
+         else if (typeKey == BigData.INTEGER)
+         {
+            return new Integer(stringValue);
+         }
+         else if (typeKey == BigData.LONG)
+         {
+            return new Long(stringValue);
+         }
+         else if (typeKey == BigData.BYTE)
+         {
+            return new Byte(stringValue);
+         }
+         else if (typeKey == BigData.BOOLEAN)
+         {
+            return new Boolean(stringValue);
+         }
+         else if (typeKey == BigData.DATE)
+         {
+            SimpleDateFormat df;
             try
             {
-               //RPI: Workaround for CRNT-25389
-               SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
-               String dateString = sd.format(TimestampProviderUtils.getTimeStamp());
-               String tempStrValue = dateString + "T" + stringValue;
                df = new SimpleDateFormat(XSD_DATETIME_FORMAT);
                df.setLenient(false);
-               return df.parse(tempStrValue);
+               return df.parse(stringValue);
             }
-            catch (Exception e2)
+            catch (Exception e1)
             {
                try
                {
-                  df = new SimpleDateFormat(XSD_DATE_FORMAT);
+                  // RPI: Workaround for CRNT-25389
+                  SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
+                  String dateString = sd.format(TimestampProviderUtils.getTimeStamp());
+                  String tempStrValue = dateString + "T" + stringValue;
+                  df = new SimpleDateFormat(XSD_DATETIME_FORMAT);
                   df.setLenient(false);
-                  return df.parse(stringValue);
+                  return df.parse(tempStrValue);
                }
-               catch (Exception e3)
+               catch (Exception e2)
                {
                   try
                   {
-                     df = new SimpleDateFormat(P_AND_M_DATETIME_FORMAT, Locale.US);
+                     df = new SimpleDateFormat(XSD_DATE_FORMAT);
                      df.setLenient(false);
                      return df.parse(stringValue);
                   }
-                  catch (Exception e4)
+                  catch (Exception e3)
                   {
-                     throw new PublicException(
-                           BpmRuntimeError.SDT_COULD_NOT_PARSE_DATE_TIME_USING_STANDARD_XSD_FORMATS
-                                 .raise(stringValue, XSD_DATE_FORMAT, XSD_TIME_FORMAT,
-                                       XSD_DATETIME_FORMAT, P_AND_M_DATETIME_FORMAT));
+                     try
+                     {
+                        df = new SimpleDateFormat(P_AND_M_DATETIME_FORMAT, Locale.US);
+                        df.setLenient(false);
+                        return df.parse(stringValue);
+                     }
+                     catch (Exception e4)
+                     {
+                        throw new PublicException(
+                              BpmRuntimeError.SDT_COULD_NOT_PARSE_DATE_TIME_USING_STANDARD_XSD_FORMATS
+                                    .raise(stringValue, XSD_DATE_FORMAT, XSD_TIME_FORMAT,
+                                          XSD_DATETIME_FORMAT, P_AND_M_DATETIME_FORMAT));
+                     }
                   }
                }
             }
          }
+         else if (typeKey == BigData.FLOAT)
+         {
+            return new Float(stringValue);
+         }
+         else if (typeKey == BigData.DOUBLE)
+         {
+            return new Double(stringValue);
+         }
+         else if (typeKey == BigData.STRING)
+         {
+            return stringValue;
+         }
+         else if (typeKey == BigData.BIG_STRING)
+         {
+            return stringValue;
+         }
+         else if (typeKey == BigData.PERIOD)
+         {
+            return new Period(stringValue);
+         }
+         else if (typeKey == BigData.DECIMAL)
+         {
+            return new BigDecimal(stringValue);
+         }
+         else
+         {
+            throw new PublicException(
+                  BpmRuntimeError.SDT_BIGDATA_TYPE_IS_NOT_SUPPORTED_YET.raise(typeKey));
+         }
       }
-      else if (typeKey == BigData.FLOAT)
+      catch (NumberFormatException e)
       {
-         return new Float(stringValue);
-      }
-      else if (typeKey == BigData.DOUBLE)
-      {
-         return new Double(stringValue);
-      }
-      else if (typeKey == BigData.STRING)
-      {
-         return stringValue;
-      }
-      else if (typeKey == BigData.BIG_STRING)
-      {
-         return stringValue;
-      }
-      else if (typeKey == BigData.PERIOD)
-      {
-         return new Period(stringValue);
-      }
-      else if (typeKey == BigData.DECIMAL)
-      {
-         return new BigDecimal(stringValue);
-      }
-      else
-      {
-         throw new PublicException(
-               BpmRuntimeError.SDT_BIGDATA_TYPE_IS_NOT_SUPPORTED_YET.raise(typeKey));
+         throw new InvalidValueException(
+               BpmRuntimeError.SDT_CANNOT_CONVERT_VALUT_TO_NUMBER_TYPE.raise(stringValue),
+               e);
       }
    }
 

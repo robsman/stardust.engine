@@ -69,6 +69,11 @@ public class DataModelConstants
     * Process Definition #3
     */
    /* package-private */ static final String PROCESS_ID_3 = "{" + MODEL_NAME + "}" + "ProcessDefinition_3";
+   
+   /**
+    * Process Definition #4
+    */
+   /* package-private */ static final String PROCESS_ID_4 = "{" + MODEL_NAME + "}" + "ProcessDefinition_4";
 
 
 

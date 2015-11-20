@@ -29,6 +29,7 @@ import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.TransformingIterator;
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -193,7 +194,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
             typedXPath = xPathMap.getXPath(xPath);
             isValid = true;
          }
-         catch (IllegalOperationException e)
+         catch (InvalidArgumentException e) 
          {
             // check if indexed
             if (StructuredDataXPathUtils.isIndexedXPath(xPath))

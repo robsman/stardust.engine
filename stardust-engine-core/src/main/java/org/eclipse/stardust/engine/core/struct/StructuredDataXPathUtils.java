@@ -1139,7 +1139,14 @@ public class StructuredDataXPathUtils
       }
       catch (Exception e)
       {
-         throw new InternalException(e);
+         if (e instanceof PublicException)
+         {
+            throw (PublicException) e;
+         }
+         else
+         {
+            throw new InternalException(e);
+         }
       }
    }
 

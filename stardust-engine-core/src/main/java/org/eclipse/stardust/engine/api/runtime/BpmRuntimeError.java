@@ -794,6 +794,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 SDT_NO_SUCH_CHILD = newArgs1("SDT01023", BpmRuntimeErrorMessages.getString("SDT01023")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 SDT_COULD_NOT_ANALYSE_STRUCTURED_DATA_FOR_XPATH_OID = newArgs2("SDT01024", BpmRuntimeErrorMessages.getString("SDT01024")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 SDT_XPATH_IS_NOT_DEFINED = newArgs1("SDT01025", BpmRuntimeErrorMessages.getString("SDT01025")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 SDT_CANNOT_CONVERT_VALUT_TO_NUMBER_TYPE = newArgs1("SDT01026", BpmRuntimeErrorMessages.getString("SDT01026")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
 

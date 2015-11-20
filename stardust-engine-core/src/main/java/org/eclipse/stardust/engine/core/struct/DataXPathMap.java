@@ -18,9 +18,9 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.RuntimeAttributeHolder;
+import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.struct.spi.StructuredDataLoader;
 
@@ -115,7 +115,7 @@ public class DataXPathMap implements IXPathMap, Serializable
       TypedXPath typedPath = xPathToTypedXPath.get(xPath);
       if (typedPath == null)
       {
-         throw new IllegalOperationException(
+         throw new InvalidArgumentException(
                BpmRuntimeError.MDL_UNKNOWN_XPATH.raise(xPath));
       }
       

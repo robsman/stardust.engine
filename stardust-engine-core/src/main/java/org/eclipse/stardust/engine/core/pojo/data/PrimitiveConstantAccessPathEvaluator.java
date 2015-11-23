@@ -48,9 +48,12 @@ public class PrimitiveConstantAccessPathEvaluator implements ExtendedAccessPathE
       {
          outPath = outPath.substring(1, outPath.length());
          String[] split = outPath.split("\\)");
-         String type = split[0];
-         constantValue = split[1];
-         constantValue = constantValue.trim();
+         String type = split[0];         
+         if(split.length > 1)
+         {
+            constantValue = split[1];
+            constantValue = constantValue.trim();      
+         }
          
          try
          {

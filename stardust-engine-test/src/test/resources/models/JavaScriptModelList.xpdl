@@ -273,32 +273,6 @@
       <WorkflowProcess Id="JavascriptListSdtProcess" Name="JavascriptListSdtProcess" AccessLevel="PRIVATE">
          <ProcessHeader/>
          <Activities>
-            <Activity Id="showoutput" Name="show output">
-               <Implementation>
-                  <No/>
-               </Implementation>
-               <Performer>Administrator</Performer>
-               <StartMode>
-                  <Automatic/>
-               </StartMode>
-               <FinishMode>
-                  <Manual/>
-               </FinishMode>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Activity Oid="58" Implementation="Manual">
-                        <carnot:EventHandlers/>
-                        <carnot:QualityCodes/>
-                        <carnot:DataFlows>
-                           <carnot:DataFlow Oid="60" Id="PersonsSdtOutput" Name="PersonsSdtOutput" Direction="IN" Context="default">
-                              <carnot:DataRef Id="PersonsSdtOutput"/>
-                              <carnot:AccessPointRef/>
-                           </carnot:DataFlow>
-                        </carnot:DataFlows>
-                     </carnot:Activity>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Activity>
             <Activity Id="JavascriptListSdtInvocation" Name="JavascriptListSdtInvocation">
                <Implementation>
                   <Task>
@@ -336,16 +310,7 @@
                </ExtendedAttributes>
             </Activity>
          </Activities>
-         <Transitions>
-            <Transition Id="8739b2f1-4417-4d0a-ad6a-9e68cf14f964" Name="" From="JavascriptListSdtInvocation" To="showoutput">
-               <Condition Type="CONDITION">true</Condition>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Transition Oid="66"/>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Transition>
-         </Transitions>
+         <Transitions/>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
                <carnot:WorkflowProcess Oid="26">
@@ -365,15 +330,12 @@
                                     <carnot:Symbols>
                                        <carnot:Symbol Kind="DATA" Oid="34" X="42" Y="119" Width="100" Height="70" ModelElement="PersonsSdtInput"/>
                                        <carnot:Symbol Kind="DATA" Oid="57" X="42" Y="243" Width="100" Height="70" ModelElement="PersonsSdtOutput"/>
-                                       <carnot:Symbol Kind="ACTIVITY" Oid="59" X="101" Y="309" Width="180" Height="50" ModelElement="showoutput"/>
                                        <carnot:Symbol Kind="ACTIVITY" Oid="63" X="101" Y="174" Width="180" Height="50" ModelElement="JavascriptListSdtInvocation"/>
                                     </carnot:Symbols>
                                     <carnot:Connections/>
                                  </carnot:Symbol>
                               </carnot:Symbols>
                               <carnot:Connections>
-                                 <carnot:Connection Kind="DATA_FLOW" Oid="61" SourceSymbol="57" TargetSymbol="59" SourceAnchor="bottom" TargetAnchor="left"/>
-                                 <carnot:Connection Kind="TRANSITION" Oid="67" ModelElement="8739b2f1-4417-4d0a-ad6a-9e68cf14f964" SourceSymbol="63" TargetSymbol="59" SourceAnchor="bottom" TargetAnchor="top"/>
                                  <carnot:Connection Kind="DATA_FLOW" Oid="69" SourceSymbol="34" TargetSymbol="63" SourceAnchor="right" TargetAnchor="left"/>
                                  <carnot:Connection Kind="DATA_FLOW" Oid="71" SourceSymbol="57" TargetSymbol="63" SourceAnchor="left" TargetAnchor="right"/>
                               </carnot:Connections>
@@ -425,43 +387,8 @@
                   </ExtendedAttribute>
                </ExtendedAttributes>
             </Activity>
-            <Activity Id="showcities" Name="show cities">
-               <Implementation>
-                  <No/>
-               </Implementation>
-               <Performer>Administrator</Performer>
-               <StartMode>
-                  <Automatic/>
-               </StartMode>
-               <FinishMode>
-                  <Manual/>
-               </FinishMode>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Activity Oid="136" Implementation="Manual">
-                        <carnot:EventHandlers/>
-                        <carnot:QualityCodes/>
-                        <carnot:DataFlows>
-                           <carnot:DataFlow Oid="150" Id="CitiesOutput" Name="CitiesOutput" Direction="IN" Context="default">
-                              <carnot:DataRef Id="CitiesOutput"/>
-                              <carnot:AccessPointRef/>
-                           </carnot:DataFlow>
-                        </carnot:DataFlows>
-                     </carnot:Activity>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Activity>
          </Activities>
-         <Transitions>
-            <Transition Id="13cad7a3-9049-4799-85c1-aba2d591f550" Name="" From="JavascriptListStringInvocation" To="showcities">
-               <Condition Type="CONDITION">true</Condition>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Transition Oid="138"/>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Transition>
-         </Transitions>
+         <Transitions/>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
                <carnot:WorkflowProcess Oid="105">
@@ -480,7 +407,6 @@
                                  <carnot:Symbol Kind="LANE" Oid="106" Id="DefaultLane" Name="Default Lane" X="12" Y="32" Width="384" Height="600" Orientation="Vertical" ParticipantReference="Administrator" ParentLane="107">
                                     <carnot:Symbols>
                                        <carnot:Symbol Kind="ACTIVITY" Oid="131" X="102" Y="183" Width="180" Height="50" ModelElement="JavascriptListStringInvocation"/>
-                                       <carnot:Symbol Kind="ACTIVITY" Oid="137" X="102" Y="332" Width="180" Height="50" ModelElement="showcities"/>
                                        <carnot:Symbol Kind="DATA" Oid="142" X="28" Y="270" Width="100" Height="70" ModelElement="CitiesOutput"/>
                                        <carnot:Symbol Kind="DATA" Oid="143" X="28" Y="117" Width="100" Height="70" ModelElement="CitiesInput"/>
                                     </carnot:Symbols>
@@ -488,10 +414,8 @@
                                  </carnot:Symbol>
                               </carnot:Symbols>
                               <carnot:Connections>
-                                 <carnot:Connection Kind="TRANSITION" Oid="139" ModelElement="13cad7a3-9049-4799-85c1-aba2d591f550" SourceSymbol="131" TargetSymbol="137" SourceAnchor="bottom" TargetAnchor="top"/>
                                  <carnot:Connection Kind="DATA_FLOW" Oid="147" SourceSymbol="143" TargetSymbol="131" SourceAnchor="right" TargetAnchor="left"/>
                                  <carnot:Connection Kind="DATA_FLOW" Oid="149" SourceSymbol="142" TargetSymbol="131" SourceAnchor="left" TargetAnchor="right"/>
-                                 <carnot:Connection Kind="DATA_FLOW" Oid="151" SourceSymbol="142" TargetSymbol="137" SourceAnchor="right" TargetAnchor="left"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>
@@ -636,7 +560,7 @@
             <carnot:Diagrams/>
             <carnot:Views/>
             <carnot:Attributes>
-               <carnot:Attribute Name="ipp:model:modified" Value="Tue Jun 17 15:14:28 WAT 2014"/>
+               <carnot:Attribute Name="ipp:model:modified" Value="Wed Nov 25 17:32:54 GMT+01:00 2015"/>
             </carnot:Attributes>
          </carnot:Package>
       </ExtendedAttribute>

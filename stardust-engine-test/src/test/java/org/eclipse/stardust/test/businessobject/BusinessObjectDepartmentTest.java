@@ -159,33 +159,97 @@ public class BusinessObjectDepartmentTest
    }
 
    /**
-    * Tests department restriction on update.
+    * Tests department restriction on update. In case the access to the department of the
+    * to be updated business object instance is not granted.
+    */
+   @Test
+   public void test05DepartmentRestrictionUpdateOldValueDenied()
+   {
+      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
+
+      createClient("c1", null);
+      createClient("c2", null);
+
+      updateClientU1("c1", "c1");
+      boolean ex = false;
+      try
+      {
+         // should throw AccessForbiddenException
+         updateClientU1("c2", "c2");
+      }
+      catch (AccessForbiddenException e)
+      {
+         ex = true;
+      }
+
+      assertValues(CLIENT_BO, 1);
+
+      if (!ex)
+      {
+         Assert.fail();
+      }
+   }
+
+   /**
+    * Tests department restriction on update. In case the access to the department of the
+    * to be used value is not granted.
     */
    @Test
    @Ignore
-   public void test05DepartmentRestrictionUpdate()
+   public void test06DepartmentRestrictionUpdateNewValueDenied()
    {
-//      createClient("c1", null);
-//      createClient("c2", null);
-//
-//      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
-//
-//      assertValues(CLIENT_BO, 1);
+      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
+
+      createClient("c1", null);
+      boolean ex = false;
+      try
+      {
+         // TODO use ClientName as department (or new field)
+         // should throw AccessForbiddenException
+         updateClientU1("c1", "someValue");
+      }
+      catch (AccessForbiddenException e)
+      {
+         ex = true;
+      }
+
+      assertValues(CLIENT_BO, 1);
+
+      if (!ex)
+      {
+         Assert.fail();
+      }
    }
 
    /**
     * Tests department restriction on delete.
     */
    @Test
-   @Ignore
-   public void test06DepartmentRestrictionDelete()
+   public void test07DepartmentRestrictionDelete()
    {
-//      createClient("c1", null);
-//      createClient("c2", null);
-//
-//      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
-//
-//      assertValues(CLIENT_BO, 1);
+      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
+      createClient("c1", null);
+      createClient("c2", null);
+
+      assertValues(CLIENT_BO, 1);
+
+      deleteClientU1("c1");
+
+      boolean ex = false;
+      try
+      {
+         // should throw AccessForbiddenException
+         deleteClientU1("c2");
+      }
+      catch (AccessForbiddenException e)
+      {
+         ex = true;
+      }
+
+      if (!ex)
+      {
+         Assert.fail();
+      }
    }
 
    /**
@@ -272,6 +336,37 @@ public class BusinessObjectDepartmentTest
       }
    }
 
+   private BusinessObject updateClientU1(String id, String newDepartment)
+   {
+      ServiceFactory u1Sf = ServiceFactoryLocator.get(U1, U1);
+      try
+      {
+         return updateClient(u1Sf, id, newDepartment);
+      }
+      finally
+      {
+         u1Sf.close();
+      }
+   }
+
+   private void deleteClientU1(String id)
+   {
+      ServiceFactory u1Sf = ServiceFactoryLocator.get(U1, U1);
+      try
+      {
+         deleteClient(u1Sf, id);
+      }
+      finally
+      {
+         u1Sf.close();
+      }
+   }
+
+   private void deleteClient(ServiceFactory sf, String id)
+   {
+      sf.getWorkflowService().deleteBusinessObjectInstance(CLIENT_BO, id);
+   }
+
    private BusinessObject createClient(ServiceFactory sf, String id, String ref)
    {
       final Map<String, Object> client = CollectionUtils.newMap();
@@ -291,5 +386,15 @@ public class BusinessObjectDepartmentTest
 
       return sf.getWorkflowService().createBusinessObjectInstance(CLIENT_GROUP_BO,
             (Serializable) client);
+   }
+
+   private BusinessObject updateClient(ServiceFactory sf, String id, String newDepartment)
+   {
+      final Map<String, Object> client = CollectionUtils.newMap();
+      client.put("ClientId", id);
+      // TODO move department to ClientName in model
+      client.put("ClientName", newDepartment);
+
+      return sf.getWorkflowService().updateBusinessObjectInstance(CLIENT_BO, client);
    }
 }

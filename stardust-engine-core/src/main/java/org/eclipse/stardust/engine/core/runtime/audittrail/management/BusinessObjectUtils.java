@@ -19,10 +19,7 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.Predicate;
-import org.eclipse.stardust.common.error.InvalidArgumentException;
-import org.eclipse.stardust.common.error.ObjectExistsException;
-import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.dto.BusinessObjectDetails;
@@ -325,7 +322,7 @@ public class BusinessObjectUtils
                      values.put(data, list);
                   }
                   Object value = converter.toCollection(document.getRootElement(), "", namespaceAware);
-                  if (checkDepartmentRestriction(data, value))
+                  if (isDepartmentAllowed(data, value))
                   {
                      list.add(new BusinessObjectDetails.ValueDetails(piOid, value));
                   }
@@ -351,19 +348,53 @@ public class BusinessObjectUtils
       }
    }
 
-   private static boolean checkDepartmentRestriction(IData data, Object value)
+   private static boolean isDepartmentAllowed(IData data, Object value)
+   {
+      if (value != null)
+      {
+         final BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor
+               .getCurrent();
+         Authorization2Predicate authorizationPredicate = bpmRt
+               .getAuthorizationPredicate();
+
+
+         if (authorizationPredicate != null && authorizationPredicate instanceof DataAuthorization2Predicate)
+         {
+            DataAuthorization2Predicate dataAuthPredicate = (DataAuthorization2Predicate) authorizationPredicate;
+
+            return dataAuthPredicate.acceptBOValue(data, value);
+         }
+      }
+      // no restriction
+      return true;
+   }
+
+   private static void checkDepartmentAllowed(IData data, Object value)
+   {
+      boolean accepted = isDepartmentAllowed(data, value);
+
+      if (!accepted)
+      {
+         throw new AccessForbiddenException(
+               BpmRuntimeError.AUTHx_AUTH_MISSING_GRANT_ON_DATA.raise(data.getId()));
+      }
+   }
+
+   private static void checkPermission(IData data)
    {
       final BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor.getCurrent();
       Authorization2Predicate authorizationPredicate = bpmRt.getAuthorizationPredicate();
 
-      if (authorizationPredicate instanceof DataAuthorization2Predicate)
+      if (authorizationPredicate != null)
       {
-         DataAuthorization2Predicate dataAuthPredicate = (DataAuthorization2Predicate) authorizationPredicate;
+         boolean accepted = authorizationPredicate.accept(data);
 
-         return dataAuthPredicate.acceptBOValue(data, value);
+         if (!accepted)
+         {
+            throw new AccessForbiddenException(
+                  BpmRuntimeError.AUTHx_AUTH_MISSING_GRANT_ON_DATA.raise(data.getId()));
+         }
       }
-      // no restriction
-      return true;
    }
 
    public static void applyRestrictions(QueryDescriptor desc, List<Join> predicateJoins, Predicate predicate)
@@ -533,6 +564,7 @@ public class BusinessObjectUtils
       }
 
       IData data = findDataForUpdate(businessObjectId);
+      checkPermission(data);
       lockData(data);
       IProcessInstance pi = findUnboundProcessInstance(data, getPK(data, initialValue));
       if (pi != null)
@@ -562,6 +594,7 @@ public class BusinessObjectUtils
       }
 
       IData data = findDataForUpdate(businessObjectId);
+      checkPermission(data);
       IProcessInstance pi = findUnboundProcessInstance(data, getPK(data, value));
       if (pi == null)
       {
@@ -575,13 +608,18 @@ public class BusinessObjectUtils
    public static void deleteInstance(String businessObjectId, Object pkValue)
    {
       IData data = findDataForUpdate(businessObjectId);
+      checkPermission(data);
       IProcessInstance pi = findUnboundProcessInstance(data, pkValue);
       if (pi == null)
       {
          throw new ObjectNotFoundException(
                BpmRuntimeError.ATDB_UNKNOWN_PROCESS_INSTANCE_OID.raise(0), 0);
       }
+
       pi.lock();
+      Object dataValue = pi.getInDataValue(data, null);
+      checkDepartmentAllowed(data, dataValue);
+
       Map<String, BusinessObjectRelationship> rels = getBusinessObjectRelationships(data);
       if (!rels.isEmpty())
       {
@@ -647,6 +685,10 @@ public class BusinessObjectUtils
 
    private static BusinessObject updateBusinessObjectInstance(IProcessInstance pi, IData data, Object newValue)
    {
+      Object previousValue = pi.getInDataValue(data, null);
+      checkDepartmentAllowed(data, previousValue);
+      checkDepartmentAllowed(data, newValue);
+
       pi.setOutDataValue(data, null, newValue);
       Object dataValue = pi.getInDataValue(data, null);
       BusinessObjectDetails.Value value = new BusinessObjectDetails.ValueDetails(pi.getOID(), dataValue);

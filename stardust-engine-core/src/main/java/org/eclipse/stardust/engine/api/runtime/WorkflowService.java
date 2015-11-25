@@ -1832,6 +1832,7 @@ public interface WorkflowService extends Service
    @ExecutionPermission(
          id=ExecutionPermission.Id.modifyDataValues,
          scope=ExecutionPermission.Scope.data,
+         defer=true,
          defaults={ExecutionPermission.Default.ALL})
    BusinessObject createBusinessObjectInstance(String qualifiedBusinessObjectId, Object initialValue);
 
@@ -1845,6 +1846,7 @@ public interface WorkflowService extends Service
    @ExecutionPermission(
          id=ExecutionPermission.Id.modifyDataValues,
          scope=ExecutionPermission.Scope.data,
+         defer=true,
          defaults={ExecutionPermission.Default.ALL})
    BusinessObject updateBusinessObjectInstance(String qualifiedBusinessObjectId, Object newValue);
 
@@ -1857,6 +1859,7 @@ public interface WorkflowService extends Service
    @ExecutionPermission(
          id=ExecutionPermission.Id.modifyDataValues,
          scope=ExecutionPermission.Scope.data,
+         defer=true,
          defaults={ExecutionPermission.Default.ALL})
    void deleteBusinessObjectInstance(String qualifiedBusinessObjectId, Object primaryKey);
 }

@@ -186,7 +186,7 @@ public class BpmRuntimeError extends ErrorCase
    //// Runtime Artifact related
 
    public static final Args1 ARTI_ARTIFACT_TYPE_UNKNOWN = newArgs1("ARTI01001", BpmRuntimeErrorMessages.getString("ARTI01001")); //$NON-NLS-1$ //$NON-NLS-2$
-  
+
    //// DMS related
 
    public static final Args0 DMS_GENERIC_ERROR = newArgs0("DMS00000", BpmRuntimeErrorMessages.getString("DMS00000")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -338,6 +338,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 AUTHx_SYNC_FAILED_IMPORTING_DEPARTMENT = newArgs2("AUTHx00585", BpmRuntimeErrorMessages.getString("AUTHx00585")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args AUTHx_AUTH_MISSING_GRANTS = newArgs("AUTHx01000"); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args AUTHx_AUTH_MISSING_GRANT_ON_DATA = newArgs("AUTHx01010"); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args2 AUTHx_AUTH_INVALID_GRANT = newArgs2("AUTHx01100", BpmRuntimeErrorMessages.getString("AUTHx01100")); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -371,7 +372,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 BPMRT_FAILED_CREATING_DATA_VALUE = newArgs1("BPMRT02121", BpmRuntimeErrorMessages.getString("BPMRT02121")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 BPMRT_DAEMON_ALREADY_RUNNING = newArgs1("CONC03100", BpmRuntimeErrorMessages.getString("CONC03100")); //$NON-NLS-1$ //$NON-NLS-2$
-   
+
    public static final Args1 BPMRT_DAEMON_EXCLUSE_TYPE_LOCKED = newArgs1("CONC03101", BpmRuntimeErrorMessages.getString("CONC03101"));  //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 BPMRT_AI_CURRENTLY_ACTIVATED_BY_SELF = newArgs1("BPMRT03101", BpmRuntimeErrorMessages.getString("BPMRT03101")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -532,7 +533,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 BPMRT_ERROR_DURING_XML_SERIALIZATION = newArgs0("BPMRT07034", BpmRuntimeErrorMessages.getString("BPMRT07034")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 BPMRT_ERROR_READING_XML = newArgs0("BPMRT07035", BpmRuntimeErrorMessages.getString("BPMRT07035")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 BPMRT_FILE_NOT_FOUND = newArgs1("BPMRT07036", BpmRuntimeErrorMessages.getString("BPMRT07036")); //$NON-NLS-1$ //$NON-NLS-2$
-   
+
    public static final Args1 BPMRT_BENCHMARK_NOT_FOUND = newArgs1("BPMRT07037", BpmRuntimeErrorMessages.getString("BPMRT07037")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
@@ -553,7 +554,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 JMS_MATCHING_AI_FOUND_BUT_IT_IS_NOT_OF_RECEIVING_NATURE = newArgs1("JMS01011", BpmRuntimeErrorMessages.getString("JMS01011")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 JMS_FAILED_INITIALIZING_JMS_EXPORTQUEUE_SENDER = newArgs0("JMS01012", BpmRuntimeErrorMessages.getString("JMS01012")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 JMS_FAILED_SEND_EXPORTQUEUE_SENDER = newArgs0("JMS01013", BpmRuntimeErrorMessages.getString("JMS01013")); //$NON-NLS-1$ //$NON-NLS-2$
-   
+
    //// Preference Store related
 
    public static final Args0 PREF_PREF_STORE_READONLY = newArgs0("PREF01001", BpmRuntimeErrorMessages.getString("PREF01001")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -666,7 +667,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 CLI_INVALID_OPTION_PREFERENCES  = newArgs1("CLI01026", BpmRuntimeErrorMessages.getString("CLI01026")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 CLI_INVALID_CONTENT_FOR_OPTION_PREFERENCES  = newArgs1("CLI01027", BpmRuntimeErrorMessages.getString("CLI01027")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 CLI_INVALID_OPTION_DOCUMENTS = newArgs1("CLI01028", BpmRuntimeErrorMessages.getString("CLI01028")); //$NON-NLS-1$ //$NON-NLS-2$
-   
+
    //// Archiver related
    public static final Args0 ARCH_FAILED_VERIFYING_PRECONDITIONS = newArgs0("ARCH01001", BpmRuntimeErrorMessages.getString("ARCH01001")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 ARCH_FAILED_ARCHIVING_LOG_ENTRIES = newArgs0("ARCH01002", BpmRuntimeErrorMessages.getString("ARCH01002")); //$NON-NLS-1$ //$NON-NLS-2$

@@ -32,18 +32,20 @@ import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQueryEvaluator.ParsedQueryProcessor;
-import org.eclipse.stardust.engine.api.query.QueryUtils;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject.Definition;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject.Value;
 import org.eclipse.stardust.engine.core.persistence.*;
-import org.eclipse.stardust.engine.core.persistence.jdbc.*;
+import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean.DataValueChangeListener;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
+import org.eclipse.stardust.engine.core.runtime.utils.DataAuthorization2Predicate;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
 import org.eclipse.stardust.engine.core.struct.*;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
@@ -323,7 +325,10 @@ public class BusinessObjectUtils
                      values.put(data, list);
                   }
                   Object value = converter.toCollection(document.getRootElement(), "", namespaceAware);
-                  list.add(new BusinessObjectDetails.ValueDetails(piOid, value));
+                  if (checkDepartmentRestriction(data, value))
+                  {
+                     list.add(new BusinessObjectDetails.ValueDetails(piOid, value));
+                  }
                }
                else
                {
@@ -344,6 +349,21 @@ public class BusinessObjectUtils
       {
          org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils.closeResultSet(resultSet);
       }
+   }
+
+   private static boolean checkDepartmentRestriction(IData data, Object value)
+   {
+      final BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor.getCurrent();
+      Authorization2Predicate authorizationPredicate = bpmRt.getAuthorizationPredicate();
+
+      if (authorizationPredicate instanceof DataAuthorization2Predicate)
+      {
+         DataAuthorization2Predicate dataAuthPredicate = (DataAuthorization2Predicate) authorizationPredicate;
+
+         return dataAuthPredicate.acceptBOValue(data, value);
+      }
+      // no restriction
+      return true;
    }
 
    public static void applyRestrictions(QueryDescriptor desc, List<Join> predicateJoins, Predicate predicate)

@@ -77,26 +77,41 @@ public class BusinessObjectDepartmentTest
 
 
    /**
-    * Tests visibility of department scope restricted and propagated related business objects.
-    * For Administrator Role.
+    * Tests visibility of department scope restricted and propagated related business
+    * objects for Administrator Role.
     */
    @Test
    public void test01AdministratorAccess()
    {
-      createClient("c1", "cg1");
-      createClientGroup("cg1", "c1");
-      createClient("c2", null);
-      createClientGroup("cg2", null);
-
+      // create
       UserHome.create(sf, U1, ModelParticipantInfo.ADMINISTRATOR);
 
-      assertValues(CLIENT_BO, 2);
-      assertValues(CLIENT_GROUP_BO, 2);
+      createClientU1("c1", "cg1");
+      createClientGroupU1("cg1", "c1");
+      createClientU1("c2", null);
+      createClientGroupU1("cg2", null);
+
+      // read
+      assertValuesU1(CLIENT_BO, 2);
+      assertValuesU1(CLIENT_GROUP_BO, 2);
+
+      // update
+      updateClientU1("c1", "c2");
+      updateClientU1("c2", "c1");
+
+      // delete
+      deleteClientU1("c1");
+      deleteClientU1("c2");
+
+      // read
+      assertValuesU1(CLIENT_BO, 0);
+      assertValuesU1(CLIENT_GROUP_BO, 2);
+
    }
 
    /**
-    * Tests visibility of department scope restricted and propagated related business objects.
-    * For Auditor Role.
+    * Tests visibility of department scope restricted and propagated related business
+    * objects for Auditor Role.
     */
    @Test
    public void test02AuditorAccess()
@@ -108,8 +123,9 @@ public class BusinessObjectDepartmentTest
 
       UserHome.create(sf, U1, getAuditorRole());
 
-      assertValues(CLIENT_BO, 2);
-      assertValues(CLIENT_GROUP_BO, 2);
+      // read as Auditor
+      assertValuesU1(CLIENT_BO, 2);
+      assertValuesU1(CLIENT_GROUP_BO, 2);
    }
 
 
@@ -124,7 +140,7 @@ public class BusinessObjectDepartmentTest
 
       UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
 
-      assertValues(CLIENT_BO, 1);
+      assertValuesU1(CLIENT_BO, 1);
    }
 
 
@@ -149,7 +165,7 @@ public class BusinessObjectDepartmentTest
          ex = true;
       }
 
-      assertValues(CLIENT_BO, 1);
+      assertValuesU1(CLIENT_BO, 1);
 
       if (!ex)
       {
@@ -174,15 +190,15 @@ public class BusinessObjectDepartmentTest
       boolean ex = false;
       try
       {
-         // should throw AccessForbiddenException
-         updateClientU1("c2", "c2");
+         // should throw AccessForbiddenException because c2 as old value is not granted.
+         updateClientU1("c2", "c1");
       }
       catch (AccessForbiddenException e)
       {
          ex = true;
       }
 
-      assertValues(CLIENT_BO, 1);
+      assertValuesU1(CLIENT_BO, 1);
 
       if (!ex)
       {
@@ -192,10 +208,9 @@ public class BusinessObjectDepartmentTest
 
    /**
     * Tests department restriction on update. In case the access to the department of the
-    * to be used value is not granted.
+    * to be used new value is not granted.
     */
    @Test
-   @Ignore
    public void test06DepartmentRestrictionUpdateNewValueDenied()
    {
       UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
@@ -204,16 +219,15 @@ public class BusinessObjectDepartmentTest
       boolean ex = false;
       try
       {
-         // TODO use ClientName as department (or new field)
-         // should throw AccessForbiddenException
-         updateClientU1("c1", "someValue");
+         // should throw AccessForbiddenException because c2 as new value is not granted
+         updateClientU1("c1", "c2");
       }
       catch (AccessForbiddenException e)
       {
          ex = true;
       }
 
-      assertValues(CLIENT_BO, 1);
+      assertValuesU1(CLIENT_BO, 1);
 
       if (!ex)
       {
@@ -231,7 +245,7 @@ public class BusinessObjectDepartmentTest
       createClient("c1", null);
       createClient("c2", null);
 
-      assertValues(CLIENT_BO, 1);
+      assertValuesU1(CLIENT_BO, 1);
 
       deleteClientU1("c1");
 
@@ -265,8 +279,11 @@ public class BusinessObjectDepartmentTest
 
       UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
 
-      assertValues(CLIENT_GROUP_BO, 1);
+      assertValuesU1(CLIENT_GROUP_BO, 1);
    }
+
+
+   //************************** UTILITY ***************************************
 
    private ModelParticipantInfo getAuditorRole()
    {
@@ -278,7 +295,7 @@ public class BusinessObjectDepartmentTest
       return (ModelParticipantInfo) auditorParticipant;
    }
 
-   private void assertValues(String businessObjectId, int expectedCount)
+   private void assertValuesU1(String businessObjectId, int expectedCount)
    {
       ServiceFactory u1Sf = ServiceFactoryLocator.get(U1, U1);
 
@@ -287,10 +304,17 @@ public class BusinessObjectDepartmentTest
             BusinessObjectQuery.Option.WITH_VALUES));
       BusinessObjects bos = u1Sf.getQueryService().getAllBusinessObjects(query);
 
-      Assert.assertEquals("Query Result BOs", 1, bos.getSize());
-      BusinessObject bo = bos.get(0);
-      List<BusinessObject.Value> values = bo.getValues();
-      Assert.assertEquals("Values", expectedCount, values.size());
+      if (expectedCount > 0)
+      {
+         Assert.assertEquals("Query Result BOs", 1, bos.getSize());
+         BusinessObject bo = bos.get(0);
+         List<BusinessObject.Value> values = bo.getValues();
+         Assert.assertEquals("Values", expectedCount, values.size());
+      }
+      else
+      {
+         Assert.assertEquals("Query Result BOs", 0, bos.getSize());
+      }
 
       u1Sf.close();
    }
@@ -336,6 +360,18 @@ public class BusinessObjectDepartmentTest
       }
    }
 
+   private BusinessObject createClient(ServiceFactory sf, String id, String ref)
+   {
+      final Map<String, Object> client = CollectionUtils.newMap();
+      client.put("ClientId", id);
+      client.put("ClientName", id);
+      client.put("ClientGroup", ref);
+      client.put("Department", id);
+
+      return sf.getWorkflowService().createBusinessObjectInstance(CLIENT_BO,
+            (Serializable) client);
+   }
+
    private BusinessObject updateClientU1(String id, String newDepartment)
    {
       ServiceFactory u1Sf = ServiceFactoryLocator.get(U1, U1);
@@ -347,6 +383,16 @@ public class BusinessObjectDepartmentTest
       {
          u1Sf.close();
       }
+   }
+
+   private BusinessObject updateClient(ServiceFactory sf, String id, String newDepartment)
+   {
+      final Map<String, Object> client = CollectionUtils.newMap();
+      client.put("ClientId", id);
+      client.put("ClientName", id);
+      client.put("Department", newDepartment);
+
+      return sf.getWorkflowService().updateBusinessObjectInstance(CLIENT_BO, client);
    }
 
    private void deleteClientU1(String id)
@@ -367,18 +413,25 @@ public class BusinessObjectDepartmentTest
       sf.getWorkflowService().deleteBusinessObjectInstance(CLIENT_BO, id);
    }
 
-   private BusinessObject createClient(ServiceFactory sf, String id, String ref)
+   private BusinessObject createClientGroup(String id, String ref)
    {
-      final Map<String, Object> client = CollectionUtils.newMap();
-      client.put("ClientId", id);
-      client.put("ClientName", id);
-      client.put("ClientGroup", ref);
-
-      return sf.getWorkflowService().createBusinessObjectInstance(CLIENT_BO,
-            (Serializable) client);
+      return createClientGroup(sf, id, ref);
    }
 
-   private BusinessObject createClientGroup(String id, String ref)
+   private BusinessObject createClientGroupU1(String id, String ref)
+   {
+      ServiceFactory u1Sf = ServiceFactoryLocator.get(U1, U1);
+      try
+      {
+         return createClientGroup(u1Sf, id, ref);
+      }
+      finally
+      {
+         u1Sf.close();
+      }
+   }
+
+   private BusinessObject createClientGroup(ServiceFactory sf, String id, String ref)
    {
       final Map<String, Object> client = CollectionUtils.newMap();
       client.put("ClientGroupId", id);
@@ -386,15 +439,5 @@ public class BusinessObjectDepartmentTest
 
       return sf.getWorkflowService().createBusinessObjectInstance(CLIENT_GROUP_BO,
             (Serializable) client);
-   }
-
-   private BusinessObject updateClient(ServiceFactory sf, String id, String newDepartment)
-   {
-      final Map<String, Object> client = CollectionUtils.newMap();
-      client.put("ClientId", id);
-      // TODO move department to ClientName in model
-      client.put("ClientName", newDepartment);
-
-      return sf.getWorkflowService().updateBusinessObjectInstance(CLIENT_BO, client);
    }
 }

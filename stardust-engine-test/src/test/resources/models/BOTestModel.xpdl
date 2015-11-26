@@ -22,6 +22,7 @@
 <xsd:element name="ClientId" type="xsd:string"/>
 <xsd:element name="ClientName" type="xsd:string"/>
 <xsd:element name="ClientGroup" type="xsd:string"/>
+<xsd:element name="Department" type="xsd:string"/>
 </xsd:sequence>
 </xsd:complexType>
 <xsd:element name="Client" type="cli:Client"/>
@@ -93,7 +94,7 @@
 <carnot:Attribute Name="carnot:model:uuid" Value="93e8ce28-dac3-4b55-a9c3-e097f31cb20a"/>
 <carnot:Attribute Name="carnot:engine:bound" Value="true" Type="boolean"/>
 <carnot:Attribute Name="carnot:engine:dataId" Value="Client"/>
-<carnot:Attribute Name="carnot:engine:dataPath" Value="ClientId"/>
+<carnot:Attribute Name="carnot:engine:dataPath" Value="Department"/>
 </carnot:Attributes>
 </carnot:Organization>
 </ExtendedAttribute>
@@ -443,7 +444,7 @@
 <carnot:Views/>
 <carnot:Attributes>
 <carnot:Attribute Name="carnot:model:uuid" Value="813fdde5-760d-4341-9d42-bff5680ca07c"/>
-<carnot:Attribute Name="ipp:model:modified" Value="Mon Nov 23 13:20:35 CET 2015"/>
+<carnot:Attribute Name="ipp:model:modified" Value="Thu Nov 26 08:51:49 CET 2015"/>
 </carnot:Attributes>
 </carnot:Package>
 </ExtendedAttribute>

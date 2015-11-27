@@ -350,7 +350,7 @@ public final class ClientPermission
       return cp == NULL ? null : cp;
    }
 
-   public static Map<String, String> getDefaults()
+   public static Map<String, String> getGlobalDefaults()
    {
       HashMap<String, String> defaultPermissions = new HashMap<String, String>();
       Set<ExecutionPermission.Id> readOnlyPermissions = getReadOnlyPermissions();
@@ -369,14 +369,14 @@ public final class ClientPermission
          HashMap<String, String> defaultPermissions, ClientPermission permission,
          Set<ExecutionPermission.Id> readOnlyPermissions)
    {
-      if (permission != NULL && permission.changeable())
+      if (permission != NULL && permission.changeable() && permission.scope() != Scope.model)
       {
+         String permissionId = permission.toString();
          if (!readOnlyPermissions.contains(permission.id()))
          {
-            String permissionId = ExecutionPermission.Scope.model.equals(permission
-                  .scope()) ? permission.id().name() : permission.toString();
-            defaultPermissions.put(DENY_PREFIX + permissionId, PredefinedConstants.QUALIFIED_AUDITOR_ID);
+            permissionId = DENY_PREFIX + permissionId;
          }
+         defaultPermissions.put(permissionId, PredefinedConstants.QUALIFIED_AUDITOR_ID);
       }
    }
 
@@ -407,7 +407,7 @@ public final class ClientPermission
    protected static void addDefaultPermission(HashMap<String, String> defaultPermissions,
          ClientPermission permission)
    {
-      if (permission != NULL && permission.changeable())
+      if (permission != NULL && permission.changeable() && permission.scope() == Scope.model)
       {
          String id = permission.allowedIds.get(0);
          String existing = defaultPermissions.get(id);

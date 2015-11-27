@@ -47,13 +47,13 @@ public class PermissionUtils
     * The static defaults for the permissions.
     * Please Note: Changing a default here does not automatically update saved preferences.
     */
-   private final static Map<String, String> defaultPermissions = ClientPermission.getDefaults();
+   private final static Map<String, String> defaultGlobalPermissions = ClientPermission.getGlobalDefaults();
 
    public static boolean isDefaultPermission(String permissionId, List<String> grants)
    {
-      if ( !CollectionUtils.isEmpty(grants))
+      if (!CollectionUtils.isEmpty(grants))
       {
-         String permission = defaultPermissions.get(stripPrefix(permissionId));
+         String permission = defaultGlobalPermissions.get(stripPrefix(permissionId));
          if (permission != null && grants.size() == 1 && grants.get(0).equals(permission))
          {
             return true;
@@ -65,12 +65,8 @@ public class PermissionUtils
    public static Map<String, List<String>> getGlobalPermissions(
          IPreferenceStorageManager preferenceStore, boolean includeDefaultPermissions)
    {
-      final Map<String, Serializable> permissions = getPreferences(preferenceStore);
-
-      Map<String, List<String>> filteredPermissions = filterPermissions(permissions,
-            includeDefaultPermissions);
-
-      return filteredPermissions;
+      Map<String, Serializable> permissions = getPreferences(preferenceStore);
+      return filterPermissions(permissions, includeDefaultPermissions);
    }
 
    public static List<String> getGlobalPermissionValues(
@@ -86,7 +82,7 @@ public class PermissionUtils
       {
          if (values == null || values.isEmpty())
          {
-            String defaultPermission = getModelDefaultPermissions().get(
+            String defaultPermission = defaultGlobalPermissions.get(
                   internalPermissionId);
             if ( !StringUtils.isEmpty(defaultPermission))
             {
@@ -112,14 +108,11 @@ public class PermissionUtils
 
       if (values == null || values.isEmpty())
       {
-         String defaultPermission = getModelDefaultPermissions().get(internalPermissionId);
+         String defaultPermission = defaultGlobalPermissions.get(internalPermissionId);
          if (!StringUtils.isEmpty(defaultPermission))
          {
-            if (includeDefaultPermissions || ClientPermission.isDeniedPermissionId(internalPermissionId))
-            {
-               values = new LinkedList<String>();
-               values.add(defaultPermission);
-            }
+            values = new LinkedList<String>();
+            values.add(defaultPermission);
          }
       }
       if (values == null)
@@ -171,7 +164,7 @@ public class PermissionUtils
 
    private static void addDefaultPermissions(Map<String, List<String>> permissions)
    {
-      for (Entry<String, String> entry : getModelDefaultPermissions().entrySet())
+      for (Entry<String, String> entry : defaultGlobalPermissions.entrySet())
       {
          List value = permissions.get(entry.getKey());
          if (value == null)
@@ -181,11 +174,6 @@ public class PermissionUtils
             permissions.put(entry.getKey(), values);
          }
       }
-   }
-
-   private static Map<String, String> getModelDefaultPermissions()
-   {
-      return defaultPermissions;
    }
 
    private static Map<String, Serializable> getPreferences(

@@ -58,6 +58,8 @@ public class BusinessObjectDepartmentTest
 
    public static final String CLIENT_ORG = new QName(MODEL_NAME, "Client_Admin").toString();
 
+   public static final String BO_ADMIN_ROLE = new QName(MODEL_NAME, "BO_Admin").toString();
+
    public static final String U1 = "u1";
 
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(
@@ -267,6 +269,40 @@ public class BusinessObjectDepartmentTest
    }
 
    /**
+    * Tests visibility of department scope restricted and propagated related business
+    * objects for BO_Admin (non scoped role which has modify and read data permissions on Client and ClientGroup).
+    */
+   @Test
+   public void test08NonScopedRoleAccess()
+   {
+      // create
+      UserHome.create(sf, U1, getUnscopedParticipant(BO_ADMIN_ROLE));
+
+      createClientU1("c1", "cg1");
+      createClientU1("c2", null);
+
+      createClientGroupU1("cg1", "c1");
+      createClientGroupU1("cg2", null);
+
+      // read
+      assertValuesU1(CLIENT_BO, 2);
+      assertValuesU1(CLIENT_GROUP_BO, 2);
+
+      // update
+      updateClientU1("c1", "c2");
+      updateClientU1("c2", "c1");
+
+      // delete
+      deleteClientU1("c1");
+      deleteClientU1("c2");
+
+      // read
+      assertValuesU1(CLIENT_BO, 0);
+      assertValuesU1(CLIENT_GROUP_BO, 2);
+
+   }
+
+   /**
     * Tests visibility of business object with propagated access.
     */
    @Test
@@ -291,6 +327,14 @@ public class BusinessObjectDepartmentTest
       Models models = queryService.getModels(findForId(PREDEFINED_MODEL_ID));
       Participant auditorParticipant = queryService.getParticipant(models.get(0)
             .getModelOID(), PredefinedConstants.AUDITOR_ROLE);
+      Assert.assertNotNull(auditorParticipant);
+      return (ModelParticipantInfo) auditorParticipant;
+   }
+
+   private ModelParticipantInfo getUnscopedParticipant(String qualifiedModelParticipantId)
+   {
+      QueryService queryService = sf.getQueryService();
+      Participant auditorParticipant = queryService.getParticipant(qualifiedModelParticipantId);
       Assert.assertNotNull(auditorParticipant);
       return (ModelParticipantInfo) auditorParticipant;
    }

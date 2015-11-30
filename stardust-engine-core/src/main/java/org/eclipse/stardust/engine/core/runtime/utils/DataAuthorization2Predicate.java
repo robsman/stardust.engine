@@ -111,14 +111,14 @@ public class DataAuthorization2Predicate extends AbstractAuthorization2Predicate
                   context.setPrefetchDataAvailable(false);
                }
 
-               if (allowed)
+               if (!allowed)
                {
-                  return true;
+                  return false;
                }
             }
          }
       }
-      return false;
+      return true;
    }
 
    private List<IOrganization> getScopedOrganizations()

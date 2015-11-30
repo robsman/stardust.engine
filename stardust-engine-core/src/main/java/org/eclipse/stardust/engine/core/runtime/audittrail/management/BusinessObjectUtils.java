@@ -353,6 +353,7 @@ public class BusinessObjectUtils
          Authorization2Predicate authPred = authorizationPredicate;
          if (authorizationPredicate == null)
          {
+            // in case the declarative security is evaluated deferred e.g. for query
             final BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor
                   .getCurrent();
             authPred = bpmRt.getAuthorizationPredicate();

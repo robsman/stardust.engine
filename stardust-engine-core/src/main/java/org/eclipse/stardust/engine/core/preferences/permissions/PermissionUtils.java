@@ -51,15 +51,8 @@ public class PermissionUtils
 
    public static boolean isDefaultPermission(String permissionId, List<String> grants)
    {
-      if (!CollectionUtils.isEmpty(grants))
-      {
-         String permission = defaultGlobalPermissions.get(stripPrefix(permissionId));
-         if (permission != null && grants.size() == 1 && grants.get(0).equals(permission))
-         {
-            return true;
-         }
-      }
-      return false;
+      String permission = defaultGlobalPermissions.get(stripPrefix(permissionId));
+      return (permission == null && grants == null) || (permission != null && grants.size() == 1 && grants.get(0).equals(permission));
    }
 
    public static Map<String, List<String>> getGlobalPermissions(

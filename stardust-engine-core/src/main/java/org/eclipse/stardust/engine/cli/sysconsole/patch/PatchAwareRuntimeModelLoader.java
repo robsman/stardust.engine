@@ -76,7 +76,7 @@ public class PatchAwareRuntimeModelLoader extends RuntimeModelLoader
       for (Iterator i = ModelPersistorBean.findAll(partitionOid); i.hasNext();)
       {
          ModelPersistorBean model = (ModelPersistorBean) i.next();
-         allAvailableModels.put(model.getOID(), model.getId());
+         allAvailableModels.put(model.getOID(), model.getPersistedId());
       }
 
       Map<Long, String> allAvailableData = new HashMap<Long, String>();

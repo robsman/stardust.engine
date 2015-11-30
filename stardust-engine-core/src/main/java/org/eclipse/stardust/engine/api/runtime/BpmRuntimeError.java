@@ -338,7 +338,6 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 AUTHx_SYNC_FAILED_IMPORTING_DEPARTMENT = newArgs2("AUTHx00585", BpmRuntimeErrorMessages.getString("AUTHx00585")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args AUTHx_AUTH_MISSING_GRANTS = newArgs("AUTHx01000"); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args AUTHx_AUTH_MISSING_GRANT_ON_DATA = newArgs("AUTHx01010"); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args2 AUTHx_AUTH_INVALID_GRANT = newArgs2("AUTHx01100", BpmRuntimeErrorMessages.getString("AUTHx01100")); //$NON-NLS-1$ //$NON-NLS-2$
 

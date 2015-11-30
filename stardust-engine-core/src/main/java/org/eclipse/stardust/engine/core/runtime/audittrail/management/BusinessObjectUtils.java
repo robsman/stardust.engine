@@ -41,9 +41,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean.DataValueChangeListener;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
-import org.eclipse.stardust.engine.core.runtime.utils.DataAuthorization2Predicate;
-import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
+import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.struct.*;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
@@ -322,7 +320,7 @@ public class BusinessObjectUtils
                      values.put(data, list);
                   }
                   Object value = converter.toCollection(document.getRootElement(), "", namespaceAware);
-                  if (isDepartmentAllowed(data, value))
+                  if (isDepartmentAllowed(data, value, null))
                   {
                      list.add(new BusinessObjectDetails.ValueDetails(piOid, value));
                   }
@@ -348,19 +346,21 @@ public class BusinessObjectUtils
       }
    }
 
-   private static boolean isDepartmentAllowed(IData data, Object value)
+   private static boolean isDepartmentAllowed(IData data, Object value, Authorization2Predicate authorizationPredicate)
    {
       if (value != null)
       {
-         final BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor
-               .getCurrent();
-         Authorization2Predicate authorizationPredicate = bpmRt
-               .getAuthorizationPredicate();
-
-
-         if (authorizationPredicate != null && authorizationPredicate instanceof DataAuthorization2Predicate)
+         Authorization2Predicate authPred = authorizationPredicate;
+         if (authorizationPredicate == null)
          {
-            DataAuthorization2Predicate dataAuthPredicate = (DataAuthorization2Predicate) authorizationPredicate;
+            final BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor
+                  .getCurrent();
+            authPred = bpmRt.getAuthorizationPredicate();
+         }
+
+         if (authPred != null && authPred instanceof DataAuthorization2Predicate)
+         {
+            DataAuthorization2Predicate dataAuthPredicate = (DataAuthorization2Predicate) authPred;
 
             return dataAuthPredicate.acceptBOValue(data, value);
          }
@@ -369,30 +369,21 @@ public class BusinessObjectUtils
       return true;
    }
 
-   private static void checkDepartmentAllowed(IData data, Object value)
+   private static void checkDepartmentModifyAllowed(IData data, Object value)
    {
-      boolean accepted = isDepartmentAllowed(data, value);
+      ClientPermission permission = ClientPermission.MODIFY_DATA_VALUE;
 
-      if (!accepted)
+      BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
+      if (runtimeEnvironment.isSecureContext())
       {
-         throw new AccessForbiddenException(
-               BpmRuntimeError.AUTHx_AUTH_MISSING_GRANT_ON_DATA.raise(data.getId()));
-      }
-   }
-
-   private static void checkPermission(IData data)
-   {
-      final BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor.getCurrent();
-      Authorization2Predicate authorizationPredicate = bpmRt.getAuthorizationPredicate();
-
-      if (authorizationPredicate != null)
-      {
-         boolean accepted = authorizationPredicate.accept(data);
-
-         if (!accepted)
+         AuthorizationContext context = AuthorizationContext.create(permission);
+         DataAuthorization2Predicate authorizationPredicate = new DataAuthorization2Predicate(context);
+         authorizationPredicate.accept(data);
+         if (!isDepartmentAllowed(data, value, authorizationPredicate))
          {
-            throw new AccessForbiddenException(
-                  BpmRuntimeError.AUTHx_AUTH_MISSING_GRANT_ON_DATA.raise(data.getId()));
+            IUser user = context.getUser();
+            throw new AccessForbiddenException(BpmRuntimeError.AUTHx_AUTH_MISSING_GRANTS.raise(
+                  user.getOID(), String.valueOf(permission), user.getAccount()));
          }
       }
    }
@@ -564,7 +555,6 @@ public class BusinessObjectUtils
       }
 
       IData data = findDataForUpdate(businessObjectId);
-      checkPermission(data);
       lockData(data);
       IProcessInstance pi = findUnboundProcessInstance(data, getPK(data, initialValue));
       if (pi != null)
@@ -594,7 +584,6 @@ public class BusinessObjectUtils
       }
 
       IData data = findDataForUpdate(businessObjectId);
-      checkPermission(data);
       IProcessInstance pi = findUnboundProcessInstance(data, getPK(data, value));
       if (pi == null)
       {
@@ -608,7 +597,6 @@ public class BusinessObjectUtils
    public static void deleteInstance(String businessObjectId, Object pkValue)
    {
       IData data = findDataForUpdate(businessObjectId);
-      checkPermission(data);
       IProcessInstance pi = findUnboundProcessInstance(data, pkValue);
       if (pi == null)
       {
@@ -618,7 +606,7 @@ public class BusinessObjectUtils
 
       pi.lock();
       Object dataValue = pi.getInDataValue(data, null);
-      checkDepartmentAllowed(data, dataValue);
+      checkDepartmentModifyAllowed(data, dataValue);
 
       Map<String, BusinessObjectRelationship> rels = getBusinessObjectRelationships(data);
       if (!rels.isEmpty())
@@ -686,8 +674,8 @@ public class BusinessObjectUtils
    private static BusinessObject updateBusinessObjectInstance(IProcessInstance pi, IData data, Object newValue)
    {
       Object previousValue = pi.getInDataValue(data, null);
-      checkDepartmentAllowed(data, previousValue);
-      checkDepartmentAllowed(data, newValue);
+      checkDepartmentModifyAllowed(data, previousValue);
+      checkDepartmentModifyAllowed(data, newValue);
 
       pi.setOutDataValue(data, null, newValue);
       Object dataValue = pi.getInDataValue(data, null);

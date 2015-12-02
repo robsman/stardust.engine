@@ -286,7 +286,8 @@ public class BusinessObjectUtils
          IData data, QueryDescriptor queryDescriptor, Query query)
    {
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-      ResultSet resultSet = session.executeQuery(queryDescriptor, QueryUtils.getTimeOut(query));
+      ResultSet resultSet = session.executeQuery(queryDescriptor,
+            QueryUtils.getTimeOut(query));
       SubsetPolicy subsetPolicy = QueryUtils.getSubset(query);
       try
       {
@@ -295,43 +296,47 @@ public class BusinessObjectUtils
          int total = 0;
          while (resultSet.next())
          {
-            total++;
-            if (skipped < subsetPolicy.getSkippedEntries())
+            if (count < subsetPolicy.getMaxSize())
             {
-               skipped++;
-            }
-            else
-            {
-               if (count < subsetPolicy.getMaxSize())
+               long piOid = resultSet.getLong(1);
+               Clob clob = resultSet.getClob(2);
+
+               Document document = DocumentBuilder
+                     .buildDocument(clob.getCharacterStream());
+               boolean namespaceAware = StructuredDataXPathUtils
+                     .isNamespaceAware(document);
+               final IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
+               StructuredDataConverter converter = new StructuredDataConverter(xPathMap);
+
+               List<BusinessObject.Value> list = values.get(data);
+               if (list == null)
                {
-                  long piOid = resultSet.getLong(1);
-                  Clob clob = resultSet.getClob(2);
-
-                  Document document = DocumentBuilder.buildDocument(clob.getCharacterStream());
-                  boolean namespaceAware = StructuredDataXPathUtils.isNamespaceAware(document);
-                  final IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
-                  StructuredDataConverter converter = new StructuredDataConverter(xPathMap);
-
-                  List<BusinessObject.Value> list = values.get(data);
-                  if (list == null)
+                  list = CollectionUtils.newList();
+                  values.put(data, list);
+               }
+               Object value = converter.toCollection(document.getRootElement(), "",
+                     namespaceAware);
+               if (isDepartmentAllowed(data, value, null))
+               {
+                  total++;
+                  if (skipped < subsetPolicy.getSkippedEntries())
                   {
-                     list = CollectionUtils.newList();
-                     values.put(data, list);
+                     skipped++;
                   }
-                  Object value = converter.toCollection(document.getRootElement(), "", namespaceAware);
-                  if (isDepartmentAllowed(data, value, null))
+                  else
                   {
                      list.add(new BusinessObjectDetails.ValueDetails(piOid, value));
                      count++;
                   }
                }
-               else
+            }
+            else
+            {
+               if (!subsetPolicy.isEvaluatingTotalCount())
                {
-                  if (!subsetPolicy.isEvaluatingTotalCount())
-                  {
-                     break;
-                  }
+                  break;
                }
+               total++;
             }
          }
          return subsetPolicy.isEvaluatingTotalCount() ? total : 0;
@@ -342,7 +347,8 @@ public class BusinessObjectUtils
       }
       finally
       {
-         org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils.closeResultSet(resultSet);
+         org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils
+               .closeResultSet(resultSet);
       }
    }
 

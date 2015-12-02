@@ -17,7 +17,11 @@ import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
+import org.eclipse.stardust.engine.api.dto.DepartmentInfoDetails;
+import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
+import org.eclipse.stardust.engine.api.query.FilterCriterion;
+import org.eclipse.stardust.engine.api.query.PerformingParticipantFilter;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
@@ -30,11 +34,9 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 public class ResubmissionTest
 {
    private static final String RESUBMISSION_ID = "Resubmission";
-
    private static final String PROCESS_ID = RESUBMISSION_ID;
-
    private static final String MODEL_NAME = PROCESS_ID;
-
+   
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(
          MOTU, MOTU);
 
@@ -82,6 +84,11 @@ public class ResubmissionTest
       Thread.sleep(10000);
       activityInstance = findFirstAliveActivityInstance();
       assertEquals(ActivityInstanceState.Suspended, activityInstance.getState());
+      
+      final PerformingParticipantFilter filter = PerformingParticipantFilter.forParticipant(
+            DepartmentInfoDetails.getParticipant(null, ModelParticipantInfo.ADMINISTRATOR));
+      
+      assertEquals(1, getActivityInstancesCount(filter));
    }
 
    private ActivityInstance findFirstAliveActivityInstance()
@@ -90,4 +97,11 @@ public class ResubmissionTest
       return queryService.findFirstActivityInstance(aiQuery);
    }
 
+   
+   private long getActivityInstancesCount(final FilterCriterion filter)
+   {
+      final ActivityInstanceQuery ai = new ActivityInstanceQuery();
+      ai.where(filter);
+      return queryService.getActivityInstancesCount(ai);
+   }
 }

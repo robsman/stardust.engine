@@ -14,6 +14,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
@@ -350,9 +351,9 @@ public final class ClientPermission
       return cp == NULL ? null : cp;
    }
 
-   public static Map<String, String> getGlobalDefaults()
+   public static Map<String, List<String>> getGlobalDefaults()
    {
-      HashMap<String, String> defaultPermissions = new HashMap<String, String>();
+      HashMap<String, List<String>> defaultPermissions = new HashMap<String, List<String>>();
       Set<ExecutionPermission.Id> readOnlyPermissions = getReadOnlyPermissions();
       for (ClientPermission permission : permissionCache.values())
       {
@@ -365,18 +366,53 @@ public final class ClientPermission
       return defaultPermissions;
    }
 
+   private static final List<String> administratorList = Collections.singletonList(PredefinedConstants.ADMINISTRATOR_ROLE);
+   private static final List<String> allList = Collections.singletonList(Authorization2.ALL);
+   private static final List<String> auditorList = Collections.singletonList(PredefinedConstants.QUALIFIED_AUDITOR_ID);
+   private static final List<String> ownerList = Collections.singletonList(Authorization2.OWNER);
+
    private static void addDefaultAuditorPermission(
-         HashMap<String, String> defaultPermissions, ClientPermission permission,
+         HashMap<String, List<String>> defaultPermissions, ClientPermission permission,
          Set<ExecutionPermission.Id> readOnlyPermissions)
    {
-      if (permission != NULL && permission.changeable() && permission.scope() != Scope.model)
+      if (permission != NULL && permission.changeable())
       {
-         String permissionId = permission.toString();
-         if (!readOnlyPermissions.contains(permission.id()))
+         if (readOnlyPermissions.contains(permission.id()))
          {
-            permissionId = DENY_PREFIX + permissionId;
+            if (permission.scope != Scope.model)
+            {
+               // Auditor is granted all reading model element permissions.
+               defaultPermissions.put(permission.toString(), auditorList);
+            }
+            else
+            {
+               List<String> existing = defaultPermissions.get(permission.id.toString());
+               if (existing == null || existing.isEmpty())
+               {
+                  defaultPermissions.put(permission.id.toString(), auditorList);
+               }
+               else if (!existing.contains(Authorization2.ALL))
+               {
+                  List<String> def = CollectionUtils.newList();
+                  def.addAll(existing);
+                  def.addAll(auditorList);
+                  defaultPermissions.put(permission.id.toString(), def);
+               }
+            }
          }
-         defaultPermissions.put(permissionId, PredefinedConstants.QUALIFIED_AUDITOR_ID);
+         else
+         {
+            // Auditor is denied all modifying permissions.
+            if (permission.scope != Scope.model)
+            {
+               defaultPermissions.put(DENY_PREFIX + permission.toString(), auditorList);
+            }
+            else if (permission.id != ExecutionPermission.Id.resetUserPassword && permission.id != ExecutionPermission.Id.saveOwnUserScopePreferences)
+            {
+               // store global permissions without the scope
+               defaultPermissions.put(DENY_PREFIX + permission.id, auditorList);
+            }
+         }
       }
    }
 
@@ -404,18 +440,47 @@ public final class ClientPermission
       return readOnlyPermissions;
    }
 
-   protected static void addDefaultPermission(HashMap<String, String> defaultPermissions,
+   protected static void addDefaultPermission(HashMap<String, List<String>> defaultPermissions,
          ClientPermission permission)
    {
       if (permission != NULL && permission.changeable() && permission.scope() == Scope.model)
       {
          String id = permission.allowedIds.get(0);
-         String existing = defaultPermissions.get(id);
-         if (existing == null || PredefinedConstants.ADMINISTRATOR_ROLE.equals(existing))
+         List<String> existing = defaultPermissions.get(id);
+         if (existing == null || existing.size() == 1 && PredefinedConstants.ADMINISTRATOR_ROLE.equals(existing.get(0)))
          {
             Default[] defaults = permission.defaults();
-            String name = getName(defaults == null || defaults.length == 0 ? null : defaults[0]);
-            defaultPermissions.put(id, name);
+            List<String> list = null;
+            if (defaults != null)
+            {
+               switch (defaults.length)
+               {
+               case 0:
+                  list = Collections.emptyList();
+                  break;
+               case 1:
+                  switch (defaults[0])
+                  {
+                  case ALL:
+                     list = allList;
+                     break;
+                  case OWNER:
+                     list = ownerList;
+                     break;
+                  default:
+                     list = administratorList;
+                     break;
+                  }
+                  break;
+               default:
+                  list = CollectionUtils.newList(defaults.length);
+                  for (Default def : defaults)
+                  {
+                     list.add(getName(def));
+                  }
+               }
+            }
+            defaultPermissions.put(id, list);
          }
       }
    }

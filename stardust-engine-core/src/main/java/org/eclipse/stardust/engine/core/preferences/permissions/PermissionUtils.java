@@ -47,12 +47,13 @@ public class PermissionUtils
     * The static defaults for the permissions.
     * Please Note: Changing a default here does not automatically update saved preferences.
     */
-   private final static Map<String, String> defaultGlobalPermissions = ClientPermission.getGlobalDefaults();
+   private final static Map<String, List<String>> defaultGlobalPermissions = ClientPermission.getGlobalDefaults();
 
    public static boolean isDefaultPermission(String permissionId, List<String> grants)
    {
-      String permission = defaultGlobalPermissions.get(stripPrefix(permissionId));
-      return (permission == null && grants == null) || (permission != null && grants.size() == 1 && grants.get(0).equals(permission));
+      List<String> permission = defaultGlobalPermissions.get(stripPrefix(permissionId));
+      return (permission == null && grants == null) ||
+             (permission != null && grants != null && permission.size() == grants.size() && permission.containsAll(grants));
    }
 
    public static Map<String, List<String>> getGlobalPermissions(
@@ -75,12 +76,10 @@ public class PermissionUtils
       {
          if (values == null || values.isEmpty())
          {
-            String defaultPermission = defaultGlobalPermissions.get(
-                  internalPermissionId);
-            if ( !StringUtils.isEmpty(defaultPermission))
+            List<String> defaultPermission = defaultGlobalPermissions.get(internalPermissionId);
+            if (defaultPermission != null)
             {
-               values = new LinkedList<String>();
-               values.add(defaultPermission);
+               values = defaultPermission;
             }
          }
       }
@@ -101,11 +100,10 @@ public class PermissionUtils
 
       if (values == null || values.isEmpty())
       {
-         String defaultPermission = defaultGlobalPermissions.get(internalPermissionId);
-         if (!StringUtils.isEmpty(defaultPermission))
+         List<String> defaultPermission = defaultGlobalPermissions.get(internalPermissionId);
+         if (defaultPermission != null)
          {
-            values = new LinkedList<String>();
-            values.add(defaultPermission);
+            values = defaultPermission;
          }
       }
       if (values == null)
@@ -157,14 +155,13 @@ public class PermissionUtils
 
    private static void addDefaultPermissions(Map<String, List<String>> permissions)
    {
-      for (Entry<String, String> entry : defaultGlobalPermissions.entrySet())
+      for (Entry<String, List<String>> entry : defaultGlobalPermissions.entrySet())
       {
          List value = permissions.get(entry.getKey());
          if (value == null)
          {
-            List values = new LinkedList<String>();
-            values.add(entry.getValue());
-            permissions.put(entry.getKey(), values);
+            List values = entry.getValue();
+            permissions.put(entry.getKey(), values == null ? Collections.emptyList() : values);
          }
       }
    }

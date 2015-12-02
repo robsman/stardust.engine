@@ -304,7 +304,6 @@ public class BusinessObjectUtils
             {
                if (count < subsetPolicy.getMaxSize())
                {
-                  count++;
                   long piOid = resultSet.getLong(1);
                   Clob clob = resultSet.getClob(2);
 
@@ -323,6 +322,7 @@ public class BusinessObjectUtils
                   if (isDepartmentAllowed(data, value, null))
                   {
                      list.add(new BusinessObjectDetails.ValueDetails(piOid, value));
+                     count++;
                   }
                }
                else

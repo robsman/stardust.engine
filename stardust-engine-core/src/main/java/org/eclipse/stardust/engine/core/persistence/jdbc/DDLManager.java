@@ -178,7 +178,7 @@ public class DDLManager
       StringBuffer buffer = new StringBuffer();
 
       // TODO: implement it for other db descriptors as well.
-      if (DBMSKey.SYBASE.equals(dbDescriptor.getDbmsKey()))
+      if (DBMSKey.ORACLE.equals(dbDescriptor.getDbmsKey()))
       {
          buffer.append("GRANT ALL ON ");
          buffer.append(dbDescriptor.quoteIdentifier(typeManager.getTableName()));
@@ -1953,7 +1953,7 @@ public class DDLManager
       }
    }
 
-   private String getDataValueField(DataSlotFieldInfo dataSlotField)
+   private static String getDataValueField(DataSlotFieldInfo dataSlotField)
    {
       if(dataSlotField.isOidColumn())
       {
@@ -1983,7 +1983,7 @@ public class DDLManager
       }
    }
 
-   private String getColumnValuesSelect(Collection<DataSlotFieldInfo> columns, String dataValuePrefix, String dataValueSelect)
+   public static String getColumnValuesSelect(Collection<DataSlotFieldInfo> columns, String dataValuePrefix, String dataValueSelect)
    {
       StringBuilder builder = new StringBuilder();
       builder.append("SELECT ");
@@ -2004,7 +2004,7 @@ public class DDLManager
       return builder.toString();
    }
 
-   private String getColumnValueSelect(DataSlotFieldInfo fieldInfo, String dataValuePrefix, String dataValueSelect)
+   public static String getColumnValueSelect(DataSlotFieldInfo fieldInfo, String dataValuePrefix, String dataValueSelect)
    {
       StringBuilder builder = new StringBuilder();
       builder.append(fieldInfo.getName()).append(" = ");
@@ -2019,7 +2019,7 @@ public class DDLManager
 
    }
 
-   private static String getStateListValues(DataCluster dataCluster)
+   public static String getStateListValues(DataCluster dataCluster)
    {
       StringBuilder stateListBuilder = new StringBuilder();
       Set<DataClusterEnableState> enableStates = dataCluster.getEnableStates();
@@ -2044,6 +2044,7 @@ public class DDLManager
    public void synchronizeDataCluster(boolean performDeleteOrInsert, DataClusterSynchronizationInfo syncInfo, Connection connection,
          String schemaName, PrintStream spoolFile, String statementDelimiter, PrintStream consoleLog)
    {
+      // TODO: a partial copy of that code also exists in Archiver.backupDataCluster(...). This needs to be refactored in order to prevent code duplication,
       Statement verifyStmt = null;
       try
       {
@@ -2056,7 +2057,7 @@ public class DDLManager
       for(DataCluster dataCluster : syncInfo.getClusters())
       {
          int count = 0;
-         
+
          final String processInstanceScopeTable = getQualifiedName(schemaName,
                TypeDescriptor.get(ProcessInstanceScopeBean.class).getTableName());
          final String processInstanceTable = getQualifiedName(schemaName, TypeDescriptor.get(
@@ -2150,7 +2151,7 @@ public class DDLManager
                   count++;
                }
             }
-            
+
             // synchronizing slot values
             for (DataSlot dataSlot : syncInfo.getDataSlots(dataCluster))
             {
@@ -2193,7 +2194,7 @@ public class DDLManager
                   printLogMessage(message, consoleLog);
                   count++;
                }
-               
+
                String subselectSql;
                String dataValuePrefix;
                if (StringUtils.isEmpty(dataSlot.getAttributeName()))
@@ -2534,7 +2535,7 @@ public class DDLManager
                   count++;
                }
             }
-            
+
             for (DataSlot dataSlot : dataCluster.getAllSlots())
             {
                resultSet = verifyExistingDvsNotRefByDC(dataCluster, schemaName, verifyStmt,

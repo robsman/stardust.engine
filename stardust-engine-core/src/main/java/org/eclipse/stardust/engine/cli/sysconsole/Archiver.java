@@ -42,9 +42,8 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
-import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
-import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
-import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
+import org.eclipse.stardust.engine.core.runtime.setup.*;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterMetaInfoRetriever;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
@@ -1917,7 +1916,7 @@ public class Archiver
 
 // ????
          // deleting appropriate slots in data cluster tables
-         final DataCluster[] dClusters = RuntimeSetup.instance().getDataClusterSetup();
+         final DataCluster[] dClusters = getDataClusterSetup(false);
          for (int idx = 0; idx < dClusters.length; ++idx)
          {
             synchronizeDataCluster(dClusters[idx], Arrays.asList(fqIds));
@@ -2235,13 +2234,65 @@ public class Archiver
 
       try
       {
-         // TODO (kafka) are global properties with OID -1 correctly treated?
-         // rsauer: yes, as property does not have a model association
-         final ComparisonTerm partitionPredicate = Predicates.inList(
-               PropertyPersistor.FR__PARTITION, new long[] { -1, partitionOid });
-         synchronizePkInstableTables(PropertyPersistor.class, null, null, partitionPredicate);
-
          stmt = session.getConnection().createStatement();
+
+         // Fetch OID of current DC property in archive
+         PredicateTerm propertyPredicate = Predicates.inList(
+               PropertyPersistor.FR__PARTITION, new long[] {-1, partitionOid});
+         propertyPredicate = Predicates.andTerm(
+               propertyPredicate,
+               Predicates.isEqual(
+                     PropertyPersistor.FR__NAME,
+                     RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION));
+
+         QueryDescriptor queryDcProperty = QueryDescriptor.from(archiveSchema, PropertyPersistor.class).where(propertyPredicate).select(PropertyPersistor.FR__OID);
+         ResultSet dcPropertyResult = session.executeQuery(queryDcProperty);
+         if(dcPropertyResult.next())
+         {
+            // DC does extist - get current oid
+            long currentOid = dcPropertyResult.getLong(PropertyPersistor.FIELD__OID);
+
+            // find maximum OID from source and archive schema
+            long srcMaxOid = findMaxValue(srcSchema, PropertyPersistor.class,
+                  PropertyPersistor.FR__OID, null);
+            long arcMaxOid = findMaxValue(archiveSchema, PropertyPersistor.class,
+                  PropertyPersistor.FR__OID, null);
+            long maxOid = arcMaxOid > srcMaxOid ? arcMaxOid : srcMaxOid;
+
+            // move archive DC property ahead of max possible OIDs in order to avoid OID collision
+            StringBuilder updBuffer = new StringBuilder();
+            updBuffer.append("UPDATE ")
+                  .append(getArchiveObjName(PropertyPersistor.TABLE_NAME))
+                  .append(" SET ").append(PropertyPersistor.FIELD__OID).append(" = ")
+                  .append(maxOid + 1).append(" WHERE ")
+                  .append(PropertyPersistor.FIELD__OID).append(" = ").append(currentOid);
+
+            int updatedItems = stmt.executeUpdate(updBuffer.toString());
+
+            // update referencing STRING_DATA items
+            updBuffer = new StringBuilder();
+            updBuffer.append("UPDATE ")
+                  .append(getArchiveObjName(LargeStringHolder.TABLE_NAME))
+                  .append(" SET ").append(LargeStringHolder.FIELD__OBJECTID)
+                  .append(" = ").append(maxOid + 1)
+                  .append(" WHERE ")
+                  .append(LargeStringHolder.FIELD__OBJECTID).append(" = ").append(currentOid)
+                  .append(" AND ")
+                  .append(LargeStringHolder.FIELD__DATA_TYPE).append(" = ").append("'" + PropertyPersistor.TABLE_NAME + "'");
+
+            updatedItems = stmt.executeUpdate(updBuffer.toString());
+         }
+
+         // Remove all global and partition related properties, BUT not those for data cluster definition
+         propertyPredicate = Predicates.inList(
+               PropertyPersistor.FR__PARTITION, new long[] {-1, partitionOid});
+         propertyPredicate = Predicates.andTerm(
+               propertyPredicate,
+               Predicates.notEqual(
+                     PropertyPersistor.FR__NAME,
+                     RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION));
+
+         synchronizePkInstableTables(PropertyPersistor.class, null, null, propertyPredicate);
 
          long maxOid = findMaxValue(archiveSchema, PropertyPersistor.class,
                PropertyPersistor.FR__OID, null);
@@ -2253,7 +2304,7 @@ public class Archiver
          String syncSql = "INSERT INTO " + getArchiveObjName(propertyTd.getTableName())
                + " (" + getFieldNames(dbDescriptor, propertyTd) + ") "
                + "VALUES ("
-               + maxOid + 1 + ", '" + Constants.CARNOT_ARCHIVE_AUDITTRAIL + "', 'true', 'DEFAULT', 0"
+               + (maxOid + 1) + ", '" + Constants.CARNOT_ARCHIVE_AUDITTRAIL + "', 'true', 'DEFAULT', 0"
                + ", -1)";  // TODO (kafka): in future properties can belong to partitions.
 
          if (trace.isDebugEnabled())
@@ -2522,7 +2573,7 @@ public class Archiver
    private void deleteDataClusterParts(List piOids, boolean isArchiveSchema)
    {
       // finally deleting rows from data clusters
-      final DataCluster[] dClusters = RuntimeSetup.instance().getDataClusterSetup();
+      final DataCluster[] dClusters = getDataClusterSetup(isArchiveSchema);
 
       for (int idx = 0; idx < dClusters.length; ++idx)
       {
@@ -2540,7 +2591,8 @@ public class Archiver
                   .append(
                         isArchiveSchema
                               ? getArchiveObjName(quotedTableName)
-                              : getSrcObjName(quotedTableName)).append(" WHERE ")
+                              : getSrcObjName(quotedTableName))
+                  .append(" WHERE ")
                   .append(getInClause(dCluster.getProcessInstanceColumn(), piOids));
 
             if (trace.isDebugEnabled())
@@ -3005,42 +3057,188 @@ public class Archiver
       backup2ndLevelPiParts(piOids, targetType, fkPiPartFieldName, DataValueBean.class,
             ActivityInstanceBean.FIELD__PROCESS_INSTANCE, restriction);
    }
-   
+
    private void backupDataCluster(List piOids)
    {
-      // insert into table select * from table where primarykey=1
-      final DataCluster[] dClusters = RuntimeSetup.instance().getDataClusterSetup();
+      // TODO: partially copied code from DDLManager.synchronizeDataCluster(...). This needs to be refactored in order to prevent code duplication,
+
+      DBDescriptor dbDescriptor = session.getDBDescriptor();
+      final DataCluster[] dClusters = getDataClusterSetup(true);
 
       for (int idx = 0; idx < dClusters.length; ++idx)
       {
          final DataCluster dCluster = dClusters[idx];
 
          Statement stmt = null;
+
+         final String clusterTable = getArchiveObjName(dbDescriptor.quoteIdentifier(dCluster.getTableName()));
+         final String piTable = getArchiveObjName(TypeDescriptor.get(ProcessInstanceBean.class).getTableName());
+         final String pisTable = getArchiveObjName(TypeDescriptor.get(ProcessInstanceScopeBean.class).getTableName());
+         final String dataTable = getArchiveObjName(TypeDescriptor.get(AuditTrailDataBean.class).getTableName());
+         final String dvTable = getArchiveObjName(TypeDescriptor.get(DataValueBean.class).getTableName());
+         final String structDataTable = getArchiveObjName(TypeDescriptor.get(StructuredDataBean.class).getTableName());
+         final String structDvTable = getArchiveObjName(TypeDescriptor.get(StructuredDataValueBean.class).getTableName());
+         final String modelTable = getArchiveObjName(TypeDescriptor.get(ModelPersistorBean.class).getTableName());
+
          try
          {
             stmt = session.getConnection().createStatement();
-            DBDescriptor dbDescriptor = session.getDBDescriptor();
-            StringBuffer buffer = new StringBuffer(100 + piOids.size() * 10);
-            buffer.append("INSERT INTO ")
-                  .append(
-                        getArchiveObjName(dbDescriptor.quoteIdentifier(dCluster
-                              .getTableName())))
-                  .append(" SELECT * FROM ")
-                  .append(
-                        getSrcObjName(dbDescriptor.quoteIdentifier(dCluster
-                              .getTableName()))).append(" WHERE ")
-                  .append(getInClause(dCluster.getProcessInstanceColumn(), piOids));
+
+            // Add entries for requested PIs
+            String syncInsSql = MessageFormat.format(
+                  "INSERT INTO {0} ({1}) "
+                        + "SELECT DISTINCT PIS.{3} "
+                        + "  FROM {2} PIS "
+                        + "   INNER JOIN {4} PI ON("
+                        + "    PI.{5} = PIS.{3}"
+                        + "      AND PI.{6} IN({7})"
+                        + "   )                    "
+                        + " WHERE NOT EXISTS ("
+                        + "  SELECT ''x'' "
+                        + "    FROM {0} DC "
+                        + "   WHERE PIS.{3} = DC.{1}"
+                        + " )"
+                        + " AND ({8})",
+                        new Object[] {
+                              clusterTable,
+                              dCluster.getProcessInstanceColumn(),
+                              pisTable,
+                              ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE,
+                              piTable,
+                              ProcessInstanceBean.FIELD__OID,
+                              ProcessInstanceBean.FIELD__STATE,
+                              DDLManager.getStateListValues(dCluster),
+                              getPiOidInListPredicateSQLFragment(piOids, "PI", ProcessInstanceBean.FIELD__OID)});
 
             if (trace.isDebugEnabled())
             {
-               trace.debug(buffer);
+               trace.debug(syncInsSql);
             }
-            stmt.executeUpdate(buffer.toString());
+            stmt.executeUpdate(syncInsSql);
+
+
+            // synchronizing slot values
+            for (DataSlot dataSlot : dCluster.getAllSlots())
+            {
+               Collection<DataSlotFieldInfo> dataSlotColumnsToSynch = DataClusterMetaInfoRetriever
+                     .getDataSlotFields(dataSlot);
+               if(dataSlotColumnsToSynch.size() != 0)
+               {
+                  String subselectSql;
+                  String dataValuePrefix;
+
+                  if (StringUtils.isEmpty(dataSlot.getAttributeName()))
+                  {
+                     // primitive data
+                     subselectSql = MessageFormat.format(
+                           "  FROM {3} dv, {4} d, {5} m"
+                                 + " WHERE {0}.{1} = dv." + DataValueBean.FIELD__PROCESS_INSTANCE
+                                 + "   AND dv." + DataValueBean.FIELD__DATA + " = d." + AuditTrailDataBean.FIELD__OID
+                                 + "   AND dv." + DataValueBean.FIELD__MODEL + " = d." + AuditTrailDataBean.FIELD__MODEL
+                                 + "   AND d." + AuditTrailDataBean.FIELD__MODEL + " = m." + ModelPersistorBean.FIELD__OID
+                                 + "   AND d." + AuditTrailDataBean.FIELD__ID + " = ''{2}''"
+                                 + "   AND m." + ModelPersistorBean.FIELD__ID + " = ''{6}''"
+                                 ,
+                                 new Object[] {
+                                       clusterTable, // 0
+                                       dCluster.getProcessInstanceColumn(), // 1
+                                       dataSlot.getDataId(), // 2
+                                       dvTable, // 3
+                                       dataTable, // 4
+                                       modelTable, // 5
+                                       dataSlot.getModelId() // 6
+                                 });
+                     dataValuePrefix = "dv";
+                  }
+                  else
+                  {
+                     // structured data
+                     subselectSql = MessageFormat.format(
+                           "  FROM {3} d, {4} sd, {5} sdv, {6} p, {8} m"
+                                 + " WHERE {0}.{1} = sdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
+                                 + "   AND sdv." + StructuredDataValueBean.FIELD__XPATH + " = sd." + StructuredDataBean.FIELD__OID
+                                 + "   AND sd." + DataValueBean.FIELD__DATA + " = d." + AuditTrailDataBean.FIELD__OID
+                                 + "   AND sd." + DataValueBean.FIELD__MODEL + " = d." + AuditTrailDataBean.FIELD__MODEL
+                                 + "   AND p." + ProcessInstanceBean.FIELD__OID + " = sdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
+                                 + "   AND p." + ProcessInstanceBean.FIELD__MODEL + " = d." + DataValueBean.FIELD__MODEL
+                                 + "   AND sd." + StructuredDataBean.FIELD__XPATH + " = ''{7}'' "
+                                 + "   AND d." + AuditTrailDataBean.FIELD__ID + " = ''{2}''"
+                                 + "   AND d."+ DataValueBean.FIELD__MODEL + " = m." + ModelPersistorBean.FIELD__OID
+                                 + "   AND m." + ModelPersistorBean.FIELD__ID + " = ''{9}''"
+                                 ,
+                                 new Object[] {
+                                       clusterTable,
+                                       dCluster.getProcessInstanceColumn(),
+                                       dataSlot.getDataId(),
+                                       dataTable, // 3
+                                       structDataTable, // 4
+                                       structDvTable, // 5
+                                       piTable, // 6
+                                       dataSlot.getAttributeName(), // 7
+                                       modelTable, // 8
+                                       dataSlot.getModelId() // 9
+                                 });
+                     dataValuePrefix = "sdv";
+                  }
+
+                  StringBuffer updBuffer = new StringBuffer(1000);
+                  updBuffer.append("UPDATE ").append(clusterTable)
+                  .append(" SET ");
+
+                  if (dbDescriptor.supportsMultiColumnUpdates())
+                  {
+                     updBuffer.append("(");
+
+                     // which field need to be updated in the cluster table
+                     Iterator<DataSlotFieldInfo> i = dataSlotColumnsToSynch.iterator();
+                     while (i.hasNext())
+                     {
+                        DataSlotFieldInfo dataSlotColumn = i.next();
+                        updBuffer.append(dataSlotColumn.getName());
+                        if (i.hasNext())
+                        {
+                           updBuffer.append(", ");
+                        }
+                     }
+                     updBuffer.append(")");
+                     updBuffer.append(" = ");
+                     updBuffer.append("(");
+                     updBuffer.append(DDLManager.getColumnValuesSelect(dataSlotColumnsToSynch,
+                           dataValuePrefix, subselectSql));
+                     updBuffer.append(")");
+                  }
+                  else
+                  {
+                     Iterator<DataSlotFieldInfo> i = dataSlotColumnsToSynch.iterator();
+                     while (i.hasNext())
+                     {
+                        DataSlotFieldInfo dataSlotColumn = i.next();
+                        String updateColumnValueStmt = DDLManager.getColumnValueSelect(
+                              dataSlotColumn, dataValuePrefix, subselectSql);
+                        updBuffer.append(updateColumnValueStmt);
+                        if (i.hasNext())
+                        {
+                           updBuffer.append(", ");
+                        }
+                     }
+                  }
+                  updBuffer.append(" WHERE ")
+                     .append(getPiOidInListPredicateSQLFragment(piOids, clusterTable,
+                              dCluster.getProcessInstanceColumn()));
+
+                  String syncUpdSql = updBuffer.toString();
+                  if (trace.isDebugEnabled())
+                  {
+                     trace.debug(syncUpdSql);
+                  }
+                  stmt.executeUpdate(syncUpdSql);
+               }
+            }
          }
          catch (SQLException e)
          {
             throw new PublicException(
-                  BpmRuntimeError.ARCH_FAILED_DELETING_ENTRIES_FROM_DATA_CLUSTER_TABLE.raise(
+                  BpmRuntimeError.ARCH_FAILED_SYNCHING_ENTRIES_IN_DATA_CLUSTER_TABLE.raise(
                         getSrcObjName(dCluster.getTableName()), e.getMessage()), e);
          }
          finally
@@ -3048,6 +3246,75 @@ public class Archiver
             QueryUtils.closeStatement(stmt);
          }
       }
+   }
+
+   private DataCluster[] getDataClusterSetup(boolean fromArchive)
+   {
+      if (!fromArchive)
+      {
+         // fallback to usage of DataCluster Setup from source schema
+         return RuntimeSetup.instance().getDataClusterSetup();
+      }
+
+      // fetch data cluster setup from archive schema as requested
+      DBDescriptor dbDescriptor = session.getDBDescriptor();
+      boolean useEndMarker = dbDescriptor.isTrimmingTrailingBlanks();
+
+      QueryDescriptor dcXmlQuery = QueryDescriptor.from(archiveSchema, LargeStringHolder.class, "sd");
+      dcXmlQuery.select(LargeStringHolder.FR__DATA);
+
+      Join prpJoin = new Join(archiveSchema, PropertyPersistor.class, PropertyPersistor.DEFAULT_ALIAS)
+         .on(LargeStringHolder.FR__OBJECTID, PropertyPersistor.FIELD__OID)
+         .andOnConstant(LargeStringHolder.FR__DATA_TYPE, "'" + PropertyPersistor.TABLE_NAME + "'");
+
+      dcXmlQuery.getQueryExtension().addJoin(prpJoin);
+      dcXmlQuery.orderBy(LargeStringHolder.FR__OID);
+
+      StringBuilder dcXml = new StringBuilder();
+      ResultSet dcXmlResult = session.executeQuery(dcXmlQuery);
+      try
+      {
+         while (dcXmlResult.next())
+         {
+            String dcXmlChunk = dcXmlResult.getString(LargeStringHolder.FIELD__DATA);
+            if (useEndMarker)
+            {
+               dcXmlChunk = dcXmlChunk.substring(0, dcXmlChunk.length() - 1);
+            }
+            dcXml.append(dcXmlChunk);
+         }
+      }
+      catch (SQLException e)
+      {
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_READING_DATA_CLUSTER_DEFINITION.raise(), e);
+      }
+      finally
+      {
+         QueryUtils.closeResultSet(dcXmlResult);
+      }
+
+      final DataCluster[] dClusters = new TransientRuntimeSetup(dcXml.toString()).getDataClusterSetup();
+      return dClusters;
+   }
+
+   private static String getPiOidInListPredicateSQLFragment(List piOids, String piAlias, String oidColumn)
+   {
+      StringBuilder predicate = new StringBuilder(piOids.size() * 8 + 100);
+      List<List<Long>> splitList = CollectionUtils.split(piOids, SQL_IN_CHUNK_SIZE);
+
+      String predicateDelimiter = "";
+      for (List<Long> subList : splitList)
+      {
+         predicate.append(predicateDelimiter);
+
+         predicate.append(piAlias).append(DOT).append(oidColumn).append(" IN (")
+               .append(StringUtils.join(subList.iterator(), ",")).append(")");
+
+         predicateDelimiter = " OR ";
+      }
+
+      return predicate.toString();
    }
 
    private void backupDepParts()

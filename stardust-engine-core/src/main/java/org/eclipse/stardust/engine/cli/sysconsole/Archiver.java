@@ -3265,7 +3265,8 @@ public class Archiver
 
       Join prpJoin = new Join(archiveSchema, PropertyPersistor.class, PropertyPersistor.DEFAULT_ALIAS)
          .on(LargeStringHolder.FR__OBJECTID, PropertyPersistor.FIELD__OID)
-         .andOnConstant(LargeStringHolder.FR__DATA_TYPE, "'" + PropertyPersistor.TABLE_NAME + "'");
+         .andOnConstant(LargeStringHolder.FR__DATA_TYPE, "'" + PropertyPersistor.TABLE_NAME + "'")
+         .where(Predicates.isEqual(PropertyPersistor.FR__NAME, RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION));
 
       dcXmlQuery.getQueryExtension().addJoin(prpJoin);
       dcXmlQuery.orderBy(LargeStringHolder.FR__OID);

@@ -393,10 +393,19 @@ public final class ClientPermission
                }
                else if (!existing.contains(Authorization2.ALL))
                {
-                  List<String> def = CollectionUtils.newList();
-                  def.addAll(existing);
-                  def.addAll(auditorList);
-                  defaultPermissions.put(permission.id.toString(), def);
+                  if (!existing.containsAll(auditorList))
+                  {
+                     List<String> def = CollectionUtils.newList();
+                     def.addAll(existing);
+                     for (String id : auditorList)
+                     {
+                        if (!existing.contains(id))
+                        {
+                           def.add(id);
+                        }
+                     }
+                     defaultPermissions.put(permission.id.toString(), def);
+                  }
                }
             }
          }

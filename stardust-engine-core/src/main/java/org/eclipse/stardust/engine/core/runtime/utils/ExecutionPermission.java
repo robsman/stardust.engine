@@ -29,6 +29,7 @@ public @interface ExecutionPermission {
    public enum Default {
       ADMINISTRATOR,
       ALL,
+      AUDITOR,
       OWNER
    }
 
@@ -296,9 +297,9 @@ public @interface ExecutionPermission {
     * @return the implied Id
     */
    Id[] implied() default {};
-   
+
    @Retention(RetentionPolicy.RUNTIME)
    public @interface ReadOnly {
-      
+
    }
 }

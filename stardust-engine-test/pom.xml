@@ -27,6 +27,10 @@
    <name>Stardust Engine Test</name>
    <description>This project allows for writing functional tests against 'Stardust Engine'.</description>
 
+   <properties>
+      <hazelcast.network.port>5900</hazelcast.network.port>
+   </properties>
+
    <dependencies>
       <!-- Stardust Engine -->
       <dependency>
@@ -198,6 +202,22 @@
    </dependencies>
 
    <build>
+      <resources>
+         <resource>
+            <directory>src/main/resources</directory>
+            <includes>
+               <include>hazelcast.xml</include>
+            </includes>
+            <filtering>true</filtering>
+         </resource>
+         <resource>
+            <directory>src/main/resources</directory>
+            <excludes>
+               <exclude>hazelcast.xml</exclude>
+            </excludes>
+            <filtering>false</filtering>
+         </resource>
+      </resources>
       <plugins>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>

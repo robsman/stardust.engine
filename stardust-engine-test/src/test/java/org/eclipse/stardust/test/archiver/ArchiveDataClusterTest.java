@@ -54,6 +54,7 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
  * @author Antje.Fuhrmann
  * @version $Revision$
  */
+@Ignore
 public class ArchiveDataClusterTest
 {
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(

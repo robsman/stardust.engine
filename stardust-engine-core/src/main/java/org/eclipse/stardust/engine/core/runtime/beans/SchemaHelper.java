@@ -1209,13 +1209,23 @@ public class SchemaHelper
          DataClusterHelper.deleteDataClusterSetup();
          
          //insert new setup
-         PropertyPersistor newSetupPersistor 
-            = new PropertyPersistor(RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION, "dummy");
+         PropertyPersistor archiveProp = PropertyPersistor
+               .findByName(Constants.CARNOT_ARCHIVE_AUDITTRAIL);
+         boolean isArchiveAuditTrail = archiveProp != null ? Boolean
+               .parseBoolean(archiveProp.getValue()) : false;
+         if (isArchiveAuditTrail)
+         {
+            session.setUsingDataClusterOnArchiveAuditTrail(true);
+         }
+         PropertyPersistor newSetupPersistor = new PropertyPersistor(
+               RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION, "dummy");
          LargeStringHolder.setLargeString(newSetupPersistor.getOID(), PropertyPersistor.class,
                newSetup.getXml());
-         session.setUsingDataClusterOnArchiveAuditTrail(true);
          session.save();
-         session.setUsingDataClusterOnArchiveAuditTrail(false);
+         if (isArchiveAuditTrail)
+         {
+            session.setUsingDataClusterOnArchiveAuditTrail(false);
+         }
          
          //force loading of new setup - to verify its working without problems
          Parameters.instance().set(RuntimeSetup.RUNTIME_SETUP_PROPERTY, null);

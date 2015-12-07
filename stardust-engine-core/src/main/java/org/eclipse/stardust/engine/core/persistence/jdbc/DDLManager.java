@@ -1450,10 +1450,16 @@ public class DDLManager
          columns.add(PropertyPersistor.FIELD__LOCALE);
          columns.add(PropertyPersistor.FIELD__FLAGS);
          columns.add(PropertyPersistor.FIELD__PARTITION);
+         oStream.println("INSERT INTO "
+               + getQualifiedName(schemaName,
+                     dbDescriptor.quoteIdentifier(PropertyPersistor.TABLE_NAME))
+               + buildColumnsFragment(dbDescriptor, columns) + "VALUES (1, '"
+               + Constants.SYSOP_PASSWORD + "', '" + Constants.DEFAULT_PASSWORD
+               + "', 'DEFAULT', 0, -1);");
          oStream.println(
                "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(PropertyPersistor.TABLE_NAME))
                + buildColumnsFragment(dbDescriptor, columns)
-               + "VALUES (1, '" + Constants.CARNOT_ARCHIVE_AUDITTRAIL + "', 'true', 'DEFAULT', 0, -1);");
+               + "VALUES (2, '" + Constants.CARNOT_ARCHIVE_AUDITTRAIL + "', 'true', 'DEFAULT', 0, -1);");
 
          oStream.println();
          oStream.println("COMMIT;");

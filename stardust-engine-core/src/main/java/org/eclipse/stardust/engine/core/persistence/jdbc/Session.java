@@ -147,10 +147,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
    private Map/*<Class, Set>*/ synchronizationCache;
 
-   private final DmlManagerRegistry dmlManagers;
+   private DmlManagerRegistry dmlManagers;
 
    private List /*<BulkDeleteStatement>*/ bulkDeleteStatements = new ArrayList();
    private DBDescriptor dbDescriptor;
+   private DBDescriptor originalDbDescriptor;
    private String name;
 
    private final boolean isArchiveAuditTrail;
@@ -164,11 +165,15 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
    private final Parameters params;
 
-   private final SequenceGenerator uniqueIdGenerator;
+   private SequenceGenerator uniqueIdGenerator;
+   
+   private String originalSequenceGenerator;
 
    private final boolean forceImmediateInsert;
 
    private boolean usingDCArchiveAuditTrail;
+
+   private DmlManagerRegistryProvider dmlManagerRegistryProvider;
 
    public Session(String name)
    {
@@ -193,6 +198,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       this.dbDescriptor = dbDescriptor;
       this.sqlUtils = new SqlUtils(this.schemaName, this.dbDescriptor);
 
+      this.dmlManagerRegistryProvider = dmlManagerRegistryProvider;
       this.dmlManagers = dmlManagerRegistryProvider.getDmlManagerRegistry(name, sqlUtils,
             dbDescriptor, tdRegistry);
 
@@ -297,9 +303,36 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       return usingDCArchiveAuditTrail;
    }
    
-   public void setUsingDataClusterOnArchiveAuditTrail(boolean usingDCArchiveAuditTrail) 
+   public void setUsingDataClusterOnArchiveAuditTrail(boolean usingDCArchiveAuditTrail)
    {
       this.usingDCArchiveAuditTrail = usingDCArchiveAuditTrail;
+      if (usingDCArchiveAuditTrail)
+      {
+         originalDbDescriptor = dbDescriptor;
+         dbDescriptor = new SequenceOidDbDescriptor(dbDescriptor);
+         originalSequenceGenerator = params.getString(name + ".SequenceGenerator");
+         params.set(SequenceGenerator.UNIQUE_GENERATOR_PARAMETERS_KEY, null);
+         params.setString(
+               name + ".SequenceGenerator",
+               "org.eclipse.stardust.engine.core.persistence.jdbc.sequence.ArchiveAuditTrailSequenceGenerator");
+         uniqueIdGenerator = getUniqueIdGenerator();
+         dmlManagerRegistryProvider.cleanCache(name);
+         dmlManagers = dmlManagerRegistryProvider.getDmlManagerRegistry(name, sqlUtils,
+               dbDescriptor, tdRegistry);
+      }
+      else if (!usingDCArchiveAuditTrail)
+      {
+         dbDescriptor = originalDbDescriptor;
+         if (dbDescriptor.supportsSequences())
+         {
+            params.set(SequenceGenerator.UNIQUE_GENERATOR_PARAMETERS_KEY, null);
+            params.setString(name + ".SequenceGenerator", originalSequenceGenerator);
+            uniqueIdGenerator = getUniqueIdGenerator();
+         }
+         dmlManagerRegistryProvider.cleanCache(name);
+         dmlManagers = dmlManagerRegistryProvider.getDmlManagerRegistry(name, sqlUtils,
+               dbDescriptor, tdRegistry);
+      }
    }
 
    /**
@@ -390,7 +423,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
    private boolean isImmediateInsert(Persistent persistent, TypeDescriptor typeDescriptor)
    {
-      if (forceImmediateInsert)
+      if (forceImmediateInsert || usingDCArchiveAuditTrail)
       {
          return true;
       }
@@ -4415,6 +4448,8 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    {
       DmlManagerRegistry getDmlManagerRegistry(String sessionName, SqlUtils sqlUtils,
             DBDescriptor dbDescriptor, TypeDescriptorRegistry tdRegistry);
+      
+      void cleanCache(final String sessionName);
    }
 
    public static final class RuntimeDmlManagerProvider
@@ -4455,6 +4490,18 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          }
 
          return registry;
+      }
+      
+      public void cleanCache(final String sessionName)
+      {
+         final GlobalParameters globals = GlobalParameters.globals();
+
+         final String keyDmlManagerCache = SessionProperties.DS_NAME_AUDIT_TRAIL
+               .equals(sessionName)
+               ? KEY_AUDIT_TRAIL_DML_MANAGER_CACHE
+               : KEY_GLOBAL_DML_MANAGER_CACHE_PREFIX + sessionName;
+
+         globals.set(keyDmlManagerCache, null);
       }
    }
 

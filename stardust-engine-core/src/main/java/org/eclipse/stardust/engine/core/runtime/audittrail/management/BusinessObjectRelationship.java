@@ -42,6 +42,7 @@ public class BusinessObjectRelationship
    public String thisRole;
    public Cardinality thisCardinality;
    public String thisForeignKeyField;
+   public Boolean propagateAccess;
 
    public static BusinessObjectRelationship[] fromJsonString(String json)
    {

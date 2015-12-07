@@ -19,7 +19,10 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.Predicate;
-import org.eclipse.stardust.common.error.*;
+import org.eclipse.stardust.common.error.InvalidArgumentException;
+import org.eclipse.stardust.common.error.ObjectExistsException;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.dto.BusinessObjectDetails;
@@ -30,9 +33,11 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQueryEvaluator.ParsedQueryProcessor;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.BusinessObject;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject.Definition;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject.Value;
+import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
@@ -41,7 +46,8 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean.DataValueChangeListener;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
-import org.eclipse.stardust.engine.core.runtime.utils.*;
+import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
+import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
 import org.eclipse.stardust.engine.core.struct.*;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
@@ -206,7 +212,9 @@ public class BusinessObjectUtils
          for (Iterator<IData> data = model.getData().iterator(); data.hasNext();)
          {
             IData item = data.next();
-            if (queryEvaluator.accept(item) && (auth == null || auth.accept(item)))
+            if (queryEvaluator.accept(item)
+                  && (auth == null || auth.accept(item) || BusinessObjectSecurityUtils
+                        .isUnscopedPropagatedAccessAllowed(item, auth)))
             {
                allData.add(item);
             }
@@ -316,7 +324,7 @@ public class BusinessObjectUtils
                }
                Object value = converter.toCollection(document.getRootElement(), "",
                      namespaceAware);
-               if (isDepartmentAllowed(data, value, null))
+               if (BusinessObjectSecurityUtils.isDepartmentReadAllowed(data, value))
                {
                   total++;
                   if (skipped < subsetPolicy.getSkippedEntries())
@@ -349,49 +357,6 @@ public class BusinessObjectUtils
       {
          org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils
                .closeResultSet(resultSet);
-      }
-   }
-
-   private static boolean isDepartmentAllowed(IData data, Object value, Authorization2Predicate authorizationPredicate)
-   {
-      if (value != null)
-      {
-         Authorization2Predicate authPred = authorizationPredicate;
-         if (authorizationPredicate == null)
-         {
-            // in case the declarative security is evaluated deferred e.g. for query
-            final BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor
-                  .getCurrent();
-            authPred = bpmRt.getAuthorizationPredicate();
-         }
-
-         if (authPred != null && authPred instanceof DataAuthorization2Predicate)
-         {
-            DataAuthorization2Predicate dataAuthPredicate = (DataAuthorization2Predicate) authPred;
-
-            return dataAuthPredicate.acceptBOValue(data, value);
-         }
-      }
-      // no restriction
-      return true;
-   }
-
-   private static void checkDepartmentModifyAllowed(IData data, Object value)
-   {
-      ClientPermission permission = ClientPermission.MODIFY_DATA_VALUE;
-
-      BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
-      if (runtimeEnvironment.isSecureContext())
-      {
-         AuthorizationContext context = AuthorizationContext.create(permission);
-         DataAuthorization2Predicate authorizationPredicate = new DataAuthorization2Predicate(context);
-         authorizationPredicate.accept(data);
-         if (!isDepartmentAllowed(data, value, authorizationPredicate))
-         {
-            IUser user = context.getUser();
-            throw new AccessForbiddenException(BpmRuntimeError.AUTHx_AUTH_MISSING_GRANTS.raise(
-                  user.getOID(), String.valueOf(permission), user.getAccount()));
-         }
       }
    }
 
@@ -613,7 +578,7 @@ public class BusinessObjectUtils
 
       pi.lock();
       Object dataValue = pi.getInDataValue(data, null);
-      checkDepartmentModifyAllowed(data, dataValue);
+      BusinessObjectSecurityUtils.checkDepartmentModifyAllowed(data, dataValue);
 
       Map<String, BusinessObjectRelationship> rels = getBusinessObjectRelationships(data);
       if (!rels.isEmpty())
@@ -681,8 +646,8 @@ public class BusinessObjectUtils
    private static BusinessObject updateBusinessObjectInstance(IProcessInstance pi, IData data, Object newValue)
    {
       Object previousValue = pi.getInDataValue(data, null);
-      checkDepartmentModifyAllowed(data, previousValue);
-      checkDepartmentModifyAllowed(data, newValue);
+      BusinessObjectSecurityUtils.checkDepartmentModifyAllowed(data, previousValue);
+      BusinessObjectSecurityUtils.checkDepartmentModifyAllowed(data, newValue);
 
       pi.setOutDataValue(data, null, newValue);
       Object dataValue = pi.getInDataValue(data, null);

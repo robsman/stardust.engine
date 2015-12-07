@@ -21,6 +21,7 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.BusinessObjectSecurityUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -34,7 +35,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
  */
 public class DataAuthorization2Predicate extends AbstractAuthorization2Predicate
 {
-   private List<IOrganization> scopedOrganizations;
+   private Set<String> visitedData;
+   private Map<IData, Boolean> visitedDataUnscoped;
 
    public DataAuthorization2Predicate(AuthorizationContext context)
    {
@@ -60,9 +62,12 @@ public class DataAuthorization2Predicate extends AbstractAuthorization2Predicate
          DataAuthorization2Predicate authorizationPredicate = new DataAuthorization2Predicate(context);
          if (!authorizationPredicate.accept(data))
          {
-            IUser user = context.getUser();
-            throw new AccessForbiddenException(BpmRuntimeError.AUTHx_AUTH_MISSING_GRANTS.raise(
-                  user.getOID(), String.valueOf(permission), user.getAccount()));
+            if (!BusinessObjectSecurityUtils.isUnscopedPropagatedAccessAllowed(data, authorizationPredicate))
+            {
+               IUser user = context.getUser();
+               throw new AccessForbiddenException(BpmRuntimeError.AUTHx_AUTH_MISSING_GRANTS.raise(
+                     user.getOID(), String.valueOf(permission), user.getAccount()));
+            }
          }
       }
    }
@@ -123,10 +128,6 @@ public class DataAuthorization2Predicate extends AbstractAuthorization2Predicate
 
    private List<IOrganization> getScopedOrganizations()
    {
-      if (this.scopedOrganizations != null)
-      {
-         return this.scopedOrganizations;
-      }
       Set<IOrganization> scopedOrganizations = CollectionUtils.newSet();
       String[] grants = context.getGrants();
       for (String participantId : grants)
@@ -143,7 +144,26 @@ public class DataAuthorization2Predicate extends AbstractAuthorization2Predicate
             }
          }
       }
-      this.scopedOrganizations = new ArrayList(scopedOrganizations);
-      return this.scopedOrganizations;
+      return new ArrayList(scopedOrganizations);
+   }
+
+   public void setVisitedData(Set<String> visitedData)
+   {
+      this.visitedData = visitedData;
+   }
+
+   public Set<String> getVisitedData()
+   {
+      return visitedData;
+   }
+
+   public Map<IData, Boolean> getVisitedDataUnscoped()
+   {
+      return visitedDataUnscoped;
+   }
+
+   public void setVisitedDataUnscoped(Map<IData, Boolean> visitedDataUnscoped)
+   {
+      this.visitedDataUnscoped = visitedDataUnscoped;
    }
 }

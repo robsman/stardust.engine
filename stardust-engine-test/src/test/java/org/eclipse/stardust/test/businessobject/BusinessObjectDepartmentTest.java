@@ -25,6 +25,7 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runners.MethodSorters;
 
+import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
@@ -35,6 +36,7 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.BusinessObjectQuery;
 import org.eclipse.stardust.engine.api.query.BusinessObjects;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.BusinessObject.Value;
 import org.eclipse.stardust.test.api.setup.*;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.UserHome;
@@ -42,8 +44,15 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
 /**
  * <p>
- * This class tests BO declarative security department restriction functionality.
+ * This class tests Business Object declarative security department restriction and access
+ * propagation functionality.
  * <p>
+ * The Model consists of following Business Objects:
+ * <ul>
+ * <li>Client - Represents a Client and is scoped by department.</li>
+ * <li>ClientGroup - Groups Clients (no department).</li>
+ * <li>MasterGroup - Groups ClientGroup (no department).</li>
+ * </ul>
  *
  * @author Roland.Stamm
  */
@@ -52,15 +61,25 @@ public class BusinessObjectDepartmentTest
 {
    public static final String MODEL_NAME = "BOTestModel";
 
+   // ********* Business Objects ********
+
    public static final String CLIENT_BO = new QName(MODEL_NAME, "Client").toString();
 
    public static final String CLIENT_GROUP_BO = new QName(MODEL_NAME, "ClientGroup").toString();
+
+   public static final String MASTER_GROUP_BO = new QName(MODEL_NAME, "MasterGroup").toString();
+
+   // ********* Participants ********
 
    public static final String CLIENT_ORG = new QName(MODEL_NAME, "Client_Admin").toString();
 
    public static final String BO_ADMIN_ROLE = new QName(MODEL_NAME, "BO_Admin").toString();
 
+   // ********* Users ********
+
    public static final String U1 = "u1";
+
+   // ******** Test setup ********
 
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(
          MOTU, MOTU);
@@ -88,10 +107,10 @@ public class BusinessObjectDepartmentTest
       // create
       UserHome.create(sf, U1, ModelParticipantInfo.ADMINISTRATOR);
 
-      createClientU1("c1", "cg1");
-      createClientGroupU1("cg1", "c1");
+      createClientU1("c1", "g1");
+      createClientGroupU1("g1", "c1");
       createClientU1("c2", null);
-      createClientGroupU1("cg2", null);
+      createClientGroupU1("g2", null);
 
       // read
       assertValuesU1(CLIENT_BO, 2);
@@ -116,12 +135,13 @@ public class BusinessObjectDepartmentTest
     * objects for Auditor Role.
     */
    @Test
+   @Ignore
    public void test02AuditorAccess()
    {
-      createClient("c1", "cg1");
-      createClientGroup("cg1", "c1");
+      createClient("c1", "g1");
+      createClientGroup("g1", "c1");
       createClient("c2", null);
-      createClientGroup("cg2", null);
+      createClientGroup("g2", null);
 
       UserHome.create(sf, U1, getAuditorRole());
 
@@ -251,21 +271,16 @@ public class BusinessObjectDepartmentTest
 
       deleteClientU1("c1");
 
-      boolean ex = false;
-      try
+      tryAndAssertFail(new Action<Object>()
       {
-         // should throw AccessForbiddenException
-         deleteClientU1("c2");
-      }
-      catch (AccessForbiddenException e)
-      {
-         ex = true;
-      }
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            deleteClientU1("c2");
 
-      if (!ex)
-      {
-         Assert.fail();
-      }
+            return null;
+         }
+      });
    }
 
    /**
@@ -278,11 +293,11 @@ public class BusinessObjectDepartmentTest
       // create
       UserHome.create(sf, U1, getUnscopedParticipant(BO_ADMIN_ROLE));
 
-      createClientU1("c1", "cg1");
+      createClientU1("c1", "g1");
       createClientU1("c2", null);
 
-      createClientGroupU1("cg1", "c1");
-      createClientGroupU1("cg2", null);
+      createClientGroupU1("g1", "c1");
+      createClientGroupU1("g2", null);
 
       // read
       assertValuesU1(CLIENT_BO, 2);
@@ -302,24 +317,225 @@ public class BusinessObjectDepartmentTest
 
    }
 
+
    /**
-    * Tests visibility of business object with propagated access.
+    * Tests visibility of department scope restricted and propagated related business
+    * objects for BO_Admin (non scoped role which has modify and read data permissions on Client and ClientGroup).
     */
    @Test
-   public void test10DepartmentPropagation()
+   public void test09NonScopedRoleAccessOnCyclicRelation()
    {
-      createClient("c1", "cg1");
-      createClientGroup("cg1", "c1");
-      createClient("c2", null);
-      createClientGroup("cg2", null);
+      // create
+      UserHome.create(sf, U1, getUnscopedParticipant(BO_ADMIN_ROLE));
+
+      createClient("c1", "g1");
+      createClientGroup("g1", "c1", "m1");
+      createMasterGroup("m1", "g1");
+
+      createClient("c2", "g2");
+      createClientGroup("g2", "c2", "m2");
+      createMasterGroup("m2", "g2");
+
+      createClient("c3", null);
+      createClientGroup("g3", null);
+      createMasterGroup("m3", null);
+
+      // read
+      assertValuesU1(CLIENT_BO, 3);
+      assertValuesU1(CLIENT_GROUP_BO, 3);
+
+      // update
+      updateClientU1("c1", "c2");
+      updateClientU1("c2", "c1");
+
+      // delete
+      deleteClientU1("c1");
+      deleteClientU1("c2");
+      deleteClientU1("c3");
+
+      // read
+      assertValuesU1(CLIENT_BO, 0);
+      assertValuesU1(CLIENT_GROUP_BO, 3);
+      assertValuesU1(CLIENT_GROUP_BO, 3);
+
+   }
+
+   /**
+    * Tests visibility of business object with propagated access.
+    * With 1 level of propagation.
+    */
+   @Test
+   public void test10DepartmentPropagationRead1Level()
+   {
+      createClient("c1", "g1");
+      createClientGroup("g1", "c1");
+
+      createClient("c2", "g2");
+      createClientGroup("g2", "c2");
+
+      createClient("c3", null);
+      createClientGroup("g3", null);
 
       UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
 
-      assertValuesU1(CLIENT_GROUP_BO, 1);
+      assertValuesU1(CLIENT_GROUP_BO, 1, "ClientGroupId", "g1");
    }
 
+   /**
+    * Tests visibility of business object with propagated access.
+    * With 2 levels and cyclic propagation.
+    */
+   @Test
+   public void test11DepartmentPropagationRead2LevelCyclicAccess1()
+   {
+      createClient("c1", "g1");
+      createClientGroup("g1", "c1", "m1");
+      createMasterGroup("m1", "g1");
+
+      createClient("c2", "g2");
+      createClientGroup("g2", "c2", "m2");
+      createMasterGroup("m2", "g2");
+
+      createClient("c3", null);
+      createClientGroup("g3", null);
+      createMasterGroup("m3", null);
+
+      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
+
+      assertValuesU1(CLIENT_GROUP_BO, 1, "ClientGroupId", "g1");
+      assertValuesU1(MASTER_GROUP_BO, 1, "MasterGroupId", "m1");
+   }
+
+   /**
+    * Tests visibility of business object with propagated access.
+    * With 2 levels and cyclic propagation.
+    */
+   @Test
+   public void test12DepartmentPropagationRead2LevelCyclicAccess2()
+   {
+      createClient("c1", "g1");
+      createClientGroup("g1", "c1", "m1");
+      createMasterGroup("m1", "g1");
+
+      createClient("c2", "g2");
+      createClientGroup("g2", "c2", "m2");
+      createMasterGroup("m2", "g2");
+
+      createClient("c3", null);
+      createClientGroup("g3", null);
+      createMasterGroup("m3", null);
+
+      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"), getScopedOrg(CLIENT_ORG, "c2"));
+
+      assertValuesU1(CLIENT_GROUP_BO, 2);
+      assertValuesU1(MASTER_GROUP_BO, 2);
+   }
+
+   /**
+    * Tests visibility of business object with propagated access.
+    * With 2 levels and cyclic propagation.
+    */
+   @Test
+   public void test13DepartmentPropagationRead2LevelCyclicNoAccess()
+   {
+      createClient("c1", "g1");
+      createClientGroup("g1", "c1", "m1");
+      createMasterGroup("m1", "g1");
+
+      createClient("c2", "g2");
+      createClientGroup("g2", "c2", "m2");
+      createMasterGroup("m2", "g2");
+
+      createClient("c3", null);
+      createClientGroup("g3", null);
+      createMasterGroup("m3", null);
+
+      UserHome.create(sf, U1);
+
+      assertValuesU1(CLIENT_GROUP_BO, 0);
+      assertValuesU1(MASTER_GROUP_BO, 0);
+   }
+
+   /**
+    * Tests modification of business object with propagated access.
+    * With 1 level of propagation.
+    */
+   @Test
+   public void test14DepartmentPropagationModify1Level()
+   {
+      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
+
+      createClientU1("c1", "g1");
+      createClientGroupU1("g1", "c1");
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createClientU1("c2", "g2");
+
+            return null;
+         }
+      });
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createClientGroupU1("g2", "c2");
+
+            return null;
+         }
+      });
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createClientU1("c3", null);
+
+            return null;
+         }
+      });
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createClientGroupU1("g3", null);
+
+            return null;
+         }
+      });
+
+      assertValuesU1(CLIENT_BO, 1, "ClientId", "c1");
+      assertValuesU1(CLIENT_GROUP_BO, 1, "ClientGroupId", "g1");
+   }
 
    //************************** UTILITY ***************************************
+
+   private void tryAndAssertFail(Action<Object> action)
+   {
+      boolean ex = false;
+      try
+      {
+         // should throw AccessForbiddenException
+         action.execute();
+      }
+      catch (AccessForbiddenException e)
+      {
+         ex = true;
+      }
+
+      if (!ex)
+      {
+         Assert.fail();
+      }
+   }
 
    private ModelParticipantInfo getAuditorRole()
    {
@@ -341,6 +557,11 @@ public class BusinessObjectDepartmentTest
 
    private void assertValuesU1(String businessObjectId, int expectedCount)
    {
+      assertValuesU1(businessObjectId, expectedCount, null, null);
+   }
+
+   private void assertValuesU1(String businessObjectId, int expectedCount, String expectedId, String expectedValue)
+   {
       ServiceFactory u1Sf = ServiceFactoryLocator.get(U1, U1);
 
       BusinessObjectQuery query = BusinessObjectQuery.findForBusinessObject(businessObjectId);
@@ -353,7 +574,15 @@ public class BusinessObjectDepartmentTest
          Assert.assertEquals("Query Result BOs", 1, bos.getSize());
          BusinessObject bo = bos.get(0);
          List<BusinessObject.Value> values = bo.getValues();
-         Assert.assertEquals("Values", expectedCount, values.size());
+         Assert.assertEquals("Values of "+ businessObjectId , expectedCount, values.size());
+         if (expectedId != null)
+         {
+            for (Value value : values)
+            {
+               Map< ? , ? > structMap = (Map< ? , ? >) value.getValue();
+               Assert.assertEquals(expectedValue, structMap.get(expectedId));
+            }
+         }
       }
       else
       {
@@ -409,7 +638,7 @@ public class BusinessObjectDepartmentTest
       final Map<String, Object> client = CollectionUtils.newMap();
       client.put("ClientId", id);
       client.put("ClientName", id);
-      client.put("ClientGroup", ref);
+      client.put("ClientGroupRef", ref);
       client.put("Department", id);
 
       return sf.getWorkflowService().createBusinessObjectInstance(CLIENT_BO,
@@ -457,9 +686,14 @@ public class BusinessObjectDepartmentTest
       sf.getWorkflowService().deleteBusinessObjectInstance(CLIENT_BO, id);
    }
 
+   private BusinessObject createClientGroup(String id, String ref, String ref2)
+   {
+      return createClientGroup(sf, id, ref, ref2);
+   }
+
    private BusinessObject createClientGroup(String id, String ref)
    {
-      return createClientGroup(sf, id, ref);
+      return createClientGroup(sf, id, ref, null);
    }
 
    private BusinessObject createClientGroupU1(String id, String ref)
@@ -467,7 +701,7 @@ public class BusinessObjectDepartmentTest
       ServiceFactory u1Sf = ServiceFactoryLocator.get(U1, U1);
       try
       {
-         return createClientGroup(u1Sf, id, ref);
+         return createClientGroup(u1Sf, id, ref, null);
       }
       finally
       {
@@ -475,13 +709,25 @@ public class BusinessObjectDepartmentTest
       }
    }
 
-   private BusinessObject createClientGroup(ServiceFactory sf, String id, String ref)
+   private BusinessObject createClientGroup(ServiceFactory sf, String id, String ref, String ref2)
    {
       final Map<String, Object> client = CollectionUtils.newMap();
       client.put("ClientGroupId", id);
       client.put("ClientRef", ref);
+      client.put("MasterGroupRef", ref2);
 
       return sf.getWorkflowService().createBusinessObjectInstance(CLIENT_GROUP_BO,
             (Serializable) client);
    }
+
+   private BusinessObject createMasterGroup( String id, String ref)
+   {
+      final Map<String, Object> client = CollectionUtils.newMap();
+      client.put("MasterGroupId", id);
+      client.put("ClientGroupRef", ref);
+
+      return sf.getWorkflowService().createBusinessObjectInstance(MASTER_GROUP_BO,
+            (Serializable) client);
+   }
+
 }

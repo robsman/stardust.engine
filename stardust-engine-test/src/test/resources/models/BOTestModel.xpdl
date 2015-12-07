@@ -21,7 +21,7 @@
 <xsd:sequence>
 <xsd:element name="ClientId" type="xsd:string"/>
 <xsd:element name="ClientName" type="xsd:string"/>
-<xsd:element name="ClientGroup" type="xsd:string"/>
+<xsd:element name="ClientGroupRef" type="xsd:string"/>
 <xsd:element name="Department" type="xsd:string"/>
 </xsd:sequence>
 </xsd:complexType>
@@ -39,10 +39,33 @@
 <xsd:sequence>
 <xsd:element name="ClientGroupId" type="xsd:string"/>
 <xsd:element name="ClientRef" type="xsd:string"/>
+<xsd:element name="MasterGroupRef" type="xsd:string"/>
 </xsd:sequence>
 </xsd:complexType>
 <xsd:element name="ClientGroup" type="Q1:ClientGroup"/>
 <xsd:complexType name="XSDDataStructure1">
+<xsd:sequence/>
+</xsd:complexType>
+</xsd:schema>
+</xpdl:SchemaType>
+</xpdl:TypeDeclaration>
+<xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" Id="MasterGroup" Name="MasterGroup">
+<xpdl:ExtendedAttributes>
+<xpdl:ExtendedAttribute Name="carnot:model:uuid" Value="8b11043e-5447-4064-937a-ecd1e5efc4e8"/>
+</xpdl:ExtendedAttributes>
+<xpdl:SchemaType>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:Q1="http://www.infinity.com/bpm/model/BOTestModel/XSDDataStructure1" xmlns:mas="http://www.infinity.com/bpm/model/BOTestModel/MasterGrou" targetNamespace="http://www.infinity.com/bpm/model/BOTestModel/XSDDataStructure1">
+<xsd:complexType name="MasterGroup">
+<xsd:sequence>
+<xsd:element name="MasterGroupId" type="xsd:string"/>
+<xsd:element name="ClientGroupRef" type="xsd:string"/>
+</xsd:sequence>
+</xsd:complexType>
+<xsd:element name="MasterGroup" type="Q1:MasterGroup"/>
+<xsd:complexType name="XSDDataStructure1">
+<xsd:sequence/>
+</xsd:complexType>
+<xsd:complexType name="MasterGrou">
 <xsd:sequence/>
 </xsd:complexType>
 </xsd:schema>
@@ -283,7 +306,7 @@
 <carnot:Attribute Name="carnot:engine:primaryKey" Value="ClientId"/>
 <carnot:Attribute Name="carnot:engine:nameExpression" Value="ClientName"/>
 <carnot:Attribute Name="carnot:engine:managedOrganizations" Value="[&quot;BOTestModel:Client_Admin&quot;]"/>
-<carnot:Attribute Name="carnot:engine:businessObjectRelationships" Value="[{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;ClientGroup&quot;,&quot;modelId&quot;:&quot;BOTestModel&quot;},&quot;otherRole&quot;:&quot;CG&quot;,&quot;otherCardinality&quot;:&quot;TO_ONE&quot;,&quot;otherForeignKeyField&quot;:&quot;ClientGroup&quot;,&quot;thisRole&quot;:&quot;C&quot;,&quot;thisCardinality&quot;:&quot;TO_ONE&quot;,&quot;thisForeignKeyField&quot;:&quot;ClientRef&quot;,&quot;propagateAccess&quot;:true}]"/>
+<carnot:Attribute Name="carnot:engine:businessObjectRelationships" Value="[{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;ClientGroup&quot;,&quot;modelId&quot;:&quot;BOTestModel&quot;},&quot;otherRole&quot;:&quot;CG&quot;,&quot;otherCardinality&quot;:&quot;TO_ONE&quot;,&quot;otherForeignKeyField&quot;:&quot;ClientGroupRef&quot;,&quot;thisRole&quot;:&quot;C&quot;,&quot;thisCardinality&quot;:&quot;TO_ONE&quot;,&quot;thisForeignKeyField&quot;:&quot;ClientRef&quot;,&quot;propagateAccess&quot;:true}]"/>
 <carnot:Attribute Name="authorization:data.readDataValues[0]" Value="Client_Admin"/>
 <carnot:Attribute Name="authorization:data.readDataValues[1]" Value="Client_User"/>
 <carnot:Attribute Name="authorization:data.readDataValues[2]" Value="BO_Admin"/>
@@ -307,7 +330,28 @@
 <carnot:Attribute Name="carnot:model:uuid" Value="27f05d9b-b8ae-476d-9f28-82b5f34e32b4"/>
 <carnot:Attribute Name="carnot:engine:primaryKey" Value="ClientGroupId"/>
 <carnot:Attribute Name="carnot:engine:nameExpression" Value="ClientGroupId"/>
-<carnot:Attribute Name="carnot:engine:businessObjectRelationships" Value="[{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;Client&quot;,&quot;modelId&quot;:&quot;BOTestModel&quot;},&quot;otherRole&quot;:&quot;C&quot;,&quot;otherCardinality&quot;:&quot;TO_ONE&quot;,&quot;otherForeignKeyField&quot;:&quot;ClientRef&quot;,&quot;thisRole&quot;:&quot;CG&quot;,&quot;thisCardinality&quot;:&quot;TO_ONE&quot;,&quot;thisForeignKeyField&quot;:&quot;ClientGroup&quot;}]"/>
+<carnot:Attribute Name="carnot:engine:businessObjectRelationships" Value="[{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;Client&quot;,&quot;modelId&quot;:&quot;BOTestModel&quot;},&quot;otherRole&quot;:&quot;C&quot;,&quot;otherCardinality&quot;:&quot;TO_ONE&quot;,&quot;otherForeignKeyField&quot;:&quot;ClientRef&quot;,&quot;thisRole&quot;:&quot;CG&quot;,&quot;thisCardinality&quot;:&quot;TO_ONE&quot;,&quot;thisForeignKeyField&quot;:&quot;ClientGroupRef&quot;},{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;MasterGroup&quot;,&quot;modelId&quot;:&quot;BOTestModel&quot;},&quot;otherRole&quot;:&quot;master groups&quot;,&quot;otherCardinality&quot;:&quot;TO_ONE&quot;,&quot;otherForeignKeyField&quot;:&quot;MasterGroupRef&quot;,&quot;thisRole&quot;:&quot;client groups&quot;,&quot;thisCardinality&quot;:&quot;TO_ONE&quot;,&quot;thisForeignKeyField&quot;:&quot;ClientGroupRef&quot;,&quot;propagateAccess&quot;:true}]"/>
+<carnot:Attribute Name="authorization:data.readDataValues[0]" Value="BO_Admin"/>
+<carnot:Attribute Name="authorization:data.modifyDataValues[0]" Value="BO_Admin"/>
+</carnot:Attributes>
+</carnot:DataField>
+</ExtendedAttribute>
+</ExtendedAttributes>
+</DataField>
+<DataField Id="MasterGroup" Name="MasterGroup" IsArray="FALSE">
+<DataType>
+<DeclaredType Id="MasterGroup"/>
+</DataType>
+<ExtendedAttributes>
+<ExtendedAttribute Name="CarnotExt">
+<carnot:DataField Oid="37" Type="struct">
+<carnot:Attributes>
+<carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+<carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+<carnot:Attribute Name="carnot:model:uuid" Value="5db3e987-1e82-4097-ba13-95b02b591bd6"/>
+<carnot:Attribute Name="carnot:engine:primaryKey" Value="MasterGroupId"/>
+<carnot:Attribute Name="carnot:engine:nameExpression" Value="MasterGroupId"/>
+<carnot:Attribute Name="carnot:engine:businessObjectRelationships" Value="[{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;ClientGroup&quot;,&quot;modelId&quot;:&quot;BOTestModel&quot;},&quot;otherRole&quot;:&quot;client groups&quot;,&quot;otherCardinality&quot;:&quot;TO_ONE&quot;,&quot;otherForeignKeyField&quot;:&quot;ClientGroupRef&quot;,&quot;thisRole&quot;:&quot;master groups&quot;,&quot;thisCardinality&quot;:&quot;TO_ONE&quot;,&quot;thisForeignKeyField&quot;:&quot;MasterGroupRef&quot;,&quot;propagateAccess&quot;:true}]"/>
 <carnot:Attribute Name="authorization:data.readDataValues[0]" Value="BO_Admin"/>
 <carnot:Attribute Name="authorization:data.modifyDataValues[0]" Value="BO_Admin"/>
 </carnot:Attributes>
@@ -444,7 +488,7 @@
 <carnot:Views/>
 <carnot:Attributes>
 <carnot:Attribute Name="carnot:model:uuid" Value="813fdde5-760d-4341-9d42-bff5680ca07c"/>
-<carnot:Attribute Name="ipp:model:modified" Value="Thu Nov 26 08:51:49 CET 2015"/>
+<carnot:Attribute Name="ipp:model:modified" Value="Thu Dec 03 15:11:46 CET 2015"/>
 </carnot:Attributes>
 </carnot:Package>
 </ExtendedAttribute>

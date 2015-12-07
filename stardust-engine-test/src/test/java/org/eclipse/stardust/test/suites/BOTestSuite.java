@@ -15,6 +15,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import org.eclipse.stardust.test.bo.BusinessObjectsModelExtenderTest;
+import org.eclipse.stardust.test.businessobject.BusinessObjectDepartmentTest;
 import org.eclipse.stardust.test.businessobject.BusinessObjectsTest;
 import org.eclipse.stardust.test.businessobject.CreateBusinessObjectTest;
 
@@ -29,7 +30,8 @@ import org.eclipse.stardust.test.businessobject.CreateBusinessObjectTest;
 @SuiteClasses({
    BusinessObjectsModelExtenderTest.class,
    BusinessObjectsTest.class,
-   CreateBusinessObjectTest.class
+   CreateBusinessObjectTest.class,
+   BusinessObjectDepartmentTest.class
              })
 public class BOTestSuite
 {

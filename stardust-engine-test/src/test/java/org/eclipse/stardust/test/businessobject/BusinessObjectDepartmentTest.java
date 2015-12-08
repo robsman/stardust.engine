@@ -516,6 +516,256 @@ public class BusinessObjectDepartmentTest
       assertValuesU1(CLIENT_GROUP_BO, 1, "ClientGroupId", "g1");
    }
 
+   /**
+    * Tests modification of business object with propagated access.
+    * With 2 levels and cyclic propagation and access to one department.
+    */
+   @Test
+   public void test15DepartmentPropagationModify2LevelCyclicAccess1()
+   {
+      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
+
+      createClientU1("c1", "g1");
+      createClientGroupU1("g1", "c1", "m1");
+      createMasterGroupU1("m1", "g1");
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createClientU1("c2", "g2");
+
+            return null;
+         }
+      });
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createClientGroupU1("g2", "c2", "m2");
+
+            return null;
+         }
+      });
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createMasterGroupU1("m2", "g2");
+
+            return null;
+         }
+      });
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createClientU1("c3", null);
+
+            return null;
+         }
+      });
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createClientGroupU1("g3", null, null);
+
+            return null;
+         }
+      });
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createMasterGroupU1("m3", null);
+
+            return null;
+         }
+      });
+
+      assertValuesU1(CLIENT_BO, 1, "ClientId", "c1");
+      assertValuesU1(CLIENT_GROUP_BO, 1, "ClientGroupId", "g1");
+   }
+
+   /**
+    * Tests modification of business object with propagated access.
+    * With 2 levels and cyclic propagation and access to two departments.
+    */
+   @Test
+   public void test16DepartmentPropagationModify2LevelCyclicAccess2()
+   {
+      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"), getScopedOrg(CLIENT_ORG, "c2"));
+
+      createClientU1("c1", "g1");
+      createClientGroupU1("g1", "c1", "m1");
+      createMasterGroupU1("m1", "g1");
+
+      createClientU1("c2", "g2");
+      createClientGroupU1("g2", "c2", "m2");
+      createMasterGroupU1("m2", "g2");
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createClientU1("c3", null);
+
+            return null;
+         }
+      });
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createClientGroupU1("g3", null, null);
+
+            return null;
+         }
+      });
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createMasterGroupU1("m3", null);
+
+            return null;
+         }
+      });
+
+      assertValuesU1(CLIENT_BO, 2);
+      assertValuesU1(CLIENT_GROUP_BO, 2);
+   }
+
+   /**
+    * Tests modification of business object with propagated access.
+    * With 2 levels and cyclic propagation and no access to any department or role.
+    */
+   @Test
+   public void test17DepartmentPropagationModify2LevelCyclicNoAccess()
+   {
+      UserHome.create(sf, U1);
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createClientU1("c1", "g1");
+
+            return null;
+         }
+      });
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createClientGroupU1("g1", "c1", "m1");
+
+            return null;
+         }
+      });
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createMasterGroupU1("m1", "g1");
+            return null;
+         }
+      });
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createClientU1("c2", "g2");
+
+            return null;
+         }
+      });
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createClientGroupU1("g2", "c2", "m2");
+
+            return null;
+         }
+      });
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createMasterGroupU1("m2", "g2");
+
+            return null;
+         }
+      });
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createClientU1("c3", null);
+
+            return null;
+         }
+      });
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createClientGroupU1("g3", null, null);
+
+            return null;
+         }
+      });
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createMasterGroupU1("m3", null);
+
+            return null;
+         }
+      });
+
+      assertValuesU1(CLIENT_BO, 0);
+      assertValuesU1(CLIENT_GROUP_BO, 0);
+   }
+
+
+
    //************************** UTILITY ***************************************
 
    private void tryAndAssertFail(Action<Object> action)
@@ -533,7 +783,7 @@ public class BusinessObjectDepartmentTest
 
       if (!ex)
       {
-         Assert.fail();
+         Assert.fail("Expected AccessForbiddenException.");
       }
    }
 
@@ -709,6 +959,19 @@ public class BusinessObjectDepartmentTest
       }
    }
 
+   private BusinessObject createClientGroupU1(String id, String ref, String ref2)
+   {
+      ServiceFactory u1Sf = ServiceFactoryLocator.get(U1, U1);
+      try
+      {
+         return createClientGroup(u1Sf, id, ref, ref2);
+      }
+      finally
+      {
+         u1Sf.close();
+      }
+   }
+
    private BusinessObject createClientGroup(ServiceFactory sf, String id, String ref, String ref2)
    {
       final Map<String, Object> client = CollectionUtils.newMap();
@@ -720,7 +983,25 @@ public class BusinessObjectDepartmentTest
             (Serializable) client);
    }
 
-   private BusinessObject createMasterGroup( String id, String ref)
+   private BusinessObject createMasterGroupU1(String id, String ref)
+   {
+      ServiceFactory u1Sf = ServiceFactoryLocator.get(U1, U1);
+      try
+      {
+         return createMasterGroup(u1Sf, id, ref);
+      }
+      finally
+      {
+         u1Sf.close();
+      }
+   }
+
+   private BusinessObject createMasterGroup(String id, String ref)
+   {
+      return createMasterGroup(sf, id, ref);
+   }
+
+   private BusinessObject createMasterGroup(ServiceFactory sf, String id, String ref)
    {
       final Map<String, Object> client = CollectionUtils.newMap();
       client.put("MasterGroupId", id);

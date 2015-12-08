@@ -104,7 +104,7 @@ public class DepartmentInfoDetails implements DepartmentInfo
       final String name = participant.getName();
       final boolean isDepartmentScoped = participant.isDepartmentScoped();
       final boolean definesDepartmentScope = participant.definesDepartmentScope();
-      final String departmentId = department.getId();
+      final String departmentId = department != null ? department.getId() : "";
       
       if (participant instanceof OrganizationInfo)
       {

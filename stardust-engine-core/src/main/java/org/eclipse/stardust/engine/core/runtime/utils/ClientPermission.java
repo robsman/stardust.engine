@@ -358,6 +358,9 @@ public final class ClientPermission
       for (ClientPermission permission : permissionCache.values())
       {
          addDefaultPermission(defaultPermissions, permission);
+      }
+      for (ClientPermission permission : permissionCache.values())
+      {
          addDefaultAuditorPermission(defaultPermissions, permission, readOnlyPermissions);
       }
       addDefaultPermission(defaultPermissions, MANAGE_AUTHORIZATION);

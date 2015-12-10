@@ -369,8 +369,8 @@ public class Archiver
          if (archive)
          {
          // process instance links can include processes of models other than specified by modelOid
-            List<Long> findModels = findModels(rootPiOids);
-            for (Long toSyncModelOid : findModels)
+            Set<Long> foundModels = findModels(rootPiOids);
+            for (Long toSyncModelOid : foundModels)
             {
                if (toSyncModelOid != null)
                {
@@ -819,6 +819,7 @@ public class Archiver
                      new Object[] {verbPre, new Integer(rootPiOids.size()), targetDbName}));
             }
 
+            // TODO: Still necessary or plain wrong as it does not synch all related model data as in synchronizeMasterTables(...)?
             archiveModels(modelOid);
 
             // synchronize model and utility table to ensure referential integrity for
@@ -826,8 +827,8 @@ public class Archiver
             if (archive)
             {
                // process instance links can include processes of models other than specified by modelOid
-               List<Long> findModels = findModels(rootPiOids);
-               for (Long toSyncModelOid : findModels)
+               Set<Long> foundModels = findModels(rootPiOids);
+               for (Long toSyncModelOid : foundModels)
                {
                   if (toSyncModelOid != null)
                   {
@@ -2168,7 +2169,7 @@ public class Archiver
    /**
     * finds distinct modelOids for given rootPiOids including modelOids of subprocesses.
     */
-   private List<Long> findModels(List<Long> rootPiOids)
+   private Set<Long> findModels(List<Long> rootPiOids)
    {
       List<Long> rootPiOidsBatch = new ArrayList<Long>(rootPiOids);
       Set<Long> result = new HashSet<Long>(stmtBatchSizeLimit);
@@ -2225,7 +2226,16 @@ public class Archiver
          }
          rootPiOidsBatch.removeAll(stmtBatchRootPiOids);
       }
-      return new ArrayList(result);
+
+      Set<Long> references = CollectionUtils.newHashSet();
+      for (Long modelOid : result)
+      {
+         references.addAll(getReferences(modelOid));
+      }
+
+      result.addAll(references);
+
+      return result;
    }
 
    private void synchronizeUtilityTableArchive()
@@ -4297,7 +4307,7 @@ public class Archiver
    {
       if (modelOid != null)
       {
-         List<Long> references = getReferences(modelOid);
+         Set<Long> references = getReferences(modelOid);
          for (Long oid : references)
          {
             synchronizePkStableTables(ModelPersistorBean.class, oid);
@@ -4320,12 +4330,12 @@ public class Archiver
       }
    }
 
-   private List<Long> getReferences(long modelOid)
+   private Set<Long> getReferences(long modelOid)
    {
       ModelManager modelManager = ModelManagerFactory.getCurrent();
       IModel model = modelManager.findModel(modelOid);
 
-      List<Long> referingModels = new ArrayList<Long>();
+      Set<Long> referingModels = CollectionUtils.newHashSet();
 
       List<IModel> usedModels = ModelRefBean.getUsedModels(model);
       for (Iterator<IModel> j = usedModels.iterator(); j.hasNext();)

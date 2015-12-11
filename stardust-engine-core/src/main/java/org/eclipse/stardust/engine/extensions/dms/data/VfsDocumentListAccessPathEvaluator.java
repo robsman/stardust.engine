@@ -11,7 +11,6 @@
 package org.eclipse.stardust.engine.extensions.dms.data;
 
 import java.sql.ResultSet;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +18,6 @@ import java.util.Map;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
@@ -29,7 +27,6 @@ import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.Functions;
 import org.eclipse.stardust.engine.core.persistence.Join;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
@@ -53,8 +50,6 @@ public class VfsDocumentListAccessPathEvaluator extends AbstractVfsResourceAcces
    private static final Logger trace = LogManager.getLogger(VfsDocumentListAccessPathEvaluator.class);
 
    private static final String XPATH_PREFIX = AuditTrailUtils.DOCS_DOCUMENTS+"/";
-
-   private static final String PROP_MODEL_PROCESS_ATTACHMENTS_BY_ROOT_PROCESS = "PROCESS_DEFINITIONS_WITH_PROCESS_ATTACHMENTS_BY_ROOT_PROCESS";
 
    public Object evaluate(AccessPoint accessPointDefinition, Object accessPointInstance,
          String inPath, AccessPathEvaluationContext accessPathEvaluationContext,
@@ -205,14 +200,14 @@ public class VfsDocumentListAccessPathEvaluator extends AbstractVfsResourceAcces
    public Object evaluate(AccessPoint accessPointDefinition, Object accessPointInstance, String outPath, AccessPathEvaluationContext accessPathEvaluationContext)
    {
       return evaluate(accessPointDefinition, accessPointInstance, outPath, accessPathEvaluationContext, false);
-   }   
-   
+   }
+
    public Object evaluate(AccessPoint accessPointDefinition, Object accessPointInstance, String outPath, AccessPathEvaluationContext accessPathEvaluationContext, boolean isProcess)
    {
       ProcessAttachmentByRootProcessWrapper wrapper = new ProcessAttachmentByRootProcessWrapper(accessPathEvaluationContext, accessPointInstance, accessPointDefinition, isProcess);
       AccessPathEvaluationContext accessPathEvaluationContext2 = wrapper.getAccessPathEvaluationContext();
       Object accessPointInstance2 = wrapper.getAccessPointInstance();
-      
+
       if (null == accessPointInstance2)
       {
          trace.debug("returning null for outPath '" + outPath + "'");
@@ -266,8 +261,8 @@ public class VfsDocumentListAccessPathEvaluator extends AbstractVfsResourceAcces
                   IProcessDefinition pd = accessPathEvaluationContext.getProcessInstance()
                         .getProcessDefinition();
                   IModel model = (IModel) pd.getModel();
-                  Long modelOid = Long.valueOf(model.getOID());                  
-                  
+                  Long modelOid = Long.valueOf(model.getOID());
+
                   QueryDescriptor query = QueryDescriptor.from(
                         StructuredDataValueBean.class).select(Functions.countDistinct(StructuredDataValueBean.FR__OID));
 
@@ -289,8 +284,8 @@ public class VfsDocumentListAccessPathEvaluator extends AbstractVfsResourceAcces
                                           accessPointDefinition.getId()),
                                     Predicates.isEqual(StructuredDataBean.FR__XPATH,
                                           AuditTrailUtils.DOCS_DOCUMENTS)));
-                  
-                  
+
+
 
                   rs = session.executeQuery(query);
 
@@ -336,7 +331,7 @@ public class VfsDocumentListAccessPathEvaluator extends AbstractVfsResourceAcces
 
       public ProcessAttachmentByRootProcessWrapper(AccessPathEvaluationContext accessPathEvaluationContext, AccessPoint accessPointDefinition, AbstractInitialDataValueProvider dataValueProvider)
       {
-         this.isRootProcessAttachmentAttributeEnabled = handleRootPIProcessAttachmentsEvalContext(accessPointDefinition, dataValueProvider, accessPathEvaluationContext);         
+         this.isRootProcessAttachmentAttributeEnabled = handleRootPIProcessAttachmentsEvalContext(accessPointDefinition, dataValueProvider, accessPathEvaluationContext);
       }
 
       public boolean isRootProcessAttachmentAttributeEnabled()
@@ -359,59 +354,14 @@ public class VfsDocumentListAccessPathEvaluator extends AbstractVfsResourceAcces
             AccessPoint accessPointDefinition,
             AccessPathEvaluationContext accessPathEvaluationContext)
       {
-         if (DmsConstants.DATA_ID_ATTACHMENTS.equals(accessPointDefinition.getId()))
-         {
-            Map<Long, Boolean> byRefAttributeCache = (Map<Long, Boolean>) Parameters.instance()
-                  .get(PROP_MODEL_PROCESS_ATTACHMENTS_BY_ROOT_PROCESS);
-            if (byRefAttributeCache == null)
-            {
-               byRefAttributeCache = CollectionUtils.newHashMap();
-            }
-
-            IProcessDefinition pd = accessPathEvaluationContext.getProcessInstance()
-                  .getProcessDefinition();
-            IModel model = (IModel) pd.getModel();
-            Long modelOid = Long.valueOf(model.getOID());
-
-            Boolean byRef = byRefAttributeCache.get(modelOid);
-            if (byRef == null)
-            {
-               ModelElementList processDefinitions = model.getProcessDefinitions();
-               byRef = Boolean.FALSE;
-               for (int i = 0; i < processDefinitions.size(); i++ )
-               {
-                  IProcessDefinition innerPd = (IProcessDefinition) processDefinitions.get(i);
-                  if (Boolean.TRUE.equals(innerPd.getAttribute(DmsConstants.BY_REFERENCE_ATT)))
-                  {
-                     byRef = Boolean.TRUE;
-                     break;
-                  }
-               }
-
-               byRefAttributeCache.put(modelOid, byRef);
-               Parameters.instance().set(PROP_MODEL_PROCESS_ATTACHMENTS_BY_ROOT_PROCESS,
-                     byRefAttributeCache);
-            }
-
-            if (byRef)
-            {
-               IProcessInstance rootPI = accessPathEvaluationContext.getProcessInstance()
-                     .getRootProcessInstance();
-               if (Boolean.TRUE.equals(rootPI.getProcessDefinition().getAttribute(
-                     DmsConstants.BY_REFERENCE_ATT)))
-               {
-                  return true;
-               }
-            }
-         }
-         return false;
+    	  return RootPIUtils.isRootProcessAttachmentAttributeEnabled(accessPointDefinition.getId(), accessPathEvaluationContext.getProcessInstance());
       }
 
       private boolean handleRootPIProcessAttachmentsEvalContext(AccessPoint accessPointDefinition, Object accessPointInstance, AccessPathEvaluationContext accessPathEvaluationContext)
       {
          IProcessInstance pi = accessPathEvaluationContext
                .getProcessInstance();
-       
+
          if (isRootProcessAttachmentAttributeEnabled(accessPointDefinition, accessPathEvaluationContext))
          {
             IProcessInstance rootPI = pi.getRootProcessInstance();
@@ -435,45 +385,45 @@ public class VfsDocumentListAccessPathEvaluator extends AbstractVfsResourceAcces
 
          if(isProcess)
          {
-            if (accessPointDefinition instanceof IData) 
-            {  
-               IDataValue dataValue = pi.getDataValue((IData) accessPointDefinition);      
+            if (accessPointDefinition instanceof IData)
+            {
+               IDataValue dataValue = pi.getDataValue((IData) accessPointDefinition);
                this.accessPointInstance = dataValue.getValue();
             }
          }
          else
          {
-            this.accessPointInstance = accessPointInstance;            
+            this.accessPointInstance = accessPointInstance;
          }
-         
+
          this.accessPathEvaluationContext = accessPathEvaluationContext;
 
          return false;
       }
-      
-      
+
+
       private boolean handleRootPIProcessAttachmentsEvalContext(AccessPoint accessPointDefinition, AbstractInitialDataValueProvider dataValueProvider, AccessPathEvaluationContext accessPathEvaluationContext)
       {
          IProcessInstance pi = accessPathEvaluationContext
                .getProcessInstance();
-         
+
          if (isRootProcessAttachmentAttributeEnabled(accessPointDefinition, accessPathEvaluationContext))
          {
             IProcessInstance rootPI = pi.getRootProcessInstance();
             if (pi.getOID() != rootPI.getOID())
             {
-               
+
                if (rootPI instanceof ProcessInstanceBean
                      && accessPointDefinition instanceof IData) {
                      dataValue = rootPI.getDataValue(
                            (IData) accessPointDefinition, dataValueProvider);
-               }            
+               }
                return true;
             }
          }
-                        
-         if (accessPointDefinition instanceof IData) 
-         {            
+
+         if (accessPointDefinition instanceof IData)
+         {
             dataValue = pi.getDataValue((IData) accessPointDefinition, dataValueProvider);
          }
 

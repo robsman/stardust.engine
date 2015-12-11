@@ -22,7 +22,8 @@ import org.eclipse.stardust.test.events.*;
                ErrorEventHierarchyTest.class,
                EscalationEventTest.class,
                MultipleStartEventsTest.class,
-               SignalEventTest.class
+               SignalEventTest.class,
+               DelegateActivityTest.class
              })
 public class EventsTestSuite
 {

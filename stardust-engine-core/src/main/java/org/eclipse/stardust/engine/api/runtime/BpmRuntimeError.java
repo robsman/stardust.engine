@@ -59,13 +59,13 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args3 MDL_UNKNOWN_XPATH_FOR_DATA_ID = newArgs3("MDL01124", BpmRuntimeErrorMessages.getString("MDL01124")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
-   public static final Args2 MDL_UNKNOWN_DATA_PATH = newArgs2("MDL01132", BpmRuntimeErrorMessages.getString("MDL01132")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args2 MDL_UNKNOWN_IN_DATA_PATH = newArgs2("MDL01134", BpmRuntimeErrorMessages.getString("MDL01134")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args2 MDL_UNKNOWN_OUT_DATA_PATH = newArgs2("MDL01136", BpmRuntimeErrorMessages.getString("MDL01136")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args3 MDL_UNKNOWN_DATA_PATH = newArgs3("MDL01132", BpmRuntimeErrorMessages.getString("MDL01132")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args3 MDL_UNKNOWN_IN_DATA_PATH = newArgs3("MDL01134", BpmRuntimeErrorMessages.getString("MDL01134")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args3 MDL_UNKNOWN_OUT_DATA_PATH = newArgs3("MDL01136", BpmRuntimeErrorMessages.getString("MDL01136")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args3 MDL_UNKNOWN_DATA_MAPPING = newArgs3("MDL01142", BpmRuntimeErrorMessages.getString("MDL01142")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args3 MDL_UNKNOWN_IN_DATA_MAPPING = newArgs3("MDL01144", BpmRuntimeErrorMessages.getString("MDL01144")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args3 MDL_UNKNOWN_OUT_DATA_MAPPING = newArgs3("MDL01146", BpmRuntimeErrorMessages.getString("MDL01146")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args4 MDL_UNKNOWN_DATA_MAPPING = newArgs4("MDL01142", BpmRuntimeErrorMessages.getString("MDL01142")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args4 MDL_UNKNOWN_IN_DATA_MAPPING = newArgs4("MDL01144", BpmRuntimeErrorMessages.getString("MDL01144")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args4 MDL_UNKNOWN_OUT_DATA_MAPPING = newArgs4("MDL01146", BpmRuntimeErrorMessages.getString("MDL01146")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 MDL_UNKNOWN_APP_CONTEXT = newArgs1("MDL01152", BpmRuntimeErrorMessages.getString("MDL01152")); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -112,10 +112,10 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 MDL_ACTIVITY_WITH_ID_ALREADY_EXISTS = newArgs1("MDL04018", BpmRuntimeErrorMessages.getString("MDL04018")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_TRANSITION_WITH_ID_ALREADY_EXISTS = newArgs1("MDL04019", BpmRuntimeErrorMessages.getString("MDL04019")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_RELOCATION_TRANSITION_MUST_NOT_HAVE_ANY_SOURCE_OR_TARGET_ACTIVITY_ATTACHED = newArgs1("MDL04020", BpmRuntimeErrorMessages.getString("MDL04020")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args2 MDL_FROM_ACTIVITY_DOES_NOT_BELONG_TO = newArgs2("MDL04021", BpmRuntimeErrorMessages.getString("MDL04021")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args2 MDL_TO_ACTIVITY_DOES_NOT_BELONG_TO = newArgs2("MDL04022", BpmRuntimeErrorMessages.getString("MDL04022")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args2 MDL_MULTIPLE_INCOMING_TRANSITIONS_ARE_ONLY_ALLOWED_FOR_AND_OR_XOR_ACTIVITY_JOINS = newArgs2("MDL04023", BpmRuntimeErrorMessages.getString("MDL04023")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args2 MDL_MULTIPLE_OUTGOING_TRANSITIONS_ARE_ONLY_ALLOWED_FOR_AND_OR_XOR_ACTIVITY_SPLITS = newArgs2("MDL04024", BpmRuntimeErrorMessages.getString("MDL04024")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args3 MDL_FROM_ACTIVITY_DOES_NOT_BELONG_TO = newArgs3("MDL04021", BpmRuntimeErrorMessages.getString("MDL04021")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args3 MDL_TO_ACTIVITY_DOES_NOT_BELONG_TO = newArgs3("MDL04022", BpmRuntimeErrorMessages.getString("MDL04022")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args3 MDL_MULTIPLE_INCOMING_TRANSITIONS_ARE_ONLY_ALLOWED_FOR_AND_OR_XOR_ACTIVITY_JOINS = newArgs3("MDL04023", BpmRuntimeErrorMessages.getString("MDL04023")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args3 MDL_MULTIPLE_OUTGOING_TRANSITIONS_ARE_ONLY_ALLOWED_FOR_AND_OR_XOR_ACTIVITY_SPLITS = newArgs3("MDL04024", BpmRuntimeErrorMessages.getString("MDL04024")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 MDL_THE_SELECTED_SYMBOL_DOES_NOT_REPRESENT_AN_ACTIVITY = newArgs0("MDL04025", BpmRuntimeErrorMessages.getString("MDL04025")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 MDL_CONNECTION_BETWEEN_SYMBOLS_ALREADY_EXIST = newArgs0("MDL04026", BpmRuntimeErrorMessages.getString("MDL04026")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 MDL_ROUTE_ACTIVITY_DOES_NOT_PARTICIPATE_IN_DATA_FLOW = newArgs0("MDL04027", BpmRuntimeErrorMessages.getString("MDL04027")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -253,11 +253,11 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 ATDB_USER_ID_EXISTS = newArgs2("ATDB02114", BpmRuntimeErrorMessages.getString("ATDB02114")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args2 ATDB_DEPUTY_EXISTS = newArgs2("ATDB02115", BpmRuntimeErrorMessages.getString("ATDB02115")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args2 ATDB_DEPUTY_DOES_NOT_EXISTS = newArgs2("ATDB02116", BpmRuntimeErrorMessages.getString("ATDB02116")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args1 ATDB_DEPUTY_SELF_REFERENCE_NOT_ALLOWED = newArgs1("ATDB02117", BpmRuntimeErrorMessages.getString("ATDB02117")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args2 ATDB_ADDING_DEPUTY_FORBIDDEN = new Args2("ATDB02118", BpmRuntimeErrorMessages.getString("ATDB02118")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args2 ATDB_MODIFYING_DEPUTY_FORBIDDEN = new Args2("ATDB02119", BpmRuntimeErrorMessages.getString("ATDB02119")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args2 ATDB_REMOVING_DEPUTY_FORBIDDEN = new Args2("ATDB02120", BpmRuntimeErrorMessages.getString("ATDB02120")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args4 ATDB_DEPUTY_DOES_NOT_EXISTS = newArgs4("ATDB02116", BpmRuntimeErrorMessages.getString("ATDB02116")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 ATDB_DEPUTY_SELF_REFERENCE_NOT_ALLOWED = newArgs2("ATDB02117", BpmRuntimeErrorMessages.getString("ATDB02117")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args4 ATDB_ADDING_DEPUTY_FORBIDDEN = new Args4("ATDB02118", BpmRuntimeErrorMessages.getString("ATDB02118")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args4 ATDB_MODIFYING_DEPUTY_FORBIDDEN = new Args4("ATDB02119", BpmRuntimeErrorMessages.getString("ATDB02119")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args4 ATDB_REMOVING_DEPUTY_FORBIDDEN = new Args4("ATDB02120", BpmRuntimeErrorMessages.getString("ATDB02120")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_DEPUTY_TO_DATE_NOT_ALLOWED_TO_BE_IN_PAST = newArgs1("ATDB02130"); //$NON-NLS-1$
 
    public static final Args0 ATDB_NO_MATCHING_USER_DOMAIN = newArgs0("ATDB02121", BpmRuntimeErrorMessages.getString("ATDB02121")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -311,7 +311,7 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args0 AUTHx_NOT_LOGGED_IN = newArgs0("AUTHx00101", BpmRuntimeErrorMessages.getString("AUTHx00101")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args1 AUTHx_USER_NOT_VALID = newArgs1("AUTHx00121", BpmRuntimeErrorMessages.getString("AUTHx00121")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 AUTHx_USER_NOT_VALID = newArgs2("AUTHx00121", BpmRuntimeErrorMessages.getString("AUTHx00121")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 AUTHx_USER_PASSWORD_EXPIRED = newArgs1("AUTHx00122", BpmRuntimeErrorMessages.getString("AUTHx00122")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 AUTHx_USER_PASSWORD_NOT_VALID = newArgs1("AUTHx00123", BpmRuntimeErrorMessages.getString("AUTHx00123")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 AUTHx_USER_PASSWORD_NOT_VALID_TRY_AGAIN = newArgs1("AUTHx00124", BpmRuntimeErrorMessages.getString("AUTHx00124")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -322,8 +322,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 AUTHx_CHANGE_PASSWORD_NEW_PW_MISSING = newArgs0("AUTHx00129", BpmRuntimeErrorMessages.getString("AUTHx00129")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 AUTHx_USER_ID_PASSWORD_EXPIRED = newArgs1("AUTHx00130", BpmRuntimeErrorMessages.getString("AUTHx00130")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 AUTHx_CHANGE_PASSWORD_IVALID_TOKEN = newArgs0("AUTHx00131", BpmRuntimeErrorMessages.getString("AUTHx00131")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args1 AUTHx_OPERATION_FAILED_USER_OID_NOT_FULLY_INITIALIZED = newArgs1("AUTHx00301", BpmRuntimeErrorMessages.getString("AUTHx00301")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args1 AUTHx_OPERATION_FAILED_USER_GROUP_OID_NOT_FULLY_INITIALIZED = newArgs1("AUTHx00302", BpmRuntimeErrorMessages.getString("AUTHx00302")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 AUTHx_OPERATION_FAILED_USER_OID_NOT_FULLY_INITIALIZED = newArgs2("AUTHx00301", BpmRuntimeErrorMessages.getString("AUTHx00301")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 AUTHx_OPERATION_FAILED_USER_GROUP_OID_NOT_FULLY_INITIALIZED = newArgs2("AUTHx00302", BpmRuntimeErrorMessages.getString("AUTHx00302")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 AUTHx_OPERATION_FAILED_REQUIRES_INTERNAL_AUTH = newArgs0("AUTHx00303", BpmRuntimeErrorMessages.getString("AUTHx00303")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args0 AUTHx_SYNC_MISSING_SYNCHRONIZATION_PROVIDER = newArgs0("AUTHx00501", BpmRuntimeErrorMessages.getString("AUTHx00501")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -341,7 +341,7 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args2 AUTHx_AUTH_INVALID_GRANT = newArgs2("AUTHx01100", BpmRuntimeErrorMessages.getString("AUTHx01100")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args2 AUTHx_USER_CANNOT_JOIN_INVALID_USER_GROUP = newArgs2("AUTHx01101", BpmRuntimeErrorMessages.getString("AUTHx01101")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args3 AUTHx_USER_CANNOT_JOIN_INVALID_USER_GROUP = newArgs3("AUTHx01101", BpmRuntimeErrorMessages.getString("AUTHx01101")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args0 AUTHx_AUTH_SAVING_OWN_PREFERENCES_FAILED = newArgs0("AUTHx01200", BpmRuntimeErrorMessages.getString("AUTHx01200")); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -374,39 +374,39 @@ public class BpmRuntimeError extends ErrorCase
    
    public static final Args1 BPMRT_DAEMON_EXCLUSE_TYPE_LOCKED = newArgs1("CONC03101", BpmRuntimeErrorMessages.getString("CONC03101"));  //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args1 BPMRT_AI_CURRENTLY_ACTIVATED_BY_SELF = newArgs1("BPMRT03101", BpmRuntimeErrorMessages.getString("BPMRT03101")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_AI_CURRENTLY_ACTIVATED_BY_SELF = newArgs2("BPMRT03101", BpmRuntimeErrorMessages.getString("BPMRT03101")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args BPMRT_AI_CURRENTLY_ACTIVATED_BY_OTHER = newArgs("CONC03102"); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args1 BPMRT_AI_IS_ALREADY_TERMINATED = newArgs1("BPMRT03103", BpmRuntimeErrorMessages.getString("BPMRT03103")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_AI_IS_ALREADY_TERMINATED = newArgs2("BPMRT03103", BpmRuntimeErrorMessages.getString("BPMRT03103")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args2 BPMRT_AI_IS_NOT_GRANTED_TO_USER = newArgs2("BPMRT03104", BpmRuntimeErrorMessages.getString("BPMRT03104")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args4 BPMRT_AI_IS_NOT_GRANTED_TO_USER = newArgs4("BPMRT03104", BpmRuntimeErrorMessages.getString("BPMRT03104")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args1 BPMRT_AI_MUST_NOT_BE_SUBPROCESS_INVOCATION = newArgs1("BPMRT03105", BpmRuntimeErrorMessages.getString("BPMRT03105")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_AI_MUST_NOT_BE_SUBPROCESS_INVOCATION = newArgs2("BPMRT03105", BpmRuntimeErrorMessages.getString("BPMRT03105")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args1 BPMRT_AI_CAN_NOT_BE_ABORTED_BY_USER = newArgs1("BPMRT03106", BpmRuntimeErrorMessages.getString("BPMRT03106")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_AI_CAN_NOT_BE_ABORTED_BY_USER = newArgs2("BPMRT03106", BpmRuntimeErrorMessages.getString("BPMRT03106")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args2 BPMRT_USER_IS_NOT_AUTHORIZED_TO_PERFORM_AI = newArgs2("BPMRT03107", BpmRuntimeErrorMessages.getString("BPMRT03107")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args4 BPMRT_USER_IS_NOT_AUTHORIZED_TO_PERFORM_AI = newArgs4("BPMRT03107", BpmRuntimeErrorMessages.getString("BPMRT03107")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args2 BPMRT_MODEL_PARTICIPANT_IS_NOT_AUTHORIZED_TO_PERFORM_AI = newArgs2("BPMRT03108", BpmRuntimeErrorMessages.getString("BPMRT03108")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args3 BPMRT_MODEL_PARTICIPANT_IS_NOT_AUTHORIZED_TO_PERFORM_AI = newArgs3("BPMRT03108", BpmRuntimeErrorMessages.getString("BPMRT03108")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args2 BPMRT_USER_GROUP_IS_NOT_AUTHORIZED_TO_PERFORM_AI = newArgs2("BPMRT03109", BpmRuntimeErrorMessages.getString("BPMRT03109")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args4 BPMRT_USER_GROUP_IS_NOT_AUTHORIZED_TO_PERFORM_AI = newArgs4("BPMRT03109", BpmRuntimeErrorMessages.getString("BPMRT03109")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args2 BPMRT_AI_CAN_NOT_BE_DELEGATED_IN_CURRENT_STATE = newArgs2("BPMRT03110", BpmRuntimeErrorMessages.getString("BPMRT03110")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args3 BPMRT_AI_CAN_NOT_BE_DELEGATED_IN_CURRENT_STATE = newArgs3("BPMRT03110", BpmRuntimeErrorMessages.getString("BPMRT03110")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args2 BPMRT_AI_MUST_NOT_BE_ON_OTHER_USER_WORKLIST = newArgs2("BPMRT03111", BpmRuntimeErrorMessages.getString("BPMRT03111")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args3 BPMRT_AI_MUST_NOT_BE_ON_OTHER_USER_WORKLIST = newArgs3("BPMRT03111", BpmRuntimeErrorMessages.getString("BPMRT03111")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args2 BPMRT_USER_IS_EXLUDED_TO_PERFORM_AI = newArgs2("BPMRT03112", BpmRuntimeErrorMessages.getString("BPMRT03112")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args4 BPMRT_USER_IS_EXLUDED_TO_PERFORM_AI = newArgs4("BPMRT03112", BpmRuntimeErrorMessages.getString("BPMRT03112")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args1 BPMRT_AI_IS_IN_ABORTING_PROCESS = newArgs1("BPMRT03113", BpmRuntimeErrorMessages.getString("BPMRT03113")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_AI_IS_IN_ABORTING_PROCESS = newArgs2("BPMRT03113", BpmRuntimeErrorMessages.getString("BPMRT03113")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args1 BPMRT_NON_INTERACTIVE_AI_CAN_NOT_BE_DELEGATED = newArgs1("BPMRT03114", BpmRuntimeErrorMessages.getString("BPMRT03114")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_NON_INTERACTIVE_AI_CAN_NOT_BE_DELEGATED = newArgs2("BPMRT03114", BpmRuntimeErrorMessages.getString("BPMRT03114")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args1 BPMRT_INTERACTIVE_AI_CAN_NOT_BE_FORCED_TO_COMPLETION = newArgs1("BPMRT03115", BpmRuntimeErrorMessages.getString("BPMRT03115")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_INTERACTIVE_AI_CAN_NOT_BE_FORCED_TO_COMPLETION = newArgs2("BPMRT03115", BpmRuntimeErrorMessages.getString("BPMRT03115")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args1 BPMRT_AI_CAN_NOT_BE_DELEGATED_TO_NON_USERGROUP_MEMBER = newArgs1("BPMRT03116", BpmRuntimeErrorMessages.getString("BPMRT03116")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_AI_CAN_NOT_BE_DELEGATED_TO_NON_USERGROUP_MEMBER = newArgs2("BPMRT03116", BpmRuntimeErrorMessages.getString("BPMRT03116")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args1 BPMRT_AI_AND_HANDLER_BINDING_FRM_DIFF_MODELS = newArgs1("BPMRT03201", BpmRuntimeErrorMessages.getString("BPMRT03201")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_AI_AND_HANDLER_BINDING_FRM_DIFF_MODELS = newArgs2("BPMRT03201", BpmRuntimeErrorMessages.getString("BPMRT03201")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 BPMRT_PI_AND_SPAWN_PROCESS_FRM_DIFF_MODELS = newArgs1("BPMRT03251", "Process instance with OID {0} and the process to spawn are from a different model.");
 
@@ -420,7 +420,7 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args1 BPMRT_PI_JOIN_TO_SAME_PROCESS_INSTANCE = newArgs1("BPMRT03257", "Cannot join to the same process instance ''{0}''.");
 
-   public static final Args1 BPMRT_PI_AND_HANDLER_BINDING_FRM_DIFF_MODELS = newArgs1("BPMRT03202", BpmRuntimeErrorMessages.getString("BPMRT03202")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_PI_AND_HANDLER_BINDING_FRM_DIFF_MODELS = newArgs2("BPMRT03202", BpmRuntimeErrorMessages.getString("BPMRT03202")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 BPMRT_TIMEOUT_DURING_COUNT = newArgs1("BPMRT03501", BpmRuntimeErrorMessages.getString("BPMRT03501")); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -481,13 +481,13 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args2 BPMRT_DATA_NOT_USED_BY_PROCESS = newArgs2("BPMRT04101", "Data ''{0}'' is not used by process definition ''{1}''.");
 
-   public static final Args1 BPMRT_PI_IS_CASE = newArgs1("BPMRT03831"); //$NON-NLS-1$
-   public static final Args1 BPMRT_PI_IS_MEMBER = newArgs1("BPMRT03832"); //$NON-NLS-1$
-   public static final Args1 BPMRT_PI_NOT_ACTIVE = newArgs1("BPMRT03833"); //$NON-NLS-1$
-   public static final Args1 BPMRT_PI_NOT_CASE = newArgs1("BPMRT03834"); //$NON-NLS-1$
-   public static final Args2 BPMRT_PI_NOT_MEMBER = newArgs2("BPMRT03835"); //$NON-NLS-1$
+   public static final Args2 BPMRT_PI_IS_CASE = newArgs2("BPMRT03831", BpmRuntimeErrorMessages.getString("BPMRT03831")); //$NON-NLS-1$
+   public static final Args2 BPMRT_PI_IS_MEMBER = newArgs2("BPMRT03832", BpmRuntimeErrorMessages.getString("BPMRT03832")); //$NON-NLS-1$
+   public static final Args2 BPMRT_PI_NOT_ACTIVE = newArgs2("BPMRT03833", BpmRuntimeErrorMessages.getString("BPMRT03833")); //$NON-NLS-1$
+   public static final Args2 BPMRT_PI_NOT_CASE = newArgs2("BPMRT03834", BpmRuntimeErrorMessages.getString("BPMRT03834")); //$NON-NLS-1$
+   public static final Args4 BPMRT_PI_NOT_MEMBER = newArgs4("BPMRT03835",BpmRuntimeErrorMessages.getString("BPMRT03835")); //$NON-NLS-1$
 
-   public static final Args1 BPMRT_PI_IS_TRANSIENT = newArgs1("BPMRT03840", BpmRuntimeErrorMessages.getString("BPMRT03840")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_PI_IS_TRANSIENT = newArgs2("BPMRT03840", BpmRuntimeErrorMessages.getString("BPMRT03840")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 BPMRT_NO_CHANGES_TO_MODEL = newArgs1("BPMRT03850"); //$NON-NLS-1$
 

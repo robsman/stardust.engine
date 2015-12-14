@@ -1320,7 +1320,8 @@ public class AdministrationServiceImpl
 
       if (processInstance.isCaseProcessInstance())
       {
-         throw new IllegalOperationException(BpmRuntimeError.BPMRT_PI_IS_CASE.raise(oid));
+         throw new IllegalOperationException(BpmRuntimeError.BPMRT_PI_IS_CASE.raise(oid,
+               processInstance.getProcessDefinition().getId()));
       }
 
       IProcessInstance rootProcessInstance = ProcessInstanceUtils.getActualRootPI(processInstance);
@@ -1434,7 +1435,7 @@ public class AdministrationServiceImpl
       {
          throw new IllegalOperationException(
                BpmRuntimeError.BPMRT_INTERACTIVE_AI_CAN_NOT_BE_FORCED_TO_COMPLETION
-                     .raise(activityInstanceOID));
+                     .raise(activityInstanceOID, activityInstance.getActivity().getId()));
       }
 
       if (!activityInstance.isTerminated() && !activityInstance.isAborting())

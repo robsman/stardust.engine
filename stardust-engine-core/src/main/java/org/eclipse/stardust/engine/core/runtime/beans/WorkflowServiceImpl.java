@@ -233,8 +233,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       if (processInstance.isCaseProcessInstance())
       {
-         throw new IllegalOperationException(
-               BpmRuntimeError.BPMRT_PI_IS_CASE.raise(processInstance.getOID()));
+         throw new IllegalOperationException(BpmRuntimeError.BPMRT_PI_IS_CASE.raise(
+               processInstance.getOID(), processInstance.getProcessDefinition().getId()));
       }
    }
 
@@ -242,8 +242,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       if (ProcessInstanceUtils.isTransientExecutionScenario(pi))
       {
-         throw new IllegalOperationException(
-               BpmRuntimeError.BPMRT_PI_IS_TRANSIENT.raise(pi.getOID()));
+         throw new IllegalOperationException(BpmRuntimeError.BPMRT_PI_IS_TRANSIENT
+               .raise(pi.getOID(), pi.getProcessDefinition().getId()));
       }
    }
 
@@ -394,8 +394,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       ProcessInstanceBean group = ProcessInstanceBean.findByOID(groupOid);
       if ( !group.isCaseProcessInstance())
       {
-         throw new IllegalOperationException(
-               BpmRuntimeError.BPMRT_PI_NOT_CASE.raise(groupOid));
+         throw new IllegalOperationException(BpmRuntimeError.BPMRT_PI_NOT_CASE
+               .raise(groupOid, group.getProcessDefinition().getId()));
       }
       assertActiveProcessInstance(group);
 
@@ -417,8 +417,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       ProcessInstanceBean group = ProcessInstanceBean.findByOID(groupOid);
       if ( !group.isCaseProcessInstance())
       {
-         throw new IllegalOperationException(
-               BpmRuntimeError.BPMRT_PI_NOT_CASE.raise(groupOid));
+         throw new IllegalOperationException(BpmRuntimeError.BPMRT_PI_NOT_CASE
+               .raise(groupOid, group.getProcessDefinition().getId()));
       }
       assertActiveProcessInstance(group);
 
@@ -440,8 +440,9 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          }
          else
          {
-            throw new IllegalOperationException(
-                  BpmRuntimeError.BPMRT_PI_NOT_MEMBER.raise(oid, groupOid));
+            throw new IllegalOperationException(BpmRuntimeError.BPMRT_PI_NOT_MEMBER.raise(
+                  oid, member.getProcessDefinition().getId(), groupOid,
+                  group.getProcessDefinition().getId()));
          }
       }
 
@@ -483,8 +484,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       ProcessInstanceBean targetCase = ProcessInstanceBean.findByOID(targetCaseOid);
       if ( !targetCase.isCaseProcessInstance())
       {
-         throw new IllegalOperationException(
-               BpmRuntimeError.BPMRT_PI_NOT_CASE.raise(targetCaseOid));
+         throw new IllegalOperationException(BpmRuntimeError.BPMRT_PI_NOT_CASE
+               .raise(targetCaseOid, targetCase.getProcessDefinition().getId()));
       }
       assertActiveProcessInstance(targetCase);
 
@@ -496,18 +497,18 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
          if (targetCaseOid == oid)
          {
-            throw new IllegalOperationException(
-                  BpmRuntimeError.BPMRT_PI_IS_MEMBER.raise(oid));
+            throw new IllegalOperationException(BpmRuntimeError.BPMRT_PI_IS_MEMBER
+                  .raise(oid, sourceCase.getProcessDefinition().getId()));
          }
          if ( !sourceCase.isCaseProcessInstance())
          {
-            throw new IllegalOperationException(
-                  BpmRuntimeError.BPMRT_PI_NOT_CASE.raise(oid));
+            throw new IllegalOperationException(BpmRuntimeError.BPMRT_PI_NOT_CASE
+                  .raise(oid, sourceCase.getProcessDefinition().getId()));
          }
          if (sourceCase.isTerminated())
          {
             throw new IllegalOperationException(
-                  BpmRuntimeError.BPMRT_PI_NOT_ACTIVE.raise(oid));
+                  BpmRuntimeError.BPMRT_PI_NOT_ACTIVE.raise(oid, sourceCase.getProcessDefinition().getId()));
          }
 
          sourceCase.lock();
@@ -542,8 +543,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       ProcessInstanceBean group = ProcessInstanceBean.findByOID(caseOid);
       if ( !group.isCaseProcessInstance())
       {
-         throw new IllegalOperationException(
-               BpmRuntimeError.BPMRT_PI_NOT_CASE.raise(caseOid));
+         throw new IllegalOperationException(BpmRuntimeError.BPMRT_PI_NOT_CASE
+               .raise(caseOid, group.getProcessDefinition().getId()));
       }
       assertActiveProcessInstance(group);
 
@@ -581,8 +582,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          if (root instanceof ProcessInstanceBean
                && ((ProcessInstanceBean) root).isCaseProcessInstance())
          {
-            throw new IllegalOperationException(
-                  BpmRuntimeError.BPMRT_PI_IS_MEMBER.raise(oid));
+            throw new IllegalOperationException(BpmRuntimeError.BPMRT_PI_IS_MEMBER
+                  .raise(oid, member.getProcessDefinition().getId()));
          }
 
          // locking all transitions
@@ -659,8 +660,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       if (ProcessInstanceState.ACTIVE != processInstance.getState().getValue())
       {
-         throw new IllegalOperationException(
-               BpmRuntimeError.BPMRT_PI_NOT_ACTIVE.raise(processInstance.getOID()));
+         throw new IllegalOperationException(BpmRuntimeError.BPMRT_PI_NOT_ACTIVE.raise(
+               processInstance.getOID(), processInstance.getProcessDefinition().getId()));
       }
    }
 
@@ -842,14 +843,16 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       if (ProcessInstanceState.ACTIVE != originatingProcessInstance.getState().getValue())
       {
          throw new IllegalOperationException(
-               BpmRuntimeError.BPMRT_PI_NOT_ACTIVE.raise(processInstanceOid));
+               BpmRuntimeError.BPMRT_PI_NOT_ACTIVE.raise(processInstanceOid,
+                     originatingProcessInstance.getProcessDefinition().getId()));
       }
 
       // illegal to join an interrupted process instance
       if (ProcessInstanceState.ACTIVE != targetProcessInstance.getState().getValue())
       {
          throw new IllegalOperationException(
-               BpmRuntimeError.BPMRT_PI_NOT_ACTIVE.raise(targetProcessInstanceOid));
+               BpmRuntimeError.BPMRT_PI_NOT_ACTIVE.raise(targetProcessInstanceOid,
+                     targetProcessInstance.getProcessDefinition().getId()));
       }
 
       // illegal to join own subprocess
@@ -1164,7 +1167,9 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       {
          throw new AccessForbiddenException(
                BpmRuntimeError.BPMRT_USER_GROUP_IS_NOT_AUTHORIZED_TO_PERFORM_AI.raise(
-                     ((IUserGroup) participant).getOID(), activityInstance.getOID()));
+                     ((UserGroupInfo) participant).getId(),
+                     ((UserGroupInfo) participant).getOID(), activityInstance.getOID(),
+                     activityInstance.getActivity().getId()));
       }
 
       return (ActivityInstance) DetailsFactory.create(activityInstance,
@@ -1297,7 +1302,9 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       {
          throw new AccessForbiddenException(
                BpmRuntimeError.BPMRT_USER_GROUP_IS_NOT_AUTHORIZED_TO_PERFORM_AI.raise(
-                     ((UserGroupInfo) participant).getOID(), activityInstance.getOID()));
+                     ((UserGroupInfo) participant).getId(),
+                     ((UserGroupInfo) participant).getOID(), activityInstance.getOID(),
+                     activityInstance.getActivity().getId()));
       }
    }
 
@@ -1462,7 +1469,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          {
             throw new ObjectNotFoundException(
                   BpmRuntimeError.MDL_UNKNOWN_IN_DATA_MAPPING.raise(
-                        unresolvedIds.first(), context, activityInstanceOID));
+                        unresolvedIds.first(), context, activity.getId(), activityInstanceOID));
          }
       }
 
@@ -1522,7 +1529,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          if (path == null)
          {
             throw new ObjectNotFoundException(
-                  BpmRuntimeError.MDL_UNKNOWN_DATA_PATH.raise(id, processOID));
+                  BpmRuntimeError.MDL_UNKNOWN_DATA_PATH.raise(id, processDefinition.getId(), processOID));
          }
          return getInDataPath(processInstance, path);
       }
@@ -1578,7 +1585,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          {
             throw new ObjectNotFoundException(
                   BpmRuntimeError.MDL_UNKNOWN_IN_DATA_PATH.raise(requestedIds.iterator()
-                        .next(), processOID));
+                        .next(), processDefinition.getName(), processOID));
          }
 
          // prefetch data values in batch to improve performance
@@ -1637,7 +1644,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          if (path == null)
          {
             throw new ObjectNotFoundException(
-                  BpmRuntimeError.MDL_UNKNOWN_OUT_DATA_PATH.raise(id, processOID));
+                  BpmRuntimeError.MDL_UNKNOWN_OUT_DATA_PATH.raise(id, processDefinition.getId(), processOID));
          }
 
          setOutDataPath(value, processInstance, path);
@@ -1683,7 +1690,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
             {
                throw new ObjectNotFoundException(
                      BpmRuntimeError.MDL_UNKNOWN_OUT_DATA_PATH.raise(entry.getKey(),
-                           processOID));
+                           processDefinition.getId(), processOID));
             }
 
             setOutDataPath(entry.getValue(), processInstance, path);
@@ -1729,7 +1736,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       if (activityInstance.isDefaultCaseActivityInstance())
       {
          throw new IllegalOperationException(
-               BpmRuntimeError.BPMRT_AI_CAN_NOT_BE_ABORTED_BY_USER.raise(activityInstanceOID));
+               BpmRuntimeError.BPMRT_AI_CAN_NOT_BE_ABORTED_BY_USER
+                     .raise(activityInstanceOID, activityInstance.getActivity().getId()));
       }
 
       ActivityInstanceUtils.abortActivityInstance(activityInstance, abortScope);
@@ -1746,8 +1754,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       if (processInstance.isCaseProcessInstance())
       {
-         throw new IllegalOperationException(
-               BpmRuntimeError.BPMRT_PI_IS_CASE.raise(processInstanceOID));
+         throw new IllegalOperationException(BpmRuntimeError.BPMRT_PI_IS_CASE.raise(
+               processInstanceOID, processInstance.getProcessDefinition().getId()));
       }
 
       // allow this operation only on spawned processes.
@@ -1912,19 +1920,20 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       if (activityInstance.isTerminated())
       {
-         throw new BindingException(
-               BpmRuntimeError.BPMRT_AI_IS_ALREADY_TERMINATED.raise(activityInstanceOID));
+         throw new BindingException(BpmRuntimeError.BPMRT_AI_IS_ALREADY_TERMINATED
+               .raise(activityInstanceOID, activityInstance.getActivity().getId()));
       }
       if (activityInstance.isAborting())
       {
-         throw new BindingException(
-               BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS.raise(activityInstanceOID));
+         throw new BindingException(BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS
+               .raise(activityInstanceOID, activityInstance.getActivity().getId()));
       }
 
       if (eventHandler.getHandler().getModelOID() != ModelUtils.nullSafeGetModelOID(activityInstance.getActivity()))
       {
          throw new BindingException(
-               BpmRuntimeError.BPMRT_AI_AND_HANDLER_BINDING_FRM_DIFF_MODELS.raise(activityInstanceOID));
+               BpmRuntimeError.BPMRT_AI_AND_HANDLER_BINDING_FRM_DIFF_MODELS
+                     .raise(activityInstanceOID, activityInstance.getActivity().getId()));
       }
 
       IEventHandler handler = getIEventHandler(activityInstance,
@@ -1953,10 +1962,12 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                BpmRuntimeError.ATDB_PROCESS_INSTANCE_ABORTING.raise(processInstanceOID));
       }
 
-      if (eventHandler.getHandler().getModelOID() != ModelUtils.nullSafeGetModelOID(processInstance.getProcessDefinition()))
+      if (eventHandler.getHandler().getModelOID() != ModelUtils
+            .nullSafeGetModelOID(processInstance.getProcessDefinition()))
       {
          throw new BindingException(
-               BpmRuntimeError.BPMRT_PI_AND_HANDLER_BINDING_FRM_DIFF_MODELS.raise(processInstanceOID));
+               BpmRuntimeError.BPMRT_PI_AND_HANDLER_BINDING_FRM_DIFF_MODELS.raise(
+                     processInstanceOID, processInstance.getProcessDefinition().getId()));
       }
 
       IEventHandler handler = getIEventHandler(processInstance, eventHandler.getHandler()
@@ -1974,13 +1985,13 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       if (activityInstance.isTerminated())
       {
-         throw new BindingException(
-               BpmRuntimeError.BPMRT_AI_IS_ALREADY_TERMINATED.raise(activityInstanceOID));
+         throw new BindingException(BpmRuntimeError.BPMRT_AI_IS_ALREADY_TERMINATED
+               .raise(activityInstanceOID, activityInstance.getActivity().getId()));
       }
       if (activityInstance.isAborting())
       {
-         throw new BindingException(
-               BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS.raise(activityInstanceOID));
+         throw new BindingException(BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS
+               .raise(activityInstanceOID, activityInstance.getActivity().getId()));
       }
 
       activityInstance.bind(getIEventHandler(activityInstance, handler), null);
@@ -2017,13 +2028,13 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       if (activityInstance.isTerminated())
       {
-         throw new BindingException(
-               BpmRuntimeError.BPMRT_AI_IS_ALREADY_TERMINATED.raise(activityInstanceOID));
+         throw new BindingException(BpmRuntimeError.BPMRT_AI_IS_ALREADY_TERMINATED
+               .raise(activityInstanceOID, activityInstance.getActivity().getId()));
       }
       if (activityInstance.isAborting())
       {
-         throw new BindingException(
-               BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS.raise(activityInstanceOID));
+         throw new BindingException(BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS
+               .raise(activityInstanceOID, activityInstance.getActivity().getId()));
       }
 
       activityInstance.unbind(getIEventHandler(activityInstance, eventHandler), null);

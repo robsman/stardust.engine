@@ -80,31 +80,28 @@ public class PropagateAccessEvaluator
       for (BusinessObjectRelationship businessObjectRelationship : values)
       {
          BusinessObjectReference otherBusinessObject = businessObjectRelationship.otherBusinessObject;
-         IData otherData = BusinessObjectUtils.findDataForUpdate(otherBusinessObject.modelId,
-               otherBusinessObject.id);
-         Map<String, BusinessObjectRelationship> otherBusinessObjectRelationships = BusinessObjectUtils.getBusinessObjectRelationships(
-               otherData);
-         Collection<BusinessObjectRelationship> otherRelationships = otherBusinessObjectRelationships
-               .values();
-         Boolean allowedFound = false;
-         for (BusinessObjectRelationship otherBusinessObjectRelationship : otherRelationships)
+         IData otherData = BusinessObjectUtils
+               .findDataForUpdate(otherBusinessObject.modelId, otherBusinessObject.id);
+         Map<String, BusinessObjectRelationship> otherBusinessObjectRelationships = BusinessObjectUtils
+               .getBusinessObjectRelationships(otherData);
+         BusinessObjectRelationship otherBusinessObjectRelationship = otherBusinessObjectRelationships
+               .get(businessObjectRelationship.thisForeignKeyField);
+         if (Boolean.TRUE.equals(otherBusinessObjectRelationship.propagateAccess))
          {
-            if (Boolean.TRUE.equals(otherBusinessObjectRelationship.propagateAccess))
+            Boolean allowedFound = false;
+            allowedFound = function.execute(otherData, businessObjectRelationship);
+            if (allowedFound)
             {
-               allowedFound = function.execute(otherData, businessObjectRelationship);
+               return true;
+            }
+            else
+            {
+               // traverse propagated relationship for non visited data
+               allowedFound = doEvaluate(otherData);
                if (allowedFound)
                {
                   return true;
                }
-            }
-         }
-         if (!allowedFound)
-         {
-            // traverse propagated relationship for non visited data
-            allowedFound = doEvaluate(otherData);
-            if (allowedFound)
-            {
-               return true;
             }
          }
       }

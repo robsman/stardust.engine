@@ -875,7 +875,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    {
       return ActivityInstanceState.Aborting == getState();
    }
-   
+
    private void putToUserWorklist(IUser user)
    {
       if ( !user.isValid()
@@ -1257,23 +1257,34 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
          if (separateData && copyAllData)
          {
-            for (Iterator iterator = getProcessInstance().getAllDataValues(); iterator.hasNext();)
+            for (Iterator<?> iterator = getProcessInstance().getAllDataValues(); iterator.hasNext();)
             {
                IDataValue srcValue = (IDataValue) iterator.next();
 
                IData srcData = srcValue.getData();
-               if (trace.isDebugEnabled())
+
+               if (!RootPIUtils.isRootProcessAttachmentAttributeEnabled(srcData.getId(), getProcessInstance()))
                {
-                  trace.debug("Data value '" + srcData.getId() + "' retrieved.");
+	               if (trace.isDebugEnabled())
+	               {
+	                  trace.debug("Data value '" + srcData.getId() + "' retrieved.");
+	               }
+
+	               // DataValueBean.copyDataValue(subProcess, srcValue);
+
+	               IModel targetModel = (IModel) subProcess.getProcessDefinition().getModel();
+	               // we copy only data that exists in the target model
+	               if (srcData == targetModel.findData(srcData.getId()))
+	               {
+	                  subProcess.setOutDataValue(srcData, "", srcValue.getSerializedValue());
+	               }
                }
-
-               // DataValueBean.copyDataValue(subProcess, srcValue);
-
-               IModel targetModel = (IModel) subProcess.getProcessDefinition().getModel();
-               // we copy only data that exists in the target model
-               if (srcData == targetModel.findData(srcData.getId()))
+               else
                {
-                  subProcess.setOutDataValue(srcData, "", srcValue.getSerializedValue());
+            	   if (trace.isDebugEnabled())
+	               {
+	                  trace.debug("Data value '" + srcData.getId() + "' ignored for copy to subprocess.");
+	               }
                }
             }
          }

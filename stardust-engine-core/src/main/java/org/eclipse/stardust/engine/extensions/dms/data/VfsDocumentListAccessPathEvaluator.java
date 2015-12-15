@@ -18,17 +18,14 @@ import java.util.Map;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.Functions;
 import org.eclipse.stardust.engine.core.persistence.Join;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
@@ -54,8 +51,6 @@ public class VfsDocumentListAccessPathEvaluator
          .getLogger(VfsDocumentListAccessPathEvaluator.class);
 
    private static final String XPATH_PREFIX = AuditTrailUtils.DOCS_DOCUMENTS + "/";
-
-   private static final String PROP_MODEL_PROCESS_ATTACHMENTS_BY_ROOT_PROCESS = "PROCESS_DEFINITIONS_WITH_PROCESS_ATTACHMENTS_BY_ROOT_PROCESS";
 
    public Object evaluate(AccessPoint accessPointDefinition, Object accessPointInstance,
          String inPath, AccessPathEvaluationContext accessPathEvaluationContext,
@@ -390,54 +385,7 @@ public class VfsDocumentListAccessPathEvaluator
             AccessPoint accessPointDefinition,
             AccessPathEvaluationContext accessPathEvaluationContext)
       {
-         if (DmsConstants.DATA_ID_ATTACHMENTS.equals(accessPointDefinition.getId()))
-         {
-            Map<Long, Boolean> byRefAttributeCache = (Map<Long, Boolean>) Parameters
-                  .instance().get(PROP_MODEL_PROCESS_ATTACHMENTS_BY_ROOT_PROCESS);
-            if (byRefAttributeCache == null)
-            {
-               byRefAttributeCache = CollectionUtils.newHashMap();
-            }
-
-            IProcessDefinition pd = accessPathEvaluationContext.getProcessInstance()
-                  .getProcessDefinition();
-            IModel model = (IModel) pd.getModel();
-            Long modelOid = Long.valueOf(model.getOID());
-
-            Boolean byRef = byRefAttributeCache.get(modelOid);
-            if (byRef == null)
-            {
-               ModelElementList processDefinitions = model.getProcessDefinitions();
-               byRef = Boolean.FALSE;
-               for (int i = 0; i < processDefinitions.size(); i++)
-               {
-                  IProcessDefinition innerPd = (IProcessDefinition) processDefinitions
-                        .get(i);
-                  if (Boolean.TRUE.equals(innerPd
-                        .getAttribute(DmsConstants.BY_REFERENCE_ATT)))
-                  {
-                     byRef = Boolean.TRUE;
-                     break;
-                  }
-               }
-
-               byRefAttributeCache.put(modelOid, byRef);
-               Parameters.instance().set(PROP_MODEL_PROCESS_ATTACHMENTS_BY_ROOT_PROCESS,
-                     byRefAttributeCache);
-            }
-
-            if (byRef)
-            {
-               IProcessInstance rootPI = accessPathEvaluationContext.getProcessInstance()
-                     .getRootProcessInstance();
-               if (Boolean.TRUE.equals(rootPI.getProcessDefinition().getAttribute(
-                     DmsConstants.BY_REFERENCE_ATT)))
-               {
-                  return true;
-               }
-            }
-         }
-         return false;
+       	  return RootPIUtils.isRootProcessAttachmentAttributeEnabled(accessPointDefinition.getId(), accessPathEvaluationContext.getProcessInstance());
       }
 
       private boolean handleRootPIProcessAttachmentsEvalContext(

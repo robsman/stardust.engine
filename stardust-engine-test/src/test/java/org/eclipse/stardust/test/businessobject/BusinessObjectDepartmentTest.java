@@ -29,10 +29,7 @@ import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
-import org.eclipse.stardust.engine.api.model.Organization;
-import org.eclipse.stardust.engine.api.model.Participant;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.BusinessObjectQuery;
 import org.eclipse.stardust.engine.api.query.BusinessObjects;
 import org.eclipse.stardust.engine.api.runtime.*;
@@ -65,15 +62,22 @@ public class BusinessObjectDepartmentTest
 
    public static final String CLIENT_BO = new QName(MODEL_NAME, "Client").toString();
 
-   public static final String CLIENT_GROUP_BO = new QName(MODEL_NAME, "ClientGroup").toString();
+   public static final String CLIENT_GROUP_BO = new QName(MODEL_NAME, "ClientGroup")
+         .toString();
 
-   public static final String MASTER_GROUP_BO = new QName(MODEL_NAME, "MasterGroup").toString();
+   public static final String MASTER_GROUP_BO = new QName(MODEL_NAME, "MasterGroup")
+         .toString();
 
    // ********* Participants ********
 
-   public static final String CLIENT_ORG = new QName(MODEL_NAME, "Client_Admin").toString();
+   public static final String CLIENT_ADMIN_ROLE = new QName(MODEL_NAME, "Client_Admin")
+         .toString();
 
-   public static final String BO_ADMIN_ROLE = new QName(MODEL_NAME, "BO_Admin").toString();
+   public static final String CLIENT_USER_ORG = new QName(MODEL_NAME, "Client_User")
+         .toString();
+
+   public static final String BO_ADMIN_ROLE = new QName(MODEL_NAME, "BO_Admin")
+         .toString();
 
    // ********* Users ********
 
@@ -117,8 +121,8 @@ public class BusinessObjectDepartmentTest
       assertValuesU1(CLIENT_GROUP_BO, 2);
 
       // update
-      updateClientU1("c1", "c2");
-      updateClientU1("c2", "c1");
+      updateClientDepartmentU1("c1", "c2");
+      updateClientDepartmentU1("c2", "c1");
 
       // delete
       deleteClientU1("c1");
@@ -160,7 +164,7 @@ public class BusinessObjectDepartmentTest
       createClient("c1", null);
       createClient("c2", null);
 
-      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
+      UserHome.create(sf, U1, getScopedOrg(CLIENT_USER_ORG, "c1"));
 
       assertValuesU1(CLIENT_BO, 1);
    }
@@ -172,7 +176,7 @@ public class BusinessObjectDepartmentTest
    @Test
    public void test04DepartmentRestrictionCreate()
    {
-      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
+      UserHome.create(sf, U1, getImplicitlyScopedRole(CLIENT_ADMIN_ROLE, CLIENT_USER_ORG, "c1"));
 
       createClientU1("c1", null);
 
@@ -203,17 +207,17 @@ public class BusinessObjectDepartmentTest
    @Test
    public void test05DepartmentRestrictionUpdateOldValueDenied()
    {
-      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
+      UserHome.create(sf, U1, getImplicitlyScopedRole(CLIENT_ADMIN_ROLE, CLIENT_USER_ORG, "c1"));
 
       createClient("c1", null);
       createClient("c2", null);
 
-      updateClientU1("c1", "c1");
+      updateClientDepartmentU1("c1", "c1");
       boolean ex = false;
       try
       {
          // should throw AccessForbiddenException because c2 as old value is not granted.
-         updateClientU1("c2", "c1");
+         updateClientDepartmentU1("c2", "c1");
       }
       catch (AccessForbiddenException e)
       {
@@ -235,14 +239,14 @@ public class BusinessObjectDepartmentTest
    @Test
    public void test06DepartmentRestrictionUpdateNewValueDenied()
    {
-      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
+      UserHome.create(sf, U1, getImplicitlyScopedRole(CLIENT_ADMIN_ROLE, CLIENT_USER_ORG, "c1"));
 
       createClient("c1", null);
       boolean ex = false;
       try
       {
          // should throw AccessForbiddenException because c2 as new value is not granted
-         updateClientU1("c1", "c2");
+         updateClientDepartmentU1("c1", "c2");
       }
       catch (AccessForbiddenException e)
       {
@@ -263,7 +267,7 @@ public class BusinessObjectDepartmentTest
    @Test
    public void test07DepartmentRestrictionDelete()
    {
-      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
+      UserHome.create(sf, U1, getImplicitlyScopedRole(CLIENT_ADMIN_ROLE, CLIENT_USER_ORG, "c1"));
       createClient("c1", null);
       createClient("c2", null);
 
@@ -285,7 +289,8 @@ public class BusinessObjectDepartmentTest
 
    /**
     * Tests visibility of department scope restricted and propagated related business
-    * objects for BO_Admin (non scoped role which has modify and read data permissions on Client and ClientGroup).
+    * objects for BO_Admin (non scoped role which has modify and read data permissions on
+    * Client and ClientGroup).
     */
    @Test
    public void test08NonScopedRoleAccess()
@@ -304,8 +309,8 @@ public class BusinessObjectDepartmentTest
       assertValuesU1(CLIENT_GROUP_BO, 2);
 
       // update
-      updateClientU1("c1", "c2");
-      updateClientU1("c2", "c1");
+      updateClientDepartmentU1("c1", "c2");
+      updateClientDepartmentU1("c2", "c1");
 
       // delete
       deleteClientU1("c1");
@@ -320,7 +325,8 @@ public class BusinessObjectDepartmentTest
 
    /**
     * Tests visibility of department scope restricted and propagated related business
-    * objects for BO_Admin (non scoped role which has modify and read data permissions on Client and ClientGroup).
+    * objects for BO_Admin (non scoped role which has modify and read data permissions on
+    * Client and ClientGroup).
     */
    @Test
    public void test09NonScopedRoleAccessOnCyclicRelation()
@@ -345,8 +351,8 @@ public class BusinessObjectDepartmentTest
       assertValuesU1(CLIENT_GROUP_BO, 3);
 
       // update
-      updateClientU1("c1", "c2");
-      updateClientU1("c2", "c1");
+      updateClientDepartmentU1("c1", "c2");
+      updateClientDepartmentU1("c2", "c1");
 
       // delete
       deleteClientU1("c1");
@@ -361,8 +367,8 @@ public class BusinessObjectDepartmentTest
    }
 
    /**
-    * Tests visibility of business object with propagated access.
-    * With 1 level of propagation.
+    * Tests visibility of business object with propagated access. With 1 level of
+    * propagation.
     */
    @Test
    public void test10DepartmentPropagationRead1Level()
@@ -376,14 +382,15 @@ public class BusinessObjectDepartmentTest
       createClient("c3", null);
       createClientGroup("g3", null);
 
-      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
+      UserHome.create(sf, U1,
+            getScopedOrg(CLIENT_USER_ORG, "c1"));
 
       assertValuesU1(CLIENT_GROUP_BO, 1, "ClientGroupId", "g1");
    }
 
    /**
-    * Tests visibility of business object with propagated access.
-    * With 2 levels and cyclic propagation.
+    * Tests visibility of business object with propagated access. With 2 levels and cyclic
+    * propagation.
     */
    @Test
    public void test11DepartmentPropagationRead2LevelCyclicAccess1()
@@ -400,15 +407,16 @@ public class BusinessObjectDepartmentTest
       createClientGroup("g3", null);
       createMasterGroup("m3", null);
 
-      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
+      UserHome.create(sf, U1,
+            getScopedOrg(CLIENT_USER_ORG, "c1"));
 
       assertValuesU1(CLIENT_GROUP_BO, 1, "ClientGroupId", "g1");
       assertValuesU1(MASTER_GROUP_BO, 1, "MasterGroupId", "m1");
    }
 
    /**
-    * Tests visibility of business object with propagated access.
-    * With 2 levels and cyclic propagation.
+    * Tests visibility of business object with propagated access. With 2 levels and cyclic
+    * propagation.
     */
    @Test
    public void test12DepartmentPropagationRead2LevelCyclicAccess2()
@@ -425,15 +433,17 @@ public class BusinessObjectDepartmentTest
       createClientGroup("g3", null);
       createMasterGroup("m3", null);
 
-      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"), getScopedOrg(CLIENT_ORG, "c2"));
+      UserHome.create(sf, U1,
+            getScopedOrg(CLIENT_USER_ORG, "c1"),
+            getScopedOrg(CLIENT_USER_ORG, "c2"));
 
       assertValuesU1(CLIENT_GROUP_BO, 2);
       assertValuesU1(MASTER_GROUP_BO, 2);
    }
 
    /**
-    * Tests visibility of business object with propagated access.
-    * With 2 levels and cyclic propagation.
+    * Tests visibility of business object with propagated access. With 2 levels and cyclic
+    * propagation.
     */
    @Test
    public void test13DepartmentPropagationRead2LevelCyclicNoAccess()
@@ -457,13 +467,15 @@ public class BusinessObjectDepartmentTest
    }
 
    /**
-    * Tests modification of business object with propagated access.
-    * With 1 level of propagation.
+    * Tests modification of business object with propagated access. With 1 level of
+    * propagation.
     */
    @Test
    public void test14DepartmentPropagationModify1Level()
    {
-      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
+      UserHome.create(sf, U1,
+            getImplicitlyScopedRole(CLIENT_ADMIN_ROLE, CLIENT_USER_ORG, "c1"));// getScopedOrg(CLIENT_ADMIN_ORG,
+                                                                               // "c1"));
 
       createClientU1("c1", "g1");
       createClientGroupU1("g1", "c1");
@@ -517,13 +529,13 @@ public class BusinessObjectDepartmentTest
    }
 
    /**
-    * Tests modification of business object with propagated access.
-    * With 2 levels and cyclic propagation and access to one department.
+    * Tests modification of business object with propagated access. With 2 levels and
+    * cyclic propagation and access to one department.
     */
    @Test
    public void test15DepartmentPropagationModify2LevelCyclicAccess1()
    {
-      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"));
+      UserHome.create(sf, U1, getImplicitlyScopedRole(CLIENT_ADMIN_ROLE, CLIENT_USER_ORG, "c1"));
 
       createClientU1("c1", "g1");
       createClientGroupU1("g1", "c1", "m1");
@@ -600,13 +612,14 @@ public class BusinessObjectDepartmentTest
    }
 
    /**
-    * Tests modification of business object with propagated access.
-    * With 2 levels and cyclic propagation and access to two departments.
+    * Tests modification of business object with propagated access. With 2 levels and
+    * cyclic propagation and access to two departments.
     */
    @Test
    public void test16DepartmentPropagationModify2LevelCyclicAccess2()
    {
-      UserHome.create(sf, U1, getScopedOrg(CLIENT_ORG, "c1"), getScopedOrg(CLIENT_ORG, "c2"));
+      UserHome.create(sf, U1, getImplicitlyScopedRole(CLIENT_ADMIN_ROLE, CLIENT_USER_ORG, "c1"),
+            getImplicitlyScopedRole(CLIENT_ADMIN_ROLE, CLIENT_USER_ORG, "c2"));
 
       createClientU1("c1", "g1");
       createClientGroupU1("g1", "c1", "m1");
@@ -654,8 +667,8 @@ public class BusinessObjectDepartmentTest
    }
 
    /**
-    * Tests modification of business object with propagated access.
-    * With 2 levels and cyclic propagation and no access to any department or role.
+    * Tests modification of business object with propagated access. With 2 levels and
+    * cyclic propagation and no access to any department or role.
     */
    @Test
    public void test17DepartmentPropagationModify2LevelCyclicNoAccess()
@@ -764,6 +777,77 @@ public class BusinessObjectDepartmentTest
       assertValuesU1(CLIENT_GROUP_BO, 0);
    }
 
+   /**
+    * Tests non allowed modification of business object with propagated access. Without propagation.
+    */
+   @Test(expected=AccessForbiddenException.class)
+   public void test18DepartmentRestrictionModifyWithReadGrant()
+   {
+      UserHome.create(sf, U1,
+            getScopedOrg(CLIENT_USER_ORG, "c1"));
+
+      createClientU1("c1", "g1");
+   }
+
+   /**
+    * Tests non allowed modification of business object with propagated access. With 1
+    * level of propagation.
+    */
+   @Test
+   public void test19DepartmentPropagationModifyWithReadGrant1Level()
+   {
+      UserHome.create(sf, U1,
+            getScopedOrg(CLIENT_USER_ORG, "c1"));
+
+      createClient("c1", "g1");
+
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            createClientGroupU1("g1", "c1");
+
+            return null;
+         }
+      });
+   }
+
+   /**
+    * Tests update order of business object with propagated access. With 1
+    * level of propagation.
+    */
+   @Test
+   public void test20DepartmentPropagationModifyReferencedPrimaryKey()
+   {
+      createClient("c1", "g1");
+      createClientGroup("g1", "c1");
+
+      createClient("c2", "g2");
+      createClientGroup("g2", "c2");
+
+      updateBOField(CLIENT_BO, "c2", "Department", "c1");
+
+      UserHome.create(sf, U1, getImplicitlyScopedRole(CLIENT_ADMIN_ROLE, CLIENT_USER_ORG, "c1"));
+
+      assertValuesU1(CLIENT_BO, 2);
+      assertValuesU1(CLIENT_GROUP_BO, 2);
+
+      // ref change works because permission is on CLIENT
+      updateBOFieldU1(CLIENT_BO, "c2", "ClientGroupRef", "g3");
+
+      // ref change does not work because it breaks permission chain to CLIENT
+      tryAndAssertFail(new Action<Object>()
+      {
+         public Object execute()
+         {
+            // should throw AccessForbiddenException
+            updateBOFieldU1(CLIENT_GROUP_BO, "g2", "ClientRef", "c3");
+
+            return null;
+         }
+      });
+   }
 
 
    //************************** UTILITY ***************************************
@@ -791,18 +875,19 @@ public class BusinessObjectDepartmentTest
    {
       QueryService queryService = sf.getQueryService();
       Models models = queryService.getModels(findForId(PREDEFINED_MODEL_ID));
-      Participant auditorParticipant = queryService.getParticipant(models.get(0)
-            .getModelOID(), PredefinedConstants.AUDITOR_ROLE);
+      Participant auditorParticipant = queryService.getParticipant(
+            models.get(0).getModelOID(), PredefinedConstants.AUDITOR_ROLE);
       Assert.assertNotNull(auditorParticipant);
       return (ModelParticipantInfo) auditorParticipant;
    }
 
-   private ModelParticipantInfo getUnscopedParticipant(String qualifiedModelParticipantId)
+   private ModelParticipant getUnscopedParticipant(String qualifiedModelParticipantId)
    {
       QueryService queryService = sf.getQueryService();
-      Participant auditorParticipant = queryService.getParticipant(qualifiedModelParticipantId);
+      Participant auditorParticipant = queryService
+            .getParticipant(qualifiedModelParticipantId);
       Assert.assertNotNull(auditorParticipant);
-      return (ModelParticipantInfo) auditorParticipant;
+      return (ModelParticipant) auditorParticipant;
    }
 
    private void assertValuesU1(String businessObjectId, int expectedCount)
@@ -810,13 +895,15 @@ public class BusinessObjectDepartmentTest
       assertValuesU1(businessObjectId, expectedCount, null, null);
    }
 
-   private void assertValuesU1(String businessObjectId, int expectedCount, String expectedId, String expectedValue)
+   private void assertValuesU1(String businessObjectId, int expectedCount,
+         String expectedId, String expectedValue)
    {
       ServiceFactory u1Sf = ServiceFactoryLocator.get(U1, U1);
 
-      BusinessObjectQuery query = BusinessObjectQuery.findForBusinessObject(businessObjectId);
-      query.setPolicy(new BusinessObjectQuery.Policy(
-            BusinessObjectQuery.Option.WITH_VALUES));
+      BusinessObjectQuery query = BusinessObjectQuery
+            .findForBusinessObject(businessObjectId);
+      query.setPolicy(
+            new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
       BusinessObjects bos = u1Sf.getQueryService().getAllBusinessObjects(query);
 
       if (expectedCount > 0)
@@ -824,7 +911,8 @@ public class BusinessObjectDepartmentTest
          Assert.assertEquals("Query Result BOs", 1, bos.getSize());
          BusinessObject bo = bos.get(0);
          List<BusinessObject.Value> values = bo.getValues();
-         Assert.assertEquals("Values of "+ businessObjectId , expectedCount, values.size());
+         Assert.assertEquals("Values of " + businessObjectId, expectedCount,
+               values.size());
          if (expectedId != null)
          {
             for (Value value : values)
@@ -858,6 +946,32 @@ public class BusinessObjectDepartmentTest
       }
 
       return dep.getScopedParticipant(org);
+   }
+
+   private ModelParticipantInfo getImplicitlyScopedRole(String roleId,
+         String organizationId, String departmentId)
+   {
+      Organization org = getOrg(organizationId);
+
+      Department dep;
+      try
+      {
+         dep = sf.getQueryService().findDepartment(null, departmentId, org);
+      }
+      catch (ObjectNotFoundException e)
+      {
+         dep = sf.getAdministrationService().createDepartment(departmentId, departmentId,
+               null, null, org);
+      }
+
+      ModelParticipant unscopedParticipant = getUnscopedParticipant(roleId);
+
+      QualifiedModelParticipantInfo scopedParticipant = dep.getScopedParticipant(unscopedParticipant);
+
+      Assert.assertTrue(scopedParticipant instanceof RoleInfo);
+      Assert.assertEquals(roleId, scopedParticipant.getQualifiedId());
+      Assert.assertNotNull(scopedParticipant.getDepartment());
+      return scopedParticipant;
    }
 
    private Organization getOrg(String organizationId)
@@ -895,12 +1009,12 @@ public class BusinessObjectDepartmentTest
             (Serializable) client);
    }
 
-   private BusinessObject updateClientU1(String id, String newDepartment)
+   private BusinessObject updateClientDepartmentU1(String id, String newDepartment)
    {
       ServiceFactory u1Sf = ServiceFactoryLocator.get(U1, U1);
       try
       {
-         return updateClient(u1Sf, id, newDepartment);
+         return updateClientDepartment(u1Sf, id, newDepartment);
       }
       finally
       {
@@ -908,14 +1022,49 @@ public class BusinessObjectDepartmentTest
       }
    }
 
-   private BusinessObject updateClient(ServiceFactory sf, String id, String newDepartment)
+   private BusinessObject updateClientDepartment(ServiceFactory sf, String id, String newDepartment)
    {
+      // TODO fix ref getting lost.
       final Map<String, Object> client = CollectionUtils.newMap();
       client.put("ClientId", id);
       client.put("ClientName", id);
       client.put("Department", newDepartment);
 
       return sf.getWorkflowService().updateBusinessObjectInstance(CLIENT_BO, client);
+   }
+
+   private BusinessObject updateBOFieldU1(String boId, String pk, String field, String newValue)
+   {
+      ServiceFactory u1Sf = ServiceFactoryLocator.get(U1, U1);
+      try
+      {
+         return updateBOField(u1Sf, boId, pk, field, newValue);
+      }
+      finally
+      {
+         u1Sf.close();
+      }
+   }
+
+   private BusinessObject updateBOField(String boId, String pk, String field, String newValue)
+   {
+      return updateBOField(sf, boId, pk, field, newValue);
+   }
+
+   private BusinessObject updateBOField(ServiceFactory sf, String boId, String pk, String field, String newValue)
+   {
+      BusinessObjectQuery query = BusinessObjectQuery.findWithPrimaryKey(boId, pk);
+      query.setPolicy(
+            new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
+      BusinessObjects bo = sf.getQueryService().getAllBusinessObjects(query);
+
+      BusinessObject businessObject = bo.get(0);
+      Value clientMap = businessObject.getValues().get(0);
+
+      final Map<String, Object> client = (Map<String, Object>) clientMap.getValue();
+      client.put(field, newValue);
+
+      return sf.getWorkflowService().updateBusinessObjectInstance(boId, client);
    }
 
    private void deleteClientU1(String id)
@@ -972,7 +1121,8 @@ public class BusinessObjectDepartmentTest
       }
    }
 
-   private BusinessObject createClientGroup(ServiceFactory sf, String id, String ref, String ref2)
+   private BusinessObject createClientGroup(ServiceFactory sf, String id, String ref,
+         String ref2)
    {
       final Map<String, Object> client = CollectionUtils.newMap();
       client.put("ClientGroupId", id);

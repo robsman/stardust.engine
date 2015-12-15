@@ -81,7 +81,7 @@
 </ExtendedAttribute>
 </ExtendedAttributes>
 </Participant>
-<Participant Id="Client_User" Name="Client_User">
+<Participant Id="Client_Admin" Name="Client_Admin">
 <ParticipantType Type="ROLE"/>
 <ExtendedAttributes>
 <ExtendedAttribute Name="CarnotExt">
@@ -105,13 +105,13 @@
 </ExtendedAttribute>
 </ExtendedAttributes>
 </Participant>
-<Participant Id="Client_Admin" Name="Client_Admin">
+<Participant Id="Client_User" Name="Client_User">
 <ParticipantType Type="ORGANIZATIONAL_UNIT"/>
 <ExtendedAttributes>
 <ExtendedAttribute Name="CarnotExt">
 <carnot:Organization Oid="33">
 <carnot:Members>
-<carnot:Member Id="Client_User"/>
+<carnot:Member Id="Client_Admin"/>
 </carnot:Members>
 <carnot:Attributes>
 <carnot:Attribute Name="carnot:model:uuid" Value="93e8ce28-dac3-4b55-a9c3-e097f31cb20a"/>
@@ -305,13 +305,12 @@
 <carnot:Attribute Name="carnot:model:uuid" Value="290c8289-db1c-4270-9c49-940e487d0bf9"/>
 <carnot:Attribute Name="carnot:engine:primaryKey" Value="ClientId"/>
 <carnot:Attribute Name="carnot:engine:nameExpression" Value="ClientName"/>
-<carnot:Attribute Name="carnot:engine:managedOrganizations" Value="[&quot;BOTestModel:Client_Admin&quot;]"/>
+<carnot:Attribute Name="carnot:engine:managedOrganizations" Value="[&quot;BOTestModel:Client_User&quot;]"/>
 <carnot:Attribute Name="carnot:engine:businessObjectRelationships" Value="[{&quot;otherBusinessObject&quot;:{&quot;id&quot;:&quot;ClientGroup&quot;,&quot;modelId&quot;:&quot;BOTestModel&quot;},&quot;otherRole&quot;:&quot;CG&quot;,&quot;otherCardinality&quot;:&quot;TO_ONE&quot;,&quot;otherForeignKeyField&quot;:&quot;ClientGroupRef&quot;,&quot;thisRole&quot;:&quot;C&quot;,&quot;thisCardinality&quot;:&quot;TO_ONE&quot;,&quot;thisForeignKeyField&quot;:&quot;ClientRef&quot;,&quot;propagateAccess&quot;:true}]"/>
-<carnot:Attribute Name="authorization:data.readDataValues[0]" Value="Client_Admin"/>
-<carnot:Attribute Name="authorization:data.readDataValues[1]" Value="Client_User"/>
-<carnot:Attribute Name="authorization:data.readDataValues[2]" Value="BO_Admin"/>
-<carnot:Attribute Name="authorization:data.modifyDataValues[0]" Value="Client_Admin"/>
-<carnot:Attribute Name="authorization:data.modifyDataValues[1]" Value="BO_Admin"/>
+<carnot:Attribute Name="authorization:data.readDataValues[0]" Value="Client_User"/>
+<carnot:Attribute Name="authorization:data.readDataValues[1]" Value="BO_Admin"/>
+<carnot:Attribute Name="authorization:data.modifyDataValues[0]" Value="BO_Admin"/>
+<carnot:Attribute Name="authorization:data.modifyDataValues[1]" Value="Client_Admin"/>
 </carnot:Attributes>
 </carnot:DataField>
 </ExtendedAttribute>
@@ -488,7 +487,7 @@
 <carnot:Views/>
 <carnot:Attributes>
 <carnot:Attribute Name="carnot:model:uuid" Value="813fdde5-760d-4341-9d42-bff5680ca07c"/>
-<carnot:Attribute Name="ipp:model:modified" Value="Thu Dec 03 15:11:46 CET 2015"/>
+<carnot:Attribute Name="ipp:model:modified" Value="Tue Dec 15 09:42:48 CET 2015"/>
 </carnot:Attributes>
 </carnot:Package>
 </ExtendedAttribute>

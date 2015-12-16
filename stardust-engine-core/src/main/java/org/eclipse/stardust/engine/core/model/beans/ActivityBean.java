@@ -1465,7 +1465,8 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
 
    public Set<IQualityAssuranceCode> getQualityAssuranceCodes()
    {
-      return qualityAssuranceCodes;
+      return qualityAssuranceCodes == null ? 
+            Collections.<IQualityAssuranceCode>emptySet() : qualityAssuranceCodes;
    }
 
    public void setQualityAssurancePerformer(IModelParticipant participant)

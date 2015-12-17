@@ -59,6 +59,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.runtime.utils.PerformerUtils.EncodedPerformer;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.*;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
@@ -1344,12 +1345,29 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 	                  subProcess.setOutDataValue(srcData, "", srcValue.getSerializedValue());
 	               }
                }
-               else
+               else if (!synchronous)
                {
-            	   if (trace.isDebugEnabled())
-	               {
-	                  trace.debug("Data value '" + srcData.getId() + "' ignored for copy to subprocess.");
-	               }
+                  // copy process attachments from root for async subprocess
+                  IDataValue rootDataValue = getProcessInstance().getRootProcessInstance()
+                        .getDataValue(srcData);
+                  IData srcData2 = rootDataValue.getData();
+                  if (DmsConstants.DATA_ID_ATTACHMENTS.equals(srcData2.getId()))
+                  {
+                     IModel targetModel = (IModel) subProcess.getProcessDefinition()
+                           .getModel();
+                     // we copy only data that exists in the target model
+                     if (srcData2 == targetModel.findData(srcData2.getId()))
+                     {
+                        subProcess.setOutDataValue(srcData2, "",
+                              rootDataValue.getSerializedValue());
+                     }
+
+                     if (trace.isDebugEnabled())
+                     {
+                        trace.debug("Data value '" + srcData2.getId()
+                              + "' retrieved from root.");
+                     }
+                  }
                }
             }
          }

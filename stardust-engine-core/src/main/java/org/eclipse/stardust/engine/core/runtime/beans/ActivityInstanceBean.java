@@ -1266,42 +1266,43 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
                if (!RootPIUtils.isRootProcessAttachmentAttributeEnabled(srcData.getId(), getProcessInstance()))
                {
-	               if (trace.isDebugEnabled())
-	               {
-	                  trace.debug("Data value '" + srcData.getId() + "' retrieved.");
-	               }
-
-	               // DataValueBean.copyDataValue(subProcess, srcValue);
-
-	               IModel targetModel = (IModel) subProcess.getProcessDefinition().getModel();
-	               // we copy only data that exists in the target model
-	               if (srcData == targetModel.findData(srcData.getId()))
-	               {
-	                  subProcess.setOutDataValue(srcData, "", srcValue.getSerializedValue());
-	               }
-               }
-               else if (!synchronous)
-               {
-                  // copy process attachments from root for async subprocess
-                  IDataValue rootDataValue = getProcessInstance().getRootProcessInstance()
-                        .getDataValue(srcData);
-                  IData srcData2 = rootDataValue.getData();
-                  if (DmsConstants.DATA_ID_ATTACHMENTS.equals(srcData2.getId()))
+                  if (trace.isDebugEnabled())
                   {
-                     IModel targetModel = (IModel) subProcess.getProcessDefinition()
-                           .getModel();
-                     // we copy only data that exists in the target model
-                     if (srcData2 == targetModel.findData(srcData2.getId()))
-                     {
-                        subProcess.setOutDataValue(srcData2, "",
-                              rootDataValue.getSerializedValue());
-                     }
+                     trace.debug("Data value '" + srcData.getId() + "' retrieved.");
+                  }
 
-                     if (trace.isDebugEnabled())
-                     {
-                        trace.debug("Data value '" + srcData2.getId()
-                              + "' retrieved from root.");
-                     }
+                  // DataValueBean.copyDataValue(subProcess, srcValue);
+
+                  IModel targetModel = (IModel) subProcess.getProcessDefinition().getModel();
+                  // we copy only data that exists in the target model
+                  if (srcData == targetModel.findData(srcData.getId()))
+                  {
+                     subProcess.setOutDataValue(srcData, "", srcValue.getSerializedValue());
+                  }
+               }
+            }
+            if (!synchronous && RootPIUtils.isRootProcessAttachmentAttributeEnabled(DmsConstants.DATA_ID_ATTACHMENTS, getProcessInstance()))
+            {
+               // copy process attachments from root for async subprocess
+               IProcessInstance rootProcessInstance = getProcessInstance().getRootProcessInstance();
+               IModel rootModel = (IModel) rootProcessInstance.getProcessDefinition().getModel();
+               IData rootAttachments = rootModel.findData(DmsConstants.DATA_ID_ATTACHMENTS);
+               if (rootAttachments != null)
+               {
+                  IDataValue rootDataValue = rootProcessInstance.getDataValue(rootAttachments);
+                  IModel targetModel = (IModel) subProcess.getProcessDefinition().getModel();
+                  // we copy only data that exists in the target model
+                  IData targetAttachments = targetModel.findData(DmsConstants.DATA_ID_ATTACHMENTS);
+                  if (targetAttachments != null)
+                  {
+                     subProcess.setOutDataValue(targetAttachments, "",
+                           rootDataValue.getSerializedValue());
+                  }
+
+                  if (trace.isDebugEnabled())
+                  {
+                     trace.debug("Data value '" + targetAttachments.getId()
+                           + "' retrieved from root.");
                   }
                }
             }

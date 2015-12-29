@@ -7,11 +7,11 @@ import org.eclipse.stardust.engine.core.model.beans.AccessPointBean;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 import org.eclipse.stardust.engine.extensions.camel.Util;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
-
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.APPLICATION_INTEGRATION_OVERLAY_ATT;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.GENERIC_ENDPOINT_OVERLAY;
 
 ;
+
 /**
  * Parent Class for Camel Producer/Consumer Applications. This class contains commons
  * methods.
@@ -128,6 +128,32 @@ public abstract class ApplicationRouteContext extends RouteContext
          startup = (Boolean) application.getAttribute("carnot:engine:camel::autoStartup");
       }
       return startup;
+   }
+
+   public boolean isRetryEnabled()
+   {
+      return Util.isRetryEnabled(application);
+   }
+   /**
+    * Rturns the No of Retries
+    * @return
+    */
+   public int getRetryNumber()
+   {
+      return Util.getRetryNumber(application);
+   }
+   /**
+    * Returns the Time between Retries (seconds)
+    * @return
+    */
+   public int getRetryTime()
+   {
+      return Util.getRetryTime(application);
+   }
+
+   public String getErrorHandlerId()
+   {
+      return "" + application.getId();
    }
 
    public abstract String getUserProvidedRouteConfiguration();

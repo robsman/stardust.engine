@@ -300,6 +300,8 @@ public class RouteDefinitionBuilder
       StringBuilder routeDefinition = new StringBuilder();
       routeDefinition.append(CamelConstants.SPRING_XML_ROUTES_HEADER);
       routeDefinition.append(route(routeId, routeContext.getAutostartupValue()));
+      if(routeContext.isRetryEnabled())
+         routeDefinition.append(onException(routeContext));
       routeDefinition.append(description(routeContext.getDescription()));
       // TODO: define the behavior when a required parameter is missing
       if (StringUtils.isEmpty(applicationId))
@@ -537,6 +539,20 @@ public class RouteDefinitionBuilder
       return buffer.toString();
    }
 
+   public static String onException(final ProducerRouteContext routeContext)
+   {
+      StringBuilder onExceptionDefinition=new StringBuilder();
+      onExceptionDefinition.append("<onException>\n");
+      onExceptionDefinition.append("<exception>java.lang.Exception</exception>\n");
+      onExceptionDefinition.append("<redeliveryPolicy logRetryAttempted=\"true\" retryAttemptedLogLevel=\"WARN\" maximumRedeliveries=\""+routeContext.getRetryNumber()+"\" ");
+      if(routeContext.getRetryTime()>0){
+         onExceptionDefinition.append("redeliveryDelay=\""+routeContext.getRetryTime()+"\"");
+      }
+      onExceptionDefinition.append("/>\n");
+      onExceptionDefinition.append("</onException>\n");
+      return onExceptionDefinition.toString();
+   }
+   
    /**
     * Returns an XML representation of Route Element.
     *

@@ -572,6 +572,7 @@ public class DocumentHandler
                   }
                }
             }else{
+               
                logger.warn("Unable to locate the document in the repository using the provided in configuration."+requestItem.toString());
             }
          }

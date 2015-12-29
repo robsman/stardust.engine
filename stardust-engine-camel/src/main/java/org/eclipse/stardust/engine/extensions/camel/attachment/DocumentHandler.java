@@ -554,21 +554,25 @@ public class DocumentHandler
          for (Map<String, Object> requestItem : documents)
          {
             Document document = locateDocumentInRepository(requestItem, dms);
-            if (IsAttachment(requestItem) && !IsTemplate(requestItem))
-            {
-               if (IsConvertToPDF(requestItem) && !isInValidContentForPdfConversion(document))
+            if(document!=null){
+               if (IsAttachment(requestItem) && !IsTemplate(requestItem))
                {
-                  Exchange reponse = propagateRequestToTemplatingEngine(camelContext,
-                        exchange, requestItem);
-                  exchange.getIn().setAttachments(reponse.getIn().getAttachments());
+                  if (IsConvertToPDF(requestItem) && !isInValidContentForPdfConversion(document))
+                  {
+                     Exchange reponse = propagateRequestToTemplatingEngine(camelContext,
+                           exchange, requestItem);
+                     exchange.getIn().setAttachments(reponse.getIn().getAttachments());
+                  }
+                  else
+                  {
+                     byte[] content = dms.retrieveDocumentContent(document.getId());
+                     String attachmentFileName=(StringUtils.isNotEmpty(getName(requestItem)))?getName(requestItem):document.getName();
+                     addDocumentToExchangeAttachment(exchange, content,attachmentFileName ,
+                           document.getContentType());
+                  }
                }
-               else
-               {
-                  byte[] content = dms.retrieveDocumentContent(document.getId());
-                  String attachmentFileName=(StringUtils.isNotEmpty(getName(requestItem)))?getName(requestItem):document.getName();
-                  addDocumentToExchangeAttachment(exchange, content,attachmentFileName ,
-                        document.getContentType());
-               }
+            }else{
+               logger.warn("Unable to locate the document in the repository using the provided in configuration."+requestItem.toString());
             }
          }
       }

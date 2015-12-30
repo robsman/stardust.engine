@@ -92,24 +92,12 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
 
       String invocationPattern = getInvocationPattern(application);
 
-      if (invocationPattern!=null && invocationPattern.equals(CamelConstants.InvocationPatterns.RECEIVE))
-      {
-
-         if (getConsumerRouteConfiguration(application) == null)
-         {
-            inconsistencies.add(new Inconsistency("No route definition specified for application: "
-                              + application.getId(), application, Inconsistency.ERROR));
-         }
-      }
-
       if (invocationPattern!=null && application.getAllOutAccessPoints().hasNext()
             && invocationPattern.equals(CamelConstants.InvocationPatterns.SEND))
       {
-
          inconsistencies.add(new Inconsistency("Application " + application.getName()
                + " contains Out AccessPoint while the Endpoint Pattern is set to "
                + invocationPattern, application, Inconsistency.ERROR));
-
       }
       // }
 

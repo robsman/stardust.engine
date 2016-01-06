@@ -31,7 +31,10 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.FastCachingSequenceGenerator;
+import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.SequenceGenerator;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.*;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster.DataClusterEnableState;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterSynchronizationInfo;
@@ -47,7 +50,7 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 public class DDLManager
 {
    private static final String SEQUENCE_TABLE_NAME = "sequence";
-
+   
    public static final Logger trace = LogManager.getLogger(DDLManager.class);
 
    private DBDescriptor dbDescriptor;
@@ -592,6 +595,24 @@ public class DDLManager
                connection, spoolFile);
       }
    }
+   
+   private int getSequenceBatchSize()
+   {
+      final Parameters params = Parameters.instance();
+      final SequenceGenerator generator = (SequenceGenerator) 
+            params.get(SequenceGenerator.UNIQUE_GENERATOR_PARAMETERS_KEY);
+      String sequenceGeneratorName = 
+            generator == null ? 
+                  params.getString(SessionFactory.AUDIT_TRAIL + ".SequenceGenerator") :
+                  generator.getClass().getName();
+
+      boolean fastCachingSequenceGenerator = 
+            FastCachingSequenceGenerator.class.getName().equals(sequenceGeneratorName);
+         
+      return Parameters.instance().getInteger(
+            KernelTweakingProperties.SEQUENCE_BATCH_SIZE,
+            fastCachingSequenceGenerator ? 100 : 1);
+   }
 
    public void verifySequenceTable(Connection connection, String schemaName)
          throws SQLException
@@ -605,6 +626,7 @@ public class DDLManager
       else
       {
          boolean inconsistent = false;
+         final int sequenceBatchSize = getSequenceBatchSize();
          Collection<Class> persistentClasses = SchemaHelper
                .getPersistentClasses(dbDescriptor);
          for (Class clazz : persistentClasses)
@@ -622,7 +644,7 @@ public class DDLManager
                verifySQLString.append(" seq WHERE seq.name='");
                verifySQLString.append(typeManager.getPkSequence());
                verifySQLString
-                     .append("' AND seq.value=(SELECT max(x) FROM (SELECT max(oid) AS x FROM ");
+                     .append("' AND seq.value+").append(sequenceBatchSize).append(">=(SELECT max(x) FROM (SELECT max(oid) AS x FROM ");
                verifySQLString.append(schemaName);
                verifySQLString.append(".");
                verifySQLString.append(typeManager.getTableName());
@@ -660,6 +682,86 @@ public class DDLManager
          else
          {
             String message = "Table " + SEQUENCE_TABLE_NAME + " is consistent.";
+            System.out.println(message);
+            trace.info(message);
+         }
+      }
+   }
+   
+   private final static String INSERT_VERYFY_SEQ_STMT = 
+         "INSERT INTO {0}.{1} (name, value) VALUES (''verifySeq'', 0)";
+   private final static  String GET_NEXT_VERFIFY_SEQNR = 
+         "SELECT {0}.{1}(''verifySeq'')";
+   private final static  String VERIFY_SQL_VALUE_STMT = 
+         "SELECT seq.value from {0}.{1} seq WHERE seq.name=''verifySeq''";
+   private final static  String DELETE_VERIFY_SQL_STMT = 
+         "DELETE FROM {0}.{1} WHERE name=''verifySeq''";
+   private final static String SEQUENCE_STORED_PROCEDURE_NAME = 
+         "next_sequence_value_for";
+   
+   public void verifySequenceFunction(Connection connection, String schemaName)
+         throws SQLException
+   {
+      if (!containsTable(schemaName, SEQUENCE_TABLE_NAME, connection))
+      {
+         String message = "Skipped SQL Function '" + SEQUENCE_STORED_PROCEDURE_NAME + 
+               "' verification because table '" + SEQUENCE_TABLE_NAME + "' does not exist.";
+         System.out.println(message);
+         trace.warn(message);
+      }
+      else
+      {
+         // Validate sequence function: SEQUENCE_STORED_PROCEDURE_NAME
+         boolean inconsistent = false;
+         final int sequenceBatchSize = getSequenceBatchSize();
+
+         Statement stmt = null;
+         ResultSet resultSet = null;
+         try
+         {
+            stmt = connection.createStatement();
+            stmt.execute(MessageFormat.format(DELETE_VERIFY_SQL_STMT, schemaName,
+                  SEQUENCE_TABLE_NAME));
+            stmt.executeUpdate(MessageFormat.format(
+                  INSERT_VERYFY_SEQ_STMT, schemaName, SEQUENCE_TABLE_NAME));
+            stmt.execute(MessageFormat.format(GET_NEXT_VERFIFY_SEQNR, schemaName,
+                  SEQUENCE_STORED_PROCEDURE_NAME));
+            stmt.execute(MessageFormat.format(
+                  VERIFY_SQL_VALUE_STMT, schemaName, SEQUENCE_TABLE_NAME));
+
+            resultSet = stmt.getResultSet();
+            resultSet.first();
+            int batchSizeInFn = resultSet.getInt(1);
+            if (sequenceBatchSize != batchSizeInFn)
+            {
+               inconsistent = true;
+            }
+            stmt.execute(MessageFormat.format(
+                  DELETE_VERIFY_SQL_STMT, schemaName, SEQUENCE_TABLE_NAME));
+         }
+         catch (SQLException e)
+         {
+            String message = "Couldn't verify sequence function '"
+                  + SEQUENCE_STORED_PROCEDURE_NAME + "'." + " Reason: " + e.getMessage();
+            System.out.println(message);
+            trace.warn(message, e);
+         }
+         finally
+         {
+            QueryUtils.closeStatementAndResultSet(stmt, resultSet);
+         }
+         if (inconsistent)
+         {
+            String message = "SQL Function '" + SEQUENCE_STORED_PROCEDURE_NAME
+                  + "' for table '" + SEQUENCE_TABLE_NAME
+                  + "' uses a different batch size. Synchronization is required.";
+            System.out.println(message);
+            trace.warn(message);
+         }
+         else
+         {
+            String message = "SQL Function '" + SEQUENCE_STORED_PROCEDURE_NAME
+                  + "' for table '" + SEQUENCE_TABLE_NAME + "' is working correctly.";
             System.out.println(message);
             trace.info(message);
          }

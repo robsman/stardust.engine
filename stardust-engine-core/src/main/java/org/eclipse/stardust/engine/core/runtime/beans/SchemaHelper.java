@@ -857,6 +857,7 @@ public class SchemaHelper
                      SessionFactory.AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX));
 
          ddlManager.verifySequenceTable(session.getConnection(), schemaName);
+         ddlManager.verifySequenceFunction(session.getConnection(), schemaName);
          session.save();
       }
       finally

@@ -1680,6 +1680,13 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             }
          }
 
+         String reponsibilityAttribute = (String) application.getAttribute(PredefinedConstants.SYNCHRONOUS_APPLICATION_RETRY_RESPONSIBILITY);
+         if(reponsibilityAttribute != null && reponsibilityAttribute.equals(PredefinedConstants.APPLICATION_CONTEXT))
+         {
+            // retry will be handled by application
+            retry = false;
+         }
+                  
          // if retry is enabled, check the other values
          if (retry)
          {

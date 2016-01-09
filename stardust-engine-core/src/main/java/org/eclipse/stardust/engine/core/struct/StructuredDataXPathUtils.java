@@ -16,6 +16,7 @@ import static org.eclipse.stardust.common.StringUtils.isEmpty;
 import java.math.BigDecimal;
 import java.util.*;
 
+import javax.xml.namespace.QName;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -432,8 +433,8 @@ public class StructuredDataXPathUtils
 
    private static TypedXPath getTypedXPath(String xPath, IXPathMap xPathMap)
    {
-      return xPathMap instanceof DataXPathMap
-            ? ((DataXPathMap) xPathMap).findXPath(Arrays.asList(xPath.split("/")))
+      return xPathMap instanceof IXPathMap.Resolver
+            ? ((IXPathMap.Resolver) xPathMap).findXPath(Arrays.asList(xPath.split("/")))
             : xPathMap.containsXPath(xPath)
                   ? xPathMap.getXPath(xPath)
                   : null;
@@ -1038,6 +1039,11 @@ public class StructuredDataXPathUtils
 
    private static void copyAttributes(Element contextElement, Element newNode)
    {
+      for (String prefix : newNode.getNamespaceDeclarations())
+      {
+         contextElement.setNamespaceDeclaration(prefix, newNode.getNamespaceURI(prefix));
+      }
+
       for (int i=0; i<newNode.getAttributeCount(); i++)
       {
          Attribute attribute = newNode.getAttribute(i);
@@ -1478,24 +1484,38 @@ public class StructuredDataXPathUtils
       return new Attribute(getAttributeName(typedXPath.getXPath()), /*typedXPath.getXsdTypeNs(),*/ valueString);
    }
 
-   public static Element createElement(TypedXPath typedXPath,
-         boolean namespaceAware)
+   public static Element createElement(String name, TypedXPath typedXPath, boolean namespaceAware)
+   {
+      if (namespaceAware)
+      {
+         QName qName = QName.valueOf(name);
+         String namespaceURI = qName.getNamespaceURI();
+         if (namespaceAware && StringUtils.isEmpty(namespaceURI))
+         {
+            namespaceURI = typedXPath.getXsdElementNs();
+         }
+         return new Element(qName.getLocalPart(), namespaceURI);
+      }
+      else
+      {
+         return new Element(name);
+      }
+   }
+
+   public static Element createElement(TypedXPath typedXPath, boolean namespaceAware)
    {
       String elementName;
       if (isRootXPath(typedXPath.getXPath()))
       {
-         if ( !StringUtils.isEmpty(typedXPath.getXsdElementName()))
-         {
             elementName = typedXPath.getXsdElementName();
-         }
-         else if ( !StringUtils.isEmpty(typedXPath.getXsdTypeName()))
+         if (StringUtils.isEmpty(elementName))
          {
             elementName = typedXPath.getXsdTypeName();
-         }
-         else
+            if (StringUtils.isEmpty(elementName))
          {
             elementName = IStructuredDataValue.ROOT_ELEMENT_NAME;
          }
+      }
       }
       else
       {

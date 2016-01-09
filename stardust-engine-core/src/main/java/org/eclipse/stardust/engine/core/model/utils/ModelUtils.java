@@ -223,22 +223,18 @@ public class ModelUtils
 
    public static String getQualifiedId(IdentifiableElement element)
    {
-      if (element == null)
+      return element == null ? null : element.getQualifiedId();
+   }
+   
+   public static String getQualifiedId(RootElement model, String elementId)
+   {
+      String qualifiedId = elementId;
+      if (model != null)
       {
-         return null;
+         String modelId = model.getId();
+         qualifiedId = '{' + (modelId == null ? "" : modelId) + '}' + qualifiedId;
       }
-      String id = element.getId();
-      if (element instanceof IRole && id.equals(PredefinedConstants.ADMINISTRATOR_ROLE))
-      {
-         return PredefinedConstants.ADMINISTRATOR_ROLE;
-      }
-      RootElement model = element.getModel();
-      if (model == null)
-      {
-         return id;
-      }
-      String modelId = model.getId();
-      return '{' + (modelId == null ? "" : modelId) + '}' + id;
+      return qualifiedId;
    }
 
    public static long size(Collection coll)

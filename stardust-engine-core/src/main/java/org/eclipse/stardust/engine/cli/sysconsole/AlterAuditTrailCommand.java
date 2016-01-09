@@ -59,8 +59,10 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
    private static final String DATACLUSTER_UPGRADE = "upgradeDataClusters";
    private static final String DATACLUSTER_ENABLE = "enableDataClusters";
    private static final String DATACLUSTER_VERIFY = "verifyDataClusters";
+   private static final String DATACLUSTER_SYNCHRONIZE = "synchronizeDataClusters";
    private static final String DATACLUSTER_DROP = "dropDataClusters";
    private static final String DATACLUSTER_CONFIG_FILE = "configFile";
+   private static final String DATACLUSTER_VERBOSE = "verbose";
 
    private static final String AUDITTRAIL_SKIPDDL = "skipDDL";
    private static final String AUDITTRAIL_SKIPDML = "skipDML";
@@ -104,6 +106,10 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
 
       argTypes.register("-" + DATACLUSTER_VERIFY, "-vdc", DATACLUSTER_VERIFY,
             "Verifies existence of data cluster tables and their consistency.", false);
+      argTypes.register("-" + DATACLUSTER_VERBOSE, "-v", DATACLUSTER_VERBOSE,
+            "Prints all identified inconsistencies of data cluster tables to the console.", false);
+      argTypes.register("-" + DATACLUSTER_SYNCHRONIZE, "-sdc", DATACLUSTER_SYNCHRONIZE,
+            "Resolves all identified inconsistencies of data cluster tables.", false);
       argTypes.register("-" + DATACLUSTER_DROP, "-ddc", DATACLUSTER_DROP,
             "Drops any existing data cluster tables.", false);
       argTypes.register("-" + DATACLUSTER_CONFIG_FILE, null, DATACLUSTER_CONFIG_FILE,
@@ -122,8 +128,8 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
       argTypes.addExclusionRule(//
             new String[] { LOCKTABLE_ENABLE, LOCKTABLE_VERIFY, LOCKTABLE_DROP,//
                   DATACLUSTER_ENABLE, DATACLUSTER_VERIFY, DATACLUSTER_DROP, DATACLUSTER_UPGRADE,//
-                  PARTITION_CREATE, PARTITION_DROP, PARTITIONS_LIST, AUDITTRAIL_CHECK_CONSISTENCY,//
-                  SEQ_TABLE_ENABLE, SEQ_TABLE_VERIFY, SEQ_TABLE_DROP}, true);
+                  DATACLUSTER_SYNCHRONIZE, PARTITION_CREATE, PARTITION_DROP, PARTITIONS_LIST,//
+                  AUDITTRAIL_CHECK_CONSISTENCY, SEQ_TABLE_ENABLE, SEQ_TABLE_VERIFY, SEQ_TABLE_DROP}, true);
       argTypes.addExclusionRule(//
             new String[] { LOCKTABLE_ENABLE, LOCKTABLE_VERIFY, LOCKTABLE_DROP,//
                   DATACLUSTER_VERIFY, DATACLUSTER_DROP,//
@@ -253,7 +259,35 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
 
          try
          {
-            SchemaHelper.alterAuditTrailVerifyDataClusterTables(password);
+            SchemaHelper.alterAuditTrailVerifyDataClusterTables(password,
+                  options.containsKey(DATACLUSTER_VERBOSE) ? System.out : null);
+         }
+         catch (SQLException e)
+         {
+            trace.warn("", e);
+            throw new PublicException(BpmRuntimeError.CLI_SQL_EXCEPTION_OCCURED.raise(e
+                  .getMessage()));
+         }
+         catch (InternalException e)
+         {
+            trace.warn("", e);
+            throw new PublicException(
+                  BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(e
+                        .getMessage()));
+         }
+
+         print("Verification of data cluster tables and their consistency done.");
+      }
+      else if (options.containsKey(DATACLUSTER_SYNCHRONIZE))
+      {
+         optionHandled = true;
+         print("Resolves all identified inconsistencies of data cluster tables.");
+
+         try
+         {
+            SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(password,
+                  options.containsKey(DATACLUSTER_VERBOSE) ? System.out : null,
+                  spoolDevice, statementDelimiter);
          }
          catch (SQLException e)
          {

@@ -13,7 +13,6 @@ import org.eclipse.stardust.engine.api.dto.ModelDetails;
 import org.eclipse.stardust.engine.api.dto.TypeDeclarationDetails;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
-
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.beans.TypeDeclarationBean;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
@@ -22,10 +21,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.command.impl.RetrieveModelDetailsCommand;
 import org.eclipse.stardust.engine.core.struct.*;
-import org.eclipse.stardust.engine.core.struct.emfxsd.XPathFinder;
 import org.eclipse.stardust.engine.core.struct.sxml.Node;
 import org.eclipse.stardust.engine.extensions.camel.util.client.ClientEnvironment;
-import org.eclipse.xsd.XSDNamedComponent;
 import org.eclipse.xsd.XSDSchema;
 
 import com.google.gson.*;
@@ -355,57 +352,43 @@ public abstract class AbstractBpmTypeConverter
       private StructuredDataConverter converter;
       private DataMapping dataMapping;
       private XSDSchema xsdSchema;
-
       private IXPathMap xPathMap;
 
       protected SDTConverter(DataMapping dataMapping, long modelOid)
       {
          this.dataMapping=dataMapping;
          Object obj = lookupModel(modelOid);
-
-         XSDNamedComponent component = null;
-
          if (obj instanceof IModel)
          {
-            IModel iModel = ((IModel) obj);
-            ITypeDeclaration iTypeDeclaration = (ITypeDeclaration) getTypeDeclaration(
-                  iModel, dataMapping);
-            this.xsdSchema = loadXsdSchema(iModel, iTypeDeclaration);
-            component = StructuredTypeRtUtils.findElementOrTypeDeclaration(xsdSchema,
-                  iTypeDeclaration.getId(), false);
+            engineInit(((IModel) obj), dataMapping.getDataId());
          }
          else
          {
-            Model model = ((Model) obj);
-            TypeDeclaration typeDeclaration = (TypeDeclaration) getTypeDeclaration(model,
-                  dataMapping);
-            this.xsdSchema = loadXsdSchema(model, typeDeclaration);
-            component = StructuredTypeRtUtils.findElementOrTypeDeclaration(xsdSchema,
-                  typeDeclaration.getId(), false);
-            Data data = model.getData(dataMapping.getId());
-            this.xPathMap = StructuredTypeRtUtils.getXPathMap(model, data);
+            clientInit(((Model) obj), dataMapping);
          }
-
-         Set xPathSet = XPathFinder.findAllXPaths(xsdSchema, component);
-
-         this.xPathMap = new ClientXPathMap(xPathSet);
-
-         this.converter = new StructuredDataConverter(xPathMap);
       }
 
       protected SDTConverter(IModel iModel, String dataId)
       {
-         XSDNamedComponent component = null;
+         engineInit(iModel, dataId);
+      }
+
+      private void clientInit(Model model, DataMapping dataMapping)
+      {
+         Data data = model.getData(dataMapping.getId());
+         TypeDeclaration typeDeclaration = (TypeDeclaration) getTypeDeclaration(model, dataMapping);
+         this.xsdSchema = loadXsdSchema(model, typeDeclaration);
+         this.xPathMap = StructuredTypeRtUtils.getXPathMap(model, data);
+         this.converter = new StructuredDataConverter(xPathMap);
+      }
+
+      private void engineInit(IModel iModel, String dataId)
+      {
+         IData data = getData(iModel, dataId);
          ITypeDeclaration iTypeDeclaration = (ITypeDeclaration) getTypeDeclaration(iModel,
                dataId);
          this.xsdSchema = loadXsdSchema(iModel, iTypeDeclaration);
-         component = StructuredTypeRtUtils.findElementOrTypeDeclaration(xsdSchema,
-               iTypeDeclaration.getId(), false);
-
-         Set xPathSet = XPathFinder.findAllXPaths(xsdSchema, component);
-
-         this.xPathMap = new ClientXPathMap(xPathSet);
-
+         this.xPathMap = DataXPathMap.getXPathMap(data);
          this.converter = new StructuredDataConverter(xPathMap);
       }
 
@@ -424,7 +407,7 @@ public abstract class AbstractBpmTypeConverter
             return dataMapping.getDataPath();
          return "";
       }
-      
+
       protected XSDSchema getXsdSchema()
       {
          return xsdSchema;

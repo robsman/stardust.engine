@@ -53,7 +53,7 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
    {
       if(qualifiedId == null)
       {
-         qualifiedId = ModelUtils.getQualifiedId(this);
+         qualifiedId = ModelUtils.getQualifiedId(getModel(), getId());
       }
       return qualifiedId;
    }

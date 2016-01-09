@@ -1086,6 +1086,28 @@ public class AdministrationServiceImpl
     * All audit trail information is lost after calling this method.
     *
     * @param keepUsers
+    * @param keepBO
+    */
+   public void cleanupRuntime(boolean keepUsers, boolean keepBO)
+   {
+      checkProductive("Cleanup Audit Trail Information");
+      checkDaemonStopState(false);
+
+      try
+      {
+         cleanupRuntime(keepUsers, true, keepBO);
+      }
+      finally
+      {
+         flushCaches();
+      }
+   }
+   
+   /**
+    * Removes all CARNOT-specific tables from the audit trail database.
+    * All audit trail information is lost after calling this method.
+    *
+    * @param keepUsers
     */
    public void cleanupRuntime(boolean keepUsers)
    {
@@ -1094,7 +1116,7 @@ public class AdministrationServiceImpl
 
       try
       {
-         cleanupRuntime(keepUsers, true);
+         cleanupRuntime(keepUsers, true, false);
       }
       finally
       {
@@ -1102,7 +1124,7 @@ public class AdministrationServiceImpl
       }
    }
 
-   private void cleanupRuntime(boolean keepUsers, boolean keepLoginUser)
+   private void cleanupRuntime(boolean keepUsers, boolean keepLoginUser, boolean keepBO)
    {
       ModelManager manager = ModelManagerFactory.getCurrent();
       if (null == manager)
@@ -1114,7 +1136,7 @@ public class AdministrationServiceImpl
       short partitionOid = SecurityProperties.getPartitionOid();
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 
-      deleteAllProcessInstancesFromPartition(partitionOid, session);
+      deleteAllProcessInstancesFromPartition(partitionOid, session, keepBO);
 
       long userOID = SecurityProperties.getUserOID();
 
@@ -1156,7 +1178,7 @@ public class AdministrationServiceImpl
                   BpmRuntimeError.MDL_MODEL_MANAGER_UNAVAILABLE.raise());
          }
 
-         cleanupRuntime(false, false);
+         cleanupRuntime(false, false, false);
 
          Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 

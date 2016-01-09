@@ -244,7 +244,7 @@ public class ModelManagerBean implements ModelManager
    {
       return getModelManagerPartition().getRuntimeOid(data, xPath);
    }
-   
+
    public String[] getFqId(ElementType type, long rtOid)
    {
       return getModelManagerPartition().getFqId(type, rtOid);
@@ -334,9 +334,22 @@ public class ModelManagerBean implements ModelManager
          if (checkAuditTrailVersion)
          {
             List<UpgradeJob> jobs = RuntimeJobs.getRuntimeJobs();
+
+            // Create list of mandatory jobs only.
+            FilteringIterator it = new FilteringIterator(jobs.iterator(),
+                  new Predicate<UpgradeJob>()
+                  {
+                     public boolean accept(UpgradeJob job)
+                     {
+                        return job.isMandatory();
+                     }
+                  });
+            jobs = CollectionUtils.newArrayListFromIterator(it);
+
             if (!jobs.isEmpty())
             {
                Version version = null;
+               // Take job with highest version for comparison.
                UpgradeJob required = jobs.get(jobs.size() - 1);
                PropertyPersistor persistor = PropertyPersistor.findByName(Constants.CARNOT_VERSION);
                if (persistor != null)
@@ -1939,7 +1952,7 @@ public class ModelManagerBean implements ModelManager
          return rtOidRegistry.getRuntimeOid(IRuntimeOidRegistry.STRUCTURED_DATA_XPATH,
                RuntimeOidUtils.getFqId(data, xPath));
       }
-      
+
       public String[] getFqId(ElementType type, long rtOid)
       {
          return rtOidRegistry.getFqId(type, rtOid);

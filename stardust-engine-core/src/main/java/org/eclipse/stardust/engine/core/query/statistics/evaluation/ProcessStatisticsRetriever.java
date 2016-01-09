@@ -18,8 +18,11 @@ import static org.eclipse.stardust.engine.core.persistence.Predicates.inList;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Predicate;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
@@ -60,8 +63,6 @@ public class ProcessStatisticsRetriever implements IProcessInstanceQueryEvaluato
       }
 
       final ProcessStatisticsQuery psq = (ProcessStatisticsQuery) query;
-
-      final Date now = TimestampProviderUtils.getTimeStamp();
 
       ProcessCumulationPolicy cumulationPolicy = StatisticsQueryUtils.getProcessCumulationPolicy(psq);
       FieldRef frCumulationPi;
@@ -117,63 +118,92 @@ public class ProcessStatisticsRetriever implements IProcessInstanceQueryEvaluato
       }
 
       final AuthorizationContext ctx = AuthorizationContext.create(ClientPermission.READ_PROCESS_INSTANCE_DATA);
-      final boolean guarded = Parameters.instance().getBoolean("QueryService.Guarded", true)
-            && !ctx.isAdminOverride();
+
       final AbstractAuthorization2Predicate authPredicate = new AbstractAuthorization2Predicate(ctx) {};
 
       authPredicate.addRawPrefetch(sqlQuery, ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE);
 
-      final ProcessStatisticsResult result = new ProcessStatisticsResult(psq);
+      ProcessStatisticsResultsetEvaluator evaluator = 
+            new ProcessStatisticsResultsetEvaluator(psq, ctx, authPredicate, processRtOidFilter);
+      
+      StatisticsQueryUtils.executeQuery(sqlQuery, evaluator);
 
-      StatisticsQueryUtils.executeQuery(sqlQuery, new IResultSetTemplate()
+      return evaluator.getProcessStatisticsResult();
+   }
+   
+   protected static class ProcessStatisticsResultsetEvaluator implements IResultSetTemplate
+   {
+      private final CriticalExecutionTimePolicy criticalityPolicy;
+
+      private final Date tsPiStart = TimestampProviderUtils.getTimeStamp();
+      private final Date now = TimestampProviderUtils.getTimeStamp();
+      
+      private final AuthorizationContext authCtx;
+      private final boolean guarded;
+      private final Predicate authPredicate;
+      private final ProcessStatisticsResult result;
+      private final Set<Long> processRtOidFilter;
+      
+      ProcessStatisticsResultsetEvaluator(ProcessStatisticsQuery psq,
+            AuthorizationContext ctx, Predicate authPredicate, Set<Long> processRtOidFilter)
       {
-         private final CriticalExecutionTimePolicy criticalityPolicy = StatisticsQueryUtils.getCriticalExecutionTimePolicy(psq);
+         this.authCtx = ctx;
+         guarded = Parameters.instance().getBoolean("QueryService.Guarded", true)
+               && !ctx.isAdminOverride();
+         this.authPredicate = authPredicate;
+         criticalityPolicy = StatisticsQueryUtils.getCriticalExecutionTimePolicy(psq);
+         result = new ProcessStatisticsResult(psq);
+         this.processRtOidFilter = processRtOidFilter;
+      }
 
-         private final Date tsPiStart = TimestampProviderUtils.getTimeStamp();
+      public void handleRow(ResultSet rs) throws SQLException
+      {
+         authPredicate.accept(rs);
 
-         public void handleRow(ResultSet rs) throws SQLException
+         long processRtOid = rs.getLong(4);
+
+         if ((null == processRtOidFilter) || processRtOidFilter.contains(processRtOid))
          {
-            authPredicate.accept(rs);
-
-            long piOid = rs.getLong(1);
-            long cumulationPiOid = rs.getLong(2);
-            long modelOid = rs.getLong(3);
-            long processRtOid = rs.getLong(4);
-            int priority = rs.getInt(5);
-            long piStartTime = rs.getLong(6);
             long scopePiOid = rs.getLong(7);
-            int state = rs.getInt(8);
+            long modelOid = rs.getLong(3);
 
-            if ((null == processRtOidFilter) || processRtOidFilter.contains(processRtOid))
+            authCtx.setProcessData(scopePiOid, processRtOid, modelOid);
+            if (!guarded || Authorization2.hasPermission(authCtx))
             {
-               ctx.setProcessData(scopePiOid, processRtOid, modelOid);
-               if (!guarded || Authorization2.hasPermission(ctx))
+               long piOid = rs.getLong(1);
+               long cumulationPiOid = rs.getLong(2);
+               int priority = rs.getInt(5);
+               int state = rs.getInt(8);
+
+               IProcessDefinition process = (IProcessDefinition) authCtx.getModelElement();
+
+               boolean isCritical = false;
+               boolean isInterrupted = false;
+
+               if (piOid == cumulationPiOid)
                {
-                  IProcessDefinition process = (IProcessDefinition) ctx.getModelElement();
+                  long piStartTime = rs.getLong(6);
+                  tsPiStart.setTime(piStartTime);
 
-                  boolean isCritical = false;
-                  boolean isInterrupted = false;
-
-                  if (piOid == cumulationPiOid)
-                  {
-                     tsPiStart.setTime(piStartTime);
-
-                     isCritical = criticalityPolicy.isCriticalDuration(priority, tsPiStart,
-                           now, process);
-                  }
-
-                  if (state == ProcessInstanceState.INTERRUPTED)
-                  {
-                     isInterrupted = true;
-                  }
-
-                  String elementId = ModelUtils.getQualifiedId(process);
-                  result.addPriorizedInstances(elementId, priority, piOid, isCritical, isInterrupted);
+                  isCritical = criticalityPolicy.isCriticalDuration(priority, tsPiStart,
+                        now, process);
                }
+
+               if (state == ProcessInstanceState.INTERRUPTED)
+               {
+                  isInterrupted = true;
+               }
+
+               String elementId = process == null ? null : process.getQualifiedId();
+               result.addPriorizedInstances(elementId, priority, piOid, isCritical, isInterrupted);
             }
          }
-      });
-
-      return result;
+      }
+      
+      public ProcessStatisticsResult getProcessStatisticsResult()
+      {
+         return result;
+      }
    }
+   
 }

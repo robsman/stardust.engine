@@ -10,13 +10,22 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.struct;
 
+import java.util.List;
 import java.util.Set;
+
+import javax.xml.namespace.QName;
 
 /**
  * Maps XPaths to their OIDs and back
  */
 public interface IXPathMap
 {
+   public interface Resolver
+   {
+      TypedXPath findXPath(List<String> nodeXPath);
+
+      TypedXPath resolve(QName xsiType, TypedXPath xPath);
+   }
 
    /**
     * @param xPath
@@ -30,7 +39,7 @@ public interface IXPathMap
     * @return
     */
    public TypedXPath getXPath(long xPathOID);
-   
+
    /**
     * Return TypedXPath for its String XPath
     * @param xPath
@@ -44,7 +53,7 @@ public interface IXPathMap
     * @return
     */
    public Long getXPathOID(String xPath);
-   
+
    /**
     * Return all XPaths defined for this data
     * @return all XPaths (Set of {@link TypedXPath})
@@ -56,9 +65,9 @@ public interface IXPathMap
     * @return root XPath OID
     */
    public Long getRootXPathOID();
-   
+
    /**
-    * Returns OIDs of all XPaths contained in this XPath map 
+    * Returns OIDs of all XPaths contained in this XPath map
     * @return Set of Long values
     */
    public Set /* <Long> */ getAllXPathOids();

@@ -709,6 +709,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 ARCH_QUALIFIED_ID_NEEDED = newArgs1("ARCH01039", BpmRuntimeErrorMessages.getString("ARCH01039")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 ARCH_FAILED_SYNCHRONIZING_STRING_DATA_TABLE_ARCHIVE = newArgs0("ARCH01040", BpmRuntimeErrorMessages.getString("ARCH01040")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 ARCH_FAILED_PATCHING_ARCHIVE = newArgs0("ARCH01041", BpmRuntimeErrorMessages.getString("ARCH01041")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 ARCH_FAILED_SYNCHING_ENTRIES_IN_DATA_CLUSTER_TABLE = newArgs2("ARCH01042", BpmRuntimeErrorMessages.getString("ARCH01042")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ARCH_FAILED_READING_DATA_CLUSTER_DEFINITION = newArgs0("ARCH01043", BpmRuntimeErrorMessages.getString("ARCH01043")); //$NON-NLS-1$ //$NON-NLS-2$
 
    ////Hazlecast related
 

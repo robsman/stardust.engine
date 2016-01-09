@@ -16,15 +16,13 @@ import org.eclipse.stardust.common.AttributeHolderImpl;
 import org.eclipse.stardust.common.AttributeManager;
 import org.eclipse.stardust.common.IAttributeManager;
 import org.eclipse.stardust.engine.core.compatibility.gui.ItemStateListener;
-import org.eclipse.stardust.engine.core.model.utils.Hook;
-import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
-import org.eclipse.stardust.engine.core.model.utils.ModelElement;
-import org.eclipse.stardust.engine.core.model.utils.RootElement;
+import org.eclipse.stardust.engine.core.model.utils.*;
 
 
 public class ModelElementTemplate extends AttributeHolderImpl implements IdentifiableElement
 {
    private String id;
+   private String qualifiedId;
    private String name;
    private String description;
    private int oid;
@@ -47,6 +45,7 @@ public class ModelElementTemplate extends AttributeHolderImpl implements Identif
    public ModelElementTemplate(IdentifiableElement element)
    {
       id = element.getId();
+      qualifiedId = element.getQualifiedId();
       name = element.getName();
       oid = element.getElementOID();
       description = element.getDescription();
@@ -199,4 +198,9 @@ public class ModelElementTemplate extends AttributeHolderImpl implements Identif
       return runtimeAttributes.setAttribute(name, (Serializable) value);
    }
    
+   @Override
+   public String getQualifiedId()
+   {
+      return qualifiedId;
+   }
 }

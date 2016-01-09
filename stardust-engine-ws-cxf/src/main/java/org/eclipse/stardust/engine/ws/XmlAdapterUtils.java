@@ -3475,7 +3475,7 @@ public class XmlAdapterUtils
                xto.setMetaDataType(QName.valueOf(documentType.getDocumentTypeId()));
 
                Set<TypedXPath> docTypeXPaths = retrieveXPathsFromDms(documentType);
-               xto.setMetaData(marshalStructValue(new ClientXPathMap(docTypeXPaths),
+               xto.setMetaData(marshalStructValue(new ClientXPathMap(docTypeXPaths, model),
                      null, (Serializable) doc.getProperties()));
             }
             else

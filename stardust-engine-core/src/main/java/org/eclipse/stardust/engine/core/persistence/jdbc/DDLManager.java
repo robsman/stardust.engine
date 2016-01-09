@@ -20,7 +20,6 @@ import java.text.MessageFormat;
 import java.util.*;
 
 import org.eclipse.stardust.common.*;
-import org.eclipse.stardust.common.TimeMeasure;
 import org.eclipse.stardust.common.config.CurrentVersion;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
@@ -124,9 +123,10 @@ public class DDLManager
       return isPredefined;
    }
 
-   public static void executeOrSpoolStatement(String statement, Connection connection,
+   public static int executeOrSpoolStatement(String statement, Connection connection,
          PrintStream spoolFile) throws SQLException
    {
+      int result = 0;
       if (null == spoolFile)
       {
          org.eclipse.stardust.engine.core.persistence.Session auditTrailSession
@@ -143,7 +143,7 @@ public class DDLManager
             stmt = connection.createStatement();
 
             final TimeMeasure timer = new TimeMeasure();
-            stmt.executeUpdate(statement);
+            result = stmt.executeUpdate(statement);
             timer.stop();
             if(jdbcSession != null)
             {
@@ -160,6 +160,7 @@ public class DDLManager
          spoolFile.print(statement);
          spoolFile.println(";");
       }
+      return result;
    }
 
 
@@ -180,7 +181,7 @@ public class DDLManager
       StringBuffer buffer = new StringBuffer();
 
       // TODO: implement it for other db descriptors as well.
-      if (DBMSKey.SYBASE.equals(dbDescriptor.getDbmsKey()))
+      if (DBMSKey.ORACLE.equals(dbDescriptor.getDbmsKey()))
       {
          buffer.append("GRANT ALL ON ");
          buffer.append(dbDescriptor.quoteIdentifier(typeManager.getTableName()));
@@ -1551,10 +1552,16 @@ public class DDLManager
          columns.add(PropertyPersistor.FIELD__LOCALE);
          columns.add(PropertyPersistor.FIELD__FLAGS);
          columns.add(PropertyPersistor.FIELD__PARTITION);
+         oStream.println("INSERT INTO "
+               + getQualifiedName(schemaName,
+                     dbDescriptor.quoteIdentifier(PropertyPersistor.TABLE_NAME))
+               + buildColumnsFragment(dbDescriptor, columns) + "VALUES (1, '"
+               + Constants.SYSOP_PASSWORD + "', '" + Constants.DEFAULT_PASSWORD
+               + "', 'DEFAULT', 0, -1);");
          oStream.println(
                "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(PropertyPersistor.TABLE_NAME))
                + buildColumnsFragment(dbDescriptor, columns)
-               + "VALUES (1, '" + Constants.CARNOT_ARCHIVE_AUDITTRAIL + "', 'true', 'DEFAULT', 0, -1);");
+               + "VALUES (2, '" + Constants.CARNOT_ARCHIVE_AUDITTRAIL + "', 'true', 'DEFAULT', 0, -1);");
 
          oStream.println();
          oStream.println("COMMIT;");
@@ -1605,7 +1612,8 @@ public class DDLManager
             outStream.print(getDropTableStatementString(schemaName, tm.getTableName()));
             outStream.println(statementDelimiter);
 
-            if (dbDescriptor.supportsSequences())
+            if (dbDescriptor.supportsSequences()
+                  && !StringUtils.isEmpty(tm.getPkSequence()))
             {
                String ddlSql = dbDescriptor.getDropPKSequenceStatementString(schemaName,
                      tm.getPkSequence());
@@ -2053,7 +2061,7 @@ public class DDLManager
       }
    }
 
-   private String getDataValueField(DataSlotFieldInfo dataSlotField)
+   private static String getDataValueField(DataSlotFieldInfo dataSlotField)
    {
       if(dataSlotField.isOidColumn())
       {
@@ -2083,7 +2091,7 @@ public class DDLManager
       }
    }
 
-   private String getColumnValuesSelect(Collection<DataSlotFieldInfo> columns, String dataValuePrefix, String dataValueSelect)
+   public static String getColumnValuesSelect(Collection<DataSlotFieldInfo> columns, String dataValuePrefix, String dataValueSelect)
    {
       StringBuilder builder = new StringBuilder();
       builder.append("SELECT ");
@@ -2104,7 +2112,7 @@ public class DDLManager
       return builder.toString();
    }
 
-   private String getColumnValueSelect(DataSlotFieldInfo fieldInfo, String dataValuePrefix, String dataValueSelect)
+   public static String getColumnValueSelect(DataSlotFieldInfo fieldInfo, String dataValuePrefix, String dataValueSelect)
    {
       StringBuilder builder = new StringBuilder();
       builder.append(fieldInfo.getName()).append(" = ");
@@ -2119,7 +2127,7 @@ public class DDLManager
 
    }
 
-   private static String getStateListValues(DataCluster dataCluster)
+   public static String getStateListValues(DataCluster dataCluster)
    {
       StringBuilder stateListBuilder = new StringBuilder();
       Set<DataClusterEnableState> enableStates = dataCluster.getEnableStates();
@@ -2142,10 +2150,22 @@ public class DDLManager
    }
 
    public void synchronizeDataCluster(boolean performDeleteOrInsert, DataClusterSynchronizationInfo syncInfo, Connection connection,
-         String schemaName, PrintStream spoolFile, String statementDelimiter)
+         String schemaName, PrintStream spoolFile, String statementDelimiter, PrintStream consoleLog)
    {
+      // TODO: a partial copy of that code also exists in Archiver.backupDataCluster(...). This needs to be refactored in order to prevent code duplication,
+      Statement verifyStmt = null;
+      try
+      {
+         verifyStmt = connection.createStatement();
+      }
+      catch (SQLException e)
+      {
+         throw new InternalException(e);
+      }
       for(DataCluster dataCluster : syncInfo.getClusters())
       {
+         int count = 0;
+
          final String processInstanceScopeTable = getQualifiedName(schemaName,
                TypeDescriptor.get(ProcessInstanceScopeBean.class).getTableName());
          final String processInstanceTable = getQualifiedName(schemaName, TypeDescriptor.get(
@@ -2164,6 +2184,15 @@ public class DDLManager
 
          try
          {
+            int result = 0;
+            if (!containsTable(schemaName, dataCluster.getTableName(), connection))
+            {
+               createDataClusterTable(dataCluster, connection, schemaName, null, null);
+               String message = "Cluster table " + clusterTable
+                     + " does not exist: Created table now.";
+               printLogMessage(message, consoleLog);
+               count++;
+            }
             if(performDeleteOrInsert)
             {
                String syncDelSql = MessageFormat.format(
@@ -2188,7 +2217,15 @@ public class DDLManager
                          getStateListValues(dataCluster)
                    });
                syncDelSql = syncDelSql.trim();
-               executeOrSpoolStatement(syncDelSql, connection, spoolFile);
+               result = executeOrSpoolStatement(syncDelSql, connection, spoolFile);
+               if (result > 0)
+               {
+                  String message = "Inconsistent cluster table "
+                        + clusterTable
+                        + ": deleted cluster entries that referenced non existing process instances.";
+                  printLogMessage(message, consoleLog);
+                  count++;
+               }
 
                String syncInsSql = MessageFormat.format(
                      "INSERT INTO {0} ({1}) "
@@ -2212,12 +2249,60 @@ public class DDLManager
                          ProcessInstanceBean.FIELD__OID,
                          ProcessInstanceBean.FIELD__STATE,
                          getStateListValues(dataCluster)});
-               executeOrSpoolStatement(syncInsSql, connection, spoolFile);
+               result = executeOrSpoolStatement(syncInsSql, connection, spoolFile);
+               if (result > 0)
+               {
+                  String message = "Inconsistent cluster table "
+                        + clusterTable
+                        + ": Inserted missing existing process instances into cluster table.";
+                  printLogMessage(message, consoleLog);
+                  count++;
+               }
             }
 
             // synchronizing slot values
             for (DataSlot dataSlot : syncInfo.getDataSlots(dataCluster))
             {
+               ResultSet rsRefDVNotMatching = verifyReferencedDVsByDCNotMatching(
+                     verifyStmt, dataSlot, dataCluster, schemaName);
+               if (rsRefDVNotMatching.next())
+               {
+                  String message = "Inconsistent cluster table " + clusterTable
+                        + ": Fixed cluster entries for slot '"
+                        + dataSlot.getQualifiedDataId() + "' attributeName '"
+                        + dataSlot.getAttributeName()
+                        + " containing referenced data values that are not matching.";
+
+                  printLogMessage(message, consoleLog);
+                  count++;
+               }
+               ResultSet rsEmptyDCEntryNotNull = verifyEmptyDCEntryNotNull(verifyStmt,
+                     dataSlot, dataCluster, schemaName);
+               if (rsEmptyDCEntryNotNull.next())
+               {
+                  String message = "Inconsistent cluster table " + clusterTable
+                        + ": Fixed empty cluster entries for slot '"
+                        + dataSlot.getQualifiedDataId() + "' attributeName '"
+                        + dataSlot.getAttributeName()
+                        + "' that are not completely set to null.";
+
+                  printLogMessage(message, consoleLog);
+                  count++;
+               }
+               ResultSet rsExistingDvsNotRefByDC = verifyExistingDvsNotRefByDC(
+                     dataCluster, schemaName, verifyStmt, dataSlot);
+               if (rsExistingDvsNotRefByDC.next())
+               {
+                  String message = "Inconsistent cluster table "
+                        + clusterTable
+                        + ": Fixed cluster entries that have not referenced existing data values for slot '"
+                        + dataSlot.getDataId() + "' attributeName '"
+                        + dataSlot.getAttributeName() + ".";
+
+                  printLogMessage(message, consoleLog);
+                  count++;
+               }
+
                String subselectSql;
                String dataValuePrefix;
                if (StringUtils.isEmpty(dataSlot.getAttributeName()))
@@ -2316,7 +2401,6 @@ public class DDLManager
                         }
                      }
                   }
-
                   executeOrSpoolStatement(buffer.toString(), connection, spoolFile);
                }
             }
@@ -2328,6 +2412,22 @@ public class DDLManager
             System.out.println(message);
             trace.warn(message, x);
             DataClusterHelper.deleteDataClusterSetup();
+         }
+         if (count != 0)
+         {
+            StringBuilder message = new StringBuilder();
+            message.append("Synchronized data cluster table: " + clusterTable);
+            message.append(count == 1 ? ". There was 1 inconsistency. " : ". There were "
+                  + count + " inconsistencies. ");
+            message.append("All inconsistencies have been resolved now.");
+            printLogMessage(message.toString(), consoleLog != null ? consoleLog : System.out);
+         }
+         else
+         {
+            printLogMessage("Synchronized data cluster table: " + clusterTable
+                  + ". There were no inconsistencies to be resolved.", consoleLog != null
+                  ? consoleLog
+                  : System.out);
          }
       }
    }
@@ -2389,6 +2489,7 @@ public class DDLManager
             .getProcessInstanceColumn());
       result = StringUtils.replace(result, "_$PI_TAB$_", processInstanceTable);
       result = StringUtils.replace(result, "_$PI_OID$_", ProcessInstanceBean.FIELD__OID);
+      result = StringUtils.replace(result, "_$PI_SCOPE_PI$_", ProcessInstanceBean.FIELD__SCOPE_PROCESS_INSTANCE);
       result = StringUtils.replace(result, "_$PI_MODEL$_",
             ProcessInstanceBean.FIELD__MODEL);
       result = StringUtils.replace(result, "_$D_TAB$_", dataTable);
@@ -2445,9 +2546,10 @@ public class DDLManager
    }
 
    public void verifyClusterTable(DataCluster dataCluster, Connection connection,
-         String schemaName)
+         String schemaName, PrintStream consoleLog)
    {
       final String clusterTable = getQualifiedName(schemaName, dataCluster.getTableName());
+      int count = 0;
 
       Statement verifyStmt = null;
       ResultSet resultSet = null;
@@ -2457,9 +2559,8 @@ public class DDLManager
          if ( !containsTable(schemaName, dataCluster.getTableName(), connection))
          {
             String message = "Cluster table " + clusterTable + " does not exist.";
-
-            System.out.println(message);
-            trace.warn(message);
+            printLogMessage(message, consoleLog);
+            count++;
          }
          else
          {
@@ -2469,7 +2570,7 @@ public class DDLManager
                "SELECT 'x' FROM _$CLUSTER_TAB$_ dc " +
                "WHERE NOT EXISTS( SELECT 'x' " +
                                  "FROM _$PI_TAB$_ pi " +
-                                 "WHERE dc._$DC_PROCINSTANCE$_ = pi._$PI_OID$_ )";
+                                 "WHERE dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ )";
 
             String syncStmtString = replaceSqlFragmentsByCluster(syncStringTemplate,
                   dataCluster, schemaName);
@@ -2483,16 +2584,15 @@ public class DDLManager
                      + clusterTable
                      + " is not consistent: non existing process instances are referenced by cluster entry.";
 
-               System.out.println(message);
-               trace.warn(message);
-               return;
+               printLogMessage(message, consoleLog);
+               count++;
             }
 
             syncStringTemplate =
                "SELECT 'x' FROM _$PI_TAB$_ pi " +
                "WHERE NOT EXISTS( SELECT 'x' " +
                                  "FROM _$CLUSTER_TAB$_ dc " +
-                                 "WHERE pi._$PI_OID$_ = dc._$DC_PROCINSTANCE$_ )";
+                                 "WHERE pi._$PI_SCOPE_PI$_ = dc._$DC_PROCINSTANCE$_ )";
 
             syncStmtString = replaceSqlFragmentsByCluster(syncStringTemplate,
                   dataCluster, schemaName);
@@ -2506,75 +2606,14 @@ public class DDLManager
                      + clusterTable
                      + " is not consistent: existing process instances are not referenced by cluster entries.";
 
-               System.out.println(message);
-               trace.warn(message);
-               return;
+               printLogMessage(message, consoleLog);
+               count++;
             }
-
-            syncStringTemplate =
-               "SELECT 'x' FROM _$CLUSTER_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m " +
-               "WHERE " +
-                  "dc._$DC_PROCINSTANCE$_ = pi._$PI_OID$_ AND " +
-                  "dc._$DC_OID$_ IS NOT NULL AND " +
-                  "pi._$PI_MODEL$_ = m._$M_OID$_ AND " +
-                  "m._$M_ID$_ = '_$SLOT_MODEL_ID_VALUE$_' AND " +
-                  "NOT EXISTS( " +
-                     "SELECT 'x' " +
-                     "FROM _$D_TAB$_ d, _$DV_TAB$_ dv " +
-                     "WHERE " +
-                        "d._$D_ID$_ = '_$SLOT_DATA_ID$_' AND " +
-                        "d._$D_MODEL$_ = pi._$PI_MODEL$_ AND " +
-                        "d._$D_OID$_ = dv._$DV_DATA$_ AND " +
-                        "d._$D_MODEL$_ = dv._$DV_MODEL$_ AND " +
-                        "dv._$DV_PROCINSTANCE$_ = pi._$PI_OID$_ AND " +
-                        "dv._$DV_OID$_ = dc._$DC_OID$_ AND " +
-                        "dv._$DV_TYPE_KEY$_ = dc._$DC_TYPE_KEY$_ AND " +
-                        "(dv._$DV_VALUE$_ = dc._$DC_VALUE$_ OR " +
-                           "(dv._$DV_VALUE$_ IS NULL AND dc._$DC_VALUE$_ IS NULL)))";
-            syncStringTemplate = replaceSqlFragmentsByCluster(syncStringTemplate,
-                  dataCluster, schemaName);
-
-            String syncStringTemplateStruct =
-               "SELECT 'x' FROM _$CLUSTER_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m " +
-               "WHERE " +
-                  "dc._$DC_PROCINSTANCE$_ = pi._$PI_OID$_ AND " +
-                  "dc._$DC_OID$_ IS NOT NULL AND " +
-                  "pi._$PI_MODEL$_ = m._$M_OID$_ AND " +
-                  "m._$M_ID$_ = '_$SLOT_MODEL_ID_VALUE$_' AND " +
-                  "NOT EXISTS( " +
-                     "SELECT 'x' " +
-                     "FROM _$D_TAB$_ d, _$DV_TAB$_ dv, _$SD_TAB$_ sd, _$SDV_TAB$_ sdv " +
-                     "WHERE " +
-                        "d._$D_ID$_ = '_$SLOT_DATA_ID$_' AND " +
-                        "d._$D_MODEL$_ = pi._$PI_MODEL$_ AND " +
-                        "d._$D_OID$_ = dv._$DV_DATA$_ AND " +
-                        "d._$D_MODEL$_ = dv._$DV_MODEL$_ AND " +
-                        "dv._$DV_PROCINSTANCE$_ = pi._$PI_OID$_ AND " +
-                        "sdv._$SDV_PROCESSINSTANCE$_ = dv._$DV_NUMBERVALUE$_ AND " +
-                        "sdv._$SDV_XPATH$_ = sd._$SD_OID$_ AND " +
-                        "sd._$SD_XPATH$_ = '_$SLOT_ATTRIBUTE_NAME$_' AND " +
-                        "sdv._$DV_OID$_ = dc._$DC_OID$_ AND " +
-                        "sdv._$DV_TYPE_KEY$_ = dc._$DC_TYPE_KEY$_ AND " +
-                        "(sdv._$DV_VALUE$_ = dc._$DC_VALUE$_ OR " +
-                           "(sdv._$DV_VALUE$_ IS NULL AND dc._$DC_VALUE$_ IS NULL)))";
-            syncStringTemplateStruct = replaceSqlFragmentsByCluster(syncStringTemplateStruct,
-                  dataCluster, schemaName);
-
 
             for (DataSlot dataSlot : dataCluster.getAllSlots())
             {
-               if (StringUtils.isEmpty(dataSlot.getAttributeName()))
-               {
-                  syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplate, dataSlot);
-               }
-               else
-               {
-                  syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplateStruct, dataSlot);
-               }
-
-               verifyStmt.execute(syncStmtString);
-               resultSet = verifyStmt.getResultSet();
-
+               resultSet = verifyReferencedDVsByDCNotMatching(verifyStmt, dataSlot,
+                     dataCluster, schemaName);
                if (resultSet.next())
                {
                   String message = "Cluster table "
@@ -2583,37 +2622,15 @@ public class DDLManager
                         + dataSlot.getQualifiedDataId() + "' attributeName '"
                         + dataSlot.getAttributeName() + "' are not matching.";
 
-                  System.out.println(message);
-                  trace.warn(message);
-                  return;
+                  printLogMessage(message, consoleLog);
+                  count++;
                }
             }
 
-            syncStringTemplate =
-               "SELECT 'x' FROM _$CLUSTER_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m " +
-               "WHERE " +
-                  "dc._$DC_PROCINSTANCE$_ = pi._$PI_OID$_ AND " +
-                  "dc._$DC_OID$_ IS NULL AND " +
-                  "pi._$PI_MODEL$_ = m._$M_OID$_ AND " +
-                  "m._$M_ID$_ = '_$SLOT_MODEL_ID_VALUE$_' AND " +
-                  "(" +
-                     "dc._$DC_TYPE_KEY$_ IS NOT NULL OR " +
-                     "dc._$DC_VALUE$_ IS NOT NULL" +
-                  ")";
-
-            syncStringTemplate = replaceSqlFragmentsByCluster(syncStringTemplate,
-                  dataCluster, schemaName);
-
-
-            for (Iterator i = dataCluster.getAllSlots().iterator(); i.hasNext();)
+            for (DataSlot dataSlot : dataCluster.getAllSlots())
             {
-               DataSlot dataSlot = (DataSlot) i.next();
-
-               syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplate, dataSlot);
-
-               verifyStmt.execute(syncStmtString);
-               resultSet = verifyStmt.getResultSet();
-
+               resultSet = verifyEmptyDCEntryNotNull(verifyStmt, dataSlot, dataCluster,
+                     schemaName);
                if (resultSet.next())
                {
                   String message = "Cluster table " + clusterTable
@@ -2622,44 +2639,15 @@ public class DDLManager
                         + dataSlot.getAttributeName()
                         + "' are not completely set to null.";
 
-                  System.out.println(message);
-                  trace.warn(message);
-                  return;
+                  printLogMessage(message, consoleLog);
+                  count++;
                }
             }
 
-            syncStringTemplate =
-               "SELECT 'x' FROM _$CLUSTER_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m " +
-               "WHERE " +
-                  "dc._$DC_PROCINSTANCE$_ = pi._$PI_OID$_ AND " +
-                  "dc._$DC_OID$_ IS NULL AND " +
-                  "dc._$DC_TYPE_KEY$_ IS NULL AND " +
-                  "dc._$DC_VALUE$_ IS NULL AND " +
-                  "pi._$PI_MODEL$_ = m._$M_OID$_ AND " +
-                  "m._$M_ID$_ = '_$SLOT_MODEL_ID_VALUE$_' AND " +
-                  "EXISTS( " +
-                     "SELECT 'x' " +
-                     "FROM _$D_TAB$_ d, _$DV_TAB$_ dv " +
-                     "WHERE " +
-                        "d._$D_ID$_ = '_$SLOT_DATA_ID$_' AND " +
-                        "d._$D_MODEL$_ = pi._$PI_MODEL$_ AND " +
-                        "d._$D_OID$_ = dv._$DV_DATA$_ AND " +
-                        "d._$D_MODEL$_ = dv._$DV_MODEL$_ AND " +
-                        "dv._$DV_PROCINSTANCE$_ = pi._$PI_OID$_)";
-
-            syncStringTemplate = replaceSqlFragmentsByCluster(syncStringTemplate,
-                  dataCluster, schemaName);
-
-
-            for (Iterator i = dataCluster.getAllSlots().iterator(); i.hasNext();)
+            for (DataSlot dataSlot : dataCluster.getAllSlots())
             {
-               DataSlot dataSlot = (DataSlot) i.next();
-
-               syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplate, dataSlot);
-
-               verifyStmt.execute(syncStmtString);
-               resultSet = verifyStmt.getResultSet();
-
+               resultSet = verifyExistingDvsNotRefByDC(dataCluster, schemaName, verifyStmt,
+                     dataSlot);
                if (resultSet.next())
                {
                   String message = "Cluster table " + clusterTable
@@ -2668,11 +2656,25 @@ public class DDLManager
                         + dataSlot.getAttributeName()
                         + "' are not referenced by cluster entry.";
 
-                  System.out.println(message);
-                  trace.warn(message);
-                  return;
+                  printLogMessage(message, consoleLog);
+                  count++;
                }
             }
+         }
+         if (count != 0)
+         {
+            StringBuilder message = new StringBuilder();
+            message.append("The data cluster is invalid. ");
+            message.append(count == 1 ? "There is 1 inconsistency." : "There are "
+                  + count + " inconsistencies.");
+            printLogMessage(message.toString(), consoleLog != null
+                  ? consoleLog
+                  : System.out);
+         }
+         else
+         {
+            printLogMessage("Verified data cluster. There are no inconsistencies.",
+                  consoleLog != null ? consoleLog : System.out);
          }
       }
       catch (SQLException x)
@@ -2687,6 +2689,136 @@ public class DDLManager
       {
          QueryUtils.closeStatementAndResultSet(verifyStmt, resultSet);
       }
+
+      try
+      {
+         connection.commit();
+      }
+      catch (SQLException e)
+      {
+         throw new InternalException(e);
+      }
+   }
+
+   private ResultSet verifyExistingDvsNotRefByDC(DataCluster dataCluster, String schemaName,
+         Statement verifyStmt, DataSlot dataSlot) throws SQLException
+   {
+      String syncStringTemplate =
+            "SELECT 'x' FROM _$CLUSTER_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m " +
+            "WHERE " +
+               "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
+               "dc._$DC_OID$_ IS NULL AND " +
+               "dc._$DC_TYPE_KEY$_ IS NULL AND " +
+               "dc._$DC_VALUE$_ IS NULL AND " +
+               "pi._$PI_MODEL$_ = m._$M_OID$_ AND " +
+               "m._$M_ID$_ = '_$SLOT_MODEL_ID_VALUE$_' AND " +
+               "EXISTS( " +
+                  "SELECT 'x' " +
+                  "FROM _$D_TAB$_ d, _$DV_TAB$_ dv " +
+                  "WHERE " +
+                     "d._$D_ID$_ = '_$SLOT_DATA_ID$_' AND " +
+                     "d._$D_MODEL$_ = pi._$PI_MODEL$_ AND " +
+                     "d._$D_OID$_ = dv._$DV_DATA$_ AND " +
+                     "d._$D_MODEL$_ = dv._$DV_MODEL$_ AND " +
+                     "dv._$DV_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_)";
+
+      syncStringTemplate = replaceSqlFragmentsByCluster(syncStringTemplate, dataCluster,
+            schemaName);
+      String syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplate, dataSlot);
+      verifyStmt.execute(syncStmtString);
+      return verifyStmt.getResultSet();
+   }
+
+   private ResultSet verifyEmptyDCEntryNotNull(Statement verifyStmt, DataSlot dataSlot,
+         DataCluster dataCluster, String schemaName) throws SQLException
+   {
+      String syncStringTemplate = "SELECT 'x' FROM _$CLUSTER_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m "
+            + "WHERE "
+            + "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND "
+            + "dc._$DC_OID$_ IS NULL AND "
+            + "pi._$PI_MODEL$_ = m._$M_OID$_ AND "
+            + "m._$M_ID$_ = '_$SLOT_MODEL_ID_VALUE$_' AND "
+            + "("
+            + "dc._$DC_TYPE_KEY$_ IS NOT NULL OR " + "dc._$DC_VALUE$_ IS NOT NULL" + ")";
+
+      syncStringTemplate = replaceSqlFragmentsByCluster(syncStringTemplate, dataCluster,
+            schemaName);
+      String syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplate, dataSlot);
+      verifyStmt.execute(syncStmtString);
+      return verifyStmt.getResultSet();
+   }
+
+   private ResultSet verifyReferencedDVsByDCNotMatching(Statement verifyStmt,
+         DataSlot dataSlot, DataCluster dataCluster, String schemaName)
+         throws SQLException
+   {
+      String syncStringTemplate = "SELECT 'x' FROM _$CLUSTER_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m " +
+      "WHERE " +
+         "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
+         "dc._$DC_OID$_ IS NOT NULL AND " +
+         "pi._$PI_MODEL$_ = m._$M_OID$_ AND " +
+         "m._$M_ID$_ = '_$SLOT_MODEL_ID_VALUE$_' AND " +
+         "NOT EXISTS( " +
+            "SELECT 'x' " +
+            "FROM _$D_TAB$_ d, _$DV_TAB$_ dv " +
+            "WHERE " +
+               "d._$D_ID$_ = '_$SLOT_DATA_ID$_' AND " +
+               "d._$D_MODEL$_ = pi._$PI_MODEL$_ AND " +
+               "d._$D_OID$_ = dv._$DV_DATA$_ AND " +
+               "d._$D_MODEL$_ = dv._$DV_MODEL$_ AND " +
+               "dv._$DV_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
+               "dv._$DV_OID$_ = dc._$DC_OID$_ AND " +
+               "dv._$DV_TYPE_KEY$_ = dc._$DC_TYPE_KEY$_ AND " +
+               "(dv._$DV_VALUE$_ = dc._$DC_VALUE$_ OR " +
+                  "(dv._$DV_VALUE$_ IS NULL AND dc._$DC_VALUE$_ IS NULL)))";
+      syncStringTemplate = replaceSqlFragmentsByCluster(syncStringTemplate, dataCluster,
+            schemaName);
+
+      String syncStringTemplateStruct = "SELECT 'x' FROM _$CLUSTER_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m " +
+      "WHERE " +
+         "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
+         "dc._$DC_OID$_ IS NOT NULL AND " +
+         "pi._$PI_MODEL$_ = m._$M_OID$_ AND " +
+         "m._$M_ID$_ = '_$SLOT_MODEL_ID_VALUE$_' AND " +
+         "NOT EXISTS( " +
+            "SELECT 'x' " +
+            "FROM _$D_TAB$_ d, _$DV_TAB$_ dv, _$SD_TAB$_ sd, _$SDV_TAB$_ sdv " +
+            "WHERE " +
+               "d._$D_ID$_ = '_$SLOT_DATA_ID$_' AND " +
+               "d._$D_MODEL$_ = pi._$PI_MODEL$_ AND " +
+               "d._$D_OID$_ = dv._$DV_DATA$_ AND " +
+               "d._$D_MODEL$_ = dv._$DV_MODEL$_ AND " +
+               "dv._$DV_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
+               "sdv._$SDV_PROCESSINSTANCE$_ = dv._$DV_NUMBERVALUE$_ AND " +
+               "sdv._$SDV_XPATH$_ = sd._$SD_OID$_ AND " +
+               "sd._$SD_XPATH$_ = '_$SLOT_ATTRIBUTE_NAME$_' AND " +
+               "sdv._$DV_OID$_ = dc._$DC_OID$_ AND " +
+               "sdv._$DV_TYPE_KEY$_ = dc._$DC_TYPE_KEY$_ AND " +
+               "(sdv._$DV_VALUE$_ = dc._$DC_VALUE$_ OR " +
+                  "(sdv._$DV_VALUE$_ IS NULL AND dc._$DC_VALUE$_ IS NULL)))";
+      syncStringTemplateStruct = replaceSqlFragmentsByCluster(syncStringTemplateStruct,
+            dataCluster, schemaName);
+
+      String syncStmtString;
+      if (StringUtils.isEmpty(dataSlot.getAttributeName()))
+      {
+         syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplate, dataSlot);
+      }
+      else
+      {
+         syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplateStruct, dataSlot);
+      }
+      verifyStmt.execute(syncStmtString);
+      return verifyStmt.getResultSet();
+   }
+
+   private void printLogMessage(String message, PrintStream consoleLog)
+   {
+      if (consoleLog != null)
+      {
+         consoleLog.println(message);
+      }
+      trace.info(message);
    }
 
    public void dropClusterTable(DataCluster dataCluster, Connection connection,

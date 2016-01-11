@@ -194,7 +194,7 @@ public class StructuredTypeRtUtils
          }
       }
       ITypeDeclaration typeDeclaration = model.findTypeDeclaration(declaredTypeId);
-      return getAllXPaths(model, typeDeclaration);
+      return typeDeclaration == null ? null : getAllXPaths(model, typeDeclaration);
    }
 
    public static Set<TypedXPath> getAllXPaths(IReference reference)

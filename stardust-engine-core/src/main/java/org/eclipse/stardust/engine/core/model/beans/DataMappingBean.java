@@ -17,7 +17,9 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
+import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.model.utils.ConnectionBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
@@ -150,11 +152,27 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                   {
                      String xPathWithoutIndexes = StructuredDataXPathUtils.getXPathWithoutIndexes(
                            StructDataTransformerKey.stripTransformation(dataPath));
-                     TypedXPath xPath = xPathMap.getXPath(xPathWithoutIndexes);
-                     if (xPath == null)
+                     try
                      {
-                        BpmValidationError error = BpmValidationError.DATA_INVALID_DATAPATH_FOR_DATAMAPPING.raise(getId());
-                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                        TypedXPath xPath = xPathMap.getXPath(xPathWithoutIndexes);
+                        if (xPath == null)
+                        {
+                           // backward compatibility
+                           throw new IllegalOperationException(
+                                 BpmRuntimeError.MDL_UNKNOWN_XPATH.raise(xPathWithoutIndexes));
+                        }
+                     }
+                     catch(IllegalOperationException e)
+                     {
+                        if(BpmRuntimeError.MDL_UNKNOWN_XPATH.getErrorCode().equals(e.getError().getId()))
+                        {
+                           BpmValidationError error = BpmValidationError.DATA_INVALID_DATAPATH_FOR_DATAMAPPING.raise(getId());
+                           inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                        }
+                        else
+                        {
+                           throw e;
+                        }
                      }
                   }
                }

@@ -129,13 +129,17 @@ public class StructuredDataLoader implements DataLoader, Stateless
       // No ModelManager is present in the debugger scenario, 
       // but process execution involving structured data requires having XPath OIDs
 
-      Map<Long,TypedXPath> xPathMap = CollectionUtils.newMap();
-      for (TypedXPath p : allXPaths)
+      if(allXPaths != null)
       {
-         String hash = accessPoint.getId() + "." + p.getXPath();
-         xPathMap.put(new Long(hash.hashCode()), p);
+         Map<Long,TypedXPath> xPathMap = CollectionUtils.newMap();
+         for (TypedXPath p : allXPaths)
+         {
+            String hash = accessPoint.getId() + "." + p.getXPath();
+            xPathMap.put(new Long(hash.hashCode()), p);
+         }
+         return new DataXPathMap(xPathMap, accessPoint instanceof IAccessPoint ? (IAccessPoint) accessPoint : null);
       }
-      return new DataXPathMap(xPathMap, accessPoint instanceof IAccessPoint ? (IAccessPoint) accessPoint : null);
+      return null;
    }
 
    private IXPathMap loadFullMode(ModelManager modelManager, IData data)
@@ -244,6 +248,7 @@ public class StructuredDataLoader implements DataLoader, Stateless
             {
                return StructuredTypeRtUtils.getAllXPaths((IModel)model, declaredTypeId);
             }
+            return null;
          }
          else if (StructuredTypeRtUtils.isDmsType(typeId))
          {

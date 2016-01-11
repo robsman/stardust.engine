@@ -15,7 +15,9 @@ import java.util.List;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
+import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.model.utils.SingleRef;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
@@ -166,11 +168,27 @@ public class DataPathBean extends IdentifiableElementBean
                if (!StringUtils.isEmpty(accessPath))
                {
                   String xPathWithoutIndexes = StructuredDataXPathUtils.getXPathWithoutIndexes(StructDataTransformerKey.stripTransformation(accessPath));
-                  TypedXPath xPath = xPathMap.getXPath(xPathWithoutIndexes);
-                  if (xPath == null)
+                  try
                   {
-                     BpmValidationError error = BpmValidationError.ACCESSPATH_INVALID_FOR_DATAPATH.raise(accessPath, getId());
-                     inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                     TypedXPath xPath = xPathMap.getXPath(xPathWithoutIndexes);
+                     if (xPath == null)
+                     {
+                        // backward compatibility
+                        throw new IllegalOperationException(
+                              BpmRuntimeError.MDL_UNKNOWN_XPATH.raise(xPathWithoutIndexes));
+                     }
+                  }
+                  catch(IllegalOperationException e)
+                  {
+                     if(BpmRuntimeError.MDL_UNKNOWN_XPATH.getErrorCode().equals(e.getError().getId()))
+                     {
+                        BpmValidationError error = BpmValidationError.ACCESSPATH_INVALID_FOR_DATAPATH.raise(accessPath, getId());
+                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                     }
+                     else
+                     {
+                        throw e;
+                     }
                   }
                }
             }

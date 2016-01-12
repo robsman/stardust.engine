@@ -134,6 +134,11 @@ public abstract class ApplicationRouteContext extends RouteContext
    {
       return Util.isRetryEnabled(application);
    }
+   
+   public boolean isApplicationRetryResponsibilityEnabled()
+   {
+      return Util.isRetryEnabled(application);
+   }
    /**
     * Rturns the No of Retries
     * @return

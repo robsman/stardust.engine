@@ -276,6 +276,20 @@ public class Util
    
       return enabled;
    }
+   /**
+    * Return true for All camel Applications
+    * The engine should not activiate retry behavior for camel application
+    * 
+    * @param application
+    * @return
+    */
+   public static boolean isApplicationRetryResponsibilityEnabled(final IApplication application){
+      Boolean enabled=true;
+      if(application.getAttribute(PredefinedConstants.SYNCHRONOUS_APPLICATION_RETRY_RESPONSIBILITY) != null)
+         enabled = ((String) application.getAttribute(SYNCHRONOUS_APPLICATION_RETRY_ENABLE)).equalsIgnoreCase("application");
+   
+      return enabled;
+   }
    
    /**
     * Rturns the No of Retries

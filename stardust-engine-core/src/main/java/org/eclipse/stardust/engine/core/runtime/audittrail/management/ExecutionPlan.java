@@ -23,8 +23,8 @@ import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceContextAware;
 import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
-import org.eclipse.stardust.engine.api.runtime.TransitionInfo;
 import org.eclipse.stardust.engine.api.runtime.TransitionStep;
 import org.eclipse.stardust.engine.api.runtime.TransitionTarget;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementListAdapter;
@@ -34,7 +34,7 @@ public class ExecutionPlan
 {
    private static final Class[] ACTIVITY_INTERFACES = {IActivity.class};
    private static final Class[] TRANSITION_INTERFACES = {ITransition.class};
-   
+
    private TransitionTarget transitionTarget;
    private int current = 0;
 
@@ -42,6 +42,7 @@ public class ExecutionPlan
 
    private TransitionTokenBean token;
    private boolean terminated;
+   private IActivityInstance targetActivityInstance;
 
    public ExecutionPlan(TransitionTarget transitionTarget)
    {
@@ -205,7 +206,7 @@ public class ExecutionPlan
 
    public void assertNoOtherActiveActivities()
    {
-      TransitionInfo previous = transitionTarget;
+      ActivityInstanceContextAware previous = transitionTarget;
       List<TransitionStep> steps = transitionTarget.getTransitionSteps();
       for (TransitionStep step : steps)
       {
@@ -228,8 +229,8 @@ public class ExecutionPlan
          IActivityInstance nextAi = iterator.next();
          if (ai != nextAi)
          {
-            
-            ErrorCase errorCase = null; // TODO: (fh) - process has more than 1 active activity instance. 
+
+            ErrorCase errorCase = null; // TODO: (fh) - process has more than 1 active activity instance.
             throw new IllegalOperationException(errorCase);
          }
       }
@@ -267,5 +268,15 @@ public class ExecutionPlan
    public IActivityInstance getStartActivityInstance()
    {
       return ActivityInstanceBean.findByOID(transitionTarget.getActivityInstanceOid());
+   }
+
+   public IActivityInstance getTargetActivityInstance()
+   {
+      return targetActivityInstance;
+   }
+
+   public void setTargetActivityInstance(IActivityInstance activityInstance)
+   {
+      targetActivityInstance = activityInstance;
    }
 }

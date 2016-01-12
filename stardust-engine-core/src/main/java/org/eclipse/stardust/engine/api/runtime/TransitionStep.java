@@ -12,7 +12,11 @@ package org.eclipse.stardust.engine.api.runtime;
 
 /**
  * Descriptor of a transition step.
- * 
+ *
+ * If the target of an ad-hoc transition lies in a different process instance than the one
+ * containing the source activity instance, then one or more steps are required to perform
+ * the transition, one step for each process boundary.
+ *
  * @author Florin.Herinean
  * @version $Revision: $
  */
@@ -26,10 +30,10 @@ public final class TransitionStep extends TransitionInfo
       super(activityInstanceOid, modelOid, activityRuntimeOid, activityId,
             activityName, processId, processName, modelId, modelName);
    }
-   
+
    /**
     * Retrieves the step direction.
-    * 
+    *
     * @return true if the step is performed out of the sub process, false if it's a step into a sub process.
     */
    public boolean isUpwards()
@@ -37,6 +41,7 @@ public final class TransitionStep extends TransitionInfo
       return getActivityInstanceOid() != -1;
    }
 
+   @Override
    public String toString()
    {
       return (isUpwards() ? '-' : '+') + getActivityId();

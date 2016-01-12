@@ -51,7 +51,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingP
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.TokenCache;
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.TokenCache.TokenLocation;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
-import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
  * A (logical) thread for the execution of a workflow process.
@@ -70,7 +69,7 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
  * A general behavior of the activity thread with an interactive activity as starting
  * activity is, that the activity thread is terminated if terminated if no subsequent
  * <b>interactive</b> activity can be found.
- * 
+ *
  * @author mgille
  * @version $Revision$
  */
@@ -82,10 +81,10 @@ public class ActivityThread implements Runnable
          KernelTweakingProperties.ACTIVITY_THREAD_RETRY_COUNT, 0);
    private static final int PAUSE = Parameters.instance().getInteger(
          KernelTweakingProperties.ACTIVITY_THREAD_RETRY_PAUSE, 100);
-   
+
    public static final ITransition START_TRANSITION = new TransitionBean("--start--",
          "--start transition--", null, null, null);
-   
+
    private IActivity activity;
    private final IProcessInstance processInstance;
    private IActivityInstance activityInstance;
@@ -157,7 +156,7 @@ public class ActivityThread implements Runnable
       try
       {
          ClusterSafeObjectProviderHolder.OBJ_PROVIDER.beforeAccess();
-         
+
          final long rootPiOid = pi.getRootProcessInstanceOID();
          final Map<Long, Queue<SerialActivityThreadData>> map = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SerialActivityThreadWorkerCarrier.SERIAL_ACTIVITY_THREAD_MAP_ID);
          Queue<SerialActivityThreadData> queue = map.get(rootPiOid);
@@ -167,7 +166,7 @@ public class ActivityThread implements Runnable
          }
          final SerialActivityThreadData data = new SerialActivityThreadData(pi.getOID(), activity.getOID());
          queue.add(data);
-         
+
          /* explicitly override modified queue in cluster safe map               */
          /* since returned value may only be a clone (e.g. in case of Hazelcast) */
          map.put(rootPiOid, queue);
@@ -182,7 +181,7 @@ public class ActivityThread implements Runnable
          ClusterSafeObjectProviderHolder.OBJ_PROVIDER.afterAccess();
       }
    }
-   
+
    // @todo (france, ub): remove interruptionState from the contract as soon as it is
    // appropriate
    public ActivityThread(
@@ -223,19 +222,38 @@ public class ActivityThread implements Runnable
       sizeOfMIBatch = fetchMIBatchSize();
 
       this.tokenCache = new TokenCache(this.processInstance);
-      
+
       this.receiverData = receiverData;
       this.interruption = interruptionState;
 
       janitor = new ProcessCompletionJanitor(new JanitorCarrier(this.processInstance
             .getOID()), hasParent);
    }
-   
+
    public void run()
    {
+      BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
+      boolean secureContext = runtimeEnvironment.isSecureContext();
+      runtimeEnvironment.setSecureContext(false);
+      try
+      {
+         runInternal();
+      }
+      finally
+      {
+         runtimeEnvironment.setSecureContext(secureContext);
+      }
+   }
+
+   public void runInternal()
+   {
       if (isInAbortingPiHierarchy())
-      {         
+      {
          Long oid = (Long) processInstance.getPropertyValue(ProcessInstanceBean.ABORTING_USER_OID);
+         if (oid == null)
+         {
+            oid = Long.valueOf(0);
+         }
          // TODO: trace the real state: aborted or aborting.
          BpmRuntimeError error;
          if (activityInstance == null)
@@ -252,7 +270,7 @@ public class ActivityThread implements Runnable
                this.processInstance.getOID(),oid));
          throw new IllegalOperationException(error);
       }
-      
+
       if (trace.isDebugEnabled())
       {
          StringBuffer buffer = new StringBuffer();
@@ -267,7 +285,7 @@ public class ActivityThread implements Runnable
          }
          trace.debug(buffer.toString());
       }
-   
+
       final ActivityThreadContext context = getCurrentActivityThreadContext();
       if (activityInstance == null)
       {
@@ -302,7 +320,7 @@ public class ActivityThread implements Runnable
             {
                return;
             }
-   
+
             List<TransitionTokenBean> wrappedStartToken = Collections.singletonList(startToken);
             tokenCache.registerPersistenceControllers(wrappedStartToken);
             createActivityInstance(wrappedStartToken);
@@ -347,7 +365,7 @@ public class ActivityThread implements Runnable
       {
          // checks?
       }
-   
+
       // @todo laokoon (ub): replace by an explicit parameter whether to throw
       // exceptions
       try
@@ -361,10 +379,10 @@ public class ActivityThread implements Runnable
                   // wait for join from thread context (i.e. debug controller)
                   context.suspendActivityThread(this);
                }
-   
+
                runCurrentActivity();
                executedActivities++;
-   
+
                if (!activityInstance.isTerminated() || activityInstance.isAborting()
                      || isInAbortingPiHierarchy())
                {
@@ -381,7 +399,7 @@ public class ActivityThread implements Runnable
       }
       catch (PublicException e)
       {
-         throw new PublicException(BpmRuntimeError.BPMRT_ROLLING_BACK_ACTIVITY_THREAD.raise(), 
+         throw new PublicException(BpmRuntimeError.BPMRT_ROLLING_BACK_ACTIVITY_THREAD.raise(),
                "Rolling back activity thread.", e);
       }
       catch (Throwable x)
@@ -389,20 +407,20 @@ public class ActivityThread implements Runnable
          trace.error("activityInstance = " + activityInstance);
          trace.error("activity = " + activity);
          trace.error("processInstance = " + processInstance);
-   
+
          x.printStackTrace();
          LogUtils.traceException(x, false);
-   
+
          // do not try to log to audit trail if TX is marked for rollback
          if (!TransactionUtils.isCurrentTxRollbackOnly())
          {
             AuditTrailLogger.getInstance(LogCode.ENGINE, processInstance).error(
                   "Unexpected activity thread state.");
          }
-   
+
          throw new InternalException("Unexpected activity thread state.");
       }
-   
+
       if (checkForEnabledInclusiveORVertexes)
       {
          startEnabledOrGateways();
@@ -412,12 +430,12 @@ public class ActivityThread implements Runnable
       BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
       ExecutionPlan plan = rtEnv.getExecutionPlan();
       janitor.execute(plan != null, tokenCache.getTokenChange());
-   
+
       if (interruption != null)
       {
          throw new PublicException(interruption);
       }
-   
+
       if (trace.isDebugEnabled())
       {
          trace.debug("Ended thread, last executed was " + activity);
@@ -428,22 +446,22 @@ public class ActivityThread implements Runnable
    {
       return processInstance;
    }
-   
+
    public IActivity activity()
    {
       return activity;
    }
-   
+
    public IActivityInstance activityInstance()
    {
       return activityInstance;
    }
-   
+
    private boolean isInAbortingPiHierarchy()
    {
-      return ProcessInstanceUtils.isInAbortingPiHierarchy(this.processInstance);      
+      return ProcessInstanceUtils.isInAbortingPiHierarchy(this.processInstance);
    }
-   
+
    private void createActivityInstance(List<TransitionTokenBean> inTokens)
    {
       boolean multiInstance = isMultiInstance();
@@ -477,6 +495,17 @@ public class ActivityThread implements Runnable
          if (activity.getJoinType() == JoinSplitType.Xor)
          {
             break;
+         }
+      }
+
+      if (activityInstance != null)
+      {
+         BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+         ExecutionPlan plan = rtEnv.getExecutionPlan();
+         if (plan != null && plan.isTerminated() && plan.getTargetActivityInstance() == null
+               && activityInstance.getActivity() == plan.getTargetActivity())
+         {
+            plan.setTargetActivityInstance(activityInstance);
          }
       }
 
@@ -585,9 +614,9 @@ public class ActivityThread implements Runnable
             return;
          }
       }
-      
+
       if (isValidLoopCondition())
-      {         
+      {
          // perform old-style loop
          IActivityInstance oldBinding = activityInstance;
          activityInstance = new ActivityInstanceBean(activity, processInstance);
@@ -597,7 +626,7 @@ public class ActivityThread implements Runnable
       }
       else
       {
-         // traverse outgoing transitions 
+         // traverse outgoing transitions
          List<TransitionTokenBean> boundInTokens = tokenCache.getBoundInTokens(activityInstance, activity);
 
          for (TransitionTokenBean boundToken : boundInTokens)
@@ -643,7 +672,7 @@ public class ActivityThread implements Runnable
          List<ITransition> enabledTransitions = Collections.emptyList();
          List<ITransition> otherwiseTransitions = Collections.emptyList();
          ITransition exceptionTransition = null;
-         
+
          BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
          ExecutionPlan plan = rtEnv.getExecutionPlan();
          JoinSplitType splitType = activity.getSplitType();
@@ -731,7 +760,7 @@ public class ActivityThread implements Runnable
                }
             }
          }
-         
+
          final List<ITransition> enabledOutTransitions;
          if (!enabledTransitions.isEmpty())
          {
@@ -774,7 +803,7 @@ public class ActivityThread implements Runnable
                break;
             }
          }
-         
+
          if (exceptionTransition != null
                || JoinSplitType.Xor == splitType
                || enabledOutTransitions.isEmpty() && !activity.getOutTransitions().isEmpty())
@@ -854,7 +883,7 @@ public class ActivityThread implements Runnable
          }
       }
    }
-   
+
    private Set<ITransition> getExclusionList(ITransition transition)
    {
       Set<ITransition> excluded = transition.getRuntimeAttribute("INCLUSIVE_OR_EXCLUSION_SET");
@@ -979,13 +1008,13 @@ public class ActivityThread implements Runnable
       {
          return false;
       }
-      
+
       tokenCache.registerPersistenceControllers(freeTokens);
       createActivityInstance(freeTokens);
 
       return true;
    }
-   
+
    private List<TransitionTokenBean> enableXor()
    {
       ModelElementList<ITransition> inTransitions = activity.getInTransitions();
@@ -1125,15 +1154,15 @@ public class ActivityThread implements Runnable
          catch (NonInteractiveApplicationException x)
          {
             // hint: exception is already logged.
-            
+
             final Parameters params = Parameters.instance();
 
             Object appExceptionPropagation = params.getString(
                   KernelTweakingProperties.APPLICATION_EXCEPTION_PROPAGATION,
                   KernelTweakingProperties.APPLICATION_EXCEPTION_PROPAGATION_NEVER);
-            
+
             ITransactionStatus txStatus = TransactionUtils.getCurrentTxStatus(params);
-            
+
             if (KernelTweakingProperties.APPLICATION_EXCEPTION_PROPAGATION_ALWAYS.equals(appExceptionPropagation)
                   || (KernelTweakingProperties.APPLICATION_EXCEPTION_PROPAGATION_ON_ROLLBACK.equals(appExceptionPropagation)
                         && txStatus.isRollbackOnly()))
@@ -1144,7 +1173,7 @@ public class ActivityThread implements Runnable
                   // "propagate always" is set)
                   txStatus.setRollbackOnly();
                }
-               
+
                final String activityId = activity ==  null ? "" : activity.getId();
                final ServiceException serviceException = new ServiceException(
                      BpmRuntimeError.BPMRT_ROLLED_BACK_ACTIVITY_THREAD_AT_ACTIVITY.raise(
@@ -1154,7 +1183,7 @@ public class ActivityThread implements Runnable
                AuditTrailLogger auditTrailLogger = AuditTrailLogger.getInstance(LogCode.ENGINE,
                      activityInstance.getProcessInstance(), LoggingBehaviour.SEPARATE_TRANSACTION_SYNCHRONOUS);
                auditTrailLogger.warn(serviceException.getMessage());
-               
+
                // propagate exception
                throw serviceException;
             }
@@ -1165,13 +1194,13 @@ public class ActivityThread implements Runnable
                      new Object[] {
                            activity, x.getCause().getClass().getName(),
                            x.getCause().getMessage()});
-               
+
                if(!txStatus.isRollbackOnly())
                {
                   processInstance.interrupt();
-      
+
                   activityInstance.interrupt();
-      
+
                   AuditTrailLogger auditTrailLogger = AuditTrailLogger.getInstance(
                         LogCode.ENGINE, activityInstance,
                         LoggingBehaviour.SAME_TRANSACTION);
@@ -1183,10 +1212,10 @@ public class ActivityThread implements Runnable
                         LogCode.ENGINE, activityInstance,
                         LoggingBehaviour.SEPARATE_TRANSACTION_SYNCHRONOUS);
                   auditTrailLogger.warn(errorLogMessage);
-                  
+
                   throw x;
                }
-               
+
                return;
             }
          }
@@ -1218,7 +1247,7 @@ public class ActivityThread implements Runnable
                }
                return;
             }
-            
+
             activityInstance.complete();
          }
       }
@@ -1254,7 +1283,7 @@ public class ActivityThread implements Runnable
                }
                if (null == subPi || ProcessInstanceState.Aborted == subPi.getState())
                {
-                  // AI can only be aborted if it is no SubProcess AI or 
+                  // AI can only be aborted if it is no SubProcess AI or
                   // its sub process is already aborted itself.
                   ActivityInstanceBean aiBean = (ActivityInstanceBean) activityInstance;
                   aiBean.setState(ActivityInstanceState.ABORTED);
@@ -1280,7 +1309,7 @@ public class ActivityThread implements Runnable
       }
       return threadContext;
    }
- 
+
    // TODO: refactor, should not extend ActivityInstanceBean but directly implement IActivityInstance
    private static class PhantomActivityInstance extends ActivityInstanceBean
    {
@@ -1305,13 +1334,13 @@ public class ActivityThread implements Runnable
          setState(ActivityInstanceState.COMPLETED);
       }
    }
-   
+
    private boolean handleQualityAssuranceInstance()
    {
       boolean isWorkflowModified = false;
       ActivityInstanceAttributes aiAttributes = QualityAssuranceUtils
             .getActivityInstanceAttributes(activityInstance);
-      
+
       if(aiAttributes != null)
       {
          QualityAssuranceResult result = aiAttributes.getQualityAssuranceResult();
@@ -1321,16 +1350,16 @@ public class ActivityThread implements Runnable
          {
             IActivityInstance oldInstance = activityInstance;
             IActivityInstance newInstance = null;
-            
+
             //decide if new instance should go back to the last user who performed on it
             //or to the modeled participant
             if(result.isAssignFailedInstanceToLastPerformer())
             {
                //we need to know which user worked before this qa instance
-               QualityAssuranceInfo qaInfo = QualityAssuranceUtils.getQualityAssuranceInfo(oldInstance);               
+               QualityAssuranceInfo qaInfo = QualityAssuranceUtils.getQualityAssuranceInfo(oldInstance);
                long monitoredUserOID = qaInfo.getMonitoredInstance().getPerformedByOID();
                IUser monitoredUser = UserBean.findByOid(monitoredUserOID);
-               
+
                newInstance = new ActivityInstanceBean(activity, processInstance, monitoredUser);
             }
             else
@@ -1340,9 +1369,9 @@ public class ActivityThread implements Runnable
 
             newInstance.setQualityAssuranceState(QualityAssuranceState.IS_REVISED);
             //set a backward reference to the failed qa instance
-            newInstance.setPropertyValue(QualityAssuranceInfo.FAILED_QUALITY_CONTROL_INSTANCE_OID, 
+            newInstance.setPropertyValue(QualityAssuranceInfo.FAILED_QUALITY_CONTROL_INSTANCE_OID,
                   oldInstance.getOID());
-            
+
             activityInstance = newInstance;
             tokenCache.updateInBindings(oldInstance, newInstance, activity);
             getCurrentActivityThreadContext().enteringActivity(newInstance);
@@ -1350,10 +1379,10 @@ public class ActivityThread implements Runnable
             isWorkflowModified = true;
          }
       }
-      
+
       return isWorkflowModified;
    }
-   
+
    private boolean handleQualityAssuranceEnabledInstance(QualityAssuranceState qualityAssuranceState)
    {
       boolean isWorkflowModified = false;
@@ -1362,12 +1391,12 @@ public class ActivityThread implements Runnable
          IActivityInstance oldInstance = activityInstance;
          IActivityInstance newInstance = new ActivityInstanceBean(activity,
                processInstance);
-         
+
          newInstance.setQualityAssuranceState(QualityAssuranceState.IS_QUALITY_ASSURANCE);
          // set a backward reference to the monitored instance
          newInstance.setPropertyValue(QualityAssuranceInfo.MONITORED_INSTANCE_OID,
                oldInstance.getOID());
-      
+
          //only the first instance in the qc chain is marked as triggered
          if(qualityAssuranceState != QualityAssuranceState.IS_REVISED)
          {
@@ -1376,20 +1405,20 @@ public class ActivityThread implements Runnable
          // propagate the failed qc instance
          else
          {
-            Long failedQcInstanceOid 
+            Long failedQcInstanceOid
                = (Long) oldInstance.getPropertyValue(QualityAssuranceInfo.FAILED_QUALITY_CONTROL_INSTANCE_OID);
-            newInstance.setPropertyValue(QualityAssuranceInfo.FAILED_QUALITY_CONTROL_INSTANCE_OID, 
+            newInstance.setPropertyValue(QualityAssuranceInfo.FAILED_QUALITY_CONTROL_INSTANCE_OID,
                   failedQcInstanceOid);
          }
-            
+
          activityInstance = newInstance;
          tokenCache.updateInBindings(oldInstance, newInstance, activity);
          getCurrentActivityThreadContext().enteringActivity(newInstance);
-         
+
          isWorkflowModified = true;
       }
-      
-      
+
+
       return isWorkflowModified;
    }
 }

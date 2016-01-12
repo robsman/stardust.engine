@@ -650,6 +650,16 @@ public class XpdlUtils
 
       convertCarnot2Xpdl(new DOMSource(document.getDocumentElement()), target);
    }
+   
+   public static String fixQualityAssuranceCode(String code)
+   {
+      String[] split = code.split("#");
+      if(split.length == 1 || split.length == 0)
+      {
+         return code;
+      }
+      return "#" + split[1];      
+   }
 
    private static class CarnotEntityResolver extends
          org.eclipse.stardust.engine.core.runtime.utils.XmlUtils.CarnotEntityResolver

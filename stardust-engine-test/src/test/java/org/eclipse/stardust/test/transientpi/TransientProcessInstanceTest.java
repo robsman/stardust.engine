@@ -2436,6 +2436,32 @@ public class TransientProcessInstanceTest extends AbstractTransientProcessInstan
 
    /**
     * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED}.</b>
+    * </p>
+    *
+    * <p>
+    * Asserts that the information whether the starting user is an administrator
+    * can be determined for <i>Audit Trail Persistence</i> {@link AuditTrailPersistence#DEFERRED}.
+    * </p>
+    * 
+    * <p>
+    * See also <a href="https://www.csa.sungard.com/jira/browse/CRNT-36442">CRNT-36442</a>.
+    * </p>
+    */
+   @Test
+   public void testAdminCanBeDetermined() throws Exception
+   {
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED);
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+
+      final ProcessInstance persistedPi = sf.getWorkflowService().getProcessInstance(pi.getOID());
+      persistedPi.getStartingUser().isAdministrator();
+   }
+   
+   /**
+    * <p>
     * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
     * </p>
     *

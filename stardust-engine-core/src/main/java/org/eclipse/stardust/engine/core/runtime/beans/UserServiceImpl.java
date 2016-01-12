@@ -249,15 +249,15 @@ public class UserServiceImpl implements UserService, Serializable
 
       user.lock();
 
+      if (isTeamLeader(user)
+            || SecurityProperties.getUser().hasRole(
+                  PredefinedConstants.ADMINISTRATOR_ROLE))
+      {
+         user.setQualityAssuranceProbability(changes.getQualityAssuranceProbability());
+      }
+      
       if (isInternalAuthentication())
       {
-         if (isTeamLeader(user)
-               || SecurityProperties.getUser().hasRole(
-                     PredefinedConstants.ADMINISTRATOR_ROLE))
-         {
-            user.setQualityAssuranceProbability(changes.getQualityAssuranceProbability());
-         }
-
          String previousPassword = user.getPassword();
          String newPassword = null;
 
@@ -317,6 +317,13 @@ public class UserServiceImpl implements UserService, Serializable
             SecurityUtils.generatePassword(user);
          }
          user.setValidTo(changes.getValidTo());
+      }
+      else if (isInternalAuthorization())
+      {
+         // Additionally allowed if external authentication but internal authorization is configured.
+         // This allows to change an user's account in case that is was created with wrong account name by using createUser(...)
+         // All other settings for a user need to be changed by synchronization
+         user.setAccount(changes.getAccount());
       }
 
       if (isInternalAuthorization())
@@ -522,12 +529,10 @@ public class UserServiceImpl implements UserService, Serializable
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("lastName"));
       }
-      if (StringUtils.isEmpty(password))
+      if (StringUtils.isEmpty(password) && isInternalAuthentication())
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("password"));
       }
-
-      checkInternalAuthentified();
 
       IAuditTrailPartition partition = SecurityProperties.getPartition();
 
@@ -541,24 +546,31 @@ public class UserServiceImpl implements UserService, Serializable
       {
       }
 
-      try
+      if (isInternalAuthentication())
       {
-         PasswordValidation.validate(password.toCharArray(),
-               SecurityUtils.getPasswordRules(partition.getOID()), null);
-      }
-      catch (InvalidPasswordException e)
-      {
-         throw new InvalidPasswordException(
-               BpmRuntimeError.AUTHx_CHANGE_PASSWORD_NEW_PW_VERIFICATION_FAILED.raise(),
-               e.getFailureCodes());
+         try
+         {
+            PasswordValidation.validate(password.toCharArray(),
+                  SecurityUtils.getPasswordRules(partition.getOID()), null);
+         }
+         catch (InvalidPasswordException e)
+         {
+            throw new InvalidPasswordException(
+                  BpmRuntimeError.AUTHx_CHANGE_PASSWORD_NEW_PW_VERIFICATION_FAILED
+                        .raise(),
+                  e.getFailureCodes());
+         }
       }
 
       UserBean user = new UserBean(account, firstName, lastName, UserRealmBean.findById(
             realm, partition.getOID()));
 
       user.setDescription(description);
-      user.setPassword(password);
-      SecurityUtils.updatePasswordHistory(user, password);
+      if (isInternalAuthentication())
+      {
+         user.setPassword(password);
+         SecurityUtils.updatePasswordHistory(user, password);
+      }
       user.setEMail(eMail);
       user.setValidFrom(validFrom);
       user.setValidTo(validTo);
@@ -751,7 +763,7 @@ public class UserServiceImpl implements UserService, Serializable
    {
       IUserGroup userGroup = UserGroupBean.findByOid(userGroupOid);
 
-      if ( !isInternalAuthentication())
+      if ( !isInternalAuthorization())
       {
          // TODO (sb): is it neccessary to synchronize? It's already done by
          // UserGroupLoader.

@@ -20,6 +20,8 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.eclipse.stardust.test.dms.DmsModelConstants;
+import org.eclipse.stardust.test.preferences.DeniedGrantsTest;
 import org.eclipse.stardust.test.preferences.GlobalPermissionsTest;
 import org.eclipse.stardust.test.preferences.PreferencesTest;
 
@@ -32,10 +34,11 @@ import org.eclipse.stardust.test.preferences.PreferencesTest;
  */
 @RunWith(Suite.class)
 @SuiteClasses({ PreferencesTest.class,
-                GlobalPermissionsTest.class
+                GlobalPermissionsTest.class,
+                DeniedGrantsTest.class
               })
 public class PreferencesTestSuite
 {
    @ClassRule
-   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING);
+   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, "BasicWorkflowModel", DmsModelConstants.DMS_MODEL_NAME);
 }

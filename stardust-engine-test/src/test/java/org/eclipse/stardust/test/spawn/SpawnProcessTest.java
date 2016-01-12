@@ -12,6 +12,9 @@ package org.eclipse.stardust.test.spawn;
 
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -21,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
+import org.eclipse.stardust.common.error.ObjectExistsException;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
@@ -28,17 +32,7 @@ import org.eclipse.stardust.engine.api.query.HistoricalStatesPolicy;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceDetailsPolicy;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstances;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.DmsUtils;
-import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
-import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.api.runtime.QueryService;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
@@ -79,6 +73,32 @@ public class SpawnProcessTest
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(sf);
+
+   @Test
+   public void testCustomLinks() throws Exception
+   {
+      QueryService qs = sf.getQueryService();
+      List<ProcessInstanceLinkType> types = qs.getAllProcessInstanceLinkTypes();
+      assertThat(types, not(empty()));
+
+      AdministrationService as = sf.getAdministrationService();
+      ProcessInstanceLinkType type = as.createProcessInstanceLinkType("custom", "custom");
+      assertThat(type, not(nullValue()));
+      assertThat(types, not(hasItem(type)));
+      List<ProcessInstanceLinkType> newTypes = qs.getAllProcessInstanceLinkTypes();
+      assertThat(newTypes, hasItem(type));
+      assertThat(newTypes, hasItems(types.toArray(new ProcessInstanceLinkType[0])));
+
+      try
+      {
+         as.createProcessInstanceLinkType("custom", "custom");
+         fail("Duplicates should not be allowed.");
+      }
+      catch (Exception ex)
+      {
+         assertThat(ex, instanceOf(ObjectExistsException.class));
+      }
+   }
 
    // ************************************
    // **             SYNC               **

@@ -10,22 +10,12 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.pojo.data;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.*;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.Direction;
-import org.eclipse.stardust.common.RuntimeAttributeHolder;
-import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.PublicException;
@@ -33,11 +23,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.reflect.ResolvedMethod;
-import org.eclipse.stardust.engine.api.model.IExternalPackage;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
-import org.eclipse.stardust.engine.api.model.PluggableType;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.pojo.utils.JavaAccessPointType;
@@ -316,6 +302,7 @@ public class JavaDataTypeUtils
       Class accessPointType = getReferenceClass(point, javaExpected);
       Direction direction = null;
       Class currentType = accessPointType;
+      boolean genericType = false;
       if (!StringUtils.isEmpty(path))
       {
          direction = Direction.OUT;
@@ -324,17 +311,33 @@ public class JavaDataTypeUtils
             String element = (String) i.next();
             try
             {
+               Method decodeMethod = Reflect.decodeMethod(currentType, element);
                if (!i.hasNext() && !element.endsWith("()"))
                {
+                  // validation will be skipped if return type is a generic type, because
+                  // the exact generic type information is not available at runtime
+                  java.lang.reflect.Type[] types = decodeMethod.getGenericParameterTypes();
+                  for (java.lang.reflect.Type type : types)
+                  {
+                     if (isGenericType(type))
+                     {
+                        genericType = true;
+                     }
+                  }
                   //we have found a setter here
-                  currentType = Reflect.decodeMethod(currentType, element)
-                        .getParameterTypes()[0];
+                  currentType = decodeMethod.getParameterTypes()[0];
                   direction = Direction.IN;
                   // todo: (france, fh) shouldn't be the setter the endpoint ???
                }
                else
                {
-                  currentType = Reflect.decodeMethod(currentType, element).getReturnType();
+                  // validation will be skipped if return type is a generic type, because
+                  // the exact generic type information is not available at runtime
+                  if (isGenericType(decodeMethod.getGenericReturnType()))
+                  {
+                     genericType = true;
+                  }
+                  currentType = decodeMethod.getReturnType();
                }
             }
             catch (InternalException x)
@@ -350,7 +353,19 @@ public class JavaDataTypeUtils
          }
       }
 
-      return new BridgeObject(currentType, direction);
+      return new BridgeObject(currentType, direction, genericType);
+   }
+
+   public static boolean isGenericType(java.lang.reflect.Type type)
+   {
+      boolean genericType = false;
+      if (type instanceof java.lang.reflect.ParameterizedType
+            || type instanceof TypeVariable< ? > || type instanceof WildcardType
+            || type instanceof GenericArrayType)
+      {
+         genericType = true;
+      }
+      return genericType;
    }
 
    public static Object evaluate(String outPath, Object accessPoint)
@@ -371,7 +386,6 @@ public class JavaDataTypeUtils
             try
             {
                Method method = Reflect.decodeMethod(value.getClass(), element);
-
                value = method.invoke(value);
             }
             catch (InvocationTargetException x)

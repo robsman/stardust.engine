@@ -452,7 +452,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       if (this.password == null)
       {
          trace.warn("No password is stored.");
-         return true;
+         return false;
       }
 
       if (!encryptionOn)

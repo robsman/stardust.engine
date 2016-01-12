@@ -14,7 +14,9 @@ import java.util.List;
 
 /**
  * Descriptor of a transition target.
- * 
+ *
+ * This is the target of an ad-hoc transition.
+ *
  * @author Florin.Herinean
  * @version $Revision: $
  */
@@ -34,10 +36,10 @@ public final class TransitionTarget extends TransitionInfo
       this.transitionSteps = transitionSteps;
       this.forward = forward;
    }
-   
+
    /**
     * Retrieves the list of intermediate steps that must be performed during transition.
-    * 
+    *
     * @return a non-null list of transition steps. Can be empty if no intermediate steps are required.
     */
    public List<TransitionStep> getTransitionSteps()
@@ -45,11 +47,13 @@ public final class TransitionTarget extends TransitionInfo
       return transitionSteps;
    }
 
+   @Override
    public String toString()
    {
       return transitionSteps.isEmpty() ? getActivityId() : getActivityId() + transitionSteps;
    }
 
+   @Override
    public int hashCode()
    {
       final int prime = 31;

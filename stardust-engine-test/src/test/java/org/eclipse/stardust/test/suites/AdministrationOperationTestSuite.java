@@ -10,14 +10,11 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.suites;
 
-import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-
 import org.eclipse.stardust.engine.api.runtime.AdministrationService;
 import org.eclipse.stardust.test.admin.AdministrationOperationTest;
-import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
-import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
-import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-import org.junit.ClassRule;
+import org.eclipse.stardust.test.admin.ChangePasswordTest;
+import org.eclipse.stardust.test.admin.ChangeQAProbabilityPercentageTest;
+
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -32,10 +29,10 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-               AdministrationOperationTest.class
+               AdministrationOperationTest.class,
+               ChangePasswordTest.class,
+               ChangeQAProbabilityPercentageTest.class
              })
 public class AdministrationOperationTestSuite
 {
-   @ClassRule
-   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING);
 }

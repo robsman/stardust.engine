@@ -19,15 +19,18 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runners.MethodSorters;
 
+import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
+import org.eclipse.stardust.engine.api.model.Role;
 import org.eclipse.stardust.engine.api.runtime.AdministrationService;
+import org.eclipse.stardust.engine.api.runtime.DmsUtils;
 import org.eclipse.stardust.engine.api.runtime.RuntimePermissions;
 import org.eclipse.stardust.engine.core.preferences.permissions.GlobalPermissionConstants;
-import org.eclipse.stardust.test.api.setup.TestClassSetup;
+import org.eclipse.stardust.test.api.setup.*;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
+import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.eclipse.stardust.test.dms.DmsModelConstants;
 
 /**
  * <p>
@@ -40,21 +43,28 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 public class GlobalPermissionsTest
 {
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
+   private final TestMethodSetup testMethodSetup = new DmsAwareTestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
+
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
+
+   private static final String USER_ID = "u1";
+   private final TestServiceFactory userSf = new TestServiceFactory(new UsernamePasswordPair(USER_ID, USER_ID));
 
 
    @ClassRule
-   public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING);
+   public static final TestClassSetup testClassSetup = new TestClassSetup(
+         ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING,
+         DmsModelConstants.DMS_MODEL_NAME);
 
    @Rule
-   public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(sf);
+   public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(sf).around(userSf);
 
    private AdministrationService adminService;
 
    @Before
    public void setUp()
    {
+      UserHome.create(sf, USER_ID, "{DmsModel}MyRole");
       adminService = sf.getAdministrationService();
    }
 
@@ -136,6 +146,19 @@ public class GlobalPermissionsTest
 
       Assert.assertTrue(globalPermissions.isDefaultGrant(GlobalPermissionConstants.GLOBAL_MANAGE_DAEMONS));
       Assert.assertFalse(globalPermissions.hasAllGrant(GlobalPermissionConstants.GLOBAL_MANAGE_DAEMONS));
+   }
+
+   @Test(expected=AccessForbiddenException.class)
+   public void test21DenyModifyDmsData()
+   {
+      Role myRole = (Role) sf.getQueryService().getParticipant("{DmsModel}MyRole");
+      RuntimePermissions globalPermissions = adminService.getGlobalPermissions();
+
+      globalPermissions.setDeniedGrants(GlobalPermissionConstants.GLOBAL_MODIFY_DMS_DATA, Collections.<ModelParticipantInfo>singleton(myRole));
+
+      adminService.setGlobalPermissions(globalPermissions);
+
+      userSf.getDocumentManagementService().createFolder("/", DmsUtils.createFolderInfo("bla"));
    }
 
 

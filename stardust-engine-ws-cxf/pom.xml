@@ -34,8 +34,8 @@
          <scope>compile</scope>
          <exclusions>
             <exclusion>
-               <groupId>rhino</groupId>
-               <artifactId>js</artifactId>
+               <groupId>org.mozilla</groupId>
+               <artifactId>rhino</artifactId>
             </exclusion>
             <exclusion>
                <groupId>org.codehaus.woodstox</groupId>

@@ -125,13 +125,6 @@ public class DeploymentUtils
          valid &= validateDanglingRuntimeItems(problems, deletedElement, ActivityInstanceBean.class,
                ActivityInstanceBean.FR__ACTIVITY, ActivityInstanceBean.FR__MODEL);
       }
-      else if (deletedElement instanceof IModelParticipant)
-      {
-         valid &= validateDanglingRuntimeItems(problems, deletedElement, ActivityInstanceLogBean.class,
-               ActivityInstanceLogBean.FR__PARTICIPANT, ActivityInstanceLogBean.FR__MODEL);
-         /*valid &= validateDanglingRuntimeItems(problems, deletedElement, UserParticipantLink.class,
-               UserParticipantLink.FR__PARTICIPANT, UserParticipantLink.FR__MODEL);*/
-      }
       else if (deletedElement instanceof IData)
       {
          valid &= validateDanglingRuntimeItems(problems, deletedElement, DataValueBean.class,

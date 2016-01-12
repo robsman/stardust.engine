@@ -15,13 +15,13 @@ import java.util.Iterator;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IEventHandler;
+import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.core.model.beans.ActivityBean;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
+import org.eclipse.stardust.engine.core.model.beans.ProcessDefinitionBean;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.PersistentModelElement;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 
@@ -56,10 +56,13 @@ public class AuditTrailEventHandlerBean extends IdentifiablePersistentBean imple
    public static final String[] event_handler_idx2_INDEX =
          new String[]{FIELD__ID, FIELD__OID, FIELD__MODEL};
 
+   @ForeignKey (modelElement=ModelBean.class)
    private long model;
    private String id;
    private String name;
+   @ForeignKey (modelElement=ProcessDefinitionBean.class)
    private long processDefinition;
+   @ForeignKey (modelElement=ActivityBean.class)
    private long activity;
 
    public static Iterator findAll(short partitionOid)

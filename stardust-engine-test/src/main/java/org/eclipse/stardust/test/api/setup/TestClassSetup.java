@@ -23,6 +23,7 @@ import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.core.spi.jms.IJmsResourceProvider;
+import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
 import org.eclipse.stardust.test.api.util.TestModels;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.test.impl.H2Server;
@@ -186,16 +187,42 @@ public class TestClassSetup extends ExternalResource
 
       LOG.info("---> Setting up the test environment ...");
 
-      dbms.init();
-      dbms.start();
-      dbms.createSchema();
-      springAppCtx.bootstrap(forkingServiceMode, testClass);
-
-      sf = ServiceFactoryLocator.get(userPwdPair.username(), userPwdPair.password());
-      if (modelNames.length > 0)
+      TestRtEnvAction setupPhase = TestRtEnvAction.WORKSPACE_SETUP;
+      try
       {
-         LOG.debug("Trying to deploy model(s) '" + Arrays.asList(modelNames) + "'.");
-         RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, modelNames);
+         setupPhase = TestRtEnvAction.DB_SETUP;
+         dbms.init();
+         dbms.start();
+         dbms.createSchema();
+
+         setupPhase = TestRtEnvAction.APP_CTX_SETUP;
+         springAppCtx.bootstrap(forkingServiceMode, testClass);
+
+         setupPhase = TestRtEnvAction.WORKSPACE_SETUP;
+         sf = ServiceFactoryLocator.get(userPwdPair.username(), userPwdPair.password());
+         if (modelNames.length > 0)
+         {
+            LOG.debug("Trying to deploy model(s) '" + Arrays.asList(modelNames) + "'.");
+            RtEnvHome.deployModel(sf.getAdministrationService(), deploymentOptions,
+                  modelNames);
+         }
+      }
+      catch (Exception e)
+      {
+         // Spring won't call after() if there was an exception during before()
+         LOG.warn("Performing emergency cleanup after failing initialization.", e);
+         try
+         {
+            after();
+         }
+         catch (Exception e1)
+         {
+            LOG.info("Failure during emergency cleanup.", e1);
+         }
+
+         throw (e instanceof TestRtEnvException)
+               ? (TestRtEnvException) e
+               : new TestRtEnvException("", e, setupPhase);
       }
 
       LOG.info("<--- ... setup of test environment done.");
@@ -349,14 +376,26 @@ public class TestClassSetup extends ExternalResource
       return forkingServiceMode;
    }
 
+   /**
+    * <p>
+    * Retrieves the bean with the given {@code name} and {@code requiredType} from
+    * the <i>Spring</i> Application Context.
+    * </p>
+    *
+    * @see ApplicationContext#getBean(String, Class)
+    *
+    * @param name the name of the bean to retrieve
+    * @param requiredType the type the bean to retrieve must match
+    * @return an instance of the bean
+    */
+   public <T> T getBean(final String name, final Class<T> requiredType)
+   {
+      return springAppCtx.appCtx().getBean(name, requiredType);
+   }
+
    /* package-private */ void setTestClass(final Class<?> testClass)
    {
       this.testClass = testClass;
-   }
-
-   /* package-private */ ApplicationContext appCtx()
-   {
-      return springAppCtx.appCtx();
    }
 
    private IJmsResourceProvider initJmsResourceProvider()

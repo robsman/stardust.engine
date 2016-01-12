@@ -31,7 +31,6 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.DmlManager;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserSessionBean;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
 
 /**
@@ -42,7 +41,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
 public class SyncCriticalitiesToDiskAction extends Procedure
 {
 
-   private static final Logger trace = LogManager.getLogger(SynchUserSessionToDiskAction.class);
+   private static final Logger trace = LogManager.getLogger(SyncCriticalitiesToDiskAction.class);
 
    private static final String AI_TABLE_NAME = ActivityInstanceBean.TABLE_NAME;
 
@@ -99,25 +98,28 @@ public class SyncCriticalitiesToDiskAction extends Procedure
             {
 
                int batchSize = 0;
-               for (Iterator i = criticalityMap.entrySet().iterator(); i.hasNext();)
+               for (String updateTableSql : updateList)
                {
+                  Iterator i = criticalityMap.entrySet().iterator();
 
-                  Map.Entry entry = (Map.Entry) i.next();
-
-                  final Long aiOid = (Long) entry.getKey();
-                  final Double criticality = (Double) entry.getValue();
-
-                  if (trace.isDebugEnabled())
+                  while (i.hasNext())
                   {
-                     trace.debug("Update criticality for AI <" + aiOid + "> to <"
-                           + criticality + ">");
-                  }
+                     batchSize++;
+                     Map.Entry entry = (Map.Entry) i.next();
 
-                  // Execute update for all defined tables
-                  for (String updateTableSql : updateList)
-                  {
-                     if (jdbcSession.isUsingPreparedStatements(UserSessionBean.class))
+                     final Long aiOid = (Long) entry.getKey();
+                     final Double criticality = (Double) entry.getValue();
+
+                     if (trace.isDebugEnabled())
                      {
+                        trace.debug("Update criticality for AI <" + aiOid + "> to <"
+                              + criticality + ">");
+                     }
+
+                     // Execute update for all defined tables
+                     if (jdbcSession.isUsingPreparedStatements(ActivityInstanceBean.class))
+                     {
+
                         if (null == stmt)
                         {
                            stmt = con.prepareStatement(MessageFormat.format(
@@ -137,8 +139,8 @@ public class SyncCriticalitiesToDiskAction extends Procedure
                         stmt.addBatch(MessageFormat.format(
                               updateTableSql,
                               new Object[] {
-                                    DmlManager.getSQLValue(Double.TYPE, new Double(criticality),
-                                          jdbcSession.getDBDescriptor()),
+                                    DmlManager.getSQLValue(Double.TYPE, new Double(
+                                          criticality), jdbcSession.getDBDescriptor()),
                                     DmlManager.getSQLValue(Long.TYPE, new Long(aiOid),
                                           jdbcSession.getDBDescriptor())}));
                      }
@@ -162,8 +164,7 @@ public class SyncCriticalitiesToDiskAction extends Procedure
          catch (SQLException e)
          {
             throw new PublicException(
-                  BpmRuntimeError.ATDB_FAILED_TO_UPDATE_CRITICALITIES_IN_AUDITTRAIL
-                        .raise(),
+                  BpmRuntimeError.ATDB_FAILED_TO_UPDATE_CRITICALITIES_IN_AUDITTRAIL.raise(),
                   e);
          }
       }

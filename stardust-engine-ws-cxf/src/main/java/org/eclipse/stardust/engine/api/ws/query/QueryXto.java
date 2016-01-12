@@ -42,17 +42,18 @@ import javax.xml.bind.annotation.XmlType;
     "policy"
 })
 @XmlSeeAlso({
-    LogEntryQueryXto.class,
-    UserQueryXto.class,
-    PreferenceQueryXto.class,
-    UserGroupQueryXto.class,
-    DeployedModelQueryXto.class,
     ProcessDefinitionQueryXto.class,
     BusinessObjectQueryXto.class,
     DocumentQueryXto.class,
-    ProcessQueryXto.class,
+    DeployedRuntimeArtifactQueryXto.class,
     VariableDefinitionQueryXto.class,
     WorklistQueryXto.class,
+    UserQueryXto.class,
+    LogEntryQueryXto.class,
+    PreferenceQueryXto.class,
+    UserGroupQueryXto.class,
+    DeployedModelQueryXto.class,
+    ProcessQueryXto.class,
     ActivityQueryXto.class
 })
 public class QueryXto {

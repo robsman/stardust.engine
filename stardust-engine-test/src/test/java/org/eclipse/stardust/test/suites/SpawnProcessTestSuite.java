@@ -10,16 +10,10 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.suites;
 
-import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-import static org.eclipse.stardust.test.spawn.SpawnProcessTest.MODEL_NAME;
-
-import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
-import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
-import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.eclipse.stardust.test.spawn.SpawnProcessAttachmentTest;
 import org.eclipse.stardust.test.spawn.SpawnProcessTest;
 import org.eclipse.stardust.test.spawn.SpawnProcessNotesCopyTest;
 
-import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -34,9 +28,11 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author Nicolas.Werlein
  */
 @RunWith(Suite.class)
-@SuiteClasses({ SpawnProcessTest.class, SpawnProcessNotesCopyTest.class })
+@SuiteClasses({ 
+   SpawnProcessTest.class, 
+   SpawnProcessNotesCopyTest.class,
+   SpawnProcessAttachmentTest.class
+})
 public class SpawnProcessTestSuite
 {
-   @ClassRule
-   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
 }

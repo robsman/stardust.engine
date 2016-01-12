@@ -10,26 +10,33 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.security;
 
+import static java.util.Collections.emptyMap;
 import static org.eclipse.stardust.engine.api.model.PredefinedConstants.DEFAULT_PARTITION_ID;
 import static org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties.AUTHORIZATION_SYNC_CLASS_PROPERTY;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
+import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.MODEL_NAME;
 import static org.junit.Assert.fail;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
+
+import org.junit.Assert;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 
 import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.GlobalParameters;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.Role;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.PartitionAwareExtensionsManager.FlushPartitionPredicate;
 import org.eclipse.stardust.engine.core.runtime.beans.UserGroupBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
+import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 import org.eclipse.stardust.engine.core.spi.security.DynamicParticipantSynchronizationProvider;
 import org.eclipse.stardust.engine.core.spi.security.ExternalUserConfiguration;
 import org.eclipse.stardust.engine.core.spi.security.ExternalUserGroupConfiguration;
@@ -39,12 +46,6 @@ import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
-
 /**
  * @author stephan.born
  * @version $Revision$
@@ -59,7 +60,7 @@ public class SynchronithationProviderTest extends AbstractSpringAuthenticationTe
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
 
    @ClassRule
-   public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING);
+   public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
 
    @Rule
    public final TestRule chain = RuleChain.outerRule(sf)
@@ -75,11 +76,16 @@ public class SynchronithationProviderTest extends AbstractSpringAuthenticationTe
       WorkflowService wfs_u2 = ServiceFactoryLocator.get(REGULAR_USER2_ID, REGULAR_USER2_ID).getWorkflowService();
 
       setSynchProvider(RegulareUserWithConfigurableGroupsSyncProvider.class);
-
+      
+      
       // call will synch with user group link creation
       final GlobalParameters params = GlobalParameters.globals();
       params.set(RETURN_GROUP_CONFIG, Boolean.TRUE.toString());
-
+      
+      params.set(SecurityProperties.AUTHENTICATION_MODE_PROPERTY, SecurityProperties.AUTHENTICATION_MODE_INTERNAL);
+      params.set(SecurityProperties.AUTHORIZATION_MODE_PROPERTY, SecurityProperties.AUTHORIZATION_MODE_EXTERNAL);
+      
+      
       wfs_u1.execute(new ServiceCommand()
       {
          private static final long serialVersionUID = 1L;
@@ -129,6 +135,55 @@ public class SynchronithationProviderTest extends AbstractSpringAuthenticationTe
       finally
       {
          params.set(RETURN_GROUP_CONFIG, Boolean.FALSE.toString());
+         removeSynchProvider();
+      }
+   }
+
+   @Test
+   public void testCreateModifyUserExternalAuthenticationInternalAuthrizationSuccess()
+   {
+      final GlobalParameters params = GlobalParameters.globals();
+      try
+      {
+         // create user should be allowed - but no password being required to be set
+         Role adminRole = (Role) sf.getQueryService().getParticipant(PredefinedConstants.ADMINISTRATOR_ROLE);
+         User user = UserHome.create(sf, REGULAR_USER_ID, adminRole);
+         final UserService userService = ServiceFactoryLocator.get(REGULAR_USER_ID, REGULAR_USER_ID).getUserService();
+
+         /* (the user service needs to be decorated to simulate HTTP invocation) */
+         addInBetweenInvocationHandler(userService);
+
+         /* ... now explicitly set the principal to an admin user ... */
+         currentInvokerPrincipal = new InvokerPrincipal(MOTU, emptyMap());
+         
+         // set any synch provider
+         setSynchProvider(RegulareUserWithConfigurableGroupsSyncProvider.class);
+         params.set(SecurityProperties.AUTHORIZATION_MODE_PROPERTY, SecurityProperties.AUTHORIZATION_MODE_INTERNAL);
+         params.set(SecurityProperties.AUTHENTICATION_MODE_PROPERTY, SecurityProperties.AUTHENTICATION_MODE_PRINCIPAL);
+         
+
+         // TODO: check that password is always empty, even if provided.
+         // cannot be done with black box testing as API does not provide password data in user object
+
+         // need to access returned password - can only be done with implementation details
+         List<Grant> allGrants = user.getAllGrants();
+         Assert.assertTrue(allGrants.size() == 1);
+         Assert.assertTrue(PredefinedConstants.ADMINISTRATOR_ROLE.equals(allGrants.get(0).getQualifiedId()));
+
+         user.setAccount(REGULAR_USER2_ID);
+         user.setFirstName(REGULAR_USER2_ID);
+         user = UserHome.modify(sf, user);
+
+         // Account needs to be changed ...
+         Assert.assertTrue(REGULAR_USER2_ID.equals(user.getAccount()));
+         // ... other setting still need to be the same
+         Assert.assertTrue(REGULAR_USER_ID.equals(user.getFirstName()));
+
+      }
+      finally
+      {
+         params.set(SecurityProperties.AUTHORIZATION_MODE_PROPERTY, null);
+         params.set(SecurityProperties.AUTHENTICATION_MODE_PROPERTY, null);
          removeSynchProvider();
       }
    }
@@ -221,6 +276,19 @@ public class SynchronithationProviderTest extends AbstractSpringAuthenticationTe
       public String getLastName()
       {
          return account;
+      }
+
+      @Override
+      public Set<GrantInfo> getModelParticipantsGrants()
+      {
+         if (PredefinedConstants.MOTU.equals(account))
+         {
+            return Collections.singleton(new GrantInfo(
+                  PredefinedConstants.ADMINISTRATOR_ROLE, Collections
+                        .<String> emptyList()));
+         }
+
+         return super.getModelParticipantsGrants();
       }
 
       @SuppressWarnings("unchecked")

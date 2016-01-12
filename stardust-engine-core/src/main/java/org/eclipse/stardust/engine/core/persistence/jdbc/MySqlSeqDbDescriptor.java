@@ -17,7 +17,7 @@ import org.eclipse.stardust.common.StringUtils;
  * A {@link DBDescriptor} for <i>MySQL</i> databases in order to allow for
  * database sequences support (which <i>MySQL</i> does not provide out of the box).
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
@@ -26,16 +26,16 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
    private static final String GLOBAL_PK_SEQUENCE_TABLE_NAME = "sequence";
    private static final String GLOBAL_PK_SEQUENCE_TABLE_FIELD_NAME_NAME = "name";
    private static final String GLOBAL_PK_SEQUENCE_TABLE_FIELD_VALUE_NAME = "value";
-   
+
    private static final String SEQUENCE_STORED_PROCEDURE_NAME = "next_sequence_value_for";
-   
+
    private final MySqlDbDescriptor delegate;
-   
+
    public MySqlSeqDbDescriptor()
    {
       delegate = new MySqlDbDescriptor();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getDbmsKey()
     */
@@ -52,14 +52,14 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
    public String getCreatePKSequenceStatementString(final String schemaName, final String pkSequence, final String initialValueExpr)
    {
       /* does not create a sequence, but initializes a row in the global sequence table */
-      
+
       final StringBuffer sb = new StringBuffer(100);
-      
+
       sb.append("INSERT INTO ");
       if ( !StringUtils.isEmpty(schemaName))
       {
          sb.append(schemaName).append(".");
-      }      
+      }
       sb.append(GLOBAL_PK_SEQUENCE_TABLE_NAME).append(" VALUES ('");
       sb.append(pkSequence).append("', ");
       if ( !StringUtils.isEmpty(initialValueExpr))
@@ -71,7 +71,7 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
          sb.append("0");
       }
       sb.append(")");
-      
+
       return sb.toString();
    }
 
@@ -95,12 +95,12 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
       {
          throw new IllegalArgumentException("Sequence count must be greater than 0.");
       }
-      
+
       final StringBuffer sb = new StringBuffer(sequenceCount * 100);
-      
+
       sb.append("SELECT ");
       writeSequenceStoredProcedureCall(sb, schemaName, pkSequence);
-      
+
       if (sequenceCount > 1)
       {
          sb.append(" FROM (");
@@ -114,10 +114,10 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
          }
          sb.append(") AS seq");
       }
-      
+
       return sb.toString();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getCreatePKStatement(java.lang.String, java.lang.String)
     */
@@ -134,9 +134,9 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
    public String getNextValForSeqString(final String schemaName, final String sequenceName)
    {
       final StringBuffer sb = new StringBuffer(100);
-      
+
       writeSequenceStoredProcedureCall(sb, schemaName, sequenceName);
-      
+
       return sb.toString();
    }
 
@@ -148,7 +148,7 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
       }
       sb.append(SEQUENCE_STORED_PROCEDURE_NAME).append("('").append(sequenceName).append("')");
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getSQLType(java.lang.Class, long)
     */
@@ -202,7 +202,7 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
    {
       return delegate.supportsSubselects();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getCreateIndexStatement(java.lang.String, java.lang.String, org.eclipse.stardust.engine.core.persistence.jdbc.IndexDescriptor)
     */
@@ -211,7 +211,7 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
    {
       return delegate.getCreateIndexStatement(schemaName, tableName, indexDescriptor);
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getDropIndexStatement(java.lang.String, java.lang.String, java.lang.String)
     */
@@ -220,7 +220,7 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
    {
       return delegate.getDropIndexStatement(schemaName, tableName, indexName);
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#supportsColumnDeletion()
     */
@@ -229,7 +229,7 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
    {
       return delegate.supportsColumnDeletion();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getCreateTableOptions()
     */
@@ -238,7 +238,7 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
    {
       return delegate.getCreateTableOptions();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#quoteIdentifier(java.lang.String)
     */
@@ -247,7 +247,7 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
    {
       return delegate.quoteIdentifier(identifier);
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getCreateSequenceStoredProcedureStatementString(java.lang.String)
     */
@@ -256,9 +256,9 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
    {
       final String seqNameParameter = "seq_name";
       final StringBuffer sb = new StringBuffer(200);
-      
-      final String fqStoredProcedureName = schemaName != null ? (schemaName + "." + SEQUENCE_STORED_PROCEDURE_NAME) : SEQUENCE_STORED_PROCEDURE_NAME; 
-      
+
+      final String fqStoredProcedureName = schemaName != null ? (schemaName + "." + SEQUENCE_STORED_PROCEDURE_NAME) : SEQUENCE_STORED_PROCEDURE_NAME;
+
       sb.append("CREATE FUNCTION ").append(fqStoredProcedureName)
          .append("(").append(seqNameParameter).append(" char(30)) RETURNS BIGINT").append("\n");
       sb.append("BEGIN").append("\n");
@@ -267,10 +267,10 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
          .append("=").append(seqNameParameter).append(";").append("\n");
       sb.append("RETURN last_insert_id();").append("\n");
       sb.append("END").append("\n");
-      
+
       return sb.toString();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getDropSequenceStoredProcedureStatementString(java.lang.String)
     */
@@ -278,14 +278,14 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
    public String getDropSequenceStoredProcedureStatementString(String schemaName)
    {
       final StringBuffer sb = new StringBuffer(100);
-      
+
       final String fqStoredProcedureName = schemaName != null ? (schemaName + "." + SEQUENCE_STORED_PROCEDURE_NAME) : SEQUENCE_STORED_PROCEDURE_NAME;
-      
+
       sb.append("DROP FUNCTION ").append(fqStoredProcedureName);
-      
+
       return sb.toString();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getCreateGlobalPKSequenceStatementString(java.lang.String)
     */
@@ -293,7 +293,7 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
    public String getCreateGlobalPKSequenceStatementString(final String schemaName)
    {
       final StringBuffer sb = new StringBuffer(200);
-      
+
       sb.append("CREATE TABLE ");
       if ( !StringUtils.isEmpty(schemaName))
       {
@@ -303,11 +303,15 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
       sb.append(" (").append(GLOBAL_PK_SEQUENCE_TABLE_FIELD_NAME_NAME).append(" VARCHAR(30) NOT NULL, ")
          .append(GLOBAL_PK_SEQUENCE_TABLE_FIELD_VALUE_NAME).append(" BIGINT NOT NULL, ")
          .append("PRIMARY KEY (").append(GLOBAL_PK_SEQUENCE_TABLE_FIELD_NAME_NAME).append("))");
-      sb.append(" TYPE=MyISAM");
-      
+
+      if(StringUtils.isNotEmpty(getCreateTableOptions()))
+      {
+         sb.append(" ").append(getCreateTableOptions());
+      }
+
       return sb.toString();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getDropGlobalPKSequenceStatementString(java.lang.String)
     */
@@ -315,17 +319,17 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
    public String getDropGlobalPKSequenceStatementString(final String schemaName)
    {
       final StringBuffer sb = new StringBuffer(100);
-      
+
       sb.append("DROP TABLE ");
       if ( !StringUtils.isEmpty(schemaName))
       {
          sb.append(schemaName).append(".");
       }
       sb.append(GLOBAL_PK_SEQUENCE_TABLE_NAME);
-      
+
       return sb.toString();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.persistence.jdbc.SequenceDbDriver#getIdentityColumnQualifier()
     */

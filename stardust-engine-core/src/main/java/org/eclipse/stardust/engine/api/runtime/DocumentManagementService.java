@@ -16,6 +16,7 @@ import java.util.Set;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.query.DocumentQuery;
 import org.eclipse.stardust.engine.api.web.dms.DmsContentServlet;
+import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstanceInfo;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo;
@@ -50,6 +51,7 @@ public interface DocumentManagementService extends Service
     * @return the document or null if no document with such ID (or path) exists.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission
    Document getDocument(String documentId) throws DocumentManagementServiceException;
 
    /**
@@ -59,6 +61,7 @@ public interface DocumentManagementService extends Service
     * @return list of document versions found.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission
    List<Document> getDocumentVersions(String documentId) throws DocumentManagementServiceException;
 
    /**
@@ -68,6 +71,7 @@ public interface DocumentManagementService extends Service
     * @return list of documents found.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission
    List<Document> getDocuments(List<String> documentIds) throws DocumentManagementServiceException;
 
    /**
@@ -77,6 +81,7 @@ public interface DocumentManagementService extends Service
     * @return list of documents found.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission
    @Deprecated
    List<Document> findDocumentsByName(String namePattern) throws DocumentManagementServiceException;
 
@@ -87,6 +92,7 @@ public interface DocumentManagementService extends Service
     * @return list of documents found.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission
    @Deprecated
    List<Document> findDocuments(String xpathQuery) throws DocumentManagementServiceException;
 
@@ -97,6 +103,7 @@ public interface DocumentManagementService extends Service
     *
     * @return a List of Document objects.
     */
+   @ExecutionPermission
    Documents findDocuments(DocumentQuery query);
 
    /**
@@ -114,6 +121,7 @@ public interface DocumentManagementService extends Service
     *
     * @see #requestDocumentContentDownload(String)
     */
+   @ExecutionPermission
    byte[] retrieveDocumentContent(String documentId) throws DocumentManagementServiceException;
 
    /**
@@ -125,6 +133,7 @@ public interface DocumentManagementService extends Service
     * @return A download token valid for the lifetime of this service's session.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission
    String requestDocumentContentDownload(String documentId) throws DocumentManagementServiceException;
 
    ///////////////////////////////////////////////////////////////////////////////////////
@@ -140,6 +149,7 @@ public interface DocumentManagementService extends Service
     *
     * @see Folder#LOD_LIST_MEMBERS
     */
+   @ExecutionPermission
    Folder getFolder(String folderId) throws DocumentManagementServiceException;
 
    /**
@@ -154,6 +164,7 @@ public interface DocumentManagementService extends Service
     *
     * @see Folder#LOD_LIST_MEMBERS
     */
+   @ExecutionPermission
    Folder getFolder(String folderId, int levelOfDetail) throws DocumentManagementServiceException;
 
    /**
@@ -165,6 +176,7 @@ public interface DocumentManagementService extends Service
     * @return list of folders found.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission
    List<Folder> getFolders(List<String> folderIds, int levelOfDetail) throws DocumentManagementServiceException;
 
    /**
@@ -176,6 +188,7 @@ public interface DocumentManagementService extends Service
     * @return list of folders found.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission
    @Deprecated
    List<Folder> findFoldersByName(String namePattern, int levelOfDetail) throws DocumentManagementServiceException;
 
@@ -188,6 +201,7 @@ public interface DocumentManagementService extends Service
     * @return list of folders found.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission
    @Deprecated
    List<Folder> findFolders(String xpathQuery, int levelOfDetail) throws DocumentManagementServiceException;
 
@@ -205,6 +219,9 @@ public interface DocumentManagementService extends Service
     * @return the new document.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Document createDocument(String folderId, DocumentInfo document) throws DocumentManagementServiceException;
 
    /**
@@ -230,6 +247,9 @@ public interface DocumentManagementService extends Service
     *
     * @see #requestDocumentContentUpload(String)
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Document createDocument(String folderId, DocumentInfo document, byte[] content,
          String encoding) throws DocumentManagementServiceException;
 
@@ -243,6 +263,9 @@ public interface DocumentManagementService extends Service
     * @deprecated since 7.0 use {@link #versionDocument(String, String, String)}
     */
    @Deprecated
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Document versionDocument(String documentId, String versionLabel) throws DocumentManagementServiceException;
 
    /**
@@ -254,6 +277,9 @@ public interface DocumentManagementService extends Service
     * @return document describing the new document version
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Document versionDocument(String documentId, String versionComment, String versionLabel) throws DocumentManagementServiceException;
 
    /**
@@ -268,6 +294,9 @@ public interface DocumentManagementService extends Service
     * @param documentRevisionId The revisionId of the document version to be removed.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    void removeDocumentVersion(String documentId, String documentRevisionId) throws DocumentManagementServiceException;
 
    /**
@@ -281,6 +310,9 @@ public interface DocumentManagementService extends Service
     * @return The moved Document.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Document moveDocument(final String documentId, final String targetPath) throws DocumentManagementServiceException;
 
    /**
@@ -295,6 +327,9 @@ public interface DocumentManagementService extends Service
     * @deprecated since 7.0 use {@link #updateDocument(Document, boolean, String, String, boolean)}
     */
    @Deprecated
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Document updateDocument(Document document, boolean createNewRevision, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
 
    /**
@@ -308,6 +343,9 @@ public interface DocumentManagementService extends Service
     * @return the updated document
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Document updateDocument(Document document, boolean createNewRevision, String versionComment, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
 
 
@@ -333,6 +371,9 @@ public interface DocumentManagementService extends Service
     * @deprecated since 7.0 use {@link #updateDocument(Document, byte[], String, boolean, String, String, boolean)}
     */
    @Deprecated
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Document updateDocument(Document document, byte[] content, String encoding,
          boolean createNewRevision, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
 
@@ -357,6 +398,9 @@ public interface DocumentManagementService extends Service
     *
     * @see #requestDocumentContentUpload(String)
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Document updateDocument(Document document, byte[] content, String encoding,
          boolean createNewRevision, String versionComment, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
 
@@ -370,6 +414,9 @@ public interface DocumentManagementService extends Service
     * @return An upload token valid for the lifetime of this service's session.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    String requestDocumentContentUpload(String documentId) throws DocumentManagementServiceException;
 
    /**
@@ -378,6 +425,9 @@ public interface DocumentManagementService extends Service
     * @param documentId ID or path of the document to remove.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    void removeDocument(String documentId) throws DocumentManagementServiceException;
 
    ///////////////////////////////////////////////////////////////////////////////////////
@@ -394,6 +444,9 @@ public interface DocumentManagementService extends Service
     * @return the new folder.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Folder createFolder(String parentFolderId, FolderInfo folder) throws DocumentManagementServiceException;
 
    /**
@@ -403,6 +456,9 @@ public interface DocumentManagementService extends Service
     * @return the updated folder.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    Folder updateFolder(Folder folder) throws DocumentManagementServiceException;
 
    /**
@@ -413,6 +469,9 @@ public interface DocumentManagementService extends Service
     * (applies to all the children). If false, only the folder itself will be removed.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    void removeFolder(String folderId, boolean recursive) throws DocumentManagementServiceException;
 
    ///////////////////////////////////////////////////////////////////////////////////////
@@ -426,6 +485,7 @@ public interface DocumentManagementService extends Service
     * @param resourceId absolute path or ID of a file or folder
     * @return
     */
+   @ExecutionPermission
    Set<Privilege> getPrivileges(String resourceId);
 
    /**
@@ -438,6 +498,7 @@ public interface DocumentManagementService extends Service
     * @param resourceId absolute path or ID of a file or folder
     * @return
     */
+   @ExecutionPermission
    Set<AccessControlPolicy> getEffectivePolicies(String resourceId);
 
    /**
@@ -450,6 +511,7 @@ public interface DocumentManagementService extends Service
     * @param resourceId absolute path or ID of a file or folder
     * @return
     */
+   @ExecutionPermission
    Set<AccessControlPolicy> getPolicies(String resourceId);
 
    /**
@@ -462,6 +524,7 @@ public interface DocumentManagementService extends Service
     * @param resourceId absolute path or ID of a file or folder
     * @return
     */
+   @ExecutionPermission
    Set<AccessControlPolicy> getApplicablePolicies(String resourceId);
 
    /**
@@ -478,6 +541,9 @@ public interface DocumentManagementService extends Service
     * @param resourceId absolute path or ID of a file or folder
     * @param policy
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    void setPolicy(String resourceId, AccessControlPolicy policy);
 
    /**
@@ -511,6 +577,9 @@ public interface DocumentManagementService extends Service
     * @return a report containing information about the migration batch execution.
     * @throws DocumentManagementServiceException if there are problems in repository access or the user is not an administrator.
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    RepositoryMigrationReport migrateRepository(int batchSize, boolean evaluateTotalCount) throws DocumentManagementServiceException;
 
    /**
@@ -523,6 +592,7 @@ public interface DocumentManagementService extends Service
     * @throws ObjectNotFoundException
     *            if the specified schema location cannot be found
     */
+   @ExecutionPermission
    byte[] getSchemaDefinition(String schemaLocation) throws ObjectNotFoundException;
 
    ///////////////////////////////////////////////////////////////////////////////////////
@@ -545,6 +615,7 @@ public interface DocumentManagementService extends Service
     * @param configuration
     *           The configuration for the repository to bind.
     */
+   @ExecutionPermission
    void bindRepository(IRepositoryConfiguration configuration);
 
    /**
@@ -552,6 +623,7 @@ public interface DocumentManagementService extends Service
     *
     * @param repositoryId The id of the repository instance to unbind.
     */
+   @ExecutionPermission
    void unbindRepository(String repositoryId);
 
    /**
@@ -559,6 +631,7 @@ public interface DocumentManagementService extends Service
     *
     * @return Repository instance information.
     */
+   @ExecutionPermission
    List<IRepositoryInstanceInfo> getRepositoryInstanceInfos();
 
    /**
@@ -570,6 +643,7 @@ public interface DocumentManagementService extends Service
     *
     * @return Repository provider information.
     */
+   @ExecutionPermission
    List<IRepositoryProviderInfo> getRepositoryProviderInfos();
 
    /**
@@ -583,6 +657,7 @@ public interface DocumentManagementService extends Service
     * @param repositoryId
     *           The id of the repository instance.
     */
+   @ExecutionPermission
    void setDefaultRepository(String repositoryId);
 
    /**
@@ -590,12 +665,16 @@ public interface DocumentManagementService extends Service
     *
     * @return The id of the currently set default repository.
     */
+   @ExecutionPermission
    String getDefaultRepository();
 
    ///////////////////////////////////////////////////////////////////////////////////////
    // Repository specific methods.
    ///////////////////////////////////////////////////////////////////////////////////////
 
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDmsData,
+         defaults={ExecutionPermission.Default.ALL})
    RepositoryMigrationReport migrateRepository(int batchSize, boolean evaluateTotalCount, String repositoryId)
          throws DocumentManagementServiceException;
 

@@ -22,6 +22,9 @@
 	<!-- Handler beans -->
 	<bean id="webServiceEnvUsernameHttpBasicAuthConfigurer" class="org.eclipse.stardust.engine.ws.configurer.WebServiceEnvUsernameHttpBasicAuthConfigurer"/>
 	<bean id="webServiceEnvSessionPropConfigurer" class="org.eclipse.stardust.engine.ws.configurer.WebServiceEnvSessionPropConfigurer"/>
+   
+   <!-- Interceptor beans -->
+   <bean id="wsdlEndpointAddressInterceptor" class="org.eclipse.stardust.engine.ws.configurer.WSDLEndpointAddressInterceptor" />
   
 	<!-- Workflow Service (HTTP Basic Authentication) -->
 	<jaxws:endpoint name="bpmWorkflowServiceHttpBasicAuth"
@@ -34,6 +37,12 @@
 			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
 			<ref bean="webServiceEnvSessionPropConfigurer"/>
 		</jaxws:handlers>
+      <jaxws:inInterceptors>
+         <ref bean="wsdlEndpointAddressInterceptor"/>
+      </jaxws:inInterceptors>
+      <jaxws:properties>
+         <entry key="autoRewriteSoapAddressForAllServices" value="true"/>
+      </jaxws:properties>
 	</jaxws:endpoint>
 
 	<!-- Workflow Service (HTTP Basic Authentication using SSL) -->
@@ -47,6 +56,12 @@
 			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
 			<ref bean="webServiceEnvSessionPropConfigurer"/>
 		</jaxws:handlers>
+      <jaxws:inInterceptors>
+         <ref bean="wsdlEndpointAddressInterceptor"/>
+      </jaxws:inInterceptors>
+      <jaxws:properties>
+         <entry key="autoRewriteSoapAddressForAllServices" value="true"/>
+      </jaxws:properties>
 	</jaxws:endpoint>
 
 	<!-- Workflow Service (WS-Security UsernameToken) -->
@@ -59,7 +74,11 @@
 		<jaxws:handlers>
 			<ref bean="webServiceEnvSessionPropConfigurer"/>
 		</jaxws:handlers>
+      <jaxws:inInterceptors>
+         <ref bean="wsdlEndpointAddressInterceptor"/>
+      </jaxws:inInterceptors>
       <jaxws:properties>
+         <entry key="autoRewriteSoapAddressForAllServices" value="true"/>
          <entry key="ws-security.ut.validator" value="org.eclipse.stardust.engine.ws.configurer.UsernameTokenValidatingConfigurer"/>
       </jaxws:properties>
 	</jaxws:endpoint>
@@ -75,6 +94,12 @@
 			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
 			<ref bean="webServiceEnvSessionPropConfigurer"/>
 		</jaxws:handlers>
+      <jaxws:inInterceptors>
+         <ref bean="wsdlEndpointAddressInterceptor"/>
+      </jaxws:inInterceptors>
+      <jaxws:properties>
+         <entry key="autoRewriteSoapAddressForAllServices" value="true"/>
+      </jaxws:properties>
 	</jaxws:endpoint>
 
 	<!-- Query Service (HTTP Basic Authentication using SSL) -->
@@ -88,6 +113,12 @@
 			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
 			<ref bean="webServiceEnvSessionPropConfigurer"/>
 		</jaxws:handlers>
+      <jaxws:inInterceptors>
+         <ref bean="wsdlEndpointAddressInterceptor"/>
+      </jaxws:inInterceptors>
+      <jaxws:properties>
+         <entry key="autoRewriteSoapAddressForAllServices" value="true"/>
+      </jaxws:properties>
 	</jaxws:endpoint>
 
 	<!-- Query Service (WS-Security UsernameToken) -->
@@ -100,7 +131,11 @@
 		<jaxws:handlers>
 			<ref bean="webServiceEnvSessionPropConfigurer"/>
 		</jaxws:handlers>
+      <jaxws:inInterceptors>
+         <ref bean="wsdlEndpointAddressInterceptor"/>
+      </jaxws:inInterceptors>
       <jaxws:properties>
+         <entry key="autoRewriteSoapAddressForAllServices" value="true"/>
          <entry key="ws-security.ut.validator" value="org.eclipse.stardust.engine.ws.configurer.UsernameTokenValidatingConfigurer"/>
       </jaxws:properties>
 	</jaxws:endpoint>
@@ -115,7 +150,11 @@
 		<jaxws:properties>
    		<entry key="mtom-enabled" value="true"/>
    		<entry key="mtom-threshold" value="2048"/>
+         <entry key="autoRewriteSoapAddressForAllServices" value="true"/>
     	</jaxws:properties>
+      <jaxws:inInterceptors>
+         <ref bean="wsdlEndpointAddressInterceptor"/>
+      </jaxws:inInterceptors>
     	<jaxws:handlers>
 			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
 			<ref bean="webServiceEnvSessionPropConfigurer"/>
@@ -132,7 +171,11 @@
 		<jaxws:properties>
    		<entry key="mtom-enabled" value="true"/>
    		<entry key="mtom-threshold" value="2048"/>
+         <entry key="autoRewriteSoapAddressForAllServices" value="true"/>
     	</jaxws:properties>
+      <jaxws:inInterceptors>
+         <ref bean="wsdlEndpointAddressInterceptor"/>
+      </jaxws:inInterceptors>
     	<jaxws:handlers>
 			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
 			<ref bean="webServiceEnvSessionPropConfigurer"/>
@@ -150,7 +193,11 @@
    		<entry key="mtom-enabled" value="true"/>
    		<entry key="mtom-threshold" value="2048"/>
          <entry key="ws-security.ut.validator" value="org.eclipse.stardust.engine.ws.configurer.UsernameTokenValidatingConfigurer"/>
+         <entry key="autoRewriteSoapAddressForAllServices" value="true"/>
     	</jaxws:properties>
+      <jaxws:inInterceptors>
+         <ref bean="wsdlEndpointAddressInterceptor"/>
+      </jaxws:inInterceptors>
     	<jaxws:handlers>
 			<ref bean="webServiceEnvSessionPropConfigurer"/>
 		</jaxws:handlers>
@@ -167,6 +214,12 @@
 			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
 			<ref bean="webServiceEnvSessionPropConfigurer"/>
 		</jaxws:handlers>
+      <jaxws:inInterceptors>
+         <ref bean="wsdlEndpointAddressInterceptor"/>
+      </jaxws:inInterceptors>
+      <jaxws:properties>
+         <entry key="autoRewriteSoapAddressForAllServices" value="true"/>
+      </jaxws:properties>
 	</jaxws:endpoint>
 
 	<!-- User Service (HTTP Basic Authentication using SSL) -->
@@ -180,6 +233,12 @@
 			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
 			<ref bean="webServiceEnvSessionPropConfigurer"/>
 		</jaxws:handlers>
+      <jaxws:inInterceptors>
+         <ref bean="wsdlEndpointAddressInterceptor"/>
+      </jaxws:inInterceptors>
+      <jaxws:properties>
+         <entry key="autoRewriteSoapAddressForAllServices" value="true"/>
+      </jaxws:properties>
 	</jaxws:endpoint>
 
 	<!-- User Service (WS-Security UsernameToken) -->
@@ -192,8 +251,12 @@
 		<jaxws:handlers>
 			<ref bean="webServiceEnvSessionPropConfigurer"/>
 		</jaxws:handlers>
+      <jaxws:inInterceptors>
+         <ref bean="wsdlEndpointAddressInterceptor"/>
+      </jaxws:inInterceptors>
       <jaxws:properties>
          <entry key="ws-security.ut.validator" value="org.eclipse.stardust.engine.ws.configurer.UsernameTokenValidatingConfigurer"/>
+         <entry key="autoRewriteSoapAddressForAllServices" value="true"/>
       </jaxws:properties>
 	</jaxws:endpoint>
 
@@ -208,6 +271,12 @@
 			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
 			<ref bean="webServiceEnvSessionPropConfigurer"/>
 		</jaxws:handlers>
+      <jaxws:inInterceptors>
+         <ref bean="wsdlEndpointAddressInterceptor"/>
+      </jaxws:inInterceptors>
+      <jaxws:properties>
+         <entry key="autoRewriteSoapAddressForAllServices" value="true"/>
+      </jaxws:properties>
 	</jaxws:endpoint>
 
 	<!-- Administration Service (HTTP Basic Authentication using SSL) -->
@@ -221,6 +290,12 @@
 			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
 			<ref bean="webServiceEnvSessionPropConfigurer"/>
 		</jaxws:handlers>
+      <jaxws:inInterceptors>
+         <ref bean="wsdlEndpointAddressInterceptor"/>
+      </jaxws:inInterceptors>
+      <jaxws:properties>
+         <entry key="autoRewriteSoapAddressForAllServices" value="true"/>
+      </jaxws:properties>
 	</jaxws:endpoint>
 
 	<!-- Administration Service (WS-Security UsernameToken) -->
@@ -233,8 +308,12 @@
 		<jaxws:handlers>
 			<ref bean="webServiceEnvSessionPropConfigurer"/>
 		</jaxws:handlers>
+      <jaxws:inInterceptors>
+         <ref bean="wsdlEndpointAddressInterceptor"/>
+      </jaxws:inInterceptors>
       <jaxws:properties>
          <entry key="ws-security.ut.validator" value="org.eclipse.stardust.engine.ws.configurer.UsernameTokenValidatingConfigurer"/>
+         <entry key="autoRewriteSoapAddressForAllServices" value="true"/>
       </jaxws:properties>
 	</jaxws:endpoint>
 
@@ -242,6 +321,12 @@
 	<jaxws:endpoint name="bpmInteractionsService"
 		implementor="org.eclipse.stardust.engine.ws.interactions.InteractionsServiceFacade"
 		address="/BpmInteractionsService">
+      <jaxws:inInterceptors>
+         <ref bean="wsdlEndpointAddressInterceptor"/>
+      </jaxws:inInterceptors>
+      <jaxws:properties>
+         <entry key="autoRewriteSoapAddressForAllServices" value="true"/>
+      </jaxws:properties>
 	</jaxws:endpoint>
    
 </beans>

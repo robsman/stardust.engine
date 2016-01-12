@@ -144,9 +144,12 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
          interceptors.add(new FlushInterceptor());
       }
       interceptors.add(getLoginInterceptor(withLogin));
+      // ExceptionHandlingInterceptor should be in front of GuardingInterceptor just for the case
+      // that an exception is thrown during the authentication. With it the tx status
+      // can be set accordantly.
+      interceptors.add(new ExceptionHandlingInterceptor());
       interceptors.add(new GuardingInterceptor(serviceName));
       interceptors.add(new RuntimeExtensionsInterceptor());
-      interceptors.add(new ExceptionHandlingInterceptor());
       interceptors.add(new CallingInterceptor());
       return interceptors;
    }
@@ -225,7 +228,15 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
             maybeTriggerTxRollback(invocation, e);
 
             LogUtils.traceException(e, false);
-            throw new InternalException(e.getMessage());
+
+            if (e instanceof ApplicationException)
+            {
+               throw e;
+            }
+            else
+            {
+               throw new InternalException(e.getMessage());
+            }
          }
       }
 

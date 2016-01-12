@@ -21,12 +21,14 @@ import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.GlobalParameters;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ValueProvider;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.core.compatibility.ui.preferences.spi.IStaticConfigurationProvider;
 import org.eclipse.stardust.engine.core.preferences.*;
 import org.eclipse.stardust.engine.core.preferences.manager.*;
+import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 
 
 
@@ -123,8 +125,10 @@ public abstract class AbstractCachedPreferencesManager extends AbstractPreferenc
       AbstractPreferenceStore prefsStore = getPreferences(scope, moduleId, preferencesId,
             true);
 
-      return new UiPreferenceEditor(moduleId, preferencesId, prefsStore,
-            getServiceFactory(), this);
+      return Parameters.instance().getBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL, false)
+            ? new ReadOnlyUiPreferenceEditor(moduleId, preferencesId, prefsStore)
+            : new UiPreferenceEditor(moduleId, preferencesId, prefsStore,
+                  getServiceFactory(), this);
    }
 
    private AbstractPreferenceStore getPreferences(PreferenceScope scope, String moduleId,

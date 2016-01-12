@@ -651,12 +651,7 @@ public interface QueryService extends Service
     *
     * @return a list of permission ids.
     */
-   /*@ExecutionPermission(
-         id="readModelData",
-         scope=ExecutionPermission.Scope.model,
-         changeable=false,
-         defaults={ExecutionPermission.Default.ALL})*/
-   // no permission check here
+   @ExecutionPermission
    List<Permission> getPermissions();
 
    /**
@@ -763,6 +758,7 @@ public interface QueryService extends Service
     * @throws ObjectNotFoundException if no matching document is found.
     * @deprecated since 8.0 use {@link DocumentManagementService#findDocuments(DocumentQuery)}.
     */
+   @ExecutionPermission
    @Deprecated
    Document findFirstDocument(DocumentQuery query) throws ObjectNotFoundException;
 
@@ -774,6 +770,7 @@ public interface QueryService extends Service
     * @return a List of Document objects.
     * @deprecated since 8.0 use {@link DocumentManagementService#findDocuments(DocumentQuery)}.
     */
+   @ExecutionPermission
    @Deprecated
    Documents getAllDocuments(DocumentQuery query);
 
@@ -787,11 +784,11 @@ public interface QueryService extends Service
     *
     * @throws PublicException if <tt>scope</tt> is null.
     */
+   @ExecutionPermission
    Preferences getPreferences(PreferenceScope scope, String moduleId, String preferencesId);
 
    /**
     * Retrieves preferences satisfying the criteria specified in the provided query.
-    *
     *
     * @param preferenceQuery the preference query.
     * @return a list of preferences.
@@ -800,6 +797,7 @@ public interface QueryService extends Service
     * @throws UnsupportedOperationException if the PreferenceQuery contains unsupported terms or operations.
     * @throws InvalidArgumentException if <tt>preferencesQuery</tt> is null.
     */
+   @ExecutionPermission
    List<Preferences> getAllPreferences(PreferenceQuery preferenceQuery);
 
    /**
@@ -807,7 +805,7 @@ public interface QueryService extends Service
     *
     * @return the runtime environment information.
     */
-   /* No execution permission needed */
+   @ExecutionPermission
    RuntimeEnvironmentInfo getRuntimeEnvironmentInfo();
 
    /**
@@ -818,5 +816,43 @@ public interface QueryService extends Service
     * @param locale The to retrieve the resource bundle for.
     * @return The ResourceBundle or null if no ResourceBundle was found.
     */
+   @ExecutionPermission
    ResourceBundle getResourceBundle(String moduleId, String bundleName, Locale locale);
+
+   /**
+    * Retrieves the artifact by the unique oid.
+    *
+    * @param oid The oid of the artifact.
+    * @return The artifact or <code>null<code> if it does not exist.
+    */
+   @ExecutionPermission(id=ExecutionPermission.Id.readRuntimeArtifact)
+   public RuntimeArtifact getRuntimeArtifact(long oid);
+
+   /**
+    * Retrieves all DeployedRuntimeArtifacts satisfying the criteria specified in the provided query.
+    *
+    * @param query the deployed runtime artifact query.
+    * @return The deployed runtime artifacts matching the specified criteria.
+    */
+   @ExecutionPermission(id=ExecutionPermission.Id.readRuntimeArtifact)
+   public DeployedRuntimeArtifacts getRuntimeArtifacts(DeployedRuntimeArtifactQuery query);
+
+   /**
+    * Gets a specific process instance link type.
+    *
+    * @param id the in of the process instance link type.
+    * @return the process instance link type.
+    *
+    * @throws ObjectNotFoundException if there is no process instance link type with the specified id.
+    */
+   @ExecutionPermission
+   public ProcessInstanceLinkType getProcessInstanceLinkType(String id);
+
+   /**
+    * Gets all process instance link types defined.
+    *
+    * @return a list of process instance link types.
+    */
+   @ExecutionPermission
+   public List<ProcessInstanceLinkType> getAllProcessInstanceLinkTypes();
 }

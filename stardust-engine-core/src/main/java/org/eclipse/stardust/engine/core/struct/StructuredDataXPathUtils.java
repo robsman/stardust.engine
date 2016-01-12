@@ -13,16 +13,8 @@ package org.eclipse.stardust.engine.core.struct;
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.math.BigDecimal;
+import java.util.*;
 
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
@@ -38,13 +30,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
-import org.eclipse.stardust.engine.core.struct.sxml.Attribute;
-import org.eclipse.stardust.engine.core.struct.sxml.Document;
-import org.eclipse.stardust.engine.core.struct.sxml.Element;
-import org.eclipse.stardust.engine.core.struct.sxml.LeafNode;
-import org.eclipse.stardust.engine.core.struct.sxml.NamedNode;
-import org.eclipse.stardust.engine.core.struct.sxml.Node;
-import org.eclipse.stardust.engine.core.struct.sxml.Text;
+import org.eclipse.stardust.engine.core.struct.sxml.*;
 import org.eclipse.stardust.engine.core.struct.sxml.xpath.XPathEvaluator;
 import org.eclipse.stardust.engine.core.struct.sxml.xpath.XPathException;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
@@ -983,6 +969,10 @@ public class StructuredDataXPathUtils
       else if (typeKey == BigData.PERIOD)
       {
          return new Period((short)0, (short)0, (short)0, (short)0, (short)0, (short)0);
+      }
+      else if (typeKey == BigData.DECIMAL)
+      {
+         return new BigDecimal(0);
       }
       else
       {

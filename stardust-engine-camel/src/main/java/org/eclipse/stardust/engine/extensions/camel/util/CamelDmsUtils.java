@@ -131,6 +131,8 @@ public class CamelDmsUtils
 
    private static byte[] extractContentByteArray(byte[] content) {
 
+      if(content==null)
+            return null;
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
       byte[] buffer = new byte[4096];

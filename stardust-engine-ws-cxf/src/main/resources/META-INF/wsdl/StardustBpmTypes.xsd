@@ -1251,6 +1251,7 @@
 				minOccurs="0" />
 
 			<element name="criticality" type="double"/>
+			<element name="benchmarkResult" type="tns:BenchmarkResult"/>
 
 			<element name="qualityAssuranceInfo" type="tns:QualityAssuranceInfo" minOccurs="0" />
 			<element name="qualityAssuranceState" type="tns:QualityAssuranceState" minOccurs="0" />
@@ -1304,6 +1305,9 @@
 				minOccurs="0" />
 			-->
 
+			<element name="benchmark" type="long" />
+			<element name="benchmarkResult" type="tns:BenchmarkResult" />
+			
 			<element name="state" type="tns:ProcessInstanceState" />
 
 			<element name="detailsLevel" type="tns:ProcessInstanceDetailsLevel" />
@@ -2533,6 +2537,7 @@
 		</annotation>
 		<sequence>
 			<element name="RuntimePermissionsMap" type="tns:RuntimePermissionsMap" />
+			<element name="DeniedRuntimePermissionsMap" type="tns:RuntimePermissionsMap" />
 		</sequence>
 	</complexType>
 
@@ -2687,6 +2692,79 @@
 		</sequence>
 	</complexType>
 
+   <complexType name="BenchmarkResult">
+       <sequence>
+           <element name="category" type="int" />
+           <element name="properties" type="tns:Map" />
+       </sequence>
+   </complexType>
+
+   <complexType name="RuntimeArtifact">
+      <annotation>
+         <documentation>
+         An artifact which can be deployed and is valid from a specified date at runtime.
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="artifactTypeId" type="string" />
+         <element name="artifactId" type="string" />
+         <element name="artifactName" type="string" minOccurs="0" />
+         <element name="validFrom" type="dateTime" minOccurs="0" />
+         <element name="content" type="base64Binary" minOccurs="0"
+            xmime:expectedContentTypes="*/*" />
+      </sequence>
+   </complexType>
+
+   <complexType name="DeployedRuntimeArtifact">
+      <annotation>
+         <documentation>
+         A deployed runtime artifact is including a unique oid.
+         It does not contain binary content.
+         The runtime artifact including the content can be retrieved by oid using other service methods.
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="oid" type="long" />
+         <element name="artifactTypeId" type="string" />
+         <element name="artifactId" type="string" />
+         <element name="artifactName" type="string" minOccurs="0" />
+         <element name="validFrom" type="dateTime" minOccurs="0" />
+      </sequence>
+   </complexType>
+
+   <complexType name="ArtifactType">
+      <annotation>
+         <documentation>
+         Defines the type of an artifact.
+         </documentation>
+      </annotation>
+      <sequence>
+         <element name="id" type="string" />
+      </sequence>
+   </complexType>
+
+   <complexType name="DeployedRuntimeArtifactQueryResult">
+      <annotation>
+         <documentation>
+         Result of an DeployedRuntimeArtifactQuery execution.
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:QueryResult">
+            <sequence>
+               <element name="deployedRuntimeArtifacts" minOccurs="0" >
+                  <complexType>
+                     <sequence>
+                        <element name="deployedRuntimeArtifact" type="tns:DeployedRuntimeArtifact" minOccurs="0"
+                           maxOccurs="unbounded" />
+                     </sequence>
+                  </complexType>
+               </element>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
 	<!--  Simple types -->
 
 	<simpleType name="PreferenceScope">
@@ -2791,5 +2869,6 @@
 			<enumeration value="FAILED" />
 		</restriction>
 	</simpleType>
+	
 
 </schema>

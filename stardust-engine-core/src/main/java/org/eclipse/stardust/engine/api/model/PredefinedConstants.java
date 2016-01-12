@@ -30,6 +30,8 @@ public final class PredefinedConstants
    public static final String ENGINE_SCOPE = "carnot:engine:";
    public static final String PWH_SCOPE = "carnot:pwh:";
 
+   public static final String PREDEFINED_MODEL_ID = "PredefinedModel";
+
    // predefined application type IDs
    public static final String SESSIONBEAN_APPLICATION = "sessionBean";
    public static final String PLAINJAVA_APPLICATION = "plainJava";
@@ -71,6 +73,7 @@ public final class PredefinedConstants
    public static final String APPLICATION_CONTEXT = "application";
    public static final String PROCESSINTERFACE_CONTEXT = "processInterface";
    public static final String EXTERNALWEBAPP_CONTEXT = "externalWebApp";
+   public static final String EVENT_CONTEXT = "event-";
 
    // predefined action type Ids
    public static final String MAIL_ACTION = "mail";
@@ -84,23 +87,28 @@ public final class PredefinedConstants
    public static final String ACTIVATE_ACTIVITY_ACTION = "activateActivity";
    public static final String SET_DATA_ACTION = "setData";
    public static final String EXCLUDE_USER_ACTION = "excludeUser";
+   public static final String SEND_SIGNAL_ACTION = "sendSignal";
 
    // predefined trigger type IDs
    public static final String MANUAL_TRIGGER = "manual";
    public static final String SCAN_TRIGGER = "scan";
    public static final String MAIL_TRIGGER = "mail";
    public static final String JMS_TRIGGER = "jms";
+   public static final String SIGNAL_TRIGGER = "signal";
    public static final String TIMER_TRIGGER = "timer";
 
    // predefined condition type IDs
    public static final String TIMER_CONDITION = "timer";
    public static final String ACTIVITY_ON_ASSIGNMENT_CONDITION = "onAssignment";
+   public static final String ESCALATION_CONDITION = "escalation";
    public static final String EXPRESSION_CONDITION = "expression";
    public static final String EXCEPTION_CONDITION = "exception";
    public static final String ACTIVITY_STATECHANGE_CONDITION = "statechange";
    public static final String PROCESS_STATECHANGE_CONDITION = "processStatechange";
    public static final String EXTERNAL_EVENT_CONDITION = "external";
    public static final String OBSERVER_EVENT_CONDITION = "observer";
+   public static final String SUBPROCESS_EXCEPTION = "subprocessException";
+   public static final String SIGNAL_CONDITION = "signal";
 
    // predefined data
    public static final String LAST_ACTIVITY_PERFORMER = "LAST_ACTIVITY_PERFORMER";
@@ -112,12 +120,16 @@ public final class PredefinedConstants
    public static final String CURRENT_DATE = "CURRENT_DATE";
    public static final String CURRENT_LOCALE = "CURRENT_LOCALE";
    public static final String CURRENT_MODEL = "CURRENT_MODEL";
+   public static final String BUSINESS_DATE = "BUSINESS_DATE";
+   public static final String DUE_DATE = "DUE_DATE";
 
    // predefined role and user
    public static final String ADMINISTRATOR_ROLE = "Administrator";
    public static final String MOTU = "motu";
    public static final String MOTU_FIRST_NAME = "Master";
    public static final String MOTU_LAST_NAME = "Of the Universe";
+   public static final String AUDITOR_ROLE = "Auditor";
+   public static final String QUALIFIED_AUDITOR_ID = '{' + PREDEFINED_MODEL_ID + '}' + AUDITOR_ROLE;
 
    public static final String SYSTEM = "system_carnot_engine";
    public static final String SYSTEM_FIRST_NAME = SYSTEM;
@@ -182,8 +194,6 @@ public final class PredefinedConstants
    public static final String CONDITIONAL_PERFORMER_REALM_DATA_PATH = ENGINE_SCOPE + "conditionalPerformer:realmDataPath";
 
    public static final String MODELELEMENT_VISIBILITY = ENGINE_SCOPE + "visibility";
-
-   public static final String HIBERNATE_DELETE_IF_NULL_ATT = ENGINE_SCOPE + "hibernate:deleteIfNull";
 
    // common for generic WebService application types.
    public static final String AUTHENTICATION_ATT = ENGINE_SCOPE + "wsAuthentication";
@@ -505,6 +515,7 @@ public final class PredefinedConstants
    public static final String VALID_FROM_ATT = ENGINE_SCOPE + "validFrom";
    public static final String VALID_TO_ATT = ENGINE_SCOPE + "validTo";
    public static final String DEPLOYMENT_COMMENT_ATT = ENGINE_SCOPE + "deploymentComment";
+   public static final String MODEL_UUID = ENGINE_SCOPE + "modelUUID";
 
    public static final String EVENT_ACCESS_POINT = ENGINE_SCOPE + "eventScope";
    public static final String MESSAGE_TYPE_ATT = ENGINE_SCOPE + "messageType";
@@ -522,6 +533,7 @@ public final class PredefinedConstants
    public static final String EXCLUDED_PERFORMER_DATA = ENGINE_SCOPE + "excludedPerformerData";
    public static final String EXCLUDED_PERFORMER_DATAPATH = ENGINE_SCOPE + "excludedPerformerDataPath";;
    public static final String ACTIVITY_INSTANCE_ACCESSPOINT = "activityInstance";
+   public static final String PROCESS_INSTANCE_ACCESSPOINT = "processInstance";
 
    public static final String SOURCE_USER_ATT = ENGINE_SCOPE + "sourceUser";
    public static final String TARGET_USER_ATT = ENGINE_SCOPE + "targetUser";
@@ -583,7 +595,6 @@ public final class PredefinedConstants
 
    public static final String CASE_PROCESS_ID = "CaseProcess";
    public static final String DEFAULT_CASE_ACTIVITY_ID = "DefaultCaseActivity";
-   public static final String PREDEFINED_MODEL_ID = "PredefinedModel";
    public static final String CASE_DATA_ID = "CaseInfo";
    public static final String CASE_NAME_ELEMENT = "CaseName";
    public static final String CASE_DESCRIPTION_ELEMENT = "CaseDescription";
@@ -600,12 +611,12 @@ public final class PredefinedConstants
 
    public static final String BUSINESS_OBJECT_MANAGEDORGANIZATIONS = ENGINE_SCOPE + "managedOrganizations"; //$NON-NLS-1$
    public static final String BUSINESS_OBJECT_NAMEEXPRESSION = ENGINE_SCOPE + "nameExpression";
-   
+
    public static final String BUSINESS_OBJECTS_DATAREF = "stardust:model:businessObjects";
-   
+
    // volatile data attribute
    public static final String VOLATILE_DATA = ENGINE_SCOPE + "volatile";
-   
+
    private PredefinedConstants() {
       //disallow instance creation
    }

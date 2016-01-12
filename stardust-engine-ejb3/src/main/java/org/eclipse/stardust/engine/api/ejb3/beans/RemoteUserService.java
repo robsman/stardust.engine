@@ -1,9 +1,8 @@
 /*
- * Generated from Revision: 71045 
+ * Generated from Revision
  */
 package org.eclipse.stardust.engine.api.ejb3.beans;
 
-import javax.ejb.Local;
 import javax.ejb.Remote;
 
 /**
@@ -16,7 +15,7 @@ import javax.ejb.Remote;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 71045
+ * @version $Revision
  */
 @Remote
 public interface RemoteUserService extends UserService

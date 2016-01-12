@@ -57,7 +57,8 @@ public final class DaemonFactory
       private static final Collection<IDaemon> predefinedDaemons = Arrays.asList(new IDaemon[] {
             new EventDaemon(),
             new CriticalityDaemon(),
-            new SystemDaemon()
+            new SystemDaemon(),
+            new BenchmarkDaemon()
       });
 
       @Override

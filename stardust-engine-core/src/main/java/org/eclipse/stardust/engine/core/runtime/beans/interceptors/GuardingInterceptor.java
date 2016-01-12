@@ -26,7 +26,7 @@ import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 public class GuardingInterceptor implements MethodInterceptor
 {
    private static final long serialVersionUID = -2252311619932405039L;
-   
+
    private final String paramName;
 
    public GuardingInterceptor(String serviceName)
@@ -45,8 +45,8 @@ public class GuardingInterceptor implements MethodInterceptor
          if (!invocation.getMethod().getDeclaringClass().getName().equals("java.lang.Object"))
          {
             // check if password must be changed
-            SecurityUtils.checkPasswordExpired(SecurityProperties.getUser(), invocation);         
-                        
+            SecurityUtils.checkPasswordExpired(SecurityProperties.getUser(), invocation);
+
             if (invocation.getParameters().getBoolean(paramName, true))
             {
                Authorization2.checkPermission(invocation.getMethod(), invocation.getArguments());
@@ -58,6 +58,7 @@ public class GuardingInterceptor implements MethodInterceptor
       {
          BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
          runtimeEnvironment.setAuthorizationPredicate(null);
+         runtimeEnvironment.setSecureContext(false);
       }
    }
 }

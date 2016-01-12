@@ -11,6 +11,8 @@
 package org.eclipse.stardust.engine.core.runtime.beans.daemons;
 
 import org.eclipse.stardust.common.DateUtils;
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
+import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
@@ -20,6 +22,9 @@ import org.eclipse.stardust.engine.api.runtime.AcknowledgementState;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.Daemon;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
+import org.eclipse.stardust.engine.core.monitoring.DaemonExecutionMonitorMediator;
+import org.eclipse.stardust.engine.core.persistence.jdbc.extension.ISessionLifecycleExtension;
+import org.eclipse.stardust.engine.core.persistence.jdbc.extension.SessionLifecycleExtensionMediator;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.runtime.beans.DaemonFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
@@ -28,6 +33,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.IDaemon;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
+import org.eclipse.stardust.engine.core.spi.monitoring.IDaemonExecutionMonitor;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
@@ -41,6 +47,10 @@ public class DaemonUtils
    public static final Logger trace = LogManager.getLogger(DaemonUtils.class);
    public static final Logger daemonLogger = RuntimeLog.DAEMON;   
    
+   private static final String KEY_SESSION_DAEMON_EXECUTION_MONITOR_MEDIATOR = DaemonExecutionMonitorMediator.class.getName()
+         + ".RuntimeEnvironmentMonitorMediator";
+   
+
    public static Daemon startDaemon(String daemonId, boolean acknowledge)
    {
       checkDaemonName(daemonId, true);
@@ -138,6 +148,22 @@ public class DaemonUtils
       {
          factory.release(service);
       }
+   }
+
+   public static IDaemonExecutionMonitor getExecutionMonitor()
+   {
+      GlobalParameters globals = GlobalParameters.globals();
+
+      IDaemonExecutionMonitor mediator = (IDaemonExecutionMonitor) globals.get(KEY_SESSION_DAEMON_EXECUTION_MONITOR_MEDIATOR);
+
+      if (null == mediator)
+      {
+         mediator = new DaemonExecutionMonitorMediator(
+               ExtensionProviderUtils.getExtensionProviders(IDaemonExecutionMonitor.class));
+         globals.set(KEY_SESSION_DAEMON_EXECUTION_MONITOR_MEDIATOR, mediator);
+      }
+
+      return mediator;
    }
 
    private static Daemon get(ForkingService service, String type, boolean acknowledge, AcknowledgementState ack)

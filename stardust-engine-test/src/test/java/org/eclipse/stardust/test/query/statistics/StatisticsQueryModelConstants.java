@@ -10,6 +10,8 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.query.statistics;
 
+import javax.xml.namespace.QName;
+
 /**
  * <p>
  * This class contains constants related to the model
@@ -26,26 +28,29 @@ public class StatisticsQueryModelConstants
    public static final String MODEL_ID = "StatisticsQueryModel";
 
    /**
-    * the process definition model ID prefix for model {@link #MODEL_ID}
+    * the ID of the model used for cross model statistics query tests
     */
-   /* package-private */ static final String MODEL_ID_PREFIX = "{" + MODEL_ID + "}";
-
+   public static final String CROSS_MODEL_ID = "StatisticsQueryCrossModel";
 
    /**
     * the ID of the process definition having one interactive activity
     */
-   /* package-private */ static final String PROCESS_DEF_ID_DO_WORK = MODEL_ID_PREFIX + "DoWork";
+   /* package-private */ static final String PROCESS_DEF_ID_DO_WORK = new QName(MODEL_ID, "DoWork").toString();
 
    /**
     * the ID of the process definition having two interactive activities and one application activity
     */
-   /* package-private */ static final String PROCESS_DEF_ID_AI_PROCESSING_TIME = MODEL_ID_PREFIX + "AIProcessingTime";
+   /* package-private */ static final String PROCESS_DEF_ID_AI_PROCESSING_TIME = new QName(MODEL_ID, "AIProcessingTime").toString();
 
    /**
     * the ID of the process definition having two subprocesses
     */
-   /* package-private */ static final String PROCESS_DEF_ID_PI_PROCESSING_TIME_A = MODEL_ID_PREFIX + "PIProcessingTime_A";
+   /* package-private */ static final String PROCESS_DEF_ID_PI_PROCESSING_TIME_A = new QName(MODEL_ID, "PIProcessingTime_A").toString();
 
+   /**
+    * the ID of the process definition having cross model subprocess
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_PI_CROSS_PROCESSING_TIME = new QName(CROSS_MODEL_ID, "CrossProcessingTime").toString();
 
    /**
     * the ID of the last interactive activity of process definition {@link #PROCESS_DEF_ID_DO_WORK}

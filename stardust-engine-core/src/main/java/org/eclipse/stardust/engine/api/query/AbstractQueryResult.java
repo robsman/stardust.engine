@@ -26,8 +26,8 @@ public abstract class AbstractQueryResult<T> extends AbstractList<T>
    protected final Query query;
    protected final List<T> items;
    protected final boolean hasMore;
-   
-   private final Long totalCount;
+
+   protected Long totalCount;
    private final long totalCountThreshold;
 
    protected AbstractQueryResult(Query query, List<T> items, boolean hasMore,
@@ -61,7 +61,7 @@ public abstract class AbstractQueryResult<T> extends AbstractList<T>
    {
       return items.size();
    }
-   
+
    protected boolean hasTotalCount()
    {
       return null != totalCount;
@@ -85,7 +85,7 @@ public abstract class AbstractQueryResult<T> extends AbstractList<T>
    {
       return hasMore;
    }
-   
+
    public long getTotalCountThreshold()
    {
       return totalCountThreshold;

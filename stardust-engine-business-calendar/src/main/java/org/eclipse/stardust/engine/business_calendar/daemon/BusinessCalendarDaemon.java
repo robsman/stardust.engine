@@ -13,9 +13,11 @@ package org.eclipse.stardust.engine.business_calendar.daemon;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.TreeSet;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.rt.IJobManager;
+import org.eclipse.stardust.engine.core.runtime.beans.DaemonExecutionLog;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IDaemon;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
@@ -63,5 +65,12 @@ public class BusinessCalendarDaemon implements IDaemon
    public long getDefaultPeriodicity()
    {
       return 60;
+   }
+
+   @Override
+   public DaemonExecutionLog getExecutionLog()
+   {
+      // TODO Auto-generated method stub
+      return null;
    }
 }

@@ -21,16 +21,23 @@ import org.eclipse.stardust.engine.core.spi.runtime.IServiceProvider;
 
 public final class ServiceProviderFactory implements IServiceProvider.Factory
 {
+   // factoryLoader creates internally an iterator; if it is created in Thread0 but used
+   // in Thread1 then this could result into a NoSuchElementException. So use a look 
+   // object or a ThreadLocal instance if you want to operate on it.
    private static final ServiceLoader<IServiceProvider.Factory> factoryLoader = ServiceLoader.load(IServiceProvider.Factory.class);
+   private static final Object factoryLoaderLock = new Object();
 
    public static <T extends Service> IServiceProvider<T> findServiceProvider(Class<T> clazz)
    {
-      for (IServiceProvider.Factory factory : factoryLoader)
+      synchronized (factoryLoaderLock)
       {
-         IServiceProvider provider = factory.get(clazz);
-         if (provider != null)
+         for (IServiceProvider.Factory factory : factoryLoader)
          {
-            return provider;
+            IServiceProvider provider = factory.get(clazz);
+            if (provider != null)
+            {
+               return provider;
+            }
          }
       }
       throw new ServiceNotAvailableException(String.valueOf(clazz));

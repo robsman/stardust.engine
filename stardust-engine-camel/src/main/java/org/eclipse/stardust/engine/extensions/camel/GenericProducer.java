@@ -17,7 +17,11 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-
+/**
+ * 
+ * @deprecated
+ *
+ */
 public class GenericProducer
 {
    private static final Logger logger = LogManager.getLogger(GenericProducer.class.getCanonicalName());
@@ -37,7 +41,7 @@ public class GenericProducer
          this.template = camelContext.createProducerTemplate();
 
          this.camelContext = camelContext;
-         this.endpointName = DIRECT_ENDPOINT + getEndpoint(activityInstance);
+         this.endpointName = DIRECT_ENDPOINT + getEndpoint(activityInstance.getActivity().getApplication());
 
          this.producerMethodName = (String) activityInstance.getActivity().getApplication()
                .getAttribute(PRODUCER_METHOD_NAME_ATT);

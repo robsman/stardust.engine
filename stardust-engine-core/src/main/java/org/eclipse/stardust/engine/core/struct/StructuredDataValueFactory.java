@@ -12,7 +12,6 @@ package org.eclipse.stardust.engine.core.struct;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 import org.eclipse.stardust.common.Period;
@@ -25,7 +24,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
-
 
 /**
  * Engine runtime implementation of IStructuredDataValueFactory
@@ -141,7 +139,7 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
       }
       else if (typeKey == BigData.DECIMAL)
       {
-    	  return new BigDecimal(stringValue);
+         return new BigDecimal(stringValue);
       }
       else
       {
@@ -273,7 +271,7 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
       }
       else if (typeKey == BigData.DECIMAL)
       {
-    	  return value.toString();
+         return value.toString();
       }
       else
       {

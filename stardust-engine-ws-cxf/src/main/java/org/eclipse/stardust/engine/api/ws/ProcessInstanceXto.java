@@ -39,6 +39,8 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
  *         &lt;element name="startTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/>
  *         &lt;element name="terminationTime" type="{http://www.w3.org/2001/XMLSchema}dateTime" minOccurs="0"/>
  *         &lt;element name="startingUser" type="{http://eclipse.org/stardust/ws/v2012a/api}User" minOccurs="0"/>
+ *         &lt;element name="benchmark" type="{http://www.w3.org/2001/XMLSchema}long"/>
+ *         &lt;element name="benchmarkResult" type="{http://eclipse.org/stardust/ws/v2012a/api}BenchmarkResult"/>
  *         &lt;element name="state" type="{http://eclipse.org/stardust/ws/v2012a/api}ProcessInstanceState"/>
  *         &lt;element name="detailsLevel" type="{http://eclipse.org/stardust/ws/v2012a/api}ProcessInstanceDetailsLevel"/>
  *         &lt;element name="detailsOptions" type="{http://eclipse.org/stardust/ws/v2012a/api}ProcessInstanceDetailsOptions"/>
@@ -71,6 +73,8 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
     "startTime",
     "terminationTime",
     "startingUser",
+    "benchmark",
+    "benchmarkResult",
     "state",
     "detailsLevel",
     "detailsOptions",
@@ -105,6 +109,9 @@ public class ProcessInstanceXto {
     @XmlSchemaType(name = "dateTime")
     protected Date terminationTime;
     protected UserXto startingUser;
+    protected long benchmark;
+    @XmlElement(required = true)
+    protected BenchmarkResultXto benchmarkResult;
     @XmlElement(required = true, type = String.class)
     @XmlJavaTypeAdapter(Adapter2 .class)
     protected ProcessInstanceState state;
@@ -373,6 +380,46 @@ public class ProcessInstanceXto {
      */
     public void setStartingUser(UserXto value) {
         this.startingUser = value;
+    }
+
+    /**
+     * Gets the value of the benchmark property.
+     * 
+     */
+    public long getBenchmark() {
+        return benchmark;
+    }
+
+    /**
+     * Sets the value of the benchmark property.
+     * 
+     */
+    public void setBenchmark(long value) {
+        this.benchmark = value;
+    }
+
+    /**
+     * Gets the value of the benchmarkResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link BenchmarkResultXto }
+     *     
+     */
+    public BenchmarkResultXto getBenchmarkResult() {
+        return benchmarkResult;
+    }
+
+    /**
+     * Sets the value of the benchmarkResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link BenchmarkResultXto }
+     *     
+     */
+    public void setBenchmarkResult(BenchmarkResultXto value) {
+        this.benchmarkResult = value;
     }
 
     /**

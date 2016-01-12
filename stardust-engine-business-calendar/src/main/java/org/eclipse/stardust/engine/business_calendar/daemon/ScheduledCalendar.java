@@ -24,6 +24,7 @@ import org.eclipse.stardust.engine.api.query.BusinessObjectQuery;
 import org.eclipse.stardust.engine.api.query.BusinessObjects;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
+import org.eclipse.stardust.engine.api.runtime.StartOptions;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.runtime.scheduling.ScheduledDocument;
 import org.eclipse.stardust.engine.core.runtime.scheduling.SchedulingUtils;
@@ -37,10 +38,13 @@ public class ScheduledCalendar extends ScheduledDocument
    private static final Object NO_BUSINESS_OBJECT = new Object();
 
    private List<JsonObject> events;
+
    private Map<String, Object> data;
+
    private String documentPath;
 
-   public ScheduledCalendar(JsonObject documentJson, QName owner, String documentName, String documentPath, List<JsonObject> events)
+   public ScheduledCalendar(JsonObject documentJson, QName owner, String documentName,
+         String documentPath, List<JsonObject> events)
    {
       super(documentJson, owner, documentName);
       this.documentPath = documentPath;
@@ -54,29 +58,43 @@ public class ScheduledCalendar extends ScheduledDocument
          JsonObject details = SchedulingUtils.getAsJsonObject(event, "eventDetails");
          if (details != null)
          {
+            String benchmarkId = null;
+
             String processId = SchedulingUtils.getAsString(details, "processDefinitionId");
-            if (!StringUtils.isEmpty(processId))
+            if ( !StringUtils.isEmpty(processId))
             {
+               String benchmarkDefinition = SchedulingUtils.getAsString(details,
+                     "benchmarkDefinitionId");
+               if ( !StringUtils.isEmpty(benchmarkDefinition))
+               {
+                  benchmarkId = benchmarkDefinition;
+               }
+
                Map<String, Object> businessObjectData = getBusinessObjectData();
                if (businessObjectData != null)
                {
-                  JsonObject relationship = SchedulingUtils.getAsJsonObject(details, "relationship");
+                  JsonObject relationship = SchedulingUtils.getAsJsonObject(details,
+                        "relationship");
                   if (relationship != null && !businessObjectData.isEmpty())
                   {
-                     String other = SchedulingUtils.getAsString(relationship, "otherBusinessObject");
-                     if (!StringUtils.isEmpty(other))
+                     String other = SchedulingUtils.getAsString(relationship,
+                           "otherBusinessObject");
+                     if ( !StringUtils.isEmpty(other))
                      {
-                        String fkField = SchedulingUtils.getAsString(relationship, "otherForeignKeyField");
-                        if (!StringUtils.isEmpty(fkField))
+                        String fkField = SchedulingUtils.getAsString(relationship,
+                              "otherForeignKeyField");
+                        if ( !StringUtils.isEmpty(fkField))
                         {
                            String dataName = QName.valueOf(other).getLocalPart();
                            @SuppressWarnings("unchecked")
-                           Map<String, Object> businessObjectValue = (Map<String, Object>) businessObjectData.values().iterator().next();
+                           Map<String, Object> businessObjectValue = (Map<String, Object>) businessObjectData.values()
+                                 .iterator()
+                                 .next();
                            Object value = businessObjectValue.get(fkField);
-                           if (value instanceof List<?>)
+                           if (value instanceof List< ? >)
                            {
                               @SuppressWarnings("unchecked")
-                              List<?> fks = (List<Object>) value;
+                              List< ? > fks = (List<Object>) value;
                               for (Object fk : fks)
                               {
                                  Map<String, Object> data = CollectionUtils.newMap();
@@ -84,36 +102,42 @@ public class ScheduledCalendar extends ScheduledDocument
                                  if (value != NO_BUSINESS_OBJECT)
                                  {
                                     data.put(dataName, value);
-                                    startProcess(processId, data);
+                                    startProcess(processId, data, benchmarkId);
                                  }
                               }
                            }
                            else
                            {
-                              trace.warn("'" + documentPath + "': relationship '" + fkField + "' is not a list.");
+                              trace.warn("'" + documentPath + "': relationship '"
+                                    + fkField + "' is not a list.");
                            }
                         }
                      }
                   }
                   else
                   {
-                     startProcess(processId, businessObjectData);
+                     startProcess(processId, businessObjectData, benchmarkId);
                   }
                }
             }
          }
+
       }
    }
 
-   protected void startProcess(String processId, Map<String, Object> businessObjectData)
+   protected void startProcess(String processId, Map<String, Object> businessObjectData,
+         String benchmarkId)
    {
       try
       {
-         getWorkflowService().startProcess(processId, businessObjectData, false);
+         StartOptions options = new StartOptions(businessObjectData, false, benchmarkId);
+
+         getWorkflowService().startProcess(processId, options);
       }
       catch (Exception ex)
       {
-         trace.warn("'" + documentPath + "': could not start scheduled process '" + processId + "'.");
+         trace.warn("'" + documentPath + "': could not start scheduled process '"
+               + processId + "'.");
       }
    }
 
@@ -122,12 +146,16 @@ public class ScheduledCalendar extends ScheduledDocument
       if (data == null)
       {
          data = CollectionUtils.newMap();
-         JsonObject businessObjectJson = SchedulingUtils.getAsJsonObject(getDocumentJson(), "businessObjectInstance");
+         JsonObject businessObjectJson = SchedulingUtils.getAsJsonObject(
+               getDocumentJson(), "businessObjectInstance");
          if (businessObjectJson != null)
          {
-            String businessObjectId = SchedulingUtils.getAsString(businessObjectJson, "businessObjectId");
-            String primaryKey = SchedulingUtils.getAsString(businessObjectJson, "primaryKey");
-            if (!StringUtils.isEmpty(businessObjectId) && !StringUtils.isEmpty(primaryKey))
+            String businessObjectId = SchedulingUtils.getAsString(businessObjectJson,
+                  "businessObjectId");
+            String primaryKey = SchedulingUtils.getAsString(businessObjectJson,
+                  "primaryKey");
+            if ( !StringUtils.isEmpty(businessObjectId)
+                  && !StringUtils.isEmpty(primaryKey))
             {
                Object value = getBusinessObjectValue(businessObjectId, primaryKey);
                if (value == NO_BUSINESS_OBJECT)
@@ -146,12 +174,15 @@ public class ScheduledCalendar extends ScheduledDocument
 
    protected Object getBusinessObjectValue(String businessObject, Object primaryKey)
    {
-      BusinessObjectQuery query = BusinessObjectQuery.findWithPrimaryKey(businessObject, primaryKey);
-      query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
+      BusinessObjectQuery query = BusinessObjectQuery.findWithPrimaryKey(businessObject,
+            primaryKey);
+      query.setPolicy(new BusinessObjectQuery.Policy(
+            BusinessObjectQuery.Option.WITH_VALUES));
       BusinessObjects result = getQueryService().getAllBusinessObjects(query);
       if (result.isEmpty())
       {
-         trace.warn("'" + documentPath + "': no value found for business object '" + businessObject + "' with primary key '" + primaryKey + "'.");
+         trace.warn("'" + documentPath + "': no value found for business object '"
+               + businessObject + "' with primary key '" + primaryKey + "'.");
          return NO_BUSINESS_OBJECT;
       }
       BusinessObject bo = result.get(0);

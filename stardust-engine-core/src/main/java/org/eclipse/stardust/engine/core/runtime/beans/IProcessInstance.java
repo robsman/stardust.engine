@@ -21,9 +21,12 @@ import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IEventHandler;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
+import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 
 
 /**
@@ -184,9 +187,17 @@ public interface IProcessInstance extends SymbolTable, AttributedIdentifiablePer
 
    boolean isCompleted();
 
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.modifyDataValues,
+         scope=ExecutionPermission.Scope.data,
+         defaults={ExecutionPermission.Default.ALL})
    void setOutDataValue(IData data, String path, Object value)
          throws InvalidValueException;
 
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.readDataValues,
+         scope=ExecutionPermission.Scope.data,
+         defaults={ExecutionPermission.Default.ALL})
    Object getInDataValue(IData data, String path);
 
    Map getExistingDataValues(boolean includePredefined);
@@ -226,4 +237,14 @@ public interface IProcessInstance extends SymbolTable, AttributedIdentifiablePer
    public AuditTrailPersistence getPreviousAuditTrailPersistence();
 
    public void addExistingNote(ProcessInstanceProperty srcNote);
+
+   void setBenchmark(long benchmarkOid);
+
+   long getBenchmark();
+
+   int getBenchmarkValue();
+
+   public boolean isIntrinsicOutAccessPoint(String id);
+
+   Map getIntrinsicOutAccessPointValues();
 }

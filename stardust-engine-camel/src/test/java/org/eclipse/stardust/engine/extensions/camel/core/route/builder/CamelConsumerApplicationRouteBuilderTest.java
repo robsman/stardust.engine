@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IApplication;
@@ -14,8 +13,8 @@ import org.eclipse.stardust.engine.core.model.beans.ApplicationBean;
 import org.eclipse.stardust.engine.core.model.beans.ApplicationTypeBean;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
-import org.eclipse.stardust.engine.extensions.camel.core.ConsumerRouteContext;
 import org.eclipse.stardust.engine.extensions.camel.core.RouteDefinitionBuilder;
+import org.eclipse.stardust.engine.extensions.camel.core.app.ConsumerApplicationRouteContext;
 
 public class CamelConsumerApplicationRouteBuilderTest
 {
@@ -62,7 +61,7 @@ public class CamelConsumerApplicationRouteBuilderTest
    public void testConsumerAppEmptyProvidedConfiguration()
    {
       String expectedRoute = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Consumer1997610788\" autoStartup=\"true\"><description>This route is related to dummyApplication defined in dummyModel. The partition is :dummyPartitionId</description></route></routes>";
-      String actual = RouteDefinitionBuilder.createConsumerXmlConfiguration(new ConsumerRouteContext(
+      String actual = RouteDefinitionBuilder.createConsumerXmlConfiguration(new ConsumerApplicationRouteContext(
             createConsumerApplication("dummyApplication", null, false, false,null), "dummyPartitionId", "dummyContext"));
       logger.debug("Actual Execution returned :" + actual);
       assertEquals(expectedRoute, actual);
@@ -77,7 +76,7 @@ public class CamelConsumerApplicationRouteBuilderTest
       String userConfig = "<from uri=\"jms:input.queue\"/><to uri=\"ipp:direct\"/>";
       String expectedRoute = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Consumer1997610788\" autoStartup=\"true\"><description>This route is related to dummyApplication defined in dummyModel. The partition is :dummyPartitionId</description><from uri=\"jms:input.queue\"/><to uri=\"ipp:activity:find?expectedResultSize=1&amp;dataFiltersMap=$simple{header.ippDataFilterMap}\" /><to uri=\"ipp:activity:complete\" /></route></routes>";
       String actual = RouteDefinitionBuilder
-            .createConsumerXmlConfiguration(new ConsumerRouteContext(createConsumerApplication("dummyApplication",
+            .createConsumerXmlConfiguration(new ConsumerApplicationRouteContext(createConsumerApplication("dummyApplication",
                   userConfig, false, false,null), "dummyPartitionId", "dummyContext"));
       logger.debug("Actual Execution returned :" + actual);
       assertEquals(expectedRoute, actual);
@@ -91,7 +90,7 @@ public class CamelConsumerApplicationRouteBuilderTest
    {
       String userConfig = "<from uri=\"jms:input.queue\"/><to uri=\"ipp:direct\"/>";
       String expectedRoute = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Consumer669216206\" autoStartup=\"true\"><description>This route is related to dummyApplication defined in dummyModel. The partition is :null</description><from uri=\"jms:input.queue\"/><to uri=\"ipp:activity:find?expectedResultSize=1&amp;dataFiltersMap=$simple{header.ippDataFilterMap}\" /><to uri=\"ipp:activity:complete\" /></route></routes>";
-      String actual = RouteDefinitionBuilder.createConsumerXmlConfiguration(new ConsumerRouteContext(
+      String actual = RouteDefinitionBuilder.createConsumerXmlConfiguration(new ConsumerApplicationRouteContext(
             createConsumerApplication("dummyApplication", userConfig, false, false,null), null, "dummyContext"));
       logger.debug("Actual Execution returned :" + actual);
       assertEquals(expectedRoute, actual);
@@ -101,7 +100,7 @@ public class CamelConsumerApplicationRouteBuilderTest
    public void testConsumerAppTransactedEASettoTrue(){
       String userConfig = "<from uri=\"jms:input.queue\"/><to uri=\"ipp:authenticate:setCurrent?username=motu&amp;password=motu\"/><to uri=\"ipp:activity:find?expectedResultSize=1&amp;dataFiltersMap=$simple{header.ippDataFilterMap}\" /><to uri=\"ipp:activity:complete\" />";
       String expectedRoute="<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Consumer669216206\" autoStartup=\"true\"><description>This route is related to dummyApplication defined in dummyModel. The partition is :null</description><from uri=\"jms:input.queue\"/><setHeader headerName=\"ippOrigin\"><constant>applicationConsumer</constant></setHeader><setHeader headerName=\"ippModelId\"><constant>dummyModel</constant></setHeader><setHeader headerName=\"ippRouteId\"><constant>Consumer669216206</constant></setHeader><transacted ref=\"required\" /><to uri=\"ipp:authenticate:setCurrent?username=motu&amp;amp;password=motu\"/><to uri=\"ipp:activity:find?expectedResultSize=1&amp;amp;dataFiltersMap=$simple{header.ippDataFilterMap}\" /><to uri=\"ipp:activity:complete\" /></route></routes>";
-      String actual = RouteDefinitionBuilder.createConsumerXmlConfiguration(new ConsumerRouteContext(
+      String actual = RouteDefinitionBuilder.createConsumerXmlConfiguration(new ConsumerApplicationRouteContext(
             createConsumerApplication("dummyApplication", userConfig, false, false,true), null, "dummyContext"));
       logger.debug("Actual Execution returned :" + actual);
       assertEquals(expectedRoute,actual);
@@ -110,7 +109,7 @@ public class CamelConsumerApplicationRouteBuilderTest
    public void testConsumerAppTransactedEASettoFalse(){
       String userConfig = "<from uri=\"jms:input.queue\"/><to uri=\"ipp:authenticate:setCurrent?username=motu&amp;password=motu\"/><to uri=\"ipp:activity:find?expectedResultSize=1&amp;dataFiltersMap=$simple{header.ippDataFilterMap}\" /><to uri=\"ipp:activity:complete\" />";
       String expectedRoute="<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Consumer669216206\" autoStartup=\"true\"><description>This route is related to dummyApplication defined in dummyModel. The partition is :null</description><from uri=\"jms:input.queue\"/><setHeader headerName=\"ippOrigin\"><constant>applicationConsumer</constant></setHeader><setHeader headerName=\"ippModelId\"><constant>dummyModel</constant></setHeader><setHeader headerName=\"ippRouteId\"><constant>Consumer669216206</constant></setHeader><to uri=\"ipp:authenticate:setCurrent?username=motu&amp;amp;password=motu\"/><to uri=\"ipp:activity:find?expectedResultSize=1&amp;amp;dataFiltersMap=$simple{header.ippDataFilterMap}\" /><to uri=\"ipp:activity:complete\" /></route></routes>";
-      String actual = RouteDefinitionBuilder.createConsumerXmlConfiguration(new ConsumerRouteContext(
+      String actual = RouteDefinitionBuilder.createConsumerXmlConfiguration(new ConsumerApplicationRouteContext(
             createConsumerApplication("dummyApplication", userConfig, false, false,false), null, "dummyContext"));
       logger.debug("Actual Execution returned :" + actual);
       assertEquals(expectedRoute,actual);

@@ -12,12 +12,17 @@ package org.eclipse.stardust.engine.extensions.jms.app;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.jms.Message;
 
 import org.eclipse.stardust.common.StringKey;
+import org.eclipse.stardust.common.annotations.SPI;
+import org.eclipse.stardust.common.annotations.Status;
+import org.eclipse.stardust.common.annotations.UseRestriction;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
+import org.eclipse.stardust.engine.extensions.jms.app.ResponseHandlerImpl.Match;
 
 
 /**
@@ -29,6 +34,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
  * @author rsauer, ubirkemeyer
  * @version $Revision$
  */
+@SPI(status = Status.Beta, useRestriction = UseRestriction.Public)
 public interface MessageAcceptor
 {
    /**
@@ -41,6 +47,10 @@ public interface MessageAcceptor
     * @return
     */
    Iterator<IActivityInstance> getMatchingActivityInstances(Message message);
+
+   List<Match> getTriggerMatches(Message message);
+
+   List<Match> getMessageStoreMatches(Message message);
 
    /**
     * Extracts the data
@@ -57,5 +67,7 @@ public interface MessageAcceptor
    Collection getAccessPoints(StringKey id);
 
    Collection getMessageTypes();
+
+   Match finalizeMatch(IActivityInstance activityInstance);
 
 }

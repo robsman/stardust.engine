@@ -460,6 +460,35 @@ public class DetailsFactory
       return list;
    }
 
+   public static <I, T> List<I> createList(Iterator<? extends T> source)
+   {
+      List<I> list = new ArrayList<I>();
+      try
+      {
+         while (source.hasNext())
+         {
+            list.add((I) create(source.next()));
+         }
+      }
+      finally
+      {
+         if (source instanceof ClosableIterator)
+         {
+            ((ClosableIterator) source).close();
+         }
+      }
+      return list;
+   }
+
+   private static <I, T> I create(T source)
+   {
+      if (source instanceof IProcessInstanceLinkType)
+      {
+         return (I) create((IProcessInstanceLinkType) source);
+      }
+      throw new InternalException("Unsupported conversion from " + source.getClass());
+   }
+
    public static <I, T extends I> List<I> createCollection(Iterator<?> source, Class<?> baseType, Class<T> detailsType)
    {
       List<I> list = new ArrayList<I>();

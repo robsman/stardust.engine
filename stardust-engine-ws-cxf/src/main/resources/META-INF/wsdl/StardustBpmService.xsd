@@ -22,6 +22,7 @@
                nillable="true" />
             <element name="attachments" type="bat:InputDocuments"
                minOccurs="0" nillable="true" />
+            <element name="benchmarkId" type="xsd:string" minOccurs="0" nillable="true" />
          </sequence>
       </complexType>
    </element>
@@ -1658,6 +1659,22 @@
       </complexType>
    </element>
 
+   <element name="findRuntimeArtifacts">
+      <complexType>
+         <sequence>
+            <element name="deployedRuntimeArtifactQuery" type="baqt:DeployedRuntimeArtifactQuery" nillable="true" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="findRuntimeArtifactsResponse">
+      <complexType>
+         <sequence>
+            <element name="queryResult" type="bat:DeployedRuntimeArtifactQueryResult" nillable="true"/>
+         </sequence>
+      </complexType>
+   </element>
+
    <element name="getAllBusinessObjects">
    	   <complexType>
    	   	<sequence>
@@ -1976,7 +1993,8 @@
          <sequence>
             <element name="user" type="bat:UserInfo" nillable="true"/>
             <element name="deputyUser" type="bat:UserInfo" nillable="true"/>
-            <element name="options" type="bat:DeputyOptions" nillable="true"/>			</sequence>
+            <element name="options" type="bat:DeputyOptions" nillable="true"/>
+         </sequence>
       </complexType>
    </element>
 
@@ -2573,6 +2591,75 @@
       </complexType>
    </element>
 
+   <element name="deployRuntimeArtifact">
+      <complexType>
+         <sequence>
+            <element name="runtimeArtifact" type="bat:RuntimeArtifact" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="deployRuntimeArtifactResponse">
+      <complexType>
+         <sequence>
+            <element name="deployedRuntimeArtifact" type="bat:DeployedRuntimeArtifact" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="overwriteRuntimeArtifact">
+      <complexType>
+         <sequence>
+            <element name="oid" type="xsd:long" />
+            <element name="runtimeArtifact" type="bat:RuntimeArtifact" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="overwriteRuntimeArtifactResponse">
+      <complexType>
+         <sequence>
+            <element name="deployedRuntimeArtifact" type="bat:DeployedRuntimeArtifact" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="deleteRuntimeArtifact">
+      <complexType>
+         <sequence>
+            <element name="oid" type="xsd:long" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="deleteRuntimeArtifactResponse">
+      <complexType>
+         <sequence>
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="getSupportedRuntimeArtifactTypes">
+      <complexType>
+         <sequence>
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="getSupportedRuntimeArtifactTypesResponse">
+      <complexType>
+         <sequence>
+            <element name="artifactTypes" nillable="true">
+               <complexType>
+                  <sequence>
+                     <element name="artifactType" type="bat:ArtifactType" minOccurs="0"
+                        maxOccurs="unbounded" />
+                  </sequence>
+               </complexType>
+            </element>
+         </sequence>
+      </complexType>
+   </element>
 
    <!-- GLOBAL -->
    <element name="getSessionUser">
@@ -2601,6 +2688,22 @@
       <complexType>
          <sequence>
             <element name="permissions" type="bat:Permissions" nillable="true" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="getRuntimeArtifact">
+      <complexType>
+         <sequence>
+            <element name="oid" type="xsd:long"/>
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="getRuntimeArtifactResponse">
+      <complexType>
+         <sequence>
+            <element name="runtimeArtifact" type="bat:RuntimeArtifact" nillable="true" />
          </sequence>
       </complexType>
    </element>

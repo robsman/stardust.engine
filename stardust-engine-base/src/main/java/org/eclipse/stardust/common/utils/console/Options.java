@@ -119,31 +119,40 @@ public class Options
 
       if (rawValue instanceof String)
       {
-         DateFormat[] formats = new DateFormat[] {
-               DateUtils.getNoninteractiveDateFormat(), ISO_DATETIME_T_MILLISECONDS,
-               ISO_DATETIME_MILLISECONDS, ISO_DATETIME_T_SECONDS, ISO_DATETIME_SECONDS,
-               ISO_DATETIME_T_MINUTES, ISO_DATETIME_MINUTES, ISO_DATE};
-         for (int i = 0; i < formats.length; i++ )
-         {
-            try
-            {
-               if (DateUtils.isValidISODateFormat((String) rawValue)
-                     || DateUtils.isValidNonInteractiveFormat((String) rawValue))
-               {
-                  rawValue = formats[i].parse((String) rawValue);
-               }
-               break;
-            }
-            catch (ParseException e)
-            {
-               // ignore;
-            }
-         }
+         result = getDateValue((String)rawValue);
       }
 
       if (rawValue instanceof Date)
       {
          result = (Date) rawValue;
+      }
+
+      return result;
+   }
+   
+   public static Date getDateValue(String rawValue)
+   {
+      Date result = null;
+
+      DateFormat[] formats = new DateFormat[] {
+            DateUtils.getNoninteractiveDateFormat(), ISO_DATETIME_T_MILLISECONDS,
+            ISO_DATETIME_MILLISECONDS, ISO_DATETIME_T_SECONDS, ISO_DATETIME_SECONDS,
+            ISO_DATETIME_T_MINUTES, ISO_DATETIME_MINUTES, ISO_DATE};
+      for (int i = 0; i < formats.length; i++)
+      {
+         try
+         {
+            if (DateUtils.isValidISODateFormat((String) rawValue)
+                  || DateUtils.isValidNonInteractiveFormat((String) rawValue))
+            {
+               result = formats[i].parse(rawValue);
+            }
+            break;
+         }
+         catch (ParseException e)
+         {
+            // ignore;
+         }
       }
 
       return result;

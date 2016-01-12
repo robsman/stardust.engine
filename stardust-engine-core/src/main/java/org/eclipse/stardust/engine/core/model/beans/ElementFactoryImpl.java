@@ -696,17 +696,21 @@ public class ElementFactoryImpl implements ElementFactory
       String dataID = reader.getRawAttribute(DATA_REF_ATT);
       String directionName = reader.getRawAttribute(DIRECTION_ATT);
       String dataPath = reader.getAttribute(DATA_PATH_ATT);
+            
       String applicationPath = reader.getAttribute(APPLICATION_PATH_ATT);
       String applicationAccessPointId = reader.getAttribute(APPLICATION_ACCESS_POINT_ATT);
       String context = reader.getAttribute(CONTEXT_ATT);
-
-      IData data = ((IModel) activity.getModel()).findData(dataID);
-
-      if (data == null)
+      
+      IData data = null;
+      if(!StringUtils.isEmpty(dataID))
       {
-         warn(ConversionWarning.MEDIUM,
-               "Data '" + dataID + "' for data mapping not found.", null, activity);
-         return null;
+         data = ((IModel) activity.getModel()).findData(dataID);
+         if (data == null)
+         {
+            warn(ConversionWarning.MEDIUM,
+                  "Data '" + dataID + "' for data mapping not found.", null, activity);
+            return null;
+         }         
       }
 
       //avoid duplicate mappings (at least check)

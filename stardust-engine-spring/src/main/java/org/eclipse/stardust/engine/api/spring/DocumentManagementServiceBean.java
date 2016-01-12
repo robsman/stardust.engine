@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 72466 
+ * Generated from Revision
  */
 package org.eclipse.stardust.engine.api.spring;
 
@@ -15,7 +15,7 @@ package org.eclipse.stardust.engine.api.spring;
  * </ul>
  *
  * @author rsauer
- * @version 72466
+ * @version $Revision
  */
 public class DocumentManagementServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IDocumentManagementService
 {

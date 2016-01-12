@@ -295,11 +295,12 @@ public interface WorkflowService extends Service
     *
     * @since 3.1.2
     */
-   /*@ExecutionPermission(
-         id=ExecutionPermission.Id.readDataValues,
-         scope=ExecutionPermission.Scope.data,
-         defer=true,
-         defaults={ExecutionPermission.Default.ALL})*/
+   // This method also checks data.readDataValues permission for the accessed data
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.performActivity,
+         scope=ExecutionPermission.Scope.activity,
+         defaults={ExecutionPermission.Default.OWNER},
+         changeable=false)
    Serializable getInDataValue(long activityInstanceOID, String context, String id)
          throws ObjectNotFoundException;
 
@@ -325,11 +326,12 @@ public interface WorkflowService extends Service
     *
     * @since 3.1.2
     */
-   /*@ExecutionPermission(
-         id=ExecutionPermission.Id.readDataValues,
-         scope=ExecutionPermission.Scope.data,
-         defer=true,
-         defaults={ExecutionPermission.Default.ALL})*/
+   // This method also checks data.readDataValues permission for each accessed data
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.performActivity,
+         scope=ExecutionPermission.Scope.activity,
+         defaults={ExecutionPermission.Default.OWNER},
+         changeable=false)
    Map<String, Serializable> getInDataValues(long activityInstanceOID, String context, Set<String> ids)
          throws ObjectNotFoundException;
 
@@ -696,9 +698,17 @@ public interface WorkflowService extends Service
     * @throws ObjectNotFoundException if there is no process with the specified ID in the
     *         active model or an invalid data id was specified.
     */
-   // TODO discuss...
+   @ExecutionPermission(id=ExecutionPermission.Id.startProcesses,
+         scope=ExecutionPermission.Scope.processDefinition,
+         defaults={ExecutionPermission.Default.ALL})
    ProcessInstance startProcess(String id, Map<String, ?> data, boolean synchronously)
          throws ObjectNotFoundException;
+
+
+   @ExecutionPermission(id=ExecutionPermission.Id.startProcesses,
+         scope=ExecutionPermission.Scope.processDefinition,
+         defaults={ExecutionPermission.Default.ALL})
+   ProcessInstance startProcess(String id, StartOptions options);
 
    /**
     * Spawns a process as subprocess of the specified process instance. The spawned
@@ -730,7 +740,6 @@ public interface WorkflowService extends Service
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.spawnSubProcessInstance,
-         scope=ExecutionPermission.Scope.model,
          defaults={ExecutionPermission.Default.ALL})
    ProcessInstance spawnSubprocessInstance(long parentProcessInstanceOid,
          String spawnProcessID, boolean copyData, Map<String, ? > data)
@@ -760,7 +769,6 @@ public interface WorkflowService extends Service
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.spawnSubProcessInstance,
-         scope=ExecutionPermission.Scope.model,
          defaults={ExecutionPermission.Default.ALL})
    List<ProcessInstance> spawnSubprocessInstances(long parentProcessInstanceOid,
          List<SubprocessSpawnInfo> subprocessSpawnInfo) throws IllegalOperationException,
@@ -807,7 +815,6 @@ public interface WorkflowService extends Service
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.spawnPeerProcessInstance,
-         scope=ExecutionPermission.Scope.model,
          defaults={ExecutionPermission.Default.ALL})
    public ProcessInstance spawnPeerProcessInstance(long processInstanceOid,
          String spawnProcessID, boolean copyData, Map<String, ? extends Serializable> data,
@@ -846,7 +853,6 @@ public interface WorkflowService extends Service
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.spawnPeerProcessInstance,
-         scope=ExecutionPermission.Scope.model,
          defaults={ExecutionPermission.Default.ALL})
    public ProcessInstance spawnPeerProcessInstance(long processInstanceOid,
          String spawnProcessID, SpawnOptions options) throws IllegalOperationException,
@@ -878,7 +884,6 @@ public interface WorkflowService extends Service
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.createCase,
-         scope=ExecutionPermission.Scope.model,
          defaults={ExecutionPermission.Default.ALL})
    ProcessInstance createCase(String name, String description, long[] memberOids)
          throws ObjectNotFoundException, IllegalOperationException, InvalidArgumentException, ConcurrencyException;
@@ -1024,13 +1029,8 @@ public interface WorkflowService extends Service
     *            if the join target is a subprocess of the source process instance.<br>
     *            if the source or target is a case process instance.
     */
-//   @ExecutionPermission(
-//         id=ExecutionPermission.Id.abortProcessInstances,
-//         scope=ExecutionPermission.Scope.processDefinition,
-//         defer=true)
    @ExecutionPermission(
          id=ExecutionPermission.Id.joinProcessInstance,
-         scope=ExecutionPermission.Scope.model,
          defaults={ExecutionPermission.Default.ALL})
    public ProcessInstance joinProcessInstance(long processInstanceOid,
          long targetProcessInstanceOid, String comment) throws ObjectNotFoundException, IllegalOperationException;
@@ -1282,11 +1282,11 @@ public interface WorkflowService extends Service
     *
     * @see #setOutDataPaths(long, Map)
     */
-   /*@ExecutionPermission(
-         id=ExecutionPermission.Id.modifyDataValues,
-         scope=ExecutionPermission.Scope.data,
-         defer=true,
-         defaults={ExecutionPermission.Default.ALL})*/
+   // This method also checks data.modifyDataValues permission for the accessed data
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.readProcessInstanceData,
+         scope=ExecutionPermission.Scope.processDefinition,
+         defaults={ExecutionPermission.Default.ALL})
    void setOutDataPath(long processInstanceOID, String id, Object object)
          throws ObjectNotFoundException, InvalidValueException;
 
@@ -1307,11 +1307,11 @@ public interface WorkflowService extends Service
     *
     * @see #setOutDataPath(long, String, Object)
     */
-   /*@ExecutionPermission(
-         id=ExecutionPermission.Id.modifyDataValues,
-         scope=ExecutionPermission.Scope.data,
-         defer=true,
-         defaults={ExecutionPermission.Default.ALL})*/
+   // This method also checks data.modifyDataValues permission for each accessed data
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.readProcessInstanceData,
+         scope=ExecutionPermission.Scope.processDefinition,
+         defaults={ExecutionPermission.Default.ALL})
    void setOutDataPaths(long processInstanceOID, Map<String, ?> values)
          throws ObjectNotFoundException, InvalidValueException;
 
@@ -1330,11 +1330,11 @@ public interface WorkflowService extends Service
     *
     * @see #getInDataPaths(long, Set)
     */
-   /*@ExecutionPermission(
-         id=ExecutionPermission.Id.readDataValues,
-         scope=ExecutionPermission.Scope.data,
-         defer=true,
-         defaults={ExecutionPermission.Default.ALL})*/
+   // This method also checks data.readDataValues permission for the accessed data
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.readProcessInstanceData,
+         scope=ExecutionPermission.Scope.processDefinition,
+         defaults={ExecutionPermission.Default.ALL})
    Object getInDataPath(long processInstanceOID, String id)
          throws ObjectNotFoundException;
 
@@ -1355,11 +1355,11 @@ public interface WorkflowService extends Service
     *
     * @see #getInDataPath(long, String)
     */
-   /*@ExecutionPermission(
-         id=ExecutionPermission.Id.readDataValues,
-         scope=ExecutionPermission.Scope.data,
-         defer=true,
-         defaults={ExecutionPermission.Default.ALL})*/
+   // This method also checks data.readDataValues permission for each accessed data
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.readProcessInstanceData,
+         scope=ExecutionPermission.Scope.processDefinition,
+         defaults={ExecutionPermission.Default.ALL})
    Map<String, Serializable> getInDataPaths(long processInstanceOID, Set<String> ids)
          throws ObjectNotFoundException;
 
@@ -1493,14 +1493,18 @@ public interface WorkflowService extends Service
          throws ObjectNotFoundException;
 
    /**
-    * TODO
+    * Process instances can declare or implement process interfaces. These process interfaces have
+    * "input" and "output". "input" is represented by IN and INOUT parameters, "output" by OUT and INOUT parameters.
+    *
+    * This method allows to retrieve all "output" values for a specific process instance. This process instance
+    * needs to be a terminated scope process instance which implements a process interface.
     *
     * @param processInstanceOID the OID of the process instance.
     *
-    * @return TODO
+    * @return map containing all "output" parameters defined in process interface of process instance. If the process instance does not implement any process interface the map will be empty.
     *
     * @throws ObjectNotFoundException if there is no process instance with the specified OID.
-    * @throws AccessForbiddenException if the process instance is not completed or
+    * @throws AccessForbiddenException if the process instance is not completed, is no scope process instance or
     *       the user does not have the permission to access this process.
     */
    @ExecutionPermission(
@@ -1667,6 +1671,11 @@ public interface WorkflowService extends Service
     * @return A list of possible transition targets.
     * @throws ObjectNotFoundException if there is no activity instance with the specified oid.
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.readModelData,
+         scope=ExecutionPermission.Scope.activity,
+         defer=true,
+         defaults={ExecutionPermission.Default.ALL})
    List<TransitionTarget> getAdHocTransitionTargets(long activityInstanceOid, TransitionOptions options, ScanDirection direction)
          throws ObjectNotFoundException;
 
@@ -1678,16 +1687,39 @@ public interface WorkflowService extends Service
     * @param complete true if the activity instance specified should be completed, false if the activity should be aborted.
     * @return the activity instance from which the transition was performed.
     * @throws IllegalOperationException if the transition could not be performed because the specified TransitionTarget
-    *         did not originate from the specified activity instance, or the activity instance was already terminated
-    *         or the process instance containing the activity instance has more than one active activity instance.
-    * @throws AccessForbiddenException if the current user is not allowed to perform the ad-hoc transition.
+    *         did not originate from the specified activity instance, or the process instance containing the activity
+    *         instance has more than one active activity instance.
+    * @throws AccessForbiddenException if the current user is not allowed to perform the ad-hoc transition, or the
+    *         activity instance was already terminated.
     * @throws ObjectNotFoundException if there is no activity instance with the specified oid.
+    * @deprecated replaced with {@link #performAdHocTransition(TransitionTarget, boolean)}
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.performActivity,
          scope=ExecutionPermission.Scope.activity,
          defaults={ExecutionPermission.Default.OWNER})
    ActivityInstance performAdHocTransition(long activityInstanceOid, TransitionTarget target, boolean complete)
+         throws IllegalOperationException, ObjectNotFoundException, AccessForbiddenException;
+
+   /**
+    * Performs the transition from the specified activity instance to the specified target.
+    *
+    * @param target the transition target.
+    * @param complete true if the activity instance specified should be completed, false if the activity should be aborted.
+    * @return a pair of activity instances, where the first is the activity instance from which the transition was performed
+    *         and the second is the activity instance that was created for the target activity.
+    * @throws IllegalOperationException if the transition could not be performed because the specified TransitionTarget
+    *         did not originate from the specified activity instance, or the process instance containing the activity
+    *         instance has more than one active activity instance.
+    * @throws AccessForbiddenException if the current user is not allowed to perform the ad-hoc transition, or the
+    *         activity instance was already terminated.
+    * @throws ObjectNotFoundException if there is no activity instance with the specified oid.
+    */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.performActivity,
+         scope=ExecutionPermission.Scope.activity,
+         defaults={ExecutionPermission.Default.OWNER})
+   TransitionReport performAdHocTransition(TransitionTarget target, boolean complete)
          throws IllegalOperationException, ObjectNotFoundException, AccessForbiddenException;
 
    /**
@@ -1705,7 +1737,7 @@ public interface WorkflowService extends Service
     *
     * @return the current user.
     */
-   // no permission check here
+   @ExecutionPermission
    User getUser();
 
    /**
@@ -1713,12 +1745,7 @@ public interface WorkflowService extends Service
     *
     * @return a list of permission ids.
     */
-   /*@ExecutionPermission(
-         id="readModelData",
-         scope=ExecutionPermission.Scope.model,
-         changeable=false,
-         defaults={ExecutionPermission.Default.ALL})*/
-   // no permission check here
+   @ExecutionPermission
    List<Permission> getPermissions();
 
    /**
@@ -1739,8 +1766,7 @@ public interface WorkflowService extends Service
     * @throws PublicException if the process instance is no scope process instance.
     * @throws InvalidArgumentException if attributes is null.
     */
-   @ExecutionPermission(
-         id=ExecutionPermission.Id.readProcessInstanceData,
+   @ExecutionPermission(id=ExecutionPermission.Id.modifyAttributes,
          scope=ExecutionPermission.Scope.processDefinition,
          defaults={ExecutionPermission.Default.ALL})
    void setProcessInstanceAttributes(ProcessInstanceAttributes attributes)
@@ -1759,6 +1785,9 @@ public interface WorkflowService extends Service
     * supplies error codes {@link IActivity#getQualityAssuranceCodes()} and no error code was supplied
     *
     */
+   @ExecutionPermission(id=ExecutionPermission.Id.modifyAttributes,
+         scope=ExecutionPermission.Scope.activity,
+         defaults={ExecutionPermission.Default.ALL})
    void setActivityInstanceAttributes(ActivityInstanceAttributes attributes)
          throws ObjectNotFoundException, InvalidArgumentException;
 
@@ -1772,7 +1801,7 @@ public interface WorkflowService extends Service
     *
     * @exception ObjectNotFoundException if there is no runtime object with the specified OID
     */
-   // TODO discuss...
+   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrailStatistics)
    void writeLogEntry(LogType logType, ContextKind contextType, long contextOid,
          String message, Throwable throwable) throws ObjectNotFoundException;
 
@@ -1789,6 +1818,7 @@ public interface WorkflowService extends Service
     * @return the result of the execution. May be <code>null</code> if the command has no result.
     * @throws ServiceCommandException that encapsulates any exception thrown during the execution of the command.
     */
+   @ExecutionPermission
    Serializable execute(ServiceCommand serviceCmd) throws ServiceCommandException;
 
    /**

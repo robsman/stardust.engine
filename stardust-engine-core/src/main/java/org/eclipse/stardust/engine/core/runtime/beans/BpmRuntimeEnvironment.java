@@ -15,12 +15,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.jms.JMSException;
-import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.QueueConnectionFactory;
-import javax.jms.QueueSender;
-import javax.jms.QueueSession;
+import javax.jms.*;
 import javax.resource.ResourceException;
 import javax.resource.cci.Connection;
 import javax.resource.cci.ConnectionFactory;
@@ -43,6 +38,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.MultipleTryIn
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterRuntimeInfo;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
+import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManager;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstance;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryService;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluatorRegistry;
@@ -65,6 +61,8 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    private Session session;
 
    private IPreferenceStorageManager preferenceStore;
+
+   private ArtifactManager artifactManager;
 
    private ActivityThreadContext activityThreadContext;
 
@@ -90,6 +88,7 @@ public class BpmRuntimeEnvironment extends PropertyLayer
 
    private RtDetailsFactory detailsFactory;
 
+   /** Contains the referenced models. The map key is the model id of the referenced model */
    private Map<String, IModel> modelOverrides;
 
    private IActivityInstance currentActivityInstance;
@@ -105,6 +104,10 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    private ExtendedAccessPathEvaluatorRegistry evaluatorRegistry;
 
    private DataClusterRuntimeInfo dataClusterRuntimeInfo;
+   
+   private OperationMode operationMode = OperationMode.DEFAULT;
+
+   private boolean secureContext;
 
    public BpmRuntimeEnvironment(PropertyLayer predecessor)
    {
@@ -159,6 +162,16 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    public void setAuthorizationPredicate(Authorization2Predicate authorization2Predicate)
    {
       this.authorization2Predicate = authorization2Predicate;
+   }
+
+   public boolean isSecureContext()
+   {
+      return secureContext;
+   }
+
+   public void setSecureContext(boolean secureContext)
+   {
+      this.secureContext = secureContext;
    }
 
    public TimestampProvider getTimestampProvider()
@@ -565,6 +578,16 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       return preferenceStore;
    }
 
+   public ArtifactManager getArtifactManager()
+   {
+      return artifactManager;
+   }
+
+   public void setArtifactManager(ArtifactManager artifactManager)
+   {
+      this.artifactManager = artifactManager;
+   }
+
    public void setPreferenceStore(IPreferenceStorageManager preferenceStore)
    {
       this.preferenceStore = preferenceStore;
@@ -631,4 +654,35 @@ public class BpmRuntimeEnvironment extends PropertyLayer
 
       return triesLeft.intValue() <= 0;
    }
+
+   public void setOperationMode(OperationMode operationMode)
+   {
+      if (operationMode == null)
+      {
+         throw new IllegalArgumentException("Provide a valid operation mode");
+      }
+      this.operationMode = operationMode;
+      
+   }
+   public OperationMode getOperationMode()
+   {
+      return operationMode;
+   }
+   
+   /**
+    * @author jsaayman
+    */
+   public static enum OperationMode
+   {
+      /**
+       * OperationMode to use during normal operations of system
+       */
+      DEFAULT,
+      /**
+       * OperationMode to use when processes are busy importing
+       */
+      PROCESS_IMPORT;
+   }
+
+
 }

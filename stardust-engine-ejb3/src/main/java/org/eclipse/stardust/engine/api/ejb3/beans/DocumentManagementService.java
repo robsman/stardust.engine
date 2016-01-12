@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 72466 
+ * Generated from Revision
  */
 package org.eclipse.stardust.engine.api.ejb3.beans;
 
@@ -17,7 +17,7 @@ import javax.ejb.Local;
  * </ul>
  *
  * @author rsauer
- * @version 72466
+ * @version $Revision
  */
 @Local
 public interface DocumentManagementService extends org.eclipse.stardust.engine.core.runtime.ejb.Ejb3ManagedService
@@ -28,8 +28,8 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.c
     */
     public org.eclipse.stardust.engine.api.runtime.Document
          getDocument(
-         java.lang.String documentId, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String documentId,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -37,8 +37,8 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.c
     */
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Document>
          getDocumentVersions(
-         java.lang.String documentId, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String documentId,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -46,8 +46,8 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.c
     */
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Document>
          getDocuments(
-         java.util.List documentIds, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.util.List<java.lang.String> documentIds,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -64,8 +64,8 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.c
     */
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Document>
          findDocuments(
-         java.lang.String xpathQuery, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String xpathQuery,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -81,16 +81,16 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.c
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#retrieveDocumentContent(java.lang.String documentId)
     */
     public byte[] retrieveDocumentContent(
-         java.lang.String documentId, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String documentId,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#requestDocumentContentDownload(java.lang.String documentId)
     */
     public java.lang.String requestDocumentContentDownload(
-         java.lang.String documentId, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String documentId,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -98,8 +98,8 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.c
     */
     public org.eclipse.stardust.engine.api.runtime.Folder
          getFolder(
-         java.lang.String folderId, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String folderId,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -116,7 +116,7 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.c
     */
     public java.util.List<org.eclipse.stardust.engine.api.runtime.Folder>
          getFolders(
-         java.util.List folderIds, int levelOfDetail,
+         java.util.List<java.lang.String> folderIds, int levelOfDetail,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
@@ -144,7 +144,8 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.c
     public org.eclipse.stardust.engine.api.runtime.Document
          createDocument(
          java.lang.String folderId, org.eclipse.stardust.engine.api.runtime.DocumentInfo
-         document, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         document, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -240,16 +241,16 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.c
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#requestDocumentContentUpload(java.lang.String documentId)
     */
     public java.lang.String requestDocumentContentUpload(
-         java.lang.String documentId, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String documentId,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#removeDocument(java.lang.String documentId)
     */
     public void removeDocument(
-         java.lang.String documentId, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String documentId,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -284,8 +285,8 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.c
     */
     public java.util.Set<org.eclipse.stardust.engine.api.runtime.Privilege>
          getPrivileges(
-         java.lang.String resourceId, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String resourceId,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -294,8 +295,8 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.c
     public
          java.util.Set<org.eclipse.stardust.engine.api.runtime.AccessControlPolicy>
          getEffectivePolicies(
-         java.lang.String resourceId, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String resourceId,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -304,8 +305,8 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.c
     public
          java.util.Set<org.eclipse.stardust.engine.api.runtime.AccessControlPolicy>
          getPolicies(
-         java.lang.String resourceId, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String resourceId,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -314,8 +315,8 @@ public interface DocumentManagementService extends org.eclipse.stardust.engine.c
     public
          java.util.Set<org.eclipse.stardust.engine.api.runtime.AccessControlPolicy>
          getApplicablePolicies(
-         java.lang.String resourceId, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String resourceId,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**

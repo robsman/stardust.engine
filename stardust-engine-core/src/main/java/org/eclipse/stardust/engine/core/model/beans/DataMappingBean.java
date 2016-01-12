@@ -15,24 +15,22 @@ import java.util.List;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IApplication;
-import org.eclipse.stardust.engine.api.model.IApplicationContext;
-import org.eclipse.stardust.engine.api.model.IApplicationContextType;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IDataMapping;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.ImplementationType;
-import org.eclipse.stardust.engine.api.model.Inconsistency;
-import org.eclipse.stardust.engine.api.model.SubProcessModeKey;
+import org.eclipse.stardust.common.reflect.Reflect;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.model.utils.ConnectionBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
+import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPointProvider;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
+import org.eclipse.stardust.engine.core.struct.IXPathMap;
+import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
+import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
+import org.eclipse.stardust.engine.core.struct.TypedXPath;
+import org.eclipse.stardust.engine.core.struct.spi.StructDataTransformerKey;
 
 
 /**
@@ -90,7 +88,9 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
       }
 
       // Rule: associated data must be part of the same model
-      if (getData() == null)
+      // if only dataPath is set and no data, then this is a CONSTANT
+      String dataPath = getDataPath();
+      if (getData() == null && StringUtils.isEmpty(dataPath))
       {
          BpmValidationError error = BpmValidationError.DATA_NO_DATA_SET_FOR_DATAMAPPING.raise(getErrorName());
          inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
@@ -131,6 +131,30 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                   BpmValidationError error = BpmValidationError.DATA_DATAMAPPING_HAS_NO_UNIQUE_ID_FOR_DIRECTION.raise(
                         getErrorName(), getDirection().toString());
                   inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
+               }
+            }
+         }
+
+         IData data = getData();
+         if (data != null)
+         {
+            String dataTypeId = data.getType().getId();
+            if (PredefinedConstants.STRUCTURED_DATA.equals(dataTypeId))
+            {
+               IXPathMap xPathMap = StructuredTypeRtUtils.getXPathMap(data);
+               if (xPathMap != null)
+               {
+                  if (!StringUtils.isEmpty(dataPath))
+                  {
+                     String xPathWithoutIndexes = StructuredDataXPathUtils.getXPathWithoutIndexes(
+                           StructDataTransformerKey.stripTransformation(dataPath));
+                     TypedXPath xPath = xPathMap.getXPath(xPathWithoutIndexes);
+                     if (xPath == null)
+                     {
+                        BpmValidationError error = BpmValidationError.DATA_INVALID_DATAPATH_FOR_DATAMAPPING.raise(getId());
+                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                     }
+                  }
                }
             }
          }
@@ -187,9 +211,8 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                   ctxMissing = true;
                }
             }
-            if ( !ctxMissing && getData() != null)
+            if (!ctxMissing && data != null)
             {
-               IData data = getData();
                if (!BridgeObject.isValidMapping(context, direction, applicationAccessPointId, accessPoint, applicationPath,
                      data, dataPath, activity))
                {
@@ -208,6 +231,7 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                      applicationAccessPointId, getErrorName());
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
+
             IApplicationContext context = activity.getContext(this.context);
             if (context != null)
             {
@@ -219,8 +243,10 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                   if (!StringUtils.isEmpty(applicationAccessPointId))
                   {
                      // SubProcess activities use application access points to convey
-                     // their access point information in data mappings for mode sync_seperate
-                     if (SubProcessModeKey.SYNC_SEPARATE != activity.getSubProcessMode())
+                     // their access point information in data mappings for mode sync_seperate.
+                     // Applications with dynamic mappings are only available at application runtime.
+                     if (SubProcessModeKey.SYNC_SEPARATE != activity.getSubProcessMode()
+                           && !isDynamicMappedApplication(activity.getApplication()))
                      {
                         BpmValidationError error = BpmValidationError.DATA_APPLICATION_ACCESS_POINT_NOT_RESOLVABLE_FOR_DATAMAPPING.raise(
                               applicationAccessPointId, getErrorName());
@@ -238,12 +264,15 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                }
                else
                {
-                  // ... otherwise at least the data part of the data mapping is validated.
-                  ExtendedDataValidator leftValidator = (ExtendedDataValidator) ValidatorUtils
-                        .getValidator(getData().getType(), this, inconsistencies);
-                  if (null != leftValidator)
+                  if(getData() != null)
                   {
-                     validatePath(inconsistencies, leftValidator);
+                     // ... otherwise at least the data part of the data mapping is validated.
+                     ExtendedDataValidator leftValidator = (ExtendedDataValidator) ValidatorUtils
+                           .getValidator(getData().getType(), this, inconsistencies);
+                     if (null != leftValidator)
+                     {
+                        validatePath(inconsistencies, leftValidator);
+                     }
                   }
                }
             }
@@ -263,6 +292,25 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
             }
          }
       }
+   }
+
+   private boolean isDynamicMappedApplication(IApplication application)
+   {
+      try
+      {
+         String providerClass = application.getProviderClass();
+         if (!StringUtils.isEmpty(providerClass))
+         {
+            AccessPointProvider provider = (AccessPointProvider) Reflect
+                  .getInstance(providerClass);
+            return Boolean.TRUE.equals(Reflect.getFieldValue(provider, "hasDynamicAccessPoints"));
+         }
+      }
+      catch (Exception e)
+      {
+         // Validation for provider is handled at other location.
+      }
+      return false;
    }
 
    private void validatePath(List inconsistencies, ExtendedDataValidator leftValidator)

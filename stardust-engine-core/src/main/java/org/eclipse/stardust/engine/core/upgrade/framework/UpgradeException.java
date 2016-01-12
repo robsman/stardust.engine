@@ -16,8 +16,15 @@ package org.eclipse.stardust.engine.core.upgrade.framework;
  */
 public class UpgradeException extends RuntimeException
 {
+   private static final long serialVersionUID = 2L;
+
    public UpgradeException(String message)
    {
       super(message);
+   }
+
+   public UpgradeException(Exception e)
+   {
+      super(e);
    }
 }

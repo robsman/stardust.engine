@@ -51,6 +51,8 @@ public class ProcessInstanceQuery extends Query
    public static final Attribute STARTING_USER_OID = new Attribute(ProcessInstanceBean.FIELD__STARTING_USER);
    public static final Attribute STARTING_ACTIVITY_INSTANCE_OID = new Attribute(ProcessInstanceBean.FIELD__STARTING_ACTIVITY_INSTANCE);
    public static final Attribute PRIORITY = new Attribute(ProcessInstanceBean.FIELD__PRIORITY);
+   public static final Attribute BENCHMARK_OID = new Attribute(ProcessInstanceBean.FIELD__BENCHMARK_OID);
+   public static final Attribute BENCHMARK_VALUE = new Attribute(ProcessInstanceBean.FIELD__BENCHMARK_VALUE);
 
    /**
     * @deprecated This attribute existed in AuditTrail.

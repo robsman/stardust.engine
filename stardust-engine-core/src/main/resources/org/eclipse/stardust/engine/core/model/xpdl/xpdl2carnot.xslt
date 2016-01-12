@@ -696,7 +696,7 @@
 
          <xsl:for-each select="$Activity">
                <xsl:for-each select="c:QualityCodes/c:QualityCode">
-                  <validQualityCodes><xsl:value-of select="." /></validQualityCodes>
+                  <validQualityCodes><xsl:value-of select="carnot-xpdl-utils:fixQualityAssuranceCode(.)" xmlns:carnot-xpdl-utils="xalan://org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils"/></validQualityCodes>
             </xsl:for-each>
             </xsl:for-each>
 

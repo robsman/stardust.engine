@@ -13,12 +13,14 @@ package org.eclipse.stardust.engine.core.runtime.audittrail.management;
 import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Predicate;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
+import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
 
 public final class RelocationUtils
 {
@@ -35,41 +37,51 @@ public final class RelocationUtils
          return Collections.emptyList();
       }
 
+      if (options == null)
+      {
+         options = TransitionOptions.DEFAULT;
+      }
+
+      final BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
+      Authorization2Predicate predicate = runtimeEnvironment.getAuthorizationPredicate();
+
       Stack<TransitionStep> steps = new Stack();
       List<TransitionTarget> targets = CollectionUtils.newList();
       Set<TransitionTarget> visited = CollectionUtils.newSet();
+
       switch (direction)
       {
       case FORWARD:
-         addActivities(visited, targets, ai, options == null ? TransitionOptions.DEFAULT : options, true, steps);
+         addActivities(visited, targets, ai, options, true, steps, predicate);
          break;
       case BACKWARD:
-         addActivities(visited, targets, ai, options == null ? TransitionOptions.DEFAULT : options, false, steps);
+         addActivities(visited, targets, ai, options, false, steps, predicate);
          break;
       default:
-         addActivities(visited, targets, ai, options == null ? TransitionOptions.DEFAULT : options, true, steps);
-         addActivities(visited, targets, ai, options == null ? TransitionOptions.DEFAULT : options, false, steps);
+         addActivities(visited, targets, ai, options, true, steps, predicate);
+         addActivities(visited, targets, ai, options, false, steps, predicate);
       }
       return targets;
    }
 
-   private static void addActivities(Set<TransitionTarget> visited, List<TransitionTarget> targets, IActivityInstance ai, TransitionOptions options, boolean forward, Stack<TransitionStep> steps)
+   private static void addActivities(Set<TransitionTarget> visited, List<TransitionTarget> targets, IActivityInstance ai,
+         TransitionOptions options, boolean forward, Stack<TransitionStep> steps, Predicate<Object> predicate)
    {
       if (ai != null)
       {
          steps.push(TransitionTargetFactory.createTransitionStep(ai));
          // add activities from current process definition
-         addActivities(visited, targets, ai.getActivity(), options, forward, steps);
+         addActivities(visited, targets, ai.getActivity(), options, forward, steps, predicate);
          // step up into the calling process - starting activity cannot be a relocation target
          if (options.isTransitionOutOfSubprocessesAllowed())
          {
-            addActivities(visited, targets, ai.getProcessInstance().getStartingActivityInstance(), options, forward, steps);
+            addActivities(visited, targets, ai.getProcessInstance().getStartingActivityInstance(), options, forward, steps, predicate);
          }
          steps.pop();
       }
    }
 
-   private static void addActivities(Set<TransitionTarget> visited, List<TransitionTarget> targets, IActivity activity, TransitionOptions options, boolean forward, Stack<TransitionStep> steps)
+   private static void addActivities(Set<TransitionTarget> visited, List<TransitionTarget> targets, IActivity activity, TransitionOptions options, boolean forward, Stack<TransitionStep> steps, Predicate<Object> predicate)
    {
       ModelElementList<ITransition> transitions = forward ? activity.getOutTransitions() : activity.getInTransitions();
       JoinSplitType jsType = forward ? activity.getSplitType() : activity.getJoinType();
@@ -78,7 +90,7 @@ public final class RelocationUtils
          IActivity target = consume(activity, asList(transitions), CollectionUtils.<ITransition>newHashSet(), forward, options.areLoopsAllowed());
          if (target != null)
          {
-            addActivity(visited, targets, target, options, forward, steps);
+            addActivity(visited, targets, target, options, forward, steps, predicate);
          }
       }
       else
@@ -89,7 +101,7 @@ public final class RelocationUtils
             JoinSplitType jsTargetType = forward ? target.getJoinType() : target.getSplitType();
             if (JoinSplitType.And != jsTargetType && JoinSplitType.Or != jsTargetType)
             {
-               addActivity(visited, targets, target, options, forward, steps);
+               addActivity(visited, targets, target, options, forward, steps, predicate);
             }
          }
          if ((JoinSplitType.Or == jsType) && transitions.size() > 1)
@@ -97,7 +109,7 @@ public final class RelocationUtils
             IActivity target = consume(activity, asList(transitions), CollectionUtils.<ITransition>newHashSet(), forward, options.areLoopsAllowed());
             if (target != null)
             {
-               addActivity(visited, targets, target, options, forward, steps);
+               addActivity(visited, targets, target, options, forward, steps, predicate);
             }
          }
       }
@@ -238,7 +250,7 @@ public final class RelocationUtils
    }
 
    private static void addActivity(Set<TransitionTarget> visited, List<TransitionTarget> targets, IActivity target, TransitionOptions options,
-         boolean forward, Stack<TransitionStep> steps)
+         boolean forward, Stack<TransitionStep> steps, Predicate<Object> predicate)
    {
       TransitionTarget candidate = TransitionTargetFactory.createTransitionTarget(target, steps, forward);
       if (!visited.add(candidate))
@@ -246,7 +258,7 @@ public final class RelocationUtils
          // target already visited, stop processing
          return;
       }
-      if (target.getBooleanAttribute(PredefinedConstants.ACTIVITY_IS_RELOCATE_TARGET_ATT))
+      if (target.getBooleanAttribute(PredefinedConstants.ACTIVITY_IS_RELOCATE_TARGET_ATT) && (predicate == null || predicate.accept(target)))
       {
          // found a relocation target, check filters
          String processIdPattern = options.getProcessIdPattern();
@@ -268,26 +280,26 @@ public final class RelocationUtils
          if (process != null)
          {
             steps.push(TransitionTargetFactory.createTransitionStep(target));
-            addActivities(visited, targets, process, options, forward, steps);
+            addActivities(visited, targets, process, options, forward, steps, predicate);
             steps.pop();
          }
       }
 
-      addActivities(visited, targets, target, options, forward, steps);
+      addActivities(visited, targets, target, options, forward, steps, predicate);
    }
 
    private static void addActivities(Set<TransitionTarget> visited, List<TransitionTarget> targets, IProcessDefinition process, TransitionOptions options,
-         boolean forward, Stack<TransitionStep> steps)
+         boolean forward, Stack<TransitionStep> steps, Predicate<Object> predicate)
    {
       if (forward)
       {
-         addActivity(visited, targets, process.getRootActivity(), options, forward, steps);
+         addActivity(visited, targets, process.getRootActivity(), options, forward, steps, predicate);
       }
       else
       {
          for (IActivity activity : getEndActivities(process))
          {
-            addActivity(visited, targets, activity, options, forward, steps);
+            addActivity(visited, targets, activity, options, forward, steps, predicate);
          }
       }
    }
@@ -305,7 +317,7 @@ public final class RelocationUtils
       return activities;
    }
 
-   public static void performTransition(ActivityInstanceBean activityInstance, TransitionTarget transitionTarget,
+   public static IActivityInstance performTransition(IActivityInstance sourceActivityInstance, TransitionTarget transitionTarget,
          boolean complete)
    {
       ExecutionPlan plan = new ExecutionPlan(transitionTarget);
@@ -326,17 +338,18 @@ public final class RelocationUtils
          rtEnv.setExecutionPlan(plan);
          if (complete)
          {
-            ActivityInstanceUtils.complete(activityInstance, null, null, true);
+            ActivityInstanceUtils.complete(sourceActivityInstance, null, null, true);
          }
          else
          {
             long rootOid = plan.getRootActivityInstanceOid();
-            if (rootOid != activityInstance.getOID())
+            if (rootOid != sourceActivityInstance.getOID())
             {
-               activityInstance = ActivityInstanceUtils.lock(rootOid);
+               sourceActivityInstance = ActivityInstanceUtils.lock(rootOid);
             }
-            ActivityInstanceUtils.abortActivityInstance(activityInstance);
+            ActivityInstanceUtils.abortActivityInstance(sourceActivityInstance);
          }
+         return plan.getTargetActivityInstance();
       }
       finally
       {

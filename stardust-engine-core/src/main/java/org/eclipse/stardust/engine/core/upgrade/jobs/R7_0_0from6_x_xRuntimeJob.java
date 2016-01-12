@@ -199,6 +199,12 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
             }, runtimeJob);
          }
+
+         @Override
+         public void printInfo()
+         {
+            // TODO Auto-generated method stub
+         }
       });
 
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
@@ -219,6 +225,12 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
                }
 
             }, runtimeJob);
+         }
+
+         @Override
+         public void printInfo()
+         {
+            // TODO Auto-generated method stub
          }
       });
 
@@ -271,6 +283,12 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
             }, runtimeJob);
          }
+
+         @Override
+         public void printInfo()
+         {
+            // TODO Auto-generated method stub
+         }
       });
 
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
@@ -317,6 +335,12 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
             }, runtimeJob);
          }
+
+         @Override
+         public void printInfo()
+         {
+            // TODO Auto-generated method stub
+         }
       });
 
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
@@ -352,6 +376,12 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
                   }
                }, runtimeJob);
             }
+         }
+
+         @Override
+         public void printInfo()
+         {
+            // TODO Auto-generated method stub
          }
       });
    }
@@ -390,6 +420,12 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
                      + ACTIVITY_INSTANCE_TABLE_NAME + ".");
             }
          }
+
+         @Override
+         public void printInfo()
+         {
+            // TODO Auto-generated method stub
+         }
       });
 
       // Add default values for new WI columns
@@ -414,6 +450,12 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
                reportExeption(e, "Could not update new column " + WORK_ITEM_TABLE_NAME
                      + "." + WORK_ITEM_FIELD_CRITICALITY + " to -1.");
             }
+         }
+
+         @Override
+         public void printInfo()
+         {
+            // TODO Auto-generated method stub
          }
       });
 
@@ -445,6 +487,12 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
                reportExeption(e, "could not update data cluster setup");
             }
          }
+
+         @Override
+         public void printInfo()
+         {
+            // TODO Auto-generated method stub
+         }
       });
 
       upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
@@ -462,6 +510,12 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
                      "Failed init activity instance properties (nested exception).");
             }
          }
+
+         @Override
+         public void printInfo()
+         {
+            // TODO Auto-generated method stub
+         }
       });
 
       upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
@@ -477,6 +531,12 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             {
                reportExeption(e, "Failed upgrade data types (nested exception).");
             }
+         }
+
+         @Override
+         public void printInfo()
+         {
+            // TODO Auto-generated method stub
          }
       });
 
@@ -495,6 +555,12 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
                      "Failed migrating runtime item tables (nested exception).");
             }
          }
+
+         @Override
+         public void printInfo()
+         {
+            // TODO Auto-generated method stub
+         }
       });
 
       upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
@@ -511,6 +577,12 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
                reportExeption(sqle,
                      "Failed migrating partition lock table (nested exception).");
             }
+         }
+
+         @Override
+         public void printInfo()
+         {
+            // TODO Auto-generated method stub
          }
       });
    }

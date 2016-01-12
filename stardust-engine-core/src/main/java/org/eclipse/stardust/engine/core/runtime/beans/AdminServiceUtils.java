@@ -347,6 +347,12 @@ public class AdminServiceUtils
       session.delete(LogEntryBean.class, Predicates.isEqual(LogEntryBean.FR__PARTITION,
             partitionOid), false);
 
+      // SignalMessage (incl. lookup table)
+      session.delete(SignalMessageBean.class, Predicates.isEqual(SignalMessageBean.FR__PARTITION_OID,
+            partitionOid), false);
+      session.delete(SignalMessageLookupBean.class, Predicates.isEqual(SignalMessageLookupBean.FR__PARTITION_OID,
+            partitionOid), false);
+
       // PropertyPersistor
       // save the properties of interest
       // TODO (kafka): Do property deletion and preservation by partition
@@ -392,6 +398,7 @@ public class AdminServiceUtils
       session.delete(PropertyPersistor.class, Predicates.andTerm( //
             Predicates.notInList(PropertyPersistor.FR__OID, propOids), //
             partitionPredicate), false);
+            
    }
 
    private static void getAllParentDepartmentOids(IDepartment department,
@@ -488,5 +495,13 @@ public class AdminServiceUtils
 
       session.delete(PreferencesBean.class, null, prfJoinPartition//
             , false);
+   }
+
+   public static void deletePartitionRuntimeArtifacts(short partitionOid, Session session)
+   {
+      // PreferencesBean Partition Preferences
+      PredicateTerm partitionArtifacts = Predicates.isEqual(RuntimeArtifactBean.FR__PARTITION, partitionOid);
+
+      session.delete(RuntimeArtifactBean.class, partitionArtifacts, false);
    }
 }

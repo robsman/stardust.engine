@@ -3,17 +3,20 @@
  * (C) 2000 - 2013 CARNOT AG
  */
 package org.eclipse.stardust.engine.extensions.camel.converter;
-
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SCRIPTING_LANGUAGE_EA_KEY;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.PYTHON;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.camel.Exchange;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.DataMapping;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.core.struct.ClientXPathMap;
+import org.eclipse.stardust.engine.core.struct.IXPathMap;
+import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.extensions.camel.trigger.AccessPointProperties;
 import org.mozilla.javascript.IdScriptableObject;
 
@@ -27,7 +30,6 @@ import com.google.gson.JsonSerializer;
 public class JsonTypeConverter
 {
    public static String ISO_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
-
    public static String LONG_DATA_FORMAT = "LONG";
 
    static class ApplicationTypeConverter extends AbstractIApplicationTypeConverter
@@ -95,7 +97,6 @@ public class JsonTypeConverter
             if (dataMap != null)
             {
                GsonBuilder gsonBuilder = new GsonBuilder();
-
                if (LONG_DATA_FORMAT.equals(this.dateFormat))
                {
                   gsonBuilder.registerTypeAdapter(Date.class, new JsonSerializer<Date>()
@@ -114,19 +115,44 @@ public class JsonTypeConverter
                {
                   gsonBuilder.setDateFormat(this.dateFormat).create();
                }
+               
+               if(extendedAttributes.get(SCRIPTING_LANGUAGE_EA_KEY)!=null && StringUtils.isNotEmpty((String)extendedAttributes.get(SCRIPTING_LANGUAGE_EA_KEY)) && 
+            		   ((String)extendedAttributes.get(SCRIPTING_LANGUAGE_EA_KEY)).equals(PYTHON)
+            		   ){
+            	   gsonBuilder.registerTypeAdapter(Boolean.class, new JsonSerializer<Boolean>()
+                           {
 
-               Gson gson = gsonBuilder.create();
+                              @Override
+                              public JsonElement serialize(Boolean val, Type type,
+                                    JsonSerializationContext context)
+                              {
+                                  return val ? new JsonPrimitive("True") : new JsonPrimitive("False");
+                              }
+                           });
+               }
+               Gson gson=gsonBuilder.create();
+               
                String json = null;
-
-               if (dataMap instanceof IdScriptableObject )
+               long modelOid = new Long(dataMapping.getModelOID());
+               SDTConverter converter = new SDTConverter(dataMapping, modelOid);
+               Set<TypedXPath> allXPaths=converter.getxPathMap().getAllXPaths();
+               IXPathMap xPathMap = new ClientXPathMap(allXPaths);
+               TypedXPath rootXPath=    xPathMap.getRootXPath();
+               if (dataMap instanceof IdScriptableObject)
                {
-                  json = gson.toJson(ScriptValueConverter.unwrapValue(dataMap));
+//                  long modelOid = new Long(dataMapping.getModelOID());
+//                  SDTConverter converter = new SDTConverter(dataMapping, modelOid);
+//                  Set<TypedXPath> allXPaths=converter.getxPathMap().getAllXPaths();
+//                  IXPathMap xPathMap = new ClientXPathMap(allXPaths);
+//                  TypedXPath rootXPath=    xPathMap.getRootXPath();
+                  json = gson.toJson(ScriptValueConverter.unwrapValue(dataMap,rootXPath));
+               }else if(!rootXPath.getEnumerationValues().isEmpty()){
+                  json=(String) dataMap;
                }
                else
                {
-                  json = gson.toJson(dataMap);
+            	   json = gson.toJson(dataMap);
                }
-
                replaceDataValue(dataMapping, json, extendedAttributes);
             }
          }
@@ -169,5 +195,4 @@ public class JsonTypeConverter
          }
       }
    }
-
 }

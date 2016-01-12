@@ -14,13 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.stardust.common.error.AccessForbiddenException;
-import org.eclipse.stardust.common.error.ConcurrencyException;
-import org.eclipse.stardust.common.error.InvalidArgumentException;
-import org.eclipse.stardust.common.error.InvalidValueException;
-import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.error.ValidationException;
+import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.model.OrganizationInfo;
 import org.eclipse.stardust.engine.api.model.ProfileScope;
@@ -65,6 +59,11 @@ public interface AdministrationService extends Service
    String CRITICALITY_DAEMON = "criticality.daemon";
 
    /**
+    * The predefined benchmark daemon type-
+    */
+   String BENCHMARK_DAEMON = "benchmark.daemon";
+
+   /**
     * Set password rule.
     *
     * @param The rules or null.
@@ -77,7 +76,7 @@ public interface AdministrationService extends Service
     *
     * @return The password rules or null.
     */
-   // No permission check
+   @ExecutionPermission
    PasswordRules getPasswordRules();
 
    /**
@@ -232,8 +231,7 @@ public interface AdministrationService extends Service
     * @throws IllegalOperationException Raised if non-root or non-terminated process
     *    instances are to be deleted.
     */
-   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail,
-         changeable=false)
+   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail, changeable=false)
    void deleteProcesses(List<Long> piOids) throws IllegalOperationException;
 
    /**
@@ -356,10 +354,14 @@ public interface AdministrationService extends Service
     * Retrieves the specified daemon.
     * The following daemon types exist:
     * <ul>
-    * <li><code>event.daemon</code> for the event daemon</li>
-    * <li><code>mail.trigger</code> for the mail trigger daemon</li>
-    * <li><code>timer.trigger</code> for the timer trigger daemon</li>
+    * <li><code>mail.trigger</code> for the mail trigger daemon
+    * <li><code>timer.trigger</code> for the timer trigger daemon
+    * <li><code>event.daemon</code> for the event daemon
     * <li><code>system.daemon</code> for the notification daemon.</li>
+    * <li><code>criticality.daemon</code> for the prioritization daemon.</li>
+    * <li><code>benchmark.daemon</code> for the benchmark daemon.</li>
+    * <li><code>reporting.daemon</code> for the reporting daemon.</li>
+    * <li><code>business_calendar.daemon</code> for the business calendar daemon.</li>
     * </ul>
     *
     * @param daemonType the type of the daemon.
@@ -481,8 +483,7 @@ public interface AdministrationService extends Service
     * @throws ObjectNotFoundException if there is no process with the specified ID in the
     *         specified model or if the model does not exist.
     */
-   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail,
-         changeable=false)
+   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail, changeable=false)
    ProcessInstance startProcess(long modelOID, String id, Map<String, ?> data, boolean synchronously)
       throws ObjectNotFoundException;
 
@@ -555,7 +556,7 @@ public interface AdministrationService extends Service
     *
     * @return the current user.
     */
-   // No permission check
+   @ExecutionPermission
    User getUser();
 
    /**
@@ -570,12 +571,7 @@ public interface AdministrationService extends Service
     *
     * @return a list of permission ids.
     */
-   /*@ExecutionPermission(
-           id="readModelData",
-           scope=ExecutionPermission.Scope.model,
-           changeable=false,
-           defaults={ExecutionPermission.Default.ALL})*/
-   // no permission check here
+   @ExecutionPermission
    List<Permission> getPermissions();
 
    /**
@@ -585,6 +581,7 @@ public interface AdministrationService extends Service
     * @return the profile.
     */
    // TODO: deprecate
+   @ExecutionPermission
    Map<String, ?> getProfile(ProfileScope scope);
 
    /**
@@ -594,6 +591,7 @@ public interface AdministrationService extends Service
     * @param profile the profile.
     */
    // TODO: deprecate
+   @ExecutionPermission
    void setProfile(ProfileScope scope, Map<String, ?> profile);
 
    /**
@@ -606,7 +604,7 @@ public interface AdministrationService extends Service
     *
     * @exception ObjectNotFoundException if there is no runtime object with the specified OID
     */
-   // TODO: discuss, introduce permission
+   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrailStatistics)
    void writeLogEntry(LogType logType, ContextKind contextType, long contextOid,
          String message, Throwable throwable) throws ObjectNotFoundException;
 
@@ -688,6 +686,7 @@ public interface AdministrationService extends Service
     *
     * @throws PublicException if <tt>scope</tt> is null.
     */
+   @ExecutionPermission
    Preferences getPreferences(PreferenceScope scope, String moduleId, String preferencesId);
 
    /**
@@ -729,6 +728,7 @@ public interface AdministrationService extends Service
     *
     * @throws InvalidArgumentException if <tt>modelId</tt> is null or empty.
     */
+   @ExecutionPermission
    ConfigurationVariables getConfigurationVariables(String modelId);
 
    /**
@@ -741,6 +741,7 @@ public interface AdministrationService extends Service
     *
     * @throws InvalidArgumentException if <tt>modelId</tt> is null or empty.
     */
+   @ExecutionPermission
    ConfigurationVariables getConfigurationVariables(String modelId, boolean all);
 
    /**
@@ -752,6 +753,7 @@ public interface AdministrationService extends Service
     *
     * @throws InvalidArgumentException if <tt>modelIds</tt> is null or contains an modelId which is null or empty.
     */
+   @ExecutionPermission
    List<ConfigurationVariables> getConfigurationVariables(List<String> modelIds);
 
    /**
@@ -762,6 +764,7 @@ public interface AdministrationService extends Service
     *
     * @throws InvalidArgumentException if <tt>model</tt> is null.
     */
+   @ExecutionPermission
    ConfigurationVariables getConfigurationVariables(byte[] model);
 
    /**
@@ -784,6 +787,7 @@ public interface AdministrationService extends Service
     *
     * @return the currently set Permissions
     */
+   @ExecutionPermission
    public RuntimePermissions getGlobalPermissions();
 
    /**
@@ -801,4 +805,88 @@ public interface AdministrationService extends Service
    @ExecutionPermission(id = ExecutionPermission.Id.saveOwnPartitionScopePreferences)
    public void setGlobalPermissions(RuntimePermissions permissions) throws AccessForbiddenException;
 
+   /**
+    * Deploys a new artifact with a new oid.
+    * <p>
+    * If an artifact with the same validFrom date already exists,
+    * the newly deployed artifact takes priority when querying for active artifacts.
+    *
+    * @param runtimeArtifact The new artifact.
+    * @return The deployed artifact including an assigned oid.
+    */
+   @ExecutionPermission(id = ExecutionPermission.Id.deployRuntimeArtifact)
+   public DeployedRuntimeArtifact deployRuntimeArtifact(RuntimeArtifact runtimeArtifact);
+
+   /**
+    * Overwrites only content of a specified already deployed artifact.
+    * Other fields cannot be changed.
+    *
+    * @param oid The oid of the artifact.
+    * @param runtimeArtifact The new artifact.
+    * @return The updated artifact.
+    *
+    * @throws ObjectNotFoundException if there is no runtime artifact with the specified oid.
+    */
+   @ExecutionPermission(id = ExecutionPermission.Id.deployRuntimeArtifact)
+   public DeployedRuntimeArtifact overwriteRuntimeArtifact(long oid, RuntimeArtifact runtimeArtifact) throws ObjectNotFoundException;
+
+   /**
+    * Deleted a deployed artifact by oid.
+    *
+    * @param oid The oid of the artifact
+    *
+    * @throws ObjectNotFoundException if there is no runtime artifact with the specified oid.
+    */
+   @ExecutionPermission(id = ExecutionPermission.Id.deployRuntimeArtifact)
+   public void deleteRuntimeArtifact(long oid) throws ObjectNotFoundException;
+
+   /**
+    * Retrieves the artifact by the unique oid.
+    *
+    * @param oid The oid of the artifact.
+    * @return The artifact or <code>null<code> if it does not exist.
+    */
+   @ExecutionPermission(id = ExecutionPermission.Id.readRuntimeArtifact)
+   public RuntimeArtifact getRuntimeArtifact(long oid);
+
+   /**
+    * Returns a list of supported artifact types.
+    * <p>
+    *
+    * The {@link ArtifactType#getId()} is used to identify the {@link ArtifactType} for a
+    * {@link RuntimeArtifact}.
+    *
+    * @return The supported artifact types.
+    */
+   @ExecutionPermission(id = ExecutionPermission.Id.readRuntimeArtifact)
+   public List<ArtifactType> getSupportedRuntimeArtifactTypes();
+
+   /**
+    * Creates a new type of link between process instances.
+    *
+    * @param id the id of the link type.
+    * @param description the description of the link type.
+    *
+    * @return the newly created process instance link type.
+    *
+    * @throws ObjectExistsException if another link type with the same id already exists.
+    */
+   // TODO: (fh) clarify permission
+   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail)
+   public ProcessInstanceLinkType createProcessInstanceLinkType(String id, String description);
+
+   /**
+    * Deletes an existing type of link between process instances.
+    * <p>
+    * Predefined link types cannot be deleted.
+    * </p>
+    *
+    * @param id the id of the link type to delete.
+    *
+    * @throws ObjectNotFoundException if there is no link type with the specified id,
+    *       or the id identifies one of the predefined link types.
+    */
+   // TODO: (fh) clarify permission
+   //@ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail)
+   //public void deleteProcessInstanceLinkType(String id);
 }

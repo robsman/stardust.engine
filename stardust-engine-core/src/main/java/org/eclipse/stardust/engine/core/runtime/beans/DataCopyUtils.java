@@ -18,10 +18,9 @@ import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.*;
-import org.eclipse.stardust.engine.api.runtime.DataCopyOptions;
-import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.utils.DataUtils;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryConstants;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
@@ -760,16 +759,83 @@ public class DataCopyUtils
       return false;
    }
 
-   public static DataCopyResult copyData(IProcessInstance pi, IModel target, DataCopyOptions dco)
+   public static DataCopyResult copyData(final IProcessInstance pi, IModel target, DataCopyOptions dco)
    {
-      DataCopyResult dcr = new DataCopyResult(target);
+      final DataCopyResult dcr = new DataCopyResult(target);
+      DataValueProvider provider = new DataValueProvider()
+      {
+         @Override
+         public Object getValue(String id)
+         {
+            return dcr.result.get(id);
+         }
+
+         @Override
+         public Object getSourceValue(String id)
+         {
+            IProcessDefinition pd = pi.getProcessDefinition();
+            IModel model = (IModel) pd.getModel();
+            IData data = model.findData(id);
+            return pi.getInDataValue(data, null);
+         }
+
+         @Override
+         public void setValue(String id, Serializable value)
+         {
+            dcr.result.put(id, value);
+         }
+      };
       addExplicitValues(dcr, dco.getReplacementTable());
-      Set<String> translated = addSpecifiedValues(dcr, pi, dco.getDataTranslationTable());
+      Set<String> skipped = CollectionUtils.newSet();
+      skipped.addAll(addSpecifiedValues(dcr, pi, dco.getDataTranslationTable()));
+      for (DataValueConverter converter : getDataValueConverters(dco))
+      {
+         try
+         {
+            Set<String> skipFromCopyAll = converter.convertDataValues(provider);
+            if (skipFromCopyAll != null)
+            {
+               skipped.addAll(skipFromCopyAll);
+            }
+         }
+         catch (Exception ex)
+         {
+            trace.info("Skipping converter '" + converter + "' because of '" + ex.getMessage() + "'.", ex);
+         }
+      }
       if (dco.copyAllData() && !dco.useHeuristics())
       {
-         addExistingValues(dcr, pi, translated);
+         addExistingValues(dcr, pi, skipped);
       }
       return dcr;
+   }
+
+   private static List<DataValueConverter> getDataValueConverters(DataCopyOptions dco)
+   {
+      List<DataValueConverter> converters = CollectionUtils.newList();
+      /*if (dco.getReplacementTable() != null)
+      {
+         for (final Map.Entry<String, ? extends Serializable> entry : dco.getReplacementTable().entrySet())
+         {
+            converters.add(new ExplicitDataValueConverter(entry.getKey(), entry.getValue()));
+         }
+      }*/
+      List<String> converterClassNames = dco.getDataValueConverters();
+      if (converterClassNames != null)
+      {
+         for (String className : converterClassNames)
+         {
+            try
+            {
+               converters.add((DataValueConverter) Reflect.createInstance(className));
+            }
+            catch (Exception ex)
+            {
+               trace.info("Unable to instantiate converter from '" + className + "'.");
+            }
+         }
+      }
+      return converters ;
    }
 
    private static void addExplicitValues(DataCopyResult dcr, Map<String, ? extends Serializable> values)

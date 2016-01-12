@@ -1325,4 +1325,19 @@ public class QueryAdapterUtils
 
       return query;
    }
+
+   public static DeployedRuntimeArtifactQuery unmarshalRuntimeArtifactsQuery(
+         DeployedRuntimeArtifactQueryXto queryXto)
+   {
+      final Class<DeployedRuntimeArtifactQuery> clazz = DeployedRuntimeArtifactQuery.class;
+      DeployedRuntimeArtifactQuery query = null;
+      if (queryXto != null)
+      {
+         query = new DeployedRuntimeArtifactQuery(queryXto.isIncludeOnlyActive());
+
+         query = unmarshalQuery(queryXto, query, clazz);
+      }
+
+      return query;
+   }
 }

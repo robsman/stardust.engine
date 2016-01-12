@@ -111,8 +111,9 @@ public class BpmValidationError extends ErrorCase
    public static final Args ACTY_INTERMEDIATE_EVENTS_MUST_HAVE_ONE_IN_AND_OUTBOUND_SEQUENCE_FLOW = new Args("ACTY01014");
    public static final Args ACTY_INCOMPATIBLE_SUBPROCESSMODE = new Args("ACTY01015");
    public static final Args ACTY_NO_LOOP_INPUT_DATA = new Args("ACTY01016");
-
-
+   public static final Args ACTY_SUBPROCESSMODE_RUNTIMEBINDING_NO_DATA_SET = new Args("ACTY01017");
+   public static final Args ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING = new Args("ACTY01018");
+   
    //Conditions related
    public static final Args COND_NOT_AN_EXCEPTION_CLASS = new Args("COND01001");
    public static final Args COND_NO_CONDITION_SPECIFIED = new Args("COND01002");
@@ -216,6 +217,8 @@ public class BpmValidationError extends ErrorCase
    public static final Args DATA_STRUCTURED_KEY_DESCRIPTORS_MUST_BE_INDEXED_AND_PERSISTENT = new Args("DATA01024");
    public static final Args DATA_DATAPATH_IS_NOT_A_DESCRIPTOR = new Args("DATA01025");
    public static final Args DATA_UNSPECIFIED_TYPE_FOR_PRIMITIVE_DATA = new Args("DATA01026");
+   public static final Args DATA_NO_SCHEMA_FOUND_FOR_STRUCTURED_DATA = new Args("DATA01027");
+   public static final Args ACCESSPATH_INVALID_FOR_DATAPATH = new Args("DATA01028");
 
    //Event related
    public static final Args EVEN_DUPLICATE_ID_FOR_EVENT_HANDLER = new Args("EVEN01000");

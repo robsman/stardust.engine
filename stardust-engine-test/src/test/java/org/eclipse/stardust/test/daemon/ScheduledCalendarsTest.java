@@ -23,6 +23,7 @@ import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+
 import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
@@ -58,11 +59,16 @@ public class ScheduledCalendarsTest
    public void setup()
    {
       DocumentManagementService dms = sf.getDocumentManagementService();
+      cleanDMS(dms);      
+   }
+
+   private void cleanDMS(DocumentManagementService dms)
+   {
       Folder folder = getCalendarFolder(dms);
       for (Document document : folder.getDocuments())
       {
          dms.removeDocument(document.getId());
-      }      
+      }
    }
    
    @Test
@@ -82,7 +88,7 @@ public class ScheduledCalendarsTest
 
       Document calendar = getDocument(dms, folder, CALENDAR);
       JsonObject calendarContent = getProcessingCalendarContent(dateX, calendar.getId(), new QName(MODEL_NAME, "OrderCreation").toString());
-      importCalendars(calendarContent, timeoffCalendar.getId());
+      importCalendars(calendarContent, timeoffCalendar.getPath());
       dms.updateDocument(calendar,
             calendarContent.toString().getBytes("UTF-8"), "UTF-8",
             false, null, null, false);
@@ -93,13 +99,14 @@ public class ScheduledCalendarsTest
    @Test
    public void checkTimeoffImportedCalendar() throws Exception
    {
+      DocumentManagementService dms = sf.getDocumentManagementService();      
+            
       Calendar cal = getAlignedCalendar();
       Date date = cal.getTime();
 
       cal.add(Calendar.MINUTE, 1);
       Date dateX = cal.getTime();
 
-      DocumentManagementService dms = sf.getDocumentManagementService();
       Folder folder = getCalendarFolder(dms);
 
       Document importedCalendar = getDocument(dms, folder, IMPORTED_CALENDAR);
@@ -116,12 +123,12 @@ public class ScheduledCalendarsTest
 
       Document calendar = getDocument(dms, folder, CALENDAR);
       JsonObject calendarContent = getProcessingCalendarContent(dateX, calendar.getId(), new QName(MODEL_NAME, "OrderCreation").toString());
-      importCalendars(calendarContent, importedCalendar.getId(), timeoffCalendar.getId());
+      importCalendars(calendarContent, importedCalendar.getPath(), timeoffCalendar.getPath());
       dms.updateDocument(calendar,
             calendarContent.toString().getBytes("UTF-8"), "UTF-8",
             false, null, null, false);
 
-      checkCalendars(0);
+      checkCalendars(1);
    }
    
    @Test
@@ -144,12 +151,12 @@ public class ScheduledCalendarsTest
 
       Document calendar = getDocument(dms, folder, CALENDAR);
       JsonObject calendarContent = getProcessingCalendarContent(dateX, calendar.getId(), new QName(MODEL_NAME, "OrderCreation").toString());
-      importCalendars(calendarContent, importedCalendar.getId());
+      importCalendars(calendarContent, importedCalendar.getPath());
       dms.updateDocument(calendar,
             calendarContent.toString().getBytes("UTF-8"), "UTF-8",
             false, null, null, false);
 
-      checkCalendars(1);
+      checkCalendars(2);
    }
    
    @Test
@@ -163,7 +170,7 @@ public class ScheduledCalendarsTest
 
       Document calendar = getDocument(dms, folder, CALENDAR);
       JsonObject calendarContent = getProcessingCalendarContent(dateX, calendar.getId(), new QName(MODEL_NAME, "OrderCreation").toString());
-      importCalendars(calendarContent, calendar.getId());
+      importCalendars(calendarContent, calendar.getPath());
       dms.updateDocument(calendar,
             calendarContent.toString().getBytes("UTF-8"), "UTF-8",
             false, null, null, false);
@@ -181,16 +188,15 @@ public class ScheduledCalendarsTest
 
       DocumentManagementService dms = sf.getDocumentManagementService();
       Folder folder = getCalendarFolder(dms);
-
       Document calendar = getDocument(dms, folder, CALENDAR);
+      
       JsonObject calendarContent = getProcessingCalendarContent(dateX, calendar.getId(), new QName(MODEL_NAME, "OrderCreation").toString());
       JsonObject details = calendarContent.getAsJsonArray("events").get(0).getAsJsonObject().getAsJsonObject("eventDetails");
       details.add("relationship", json(
             property("otherBusinessObject", BO_FUND),
             property("otherForeignKeyField", "funds")));
       calendarContent.add("businessObjectInstance", json(
-            property("modelId", MODEL_NAME),
-            property("businessObjectId", "FundGroup"),
+            property("businessObjectId", BO_GROUP),
             property("primaryKey", "g1")));
       dms.updateDocument(calendar,
             calendarContent.toString().getBytes("UTF-8"), "UTF-8",
@@ -198,6 +204,9 @@ public class ScheduledCalendarsTest
 
       int count = sf.getQueryService().getAllProcessInstances(ProcessInstanceQuery.findAlive()).size();
       ScheduledCalendar scheduledCalendar = checkCalendars(1).get(0);
+      
+      
+      
       scheduledCalendar.execute();
 
       Assert.assertEquals("Started processes", 3, sf.getQueryService().getAllProcessInstances(ProcessInstanceQuery.findAlive()).size() - count);
@@ -315,21 +324,23 @@ public class ScheduledCalendarsTest
       JsonObject json = json(
             property("pluginId", "processingCalendar"),
             property("uuid", id),
-            property("events", array(
-                  json(
-                        property("active", Boolean.TRUE),
-                        property("type", "processStartEvent"),
-                        property("recurrenceInterval", "daily"),
-                        property("dailyRecurrenceOptions", json(
-                              property("daysRecurrence", "weekdays"))),
-                        property("recurrenceRange", json(
-                              property("startDate", getDateString(date)),
-                              property("endMode", "noEnd"))),
-                        property("eventDetails", json(
-                              property("processDefinitionId", processId))),
-                        //property("executionTime", getTimeSlot(date))))),
-                        property("executionTime", SchedulingUtils.TIME_FORMAT.format(date)))))
-      );
+            property("events", 
+                  array(
+                        json(
+                              property("type", "processStart"),                          
+                              property("eventDetails", json(
+                                    property("processDefinitionId", processId))),                        
+                              property("scheduling", json(
+                                    property("active", Boolean.TRUE),
+                                    property("executionTime", SchedulingUtils.TIME_FORMAT.format(date)),
+                                    property("recurrenceInterval", "daily"),
+                                    property("dailyRecurrenceOptions", json(
+                                          property("daysRecurrence", "weekdays"))),
+                                    property("recurrenceRange", json(
+                                          property("startDate", getDateString(date)),
+                                    property("endMode", "noEnd"))))))
+                        )
+                  ));
       return json;
    }
       
@@ -338,29 +349,31 @@ public class ScheduledCalendarsTest
       JsonObject json = json(
             property("pluginId", "timeOffCalendar"),
             property("uuid", id),
-            property("events", array(
-                  json(
-                        property("active", Boolean.TRUE),
-                        property("type", "timeOff"),
-                        property("recurrenceInterval", "daily"),
-                        property("dailyRecurrenceOptions", json(
-                              property("daysRecurrence", "weekdays"))),
-                        property("recurrenceRange", json(
-                              property("startDate", getDateString(date)),
-                              property("endMode", "noEnd"))),
-                        //property("executionTime", getTimeSlot(date))))),
-                        property("executionTime", SchedulingUtils.TIME_FORMAT.format(date)))))
-      );
+            property("events", 
+                  array(
+                        json(
+                              property("type", "timeOff"),
+                              property("scheduling", json(
+                                    property("active", Boolean.TRUE),
+                                    property("executionTime", SchedulingUtils.TIME_FORMAT.format(date)),                              
+                                    property("recurrenceInterval", "daily"),
+                                    property("dailyRecurrenceOptions", json(
+                                          property("daysRecurrence", "weekdays"))),
+                                    property("recurrenceRange", json(
+                                          property("startDate", getDateString(date)),
+                                    property("endMode", "noEnd"))))))
+                        )
+                  ));
       return json;
    }
 
    private JsonObject importCalendars(JsonObject json, String... imported) throws Exception
    {
       JsonArray imports = array();
-      for (String uuid : imported)
+      for (String path : imported)
       {
          imports.add(json(
-               property("uuid", uuid)));
+               property("path", path)));
       }
       json.add("importedCalendars", imports);
       return json;
@@ -401,7 +414,9 @@ public class ScheduledCalendarsTest
       
    private Document getDocument(DocumentManagementService dms, Folder folder, String name)
    {
-      Document calendar = dms.getDocument("/" + folder.getName() + "/" + name);
+      folder = getCalendarFolder(dms);
+      
+      Document calendar = dms.getDocument(folder.getPath() + "/" + name);
       if (calendar == null)
       {
          DocumentInfo info = DmsUtils.createDocumentInfo(name);
@@ -417,8 +432,11 @@ public class ScheduledCalendarsTest
       Folder folder = dms.getFolder(FOLDER);
       if (folder == null)
       {
-         FolderInfo info = DmsUtils.createFolderInfo(FOLDER.substring(1));
-         folder = dms.createFolder("/", info);
+         String parentPath = FOLDER.substring(0, FOLDER.lastIndexOf('/'));
+         String childName = FOLDER.substring(FOLDER.lastIndexOf('/') + 1);
+         dms.createFolder("/", DmsUtils.createFolderInfo(parentPath.substring(1)));
+         dms.createFolder(parentPath, DmsUtils.createFolderInfo(childName));         
+         folder = dms.getFolder(FOLDER);
       }
       return folder;
    }

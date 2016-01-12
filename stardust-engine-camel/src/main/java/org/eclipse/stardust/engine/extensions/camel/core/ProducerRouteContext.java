@@ -1,14 +1,11 @@
 package org.eclipse.stardust.engine.extensions.camel.core;
 
-import static org.eclipse.stardust.engine.extensions.camel.Util.isProducerApplication;
-
 import org.apache.commons.lang.StringUtils;
-
 import org.eclipse.stardust.engine.api.model.IApplication;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 import org.eclipse.stardust.engine.extensions.camel.Util;
 
-public class ProducerRouteContext extends ApplicationRouteContext
+public abstract class ProducerRouteContext extends ApplicationRouteContext
 {
    public ProducerRouteContext(IApplication application, String partitionId,
          String camelContextId)
@@ -18,26 +15,17 @@ public class ProducerRouteContext extends ApplicationRouteContext
       this.camelContextId = camelContextId;
    }
 
-   public String getUserProvidedRouteConfiguration()
-   {
-
-      return Util.getProducerRouteConfiguration(application);
-   }
+   public abstract String getUserProvidedRouteConfiguration();
 
    public String getRouteId()
    {
       return Util.getRouteId(partitionId, getModelId(), null, getId(), true);
    }
 
-   public String getDescription()
-   {
-      return Util.getDescription(getPartitionId(), getModelId(), getId());
-   }
-
    public boolean addApplicationAttributesToHeaders()
    {
       String providedRoute = getUserProvidedRouteConfiguration();
-      if (isProducerApplication(application) && !StringUtils.isEmpty(providedRoute))
+      if (Util.isProducerApplication(application) && !StringUtils.isEmpty(providedRoute))
       {
          if (providedRoute.contains("://service/"))
             return true;
@@ -86,14 +74,5 @@ public class ProducerRouteContext extends ApplicationRouteContext
    {
       return (String) application
             .getAttribute(CamelConstants.PRODUCER_INBOUND_CONVERSION);
-   }
-   
-   public Boolean getAutostartupValue()
-   {
-	   Boolean startup = true;
-	   if (application.getAttribute("carnot:engine:camel::autoStartup") != null){
-		   startup = (Boolean) application.getAttribute("carnot:engine:camel::autoStartup");
-	   }
-	   return startup;
    }
 }

@@ -18,7 +18,12 @@
                        http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
 
    <!-- JMS Forking Service -->
-   <bean name="carnotForkingService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.spring.integration.jms.threading.JmsForkingService" />
+   <bean name="carnotForkingService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.spring.integration.jms.threading.JmsForkingService">
+      <property name="scheduler">
+         <bean class="org.eclipse.stardust.engine.spring.schedulers.DefaultScheduler" 
+            depends-on="jmsConnectionManager" />
+      </property>
+   </bean>
 
    <!-- JMS Resource Adapter -->
    <bean id="jmsResourceAdapter" class="org.apache.activemq.ra.ActiveMQResourceAdapter" depends-on="broker">

@@ -11,10 +11,12 @@
 package org.eclipse.stardust.engine.api.dto;
 
 import java.util.Date;
+import java.util.TreeSet;
 
 import org.eclipse.stardust.engine.api.runtime.AcknowledgementState;
 import org.eclipse.stardust.engine.api.runtime.Daemon;
 import org.eclipse.stardust.engine.api.runtime.DaemonExecutionState;
+import org.eclipse.stardust.engine.core.runtime.beans.DaemonExecutionLog;
 
 
 /**
@@ -37,10 +39,18 @@ public class DaemonDetails
    private boolean running;
    private AcknowledgementState ack;
    private DaemonExecutionState des;
+   private DaemonExecutionLog log;
 
    public DaemonDetails(String type, long startTime, long lastExecutionTime,
          boolean running, AcknowledgementState ack,
          DaemonExecutionState des)
+   {
+      this(type, startTime, lastExecutionTime, running, ack, des, null);
+   }
+   
+   public DaemonDetails(String type, long startTime, long lastExecutionTime,
+         boolean running, AcknowledgementState ack,
+         DaemonExecutionState des, DaemonExecutionLog log)
    {
       this.type = type;
       this.startTime = startTime;
@@ -48,6 +58,7 @@ public class DaemonDetails
       this.running = running;
       this.ack = ack;
       this.des = des;
+      this.log = log;
    }
 
    public String getType()
@@ -78,5 +89,10 @@ public class DaemonDetails
    public DaemonExecutionState getDaemonExecutionState()
    {
       return des;
+   }
+   public DaemonExecutionLog getExecutionLog()
+   {
+      return log;
+
    }
 }

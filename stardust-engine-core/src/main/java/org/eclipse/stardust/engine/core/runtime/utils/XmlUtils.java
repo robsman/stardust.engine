@@ -1053,11 +1053,22 @@ public class XmlUtils
    {
       int len = (int) Math.min(file.length(), Integer.MAX_VALUE);
       byte[] content = new byte[len];
-      BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
-      int read = 0;
-      while (read < len)
+      BufferedInputStream is = null;
+      try
       {
-         read += is.read(content, read, len - read);
+         is = new BufferedInputStream(new FileInputStream(file));
+         int read = 0;
+         while (read < len)
+         {
+            read += is.read(content, read, len - read);
+         }
+      }
+      finally
+      {
+         if (is != null)
+         {
+            is.close();
+         }
       }
       return content;
    }

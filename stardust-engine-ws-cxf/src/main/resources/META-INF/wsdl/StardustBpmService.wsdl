@@ -302,7 +302,7 @@
 
    <!-- QueryService -->
 
-    <wsdl:message name="findAllDepartmentsRequest">
+   <wsdl:message name="findAllDepartmentsRequest">
       <wsdl:part element="impl:findAllDepartments" name="parameters"/>
    </wsdl:message>
 
@@ -468,6 +468,14 @@
 
    <wsdl:message name="findModelsResponse">
       <wsdl:part element="impl:findModelsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findRuntimeArtifactsRequest">
+      <wsdl:part element="impl:findRuntimeArtifacts" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findRuntimeArtifactsResponse">
+      <wsdl:part element="impl:findRuntimeArtifactsResponse" name="parameters"/>
    </wsdl:message>
 
    <wsdl:message name="getAllBusinessObjectsRequest">
@@ -1133,12 +1141,44 @@
       <wsdl:part element="impl:getGlobalPermissionsResponse" name="parameters"/>
    </wsdl:message>
 
-   <wsdl:message name="setGlobalPermissionsRequest">
+    <wsdl:message name="setGlobalPermissionsRequest">
       <wsdl:part element="impl:setGlobalPermissions" name="parameters"/>
    </wsdl:message>
 
    <wsdl:message name="setGlobalPermissionsResponse">
       <wsdl:part element="impl:setGlobalPermissionsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="deployRuntimeArtifactRequest">
+      <wsdl:part element="impl:deployRuntimeArtifact" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="deployRuntimeArtifactResponse">
+      <wsdl:part element="impl:deployRuntimeArtifactResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="overwriteRuntimeArtifactRequest">
+      <wsdl:part element="impl:overwriteRuntimeArtifact" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="overwriteRuntimeArtifactResponse">
+      <wsdl:part element="impl:overwriteRuntimeArtifactResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="deleteRuntimeArtifactRequest">
+      <wsdl:part element="impl:deleteRuntimeArtifact" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="deleteRuntimeArtifactResponse">
+      <wsdl:part element="impl:deleteRuntimeArtifactResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getSupportedRuntimeArtifactTypesRequest">
+      <wsdl:part element="impl:getSupportedRuntimeArtifactTypes" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getSupportedRuntimeArtifactTypesResponse">
+      <wsdl:part element="impl:getSupportedRuntimeArtifactTypesResponse" name="parameters"/>
    </wsdl:message>
 
    <!-- Global -->
@@ -1156,6 +1196,14 @@
 
    <wsdl:message name="getPermissionsResponse">
       <wsdl:part element="impl:getPermissionsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getRuntimeArtifactRequest">
+      <wsdl:part element="impl:getRuntimeArtifact" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getRuntimeArtifactResponse">
+      <wsdl:part element="impl:getRuntimeArtifactResponse" name="parameters"/>
    </wsdl:message>
 
    <wsdl:message name="writeLogEntryRequest">
@@ -1792,6 +1840,24 @@
          </wsdl:documentation>
          <wsdl:input message="impl:findModelsRequest" />
          <wsdl:output message="impl:findModelsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="findRuntimeArtifacts" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves all DeployedRuntimeArtifacts satisfying the criteria specified in the provided query.
+         </wsdl:documentation>
+         <wsdl:input message="impl:findRuntimeArtifactsRequest" />
+         <wsdl:output message="impl:findRuntimeArtifactsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getRuntimeArtifact" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves the artifact by the unique oid.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getRuntimeArtifactRequest" />
+         <wsdl:output message="impl:getRuntimeArtifactResponse" />
          <wsdl:fault message="impl:bpmFault" name="fault" />
       </wsdl:operation>
 
@@ -2658,6 +2724,54 @@ The MigrationReport returned by each call contains information about: Total reso
          <wsdl:fault message="impl:bpmFault" name="fault" />
       </wsdl:operation>
 
+      <wsdl:operation name="getRuntimeArtifact" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves the artifact by the unique oid.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getRuntimeArtifactRequest" />
+         <wsdl:output message="impl:getRuntimeArtifactResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="deployRuntimeArtifact" parameterOrder="parameters">
+         <wsdl:documentation>
+         Deploys a new artifact with a new oid.
+         If an artifact with the same validFrom date already exists,
+         the newly deployed artifact takes priority when querying for active artifacts.
+         </wsdl:documentation>
+         <wsdl:input message="impl:deployRuntimeArtifactRequest" />
+         <wsdl:output message="impl:deployRuntimeArtifactResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="overwriteRuntimeArtifact" parameterOrder="parameters">
+         <wsdl:documentation>
+         Overwrites only content of a specified already deployed artifact.
+         Other fields cannot be changed.
+         </wsdl:documentation>
+         <wsdl:input message="impl:overwriteRuntimeArtifactRequest" />
+         <wsdl:output message="impl:overwriteRuntimeArtifactResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="deleteRuntimeArtifact" parameterOrder="parameters">
+         <wsdl:documentation>
+         Deleted a deployed artifact by oid.
+         </wsdl:documentation>
+         <wsdl:input message="impl:deleteRuntimeArtifactRequest" />
+         <wsdl:output message="impl:deleteRuntimeArtifactResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getSupportedRuntimeArtifactTypes" parameterOrder="parameters">
+         <wsdl:documentation>
+         Returns a list of supported artifact types.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getSupportedRuntimeArtifactTypesRequest" />
+         <wsdl:output message="impl:getSupportedRuntimeArtifactTypesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
    </wsdl:portType>
 
    <wsdl:binding name="IWorkflowServiceSoapBinding" type="impl:IWorkflowService">
@@ -3483,6 +3597,32 @@ The MigrationReport returned by each call contains information about: Total reso
 
       <wsdl:operation name="findModels">
          <wsdlsoap:operation soapAction="findModels" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="findRuntimeArtifacts">
+         <wsdlsoap:operation soapAction="findRuntimeArtifacts" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getRuntimeArtifact">
+         <wsdlsoap:operation soapAction="getRuntimeArtifact" style="document"/>
          <wsdl:input>
             <wsdlsoap:body use="literal"/>
          </wsdl:input>
@@ -4657,6 +4797,71 @@ The MigrationReport returned by each call contains information about: Total reso
 
       <wsdl:operation name="setGlobalPermissions">
          <wsdlsoap:operation soapAction="setGlobalPermissions" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getRuntimeArtifact">
+         <wsdlsoap:operation soapAction="getRuntimeArtifact" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="deployRuntimeArtifact">
+         <wsdlsoap:operation soapAction="deployRuntimeArtifact" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="overwriteRuntimeArtifact">
+         <wsdlsoap:operation soapAction="overwriteRuntimeArtifact" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="deleteRuntimeArtifact">
+         <wsdlsoap:operation soapAction="deleteRuntimeArtifact" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+     <wsdl:operation name="getSupportedRuntimeArtifactTypes">
+         <wsdlsoap:operation soapAction="getSupportedRuntimeArtifactTypes" style="document"/>
          <wsdl:input>
             <wsdlsoap:body use="literal"/>
          </wsdl:input>

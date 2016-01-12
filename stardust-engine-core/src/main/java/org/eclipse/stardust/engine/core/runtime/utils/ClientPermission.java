@@ -10,19 +10,19 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.utils;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2.GlobalPermissionSpecificService;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Default;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Id;
@@ -30,7 +30,9 @@ import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Scope;
 
 public final class ClientPermission
 {
-   private static final Logger trace = LogManager.getLogger(ClientPermission.class);
+// private static final Logger trace = LogManager.getLogger(ClientPermission.class);
+
+   private static final String DENY_PREFIX = "deny:";
 
    static final ClientPermission NULL = new ClientPermission(null, Scope.model, new Default[] {Default.ADMINISTRATOR},
          new Default[] {}, true, true, false, new Id[] {});
@@ -49,6 +51,10 @@ public final class ClientPermission
    public static final ClientPermission MODIFY_CASE;
    public static final ClientPermission MODIFY_PROCESS_INSTANCES;
    public static final ClientPermission READ_PROCESS_INSTANCE_DATA;
+
+   // data scope permissions
+   public static final ClientPermission MODIFY_DATA_VALUE;
+   public static final ClientPermission READ_DATA_VALUE;
 
    // global scope permissions
    public static final ClientPermission CONTROL_PROCESS_ENGINE;
@@ -74,14 +80,11 @@ public final class ClientPermission
       HashMap<ExecutionPermission, ClientPermission> map = new HashMap<ExecutionPermission, ClientPermission>();
 
       // cache permissions for all public methods.
-      Class[] classes = new Class[] {AdministrationService.class, DocumentManagementService.class,
-            GlobalPermissionSpecificService.class, QueryService.class, UserService.class, WorkflowService.class};
+      Class[] classes = new Class[] {WorkflowService.class, QueryService.class, UserService.class,
+            DocumentManagementService.class, AdministrationService.class, GlobalPermissionSpecificService.class};
       for (Class<?> cls : classes)
       {
-         for (Method method : cls.getMethods())
-         {
-            initializePermission(map, method);
-         }
+         initializeClass(map, cls);
       }
 
       // additional permission used by delegation
@@ -97,6 +100,7 @@ public final class ClientPermission
       MODIFY_AUDIT_TRAIL = initializePermission(map, AdministrationService.class, "cleanupRuntimeAndModels");
       MODIFY_AUDIT_TRAIL_UNCHANGEABLE = initializePermission(map, AdministrationService.class, "deleteProcesses", List.class);
       MODIFY_CASE = initializePermission(map, WorkflowService.class, "joinCase", long.class, long[].class);
+      MODIFY_DATA_VALUE = initializePermission(map, IProcessInstance.class, "setOutDataValue", IData.class, String.class, Object.class);
       MODIFY_DEPARTMENTS = initializePermission(map, AdministrationService.class, "modifyDepartment", long.class, String.class, String.class);
       MODIFY_PROCESS_INSTANCES = initializePermission(map, AdministrationService.class, "setProcessInstancePriority", long.class, int.class);
       MODIFY_USER_DATA = initializePermission(map, UserService.class, "modifyUser", User.class);
@@ -105,15 +109,25 @@ public final class ClientPermission
       READ_ACTIVITY_INSTANCE_DATA = initializePermission(map, WorkflowService.class, "getActivityInstance", long.class);
       READ_AUDIT_TRAIL_STATISTICS = initializePermission(map, AdministrationService.class, "getAuditTrailHealthReport");
       READ_DEPARTMENTS = initializePermission(map, AdministrationService.class, "getDepartment", long.class);
+      READ_DATA_VALUE = initializePermission(map, IProcessInstance.class, "getInDataValue", IData.class, String.class);
       READ_MODEL_DATA = initializePermission(map, QueryService.class, "getModel", long.class);
       READ_PROCESS_INSTANCE_DATA = initializePermission(map, WorkflowService.class, "getProcessInstance", long.class);
       READ_USER_DATA = initializePermission(map, UserService.class, "getUser", long.class);
       RUN_RECOVERY = initializePermission(map, AdministrationService.class, "recoverRuntimeEnvironment");
       SAVE_OWN_PARTITION_SCOPE_PREFERENCES = initializePermission(map, AdministrationService.class, "setGlobalPermissions", RuntimePermissions.class);
 
-      // named permissions without corresponding annotation
-      MANAGE_AUTHORIZATION = NULL.clone(Id.manageAuthorization);
-      SAVE_OWN_REALM_SCOPE_PREFERENCES = NULL.clone(Id.saveOwnRealmScopePreferences);
+      // named permissions without corresponding method annotation
+      MANAGE_AUTHORIZATION = initializePermission(map, GlobalPermissionSpecificService.class, "getManageAuthorizationPermission");
+      SAVE_OWN_REALM_SCOPE_PREFERENCES = initializePermission(map, GlobalPermissionSpecificService.class, "getSaveOwnRealmScopePreferencesPermission");
+   }
+
+   public static void initializeClass(
+         HashMap<ExecutionPermission, ClientPermission> map, Class< ? > cls)
+   {
+      for (Method method : cls.getMethods())
+      {
+         initializePermission(map, method);
+      }
    }
 
    private static ClientPermission initializePermission(HashMap<ExecutionPermission, ClientPermission> map, Class<?> cls, String name, Class<?>... args)
@@ -133,7 +147,12 @@ public final class ClientPermission
    {
       ClientPermission cp = NULL;
       ExecutionPermission permission = method.getAnnotation(ExecutionPermission.class);
-      if (permission != null)
+      if (permission == null)
+      {
+         System.err.println("Missing permission for: " + method);
+         cp = null;
+      }
+      else if (permission.id() != ExecutionPermission.Id.none)
       {
          cp = map.get(permission);
          if (cp == null)
@@ -142,6 +161,7 @@ public final class ClientPermission
             map.put(permission, cp);
          }
       }
+
       if (!permissionCache.containsKey(method))
       {
          permissionCache.put(method, cp);
@@ -159,6 +179,9 @@ public final class ClientPermission
    private final Id[] implied;
 
    private final String uniqueKey;
+
+   private List<String> allowedIds;
+   private List<String> deniedIds;
 
    public ClientPermission(ExecutionPermission permission)
    {
@@ -183,6 +206,38 @@ public final class ClientPermission
       this.implied = implied;
       this.defer = defer;
       this.uniqueKey = createUniqueKey();
+
+      String[] allowedIds = new String[1 + implied.length];
+      allowedIds[0] = createId(this.id);
+      for (int i = 1; i < allowedIds.length; i++)
+      {
+         allowedIds[i] = createId(this.implied[i - 1]);
+      }
+      this.allowedIds = Collections.unmodifiableList(Arrays.asList(allowedIds));
+
+      String[] deniedIds = new String[allowedIds.length];
+      for (int i = 0; i < allowedIds.length; i++)
+      {
+         deniedIds[i] = DENY_PREFIX + allowedIds[i];
+      }
+      this.deniedIds = Collections.unmodifiableList(Arrays.asList(deniedIds));
+   }
+
+   protected String createId(Id id)
+   {
+      if (id == null)
+      {
+         return "";
+      }
+      switch (scope)
+      {
+      case model:
+         return id.name();
+      case workitem:
+         return Scope.activity.name() + '.' + id.name();
+      default:
+         return scope.name() + '.' + id.name();
+      }
    }
 
    private String createUniqueKey()
@@ -270,21 +325,111 @@ public final class ClientPermission
       return scope.name() + '.' + id;
    }
 
+   protected List<String> getAllowedIds()
+   {
+      return allowedIds;
+   }
+
+   protected List<String> getDeniedIds()
+   {
+      return deniedIds;
+   }
+
+   public static boolean isDeniedPermissionId(String permissionId)
+   {
+      return permissionId != null && permissionId.startsWith(DENY_PREFIX);
+   }
+
    protected static ClientPermission getPermission(Method method)
    {
       ClientPermission cp = permissionCache.get(method);
       if (cp == null)
       {
-         /*
-         ExecutionPermission permission = method.getAnnotation(ExecutionPermission.class);
-         cp = permission == null ? NULL : new ClientPermission(permission);
-         permissionCache.put(method, cp);
-         */
-         if (trace.isDebugEnabled())
-         {
-            trace.debug("Missing permission for: " + method);
-         }
+         throw new InternalException("Unauthorized method access: " + method);
       }
       return cp == NULL ? null : cp;
+   }
+
+   public static Map<String, String> getDefaults()
+   {
+      HashMap<String, String> defaultPermissions = new HashMap<String, String>();
+      Set<ExecutionPermission.Id> readOnlyPermissions = getReadOnlyPermissions();
+      for (ClientPermission permission : permissionCache.values())
+      {
+         addDefaultPermission(defaultPermissions, permission);
+         addDefaultAuditorPermission(defaultPermissions, permission, readOnlyPermissions);
+      }
+      addDefaultPermission(defaultPermissions, MANAGE_AUTHORIZATION);
+      addDefaultPermission(defaultPermissions, SAVE_OWN_REALM_SCOPE_PREFERENCES);
+
+      return defaultPermissions;
+   }
+
+   private static void addDefaultAuditorPermission(
+         HashMap<String, String> defaultPermissions, ClientPermission permission,
+         Set<ExecutionPermission.Id> readOnlyPermissions)
+   {
+      if (permission != NULL && permission.changeable())
+      {
+         if (!readOnlyPermissions.contains(permission.id()))
+         {
+            String permissionId = ExecutionPermission.Scope.model.equals(permission
+                  .scope()) ? permission.id().name() : permission.toString();
+            defaultPermissions.put(DENY_PREFIX + permissionId, PredefinedConstants.QUALIFIED_AUDITOR_ID);
+         }
+      }
+   }
+
+   private static Set<ExecutionPermission.Id> getReadOnlyPermissions()
+   {
+      Set<String> readOnlyPermissionIds = new HashSet<String>();
+      Class<ExecutionPermission.Id> obj = ExecutionPermission.Id.class;
+      Id[] ids = obj.getEnumConstants();
+      Field[] fields = obj.getFields();
+      for (Field field : fields)
+      {
+         if (field.isAnnotationPresent(ExecutionPermission.ReadOnly.class))
+         {
+            readOnlyPermissionIds.add(field.getName());
+         }
+      }
+      Set<ExecutionPermission.Id> readOnlyPermissions = new HashSet<ExecutionPermission.Id>();
+      for (ExecutionPermission.Id id : ids)
+      {
+         if (readOnlyPermissionIds.contains(id.name()))
+         {
+            readOnlyPermissions.add(id);
+         }
+      }
+      return readOnlyPermissions;
+   }
+
+   protected static void addDefaultPermission(HashMap<String, String> defaultPermissions,
+         ClientPermission permission)
+   {
+      if (permission != NULL && permission.changeable())
+      {
+         String id = permission.allowedIds.get(0);
+         String existing = defaultPermissions.get(id);
+         if (existing == null || PredefinedConstants.ADMINISTRATOR_ROLE.equals(existing))
+         {
+            Default[] defaults = permission.defaults();
+            String name = getName(defaults == null || defaults.length == 0 ? null : defaults[0]);
+            defaultPermissions.put(id, name);
+         }
+      }
+   }
+
+   private static String getName(Default def)
+   {
+      if (def != null)
+      {
+         switch (def)
+         {
+         case ALL: return Authorization2.ALL;
+         case OWNER: return Authorization2.OWNER;
+         }
+      }
+      return PredefinedConstants.ADMINISTRATOR_ROLE;
    }
 }

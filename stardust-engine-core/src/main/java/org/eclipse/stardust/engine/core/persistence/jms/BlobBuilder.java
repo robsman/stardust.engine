@@ -25,6 +25,12 @@ public interface BlobBuilder
    final byte SECTION_MARKER_INSTANCES = 1;
 
    final byte SECTION_MARKER_EOF = -1;
+   
+   final byte MODEL_MARKER_START = 0;
+
+   final byte MODEL_MARKER_END = -1;
+   
+   final byte MODEL_MARKER_ELEMENT = 1;
 
    void init(Parameters params) throws PublicException;
 

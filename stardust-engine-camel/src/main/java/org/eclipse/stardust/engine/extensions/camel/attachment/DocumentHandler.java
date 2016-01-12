@@ -376,11 +376,15 @@ public class DocumentHandler
             {
                reponse = producer.send("direct://templateFromRepository", newExchange);
                exchange.getIn().setAttachments(reponse.getIn().getAttachments());
+               if(reponse.getException()!=null)
+                  exchange.setException(reponse.getException());
             }
             else if (template.getSource().equalsIgnoreCase("classpath"))
             {
                reponse = producer.send("direct://templateFromClasspath", newExchange);
                exchange.getIn().setAttachments(reponse.getIn().getAttachments());
+               if(reponse.getException()!=null)
+                  exchange.setException(reponse.getException());
                
             } else if(template.getSource().equalsIgnoreCase("data"))
             {
@@ -403,6 +407,8 @@ public class DocumentHandler
                   // delete processed template document from header
                   exchange.getIn().removeHeader(template.getName());
                   exchange.getIn().setAttachments(reponse.getIn().getAttachments());
+                  if(reponse.getException()!=null)
+                     exchange.setException(reponse.getException());
                } else
                {
                   if(logger.isDebugEnabled())

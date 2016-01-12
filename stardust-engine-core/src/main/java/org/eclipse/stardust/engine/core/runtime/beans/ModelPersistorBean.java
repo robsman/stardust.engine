@@ -38,6 +38,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentB
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
+import org.eclipse.stardust.engine.core.thirdparty.encoding.Text;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 import org.w3c.dom.Document;

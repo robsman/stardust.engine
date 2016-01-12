@@ -10,9 +10,13 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.extensions.jms.utils;
 
+import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
+
 import java.util.*;
 
 import javax.jms.*;
+
+import org.eclipse.stardust.common.error.PublicException;
 
 /**
  *
@@ -134,5 +138,49 @@ public class JMSUtils
       }
 
       return map;
+   }
+
+   public static Map<String, Object> toMap(final MapMessage msg)
+   {
+      final Map<String, Object> result = newHashMap();
+
+      try
+      {
+         @SuppressWarnings("unchecked")
+         final Enumeration<String> mapNames = msg.getMapNames();
+         while (mapNames.hasMoreElements())
+         {
+            final String name = mapNames.nextElement();
+            result.put(name, msg.getObject(name));
+         }
+      }
+      catch (final JMSException e)
+      {
+         // TODO - bpmn-2-events - review exception handling
+         throw new PublicException(e.getMessage(), e);
+      }
+
+      return result;
+   }
+
+   public static MapMessage toMapMessage(final Map<String, Object> map, final Session session)
+   {
+      final MapMessage result;
+
+      try
+      {
+         result = session.createMapMessage();
+         for (final Map.Entry<String, Object> e : map.entrySet())
+         {
+            result.setObject(e.getKey(), e.getValue());
+         }
+      }
+      catch (final JMSException e)
+      {
+         // TODO - bpmn-2-events - review exception handling
+         throw new PublicException(e.getMessage(), e);
+      }
+
+      return result;
    }
 }

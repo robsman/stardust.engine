@@ -54,6 +54,11 @@ public class DaemonLog extends IdentifiablePersistentBean
    public static final String[] daemon_log_idx1_UNIQUE_INDEX = new String[]{FIELD__OID};
    public static final String[] daemon_log_idx2_INDEX = new String[] { FIELD__CODE, FIELD__PARTITION, FIELD__TYPE };
    
+   public static final String LOCK_TABLE_NAME = "daemon_log_lck";
+   public static final String LOCK_INDEX_NAME = "daemon_log_lck_idx";
+   
+   public static final String DEFAULT_ALIAS = "dl";
+   
    static final boolean type_USE_LITERALS = true;
    static final boolean code_USE_LITERALS = true;
    static final boolean state_USE_LITERALS = true;

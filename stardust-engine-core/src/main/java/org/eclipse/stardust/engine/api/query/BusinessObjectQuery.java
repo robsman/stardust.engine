@@ -25,6 +25,14 @@ import org.eclipse.stardust.engine.core.runtime.beans.ModelAwareQueryPredicate;
  *    <li>{@link DataFilter} for finding business objects containing specific data.</li>
  * </ul>
  * </p>
+ * <p>Supported evaluation policies are:
+ * <ul>
+ *    <li>{@link BusinessObjectQuery.Policy} to specify if the result should contain the
+ *    business objects descriptions or/and the values.</li>
+ *    <li>{@link TimeoutPolicy} to specify an explicit query timeout.</li>
+ *    <li>{@link SubsetPolicy} to specify an explicit result subset (from, to).</li>
+ * </ul>
+ * </p>
  *
  * @author Florin.Herinean
  * @version $Revision: $

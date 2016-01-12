@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.extensions.jms.app;
 
+import static java.util.Collections.singletonList;
+import static org.eclipse.stardust.common.CollectionUtils.isEmpty;
 import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -60,6 +63,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.WorkflowServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.extensions.jms.app.spi.MultiMatchCapable;
 import org.eclipse.stardust.engine.extensions.jms.trigger.DefaultTriggerMessageAcceptor;
 import org.eclipse.stardust.engine.extensions.jms.trigger.TriggerMessageAcceptor;
 import org.eclipse.stardust.engine.extensions.jms.utils.JMSUtils;
@@ -157,10 +161,13 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
 
       initializeFromModel();
 
-      Match match = findMatchForMessage(message);
-      if (null != match)
+      Collection<Match> matches = findMatchesForMessage(message);
+      if ( !isEmpty(matches))
       {
-         match.process(session, message);
+         for (Match match : matches)
+         {
+            match.process(session, message);
+         }
       }
       else
       {
@@ -237,45 +244,61 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
       }
    }
 
-   private Match findMatchForMessage(Message message)
+   private Collection<Match> findMatchesForMessage(Message message)
    {
-      Match match = null;
+      Collection<Match> matches = null;
 
       // try extensions first
       List<MessageAcceptor> customAcceptors = ExtensionProviderUtils.getExtensionProviders(MessageAcceptor.class);
       for (MessageAcceptor acceptor : customAcceptors)
       {
-         match = findMatchForMessage(message, acceptor);
-         if (null != match)
+         matches = findMatchForMessage(message, acceptor);
+         if ( !isEmpty(matches))
          {
             break;
          }
       }
 
-      if (null == match)
+      if (isEmpty(matches))
       {
          // no match so far, fall back to default acceptor
-         match = findMatchForMessage(message, DEFAULT_MESSAGE_ACCEPTOR);
+         matches = findMatchForMessage(message, DEFAULT_MESSAGE_ACCEPTOR);
       }
 
-      if (null == match)
+      if (isEmpty(matches))
       {
          // still no match, now try JMS triggers
          for (Trigger trigger : activeTriggers)
          {
-            match = findMatchForTriggerMessage(message, trigger);
-            if (null != match)
+            matches = findMatchForTriggerMessage(message, trigger);
+            if ( !isEmpty(matches))
             {
                break;
             }
          }
       }
 
-      return match;
+      return matches;
    }
 
-   private Match findMatchForMessage(Message message, MessageAcceptor acceptor)
+   private List<Match> findMatchForMessage(Message message, MessageAcceptor acceptor)
    {
+      List<Match> matches = newArrayList();
+
+      matches.addAll(findAiMatchesForMessage(message, acceptor));
+      if (acceptor instanceof MultiMatchCapable && ((MultiMatchCapable) acceptor).findMoreMatches(matches))
+      {
+         matches.addAll(findTriggerMatchesForMessage(message, acceptor));
+         matches.addAll(findMessageStoreMatchesForMessage(message, acceptor));
+      }
+
+      return matches;
+   }
+
+   private List<Match> findAiMatchesForMessage(Message message, MessageAcceptor acceptor)
+   {
+      List<Match> matches = newArrayList();
+
       try
       {
          for (Iterator<IActivityInstance> activityItr = acceptor.getMatchingActivityInstances(message); activityItr.hasNext();)
@@ -290,13 +313,26 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
 
                activityInstance.lock();
                ((ActivityInstanceBean) activityInstance).reloadAttribute(ActivityInstanceBean.FIELD__STATE);
-               if (activityInstance.isHibernated())
+               Match match = acceptor.finalizeMatch(activityInstance);
+               if (null != match)
                {
                   if (trace.isDebugEnabled())
                   {
                      trace.debug("Selecting activity instance " + activityInstance);
                   }
-                  return new ResponseMatch(acceptor, activityInstance);
+
+                  matches.add(match);
+
+                  if ((acceptor instanceof MultiMatchCapable) && ((MultiMatchCapable) acceptor).findMoreMatches(matches))
+                  {
+                     // try to find more matching AIs
+                     continue;
+                  }
+                  else
+                  {
+                     // found at least one match, done
+                     break;
+                  }
                }
                else
                {
@@ -330,68 +366,70 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
                + JMSUtils.messageToString(message) + "'." + e.getMessage());
       }
 
-      return null;
+      return matches;
    }
 
-   private Match findMatchForTriggerMessage(Message message, Trigger trigger)
+   private List<Match> findTriggerMatchesForMessage(Message message, MessageAcceptor acceptor)
    {
-      TriggerMessageAcceptor acceptor = getAcceptorForTrigger(trigger);
+      return acceptor.getTriggerMatches(message);
+   }
 
-      try
+   private List<Match> findMessageStoreMatchesForMessage(Message message, MessageAcceptor acceptor)
+   {
+      return acceptor.getMessageStoreMatches(message);
+   }
+
+   private List<Match> findMatchForTriggerMessage(Message message, Trigger trigger)
+   {
+      List<TriggerMessageAcceptor> acceptors = getExtensionAcceptorsForTrigger(trigger);
+
+      Map acceptedData;
+      for (TriggerMessageAcceptor acceptor : acceptors)
       {
-         Map acceptedData = acceptor.acceptMessage(message, trigger);
-         if (acceptedData != null)
+         try
          {
-            return new TriggerMatch(acceptor, trigger, acceptedData);
+            acceptedData = acceptor.acceptMessage(message, trigger);
+            if (acceptedData != null)
+            {
+               return singletonList((Match) new TriggerMatch(acceptor, trigger, acceptedData));
+            }
+         }
+         catch (Exception e)
+         {
+            trace.warn("The acceptor " + acceptor + " was not able to get a matching "
+                  + "criteria.Maybe it is not responsible for the message '"
+                  + JMSUtils.messageToString(message) + "'.", e);
          }
       }
-      catch (Exception e)
-      {
-         trace.warn("The acceptor " + acceptor + " was not able to get a matching "
-               + "criteria.Maybe it is not responsible for the message '"
-               + JMSUtils.messageToString(message) + "'.", e);
-      }
 
-      return null;
+      acceptedData = DEFAULT_TRIGGER_MESSAGE_ACCEPTOR.acceptMessage(message, trigger);
+      if (acceptedData != null)
+      {
+         return singletonList((Match) new TriggerMatch(DEFAULT_TRIGGER_MESSAGE_ACCEPTOR, trigger, acceptedData));
+      }
+      else
+      {
+         return null;
+      }
    }
 
-   private TriggerMessageAcceptor getAcceptorForTrigger(Trigger trigger)
+   private List<TriggerMessageAcceptor> getExtensionAcceptorsForTrigger(Trigger trigger)
    {
-      return DEFAULT_TRIGGER_MESSAGE_ACCEPTOR;
-/*      try
-      {
-         String acceptorClassName = (String) trigger.getAttribute(
-               PredefinedConstants.ACCEPTOR_CLASS_ATT);
-
-         Class acceptorClass = Reflect.getClassFromClassName(acceptorClassName);
-
-         return (TriggerMessageAcceptor) acceptorClass.newInstance();
-      }
-      catch (ClassNotFoundException e)
-      {
-         throw new PublicException("Invalid JMS trigger acceptor.", e);
-      }
-      catch (InstantiationException e)
-      {
-         throw new PublicException("Invalid JMS trigger acceptor.", e);
-      }
-      catch (IllegalAccessException e)
-      {
-         throw new PublicException("Invalid JMS trigger acceptor.", e);
-      }*/
+      // TODO introduce factory to allow Acceptors to opt in per Trigger
+      return ExtensionProviderUtils.getExtensionProviders(TriggerMessageAcceptor.class);
    }
 
-   private interface Match
+   public static interface Match
    {
       void process(AdministrationServiceImpl session, Message message);
    }
 
-   private class ResponseMatch implements Match
+   public static class ResponseMatch implements Match
    {
       private final MessageAcceptor acceptor;
       private final IActivityInstance activityInstance;
 
-      private ResponseMatch(MessageAcceptor acceptor, IActivityInstance activityInstance)
+      public ResponseMatch(MessageAcceptor acceptor, IActivityInstance activityInstance)
       {
          this.acceptor = acceptor;
          this.activityInstance = activityInstance;

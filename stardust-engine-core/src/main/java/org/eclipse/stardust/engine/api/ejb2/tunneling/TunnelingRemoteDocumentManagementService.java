@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 72466
+ * Generated from  Revision
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling;
 
@@ -15,7 +15,7 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling;
  * </ul>
  *
  * @author rsauer
- * @version 72466
+ * @version $Revision
  */
 public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBObject, org.eclipse.stardust.engine.api.ejb2.tunneling.TunnelingRemoteService
 {
@@ -44,7 +44,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Gets all versions of the document by document ID (of any of its version).
      *
@@ -69,7 +69,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Gets multiple documents by ID or path.
      *
@@ -94,7 +94,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Gets documents based on the name pattern search.
      *
@@ -119,7 +119,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Gets documents based on the XPath query.
      *
@@ -144,7 +144,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves all documents satisfying the criteria specified in the provided query.
      *
@@ -164,7 +164,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the content of the document identified by <code>documentId</code>.
      * <p>
@@ -195,7 +195,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Initiates document content download via {@link DmsContentServlet}. The
      * returned token should be used as relative URI for the content Servlet and will be
@@ -221,7 +221,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves a folder and lists its members.
      *
@@ -247,7 +247,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves a folder. Level of detail of information returned is controlled by
      * levelOfDetail.
@@ -277,7 +277,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Gets multiple folders by ID or path.
      *
@@ -305,7 +305,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Gets folders based on the name pattern search.
      *
@@ -333,7 +333,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Gets folders based on the name XPath query.
      *
@@ -361,7 +361,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Creates document in a folder described by the document info. The new document
      * will have no content.
@@ -391,7 +391,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Creates document in a folder described by the document info.
      * <p>
@@ -399,7 +399,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
      * The encoding can take any value and can be used to decode the content
      * <code>byte[]</code>
      * after retrieving it via {@link #retrieveDocumentContent(String)}.
-     *
+     * 
      * <p>
      * Warning: this method should only be used for documents of reasonable size as the
      * full content will be materialized in memory both on the server as well as on the
@@ -434,7 +434,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Creates a new version of the document.
      *
@@ -463,7 +463,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Creates a new version of the document.
      *
@@ -492,7 +492,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Removes a version of a document. At least one version has to remain.<br>
      * A call to remove the last remaining version leads to a
@@ -521,7 +521,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Moves the document to the target path.
      * <p>
@@ -550,7 +550,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Updates document (except document content).
      *
@@ -584,7 +584,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Updates document (except document content).
      *
@@ -617,10 +617,10 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Updates document.
-     *
+     * 
      * <p>
      * Warning: this method should only be used for documents of reasonable size as the
      * full content will be materialized in memory both on the server as well as on the
@@ -663,10 +663,10 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Updates document.
-     *
+     * 
      * <p>
      * Warning: this method should only be used for documents of reasonable size as the
      * full content will be materialized in memory both on the server as well as on the
@@ -706,7 +706,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Initiates document content upload via {@link DmsContentServlet}. The
      * returned token should be used as relative URI for the content Servlet and will be
@@ -732,7 +732,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Removes document.
      *
@@ -754,7 +754,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Creates document in a folder described by the document info. The new document
      * will have no content.
@@ -784,7 +784,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Updates folder.
      *
@@ -809,7 +809,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Removes folder.
      *
@@ -833,14 +833,14 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Returns the privileges the session has for the resource denoted by
      * resourceId, which must exist.
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return
+     * @return 
      *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -854,17 +854,17 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Returns the IAccessControlPolicy objects that currently are in effect on
      * the resource denoted by resourceId (cumulated).
-     *
+     * 
      * Returned objects can not be modified, they represent a read-only view of
      * effective policies.
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return
+     * @return 
      *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -879,17 +879,17 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Returns the IAccessControlPolicy objects that are currently set for
      * the resource denoted by resourceId.
-     *
+     * 
      * Returned objects can be changed, changes take effect after calling
      * setPolicy()
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return
+     * @return 
      *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -904,17 +904,17 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Returns the IAccessControlPolicy objects that can be set for
      * the resource denoted by resourceId.
-     *
+     * 
      * Returned objects can be changed, and used as arguments to
      * setPolicy() in order to add a new policy.
      *
      * @param resourceId absolute path or ID of a file or folder
      *
-     * @return
+     * @return 
      *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -929,14 +929,14 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Binds the policy to the resource denoted by resourceId (overwrites the old
      * version of the policy)
-     *
+     * 
      * If the policy does not contain any IAccessControlEntry then this policy is
      * removed from the resource.
-     *
+     * 
      * If the policy was obtained using getApplicablePolicies(), the policy will
      * be added, if it was obtained using getPolicies(), the policy will replace
      * its old version.
@@ -957,7 +957,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Migrates resources in the repository. This migration process works sequential from
      * the current version to the next higher version. The count of resources migrated in
@@ -1014,7 +1014,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Retrieves the XSD schema for the specified schema location from the Document
      * Repository serialized into a byte[].
@@ -1040,7 +1040,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Binds a new repository instance.
      * <p>
@@ -1069,7 +1069,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Unbinds a previously bound repository.
      *
@@ -1086,7 +1086,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Provides information about all bound repositories.
      *
@@ -1104,7 +1104,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Provides information about all available repository providers.
      * <p>
@@ -1126,7 +1126,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Allows to set a bound repository as default repository.
      * <p>
@@ -1149,7 +1149,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * Allows to identify the currently set default repository.
      *
@@ -1166,7 +1166,7 @@ public interface TunnelingRemoteDocumentManagementService extends javax.ejb.EJBO
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;
-
+         
     /**
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions

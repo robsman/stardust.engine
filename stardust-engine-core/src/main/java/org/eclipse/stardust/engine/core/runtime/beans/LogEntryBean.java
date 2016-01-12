@@ -14,6 +14,7 @@ import java.util.Date;
 
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.ForeignKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
@@ -28,7 +29,7 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
  * The log entry might be bound to a specific process instance or even
  * a specific activity instance.
  */
-public class LogEntryBean extends IdentifiablePersistentBean implements ILogEntry
+public class LogEntryBean extends IdentifiablePersistentBean implements ILogEntry, IProcessInstanceAware
 {
    public static final String FIELD__OID = IdentifiablePersistentBean.FIELD__OID;
    public static final String FIELD__TYPE = "type";
@@ -69,7 +70,9 @@ public class LogEntryBean extends IdentifiablePersistentBean implements ILogEntr
    private String subject;
 
    private long stamp;
+   @ForeignKey (persistentElement=ProcessInstanceBean.class)
    private long processInstance;
+   @ForeignKey (persistentElement=ActivityInstanceBean.class)
    private long activityInstance;
    private long workflowUser;
    private long partition;
@@ -133,6 +136,13 @@ public class LogEntryBean extends IdentifiablePersistentBean implements ILogEntr
 
       return processInstance;
    }
+   
+   @Override
+   public IProcessInstance getProcessInstance()
+   {
+      return ProcessInstanceBean.findByOID(getProcessInstanceOID());
+   }
+   
    /*
     * The process instance for which the log entry is created
     * if there is one.

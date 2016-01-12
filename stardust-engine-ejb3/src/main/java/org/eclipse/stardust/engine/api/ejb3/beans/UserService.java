@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 71045
+ * Generated from Revision
  */
 package org.eclipse.stardust.engine.api.ejb3.beans;
 
@@ -15,7 +15,7 @@ import javax.ejb.Local;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 71045
+ * @version $Revision
  */
 @Local
 public interface UserService extends org.eclipse.stardust.engine.core.runtime.ejb.Ejb3ManagedService
@@ -25,18 +25,18 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
     * @see org.eclipse.stardust.engine.api.runtime.UserService#startSession(java.lang.String clientId)
     */
     public java.lang.String startSession(
-         java.lang.String clientId, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String clientId,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#closeSession(java.lang.String sessionId)
     */
     public void closeSession(
-         java.lang.String sessionId, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String sessionId,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#isInternalAuthentified()
     */
@@ -44,7 +44,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          isInternalAuthentified(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#isInternalAuthentication()
     */
@@ -52,7 +52,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          isInternalAuthentication(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#isInternalAuthorization()
     */
@@ -60,14 +60,15 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          isInternalAuthorization(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#getUser()
     */
     public org.eclipse.stardust.engine.api.runtime.User
-         getUser(org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         getUser(
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#modifyLoginUser(java.lang.String oldPassword, java.lang.String firstName, java.lang.String lastName, java.lang.String newPassword, java.lang.String eMail)
     */
@@ -77,7 +78,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          lastName, java.lang.String newPassword, java.lang.String eMail,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#modifyUser(org.eclipse.stardust.engine.api.runtime.User user)
     */
@@ -86,7 +87,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          org.eclipse.stardust.engine.api.runtime.User user,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#generatePasswordResetToken(java.lang.String realm, java.lang.String account)
     */
@@ -94,7 +95,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          java.lang.String realm, java.lang.String account,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#resetPassword(java.lang.String account, java.util.Map properties, java.lang.String token)
     */
@@ -102,7 +103,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          java.lang.String account, java.util.Map properties, java.lang.String token,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#modifyUser(org.eclipse.stardust.engine.api.runtime.User user, boolean generatePassword)
     */
@@ -111,7 +112,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          org.eclipse.stardust.engine.api.runtime.User user, boolean generatePassword,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#createUser(java.lang.String account, java.lang.String firstName, java.lang.String lastName, java.lang.String description, java.lang.String password, java.lang.String eMail, java.util.Date validFrom, java.util.Date validTo)
     */
@@ -122,7 +123,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          java.util.Date validFrom, java.util.Date validTo,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#createUser(java.lang.String realm, java.lang.String account, java.lang.String firstName, java.lang.String lastName, java.lang.String description, java.lang.String password, java.lang.String eMail, java.util.Date validFrom, java.util.Date validTo)
     */
@@ -131,17 +132,18 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          java.lang.String realm, java.lang.String account, java.lang.String firstName,
          java.lang.String lastName, java.lang.String description, java.lang.String
          password, java.lang.String eMail, java.util.Date validFrom, java.util.Date
-         validTo, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         validTo, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#getUser(java.lang.String account)
     */
     public org.eclipse.stardust.engine.api.runtime.User getUser(
-         java.lang.String account, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String account,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#getUser(java.lang.String realm, java.lang.String account)
     */
@@ -149,7 +151,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          java.lang.String realm, java.lang.String account,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#getUser(long userOID)
     */
@@ -157,25 +159,25 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          long userOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#invalidate(java.lang.String account)
     */
     public org.eclipse.stardust.engine.api.runtime.User
          invalidate(
-         java.lang.String account, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String account,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#invalidateUser(java.lang.String account)
     */
     public org.eclipse.stardust.engine.api.runtime.User
          invalidateUser(
-         java.lang.String account, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String account,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#invalidateUser(java.lang.String realm, java.lang.String account)
     */
@@ -184,7 +186,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          java.lang.String realm, java.lang.String account,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#createUserGroup(java.lang.String id, java.lang.String name, java.lang.String description, java.util.Date validFrom, java.util.Date validTo)
     */
@@ -194,7 +196,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          java.util.Date validFrom, java.util.Date validTo,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#getUserGroup(java.lang.String id)
     */
@@ -203,14 +205,15 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          java.lang.String id, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#getUserGroup(long oid)
     */
     public org.eclipse.stardust.engine.api.runtime.UserGroup getUserGroup(
-         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#modifyUserGroup(org.eclipse.stardust.engine.api.runtime.UserGroup userGroup)
     */
@@ -219,7 +222,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          org.eclipse.stardust.engine.api.runtime.UserGroup userGroup,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#invalidateUserGroup(java.lang.String id)
     */
@@ -228,15 +231,16 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          java.lang.String id, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#invalidateUserGroup(long oid)
     */
     public org.eclipse.stardust.engine.api.runtime.UserGroup
          invalidateUserGroup(
-         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#createUserRealm(java.lang.String id, java.lang.String name, java.lang.String description)
     */
@@ -245,7 +249,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          java.lang.String id, java.lang.String name, java.lang.String description,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#dropUserRealm(java.lang.String id)
     */
@@ -253,7 +257,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          java.lang.String id, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#getUserRealms()
     */
@@ -261,7 +265,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          getUserRealms(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#addDeputy(org.eclipse.stardust.engine.api.runtime.UserInfo user, org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser, org.eclipse.stardust.engine.api.runtime.DeputyOptions options)
     */
@@ -272,7 +276,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          org.eclipse.stardust.engine.api.runtime.DeputyOptions options,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#modifyDeputy(org.eclipse.stardust.engine.api.runtime.UserInfo user, org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser, org.eclipse.stardust.engine.api.runtime.DeputyOptions options)
     */
@@ -283,7 +287,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          org.eclipse.stardust.engine.api.runtime.DeputyOptions options,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#removeDeputy(org.eclipse.stardust.engine.api.runtime.UserInfo user, org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser)
     */
@@ -292,7 +296,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#getDeputies(org.eclipse.stardust.engine.api.runtime.UserInfo user)
     */
@@ -301,7 +305,7 @@ public interface UserService extends org.eclipse.stardust.engine.core.runtime.ej
          org.eclipse.stardust.engine.api.runtime.UserInfo user,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
-
+         
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#getUsersBeingDeputyFor(org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser)
     */

@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import javax.xml.namespace.QName;
 
@@ -283,5 +284,12 @@ public class TriggerDaemon implements IDaemon
       }
 
       return false;
+   }
+
+   @Override
+   public DaemonExecutionLog getExecutionLog()
+   {
+      // TODO Auto-generated method stub
+      return null;
    }
 }

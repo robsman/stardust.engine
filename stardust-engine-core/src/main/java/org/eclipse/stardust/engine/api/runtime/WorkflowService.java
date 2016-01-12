@@ -1157,8 +1157,7 @@ public interface WorkflowService extends Service
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.abortProcessInstances,
-         scope=ExecutionPermission.Scope.processDefinition,
-         defaults={ExecutionPermission.Default.OWNER})
+         scope=ExecutionPermission.Scope.processDefinition)
    ProcessInstance abortProcessInstance(long processInstanceOid,
          AbortScope abortScope) throws ObjectNotFoundException,
          AccessForbiddenException;

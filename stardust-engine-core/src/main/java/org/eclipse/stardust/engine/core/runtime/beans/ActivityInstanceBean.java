@@ -59,6 +59,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.runtime.utils.PerformerUtils.EncodedPerformer;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.*;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 /**
@@ -865,7 +866,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    {
       return ActivityInstanceState.Aborting == getState();
    }
-   
+
    private void putToUserWorklist(IUser user)
    {
       if ( !user.isValid()
@@ -1322,23 +1323,52 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
          if (separateData && copyAllData)
          {
-            for (Iterator iterator = getProcessInstance().getAllDataValues(); iterator.hasNext();)
+            for (Iterator<?> iterator = getProcessInstance().getAllDataValues(); iterator.hasNext();)
             {
                IDataValue srcValue = (IDataValue) iterator.next();
 
                IData srcData = srcValue.getData();
-               if (trace.isDebugEnabled())
+
+               if (!RootPIUtils.isRootProcessAttachmentAttributeEnabled(srcData.getId(), getProcessInstance()))
                {
-                  trace.debug("Data value '" + srcData.getId() + "' retrieved.");
+                  if (trace.isDebugEnabled())
+                  {
+                     trace.debug("Data value '" + srcData.getId() + "' retrieved.");
+                  }
+
+                  // DataValueBean.copyDataValue(subProcess, srcValue);
+
+                  IModel targetModel = (IModel) subProcess.getProcessDefinition().getModel();
+                  // we copy only data that exists in the target model
+                  if (srcData == targetModel.findData(srcData.getId()))
+                  {
+                     subProcess.setOutDataValue(srcData, "", srcValue.getSerializedValue());
+                  }
                }
-
-               // DataValueBean.copyDataValue(subProcess, srcValue);
-
-               IModel targetModel = (IModel) subProcess.getProcessDefinition().getModel();
-               // we copy only data that exists in the target model
-               if (srcData == targetModel.findData(srcData.getId()))
+            }
+            if (!synchronous && RootPIUtils.isRootProcessAttachmentAttributeEnabled(DmsConstants.DATA_ID_ATTACHMENTS, getProcessInstance()))
+            {
+               // copy process attachments from root for async subprocess
+               IProcessInstance rootProcessInstance = getProcessInstance().getRootProcessInstance();
+               IModel rootModel = (IModel) rootProcessInstance.getProcessDefinition().getModel();
+               IData rootAttachments = rootModel.findData(DmsConstants.DATA_ID_ATTACHMENTS);
+               if (rootAttachments != null)
                {
-                  subProcess.setOutDataValue(srcData, "", srcValue.getSerializedValue());
+                  IDataValue rootDataValue = rootProcessInstance.getDataValue(rootAttachments);
+                  IModel targetModel = (IModel) subProcess.getProcessDefinition().getModel();
+                  // we copy only data that exists in the target model
+                  IData targetAttachments = targetModel.findData(DmsConstants.DATA_ID_ATTACHMENTS);
+                  if (targetAttachments != null)
+                  {
+                     subProcess.setOutDataValue(targetAttachments, "",
+                           rootDataValue.getSerializedValue());
+                  }
+
+                  if (trace.isDebugEnabled())
+                  {
+                     trace.debug("Data value '" + targetAttachments.getId()
+                           + "' retrieved from root.");
+                  }
                }
             }
          }

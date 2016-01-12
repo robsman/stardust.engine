@@ -94,7 +94,7 @@ public final class CamelConstants
    public static final String GENERIC_CAMEL_ROUTE_EVENT= "genericCamelRouteEvent";
    public static final String MAIL_ATTACHMENTS_AP_ID= "mailAttachmentsAP";
    public static final String MAIL_TEMPLATE_CONFIGURATION_ATT = "stardust:emailOverlay::templateConfigurations";
-   public static final String DOCUMENT_REQUEST_AP_ID= "DOCUMENT_REQUEST";
+   public static final String CORRESPONDANCE_AP_ID= "CORRESPONDENCE";
 
    public static final String SCRIPTING_OVERLAY= "scriptingIntegrationOverlay";
    public static final String SCRIPTING_LANGUAGE_EA_KEY="stardust:scriptingOverlay::language";
@@ -102,6 +102,14 @@ public final class CamelConstants
    public static final String JAVASCRIPT="JavaScript";
    public static final String GROOVY="Groovy";
    public static final String PYTHON="Python";
+   
+   public static final String TEMPLATING_LOCATION = "CamelTemplatingLocation";
+   public static final String TEMPLATING_TEMPLATE_CONTENT = "CamelTemplatingTemplateContent";
+   public static final String TEMPLATING_FORMAT = "CamelTemplatingFormat";
+   public static final String TEMPLATING_TEMPLATE = "CamelTemplatingTemplate";
+   public static final String TEMPLATING_OUTPUT_NAME = "CamelTemplatingOutputName";
+   public static final String TEMPLATING_CONVERT_TO_PDF = "CamelTemplatingConvertToPdf";
+   public static final String TEMPLATING_REQUEST_METADATA= "CamelTemplatingMetaData";
    
    private CamelConstants()
    {}

@@ -353,6 +353,10 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
             valueColumn = dvJoin.fieldRef(StructuredDataValueBean.FIELD__NUMBER_VALUE);
             break;
 
+         case BigData.DOUBLE_VALUE:
+            valueColumn = dvJoin.fieldRef(StructuredDataValueBean.FIELD__DOUBLE_VALUE);
+            break;
+            
          case BigData.STRING_VALUE:
             valueColumn = dvJoin.fieldRef(StructuredDataValueBean.FIELD__STRING_VALUE);
             break;

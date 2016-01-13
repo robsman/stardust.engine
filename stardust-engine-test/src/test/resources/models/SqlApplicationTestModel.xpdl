@@ -14,7 +14,7 @@
    <TypeDeclarations>
       <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Id="project" Name="project">
          <xpdl:SchemaType>
-            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:pro="http://www.infinity.com/bpm/model/Model117/project" targetNamespace="http://www.infinity.com/bpm/model/Model117/project">
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:pro="http://www.infinity.com/bpm/model/SqlApplicationTestModel/project" targetNamespace="http://www.infinity.com/bpm/model/SqlApplicationTestModel/project">
                <xsd:complexType name="project">
                   <xsd:sequence>
                      <xsd:element name="ID" type="xsd:string"/>
@@ -28,8 +28,8 @@
       </xpdl:TypeDeclaration>
       <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Id="projects" Name="projects">
          <xpdl:SchemaType>
-            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:Q1="http://www.infinity.com/bpm/model/Model117/XSDDataStructure1" xmlns:pro="http://www.infinity.com/bpm/model/Model117/projects" xmlns:pro1="http://www.infinity.com/bpm/model/Model117/project" targetNamespace="http://www.infinity.com/bpm/model/Model117/XSDDataStructure1">
-               <xsd:import namespace="http://www.infinity.com/bpm/model/Model117/project" schemaLocation="urn:internal:project"/>
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:Q1="http://www.infinity.com/bpm/model/SqlApplicationTestModel/XSDDataStructure1" xmlns:pro="http://www.infinity.com/bpm/model/SqlApplicationTestModel/projects" xmlns:pro1="http://www.infinity.com/bpm/model/SqlApplicationTestModel/project" targetNamespace="http://www.infinity.com/bpm/model/SqlApplicationTestModel/XSDDataStructure1">
+               <xsd:import namespace="http://www.infinity.com/bpm/model/SqlApplicationTestModel/project" schemaLocation="urn:internal:project"/>
                <xsd:complexType name="projects">
                   <xsd:sequence>
                      <xsd:element maxOccurs="unbounded" minOccurs="0" name="projects" type="pro1:project"/>
@@ -101,14 +101,9 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::connectionType" Value="direct"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::databasetype" Value="others"/>
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;sql:SELECT * FROM projects?outputType=SelectList&amp;amp;dataSource=#xaAuditTrailConnectionFactory&amp;amp;alwaysPopulateStatement=true&amp;amp;prepareStatementStrategy=#sqlPrepareStatementStrategy&quot; /&gt;&lt;setHeader headerName=&quot;projects&quot;&gt;&lt;simple&gt;$simple{body}&lt;/simple&gt;&lt;/setHeader&gt;&lt;to uri=&quot;bean:bpmTypeConverter?method=fromList&quot;/&gt;"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::hostname" Value="localhost"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::port" Value="3306"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::dbname" Value="sqlcomponentdb"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:derby:target/ipp-test-DB"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::driver" Value="org.apache.derby.jdbc.EmbeddedDriver"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="root"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::password" Value="root"/>
-                     <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Model117:projects:projects"/>
+                     <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SqlApplicationTestModel:projects:projects"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::outputType" Value="SelectList"/>
                   </carnot:Attributes>
                </carnot:Application>
@@ -174,12 +169,8 @@
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="project"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SqlApplicationTestModel:projects:projects"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::outputType" Value="SelectList"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::hostname" Value="localhost"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::port" Value="3306"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::dbname" Value="sqlcomponentdb"/>
+					 <carnot:Attribute Name="stardust:sqlScriptingOverlay::driver" Value="org.apache.derby.jdbc.EmbeddedDriver"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:derby:target/ipp-test-DB"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="root"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::password" Value="root"/>
                   </carnot:Attributes>
                </carnot:Application>
             </ExtendedAttribute>
@@ -240,11 +231,6 @@
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SqlApplicationTestModel:projects:projects"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::outputType" Value="SelectList"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::sqlQuery" Value="SELECT * FROM projects where license= :#licenseParam"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::hostname" Value="localhost"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::port" Value="3306"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::dbname" Value="sqlcomponentdb"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="root"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::password" Value="root"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:derby:target/ipp-test-DB"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::driver" Value="org.apache.derby.jdbc.EmbeddedDriver"/>
                   </carnot:Attributes>
@@ -305,11 +291,6 @@
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;sql:SELECT license FROM projects where id= :#idParam?outputType=SelectOne&amp;amp;dataSource=#xaAuditTrailConnectionFactory&amp;amp;alwaysPopulateStatement=true&amp;amp;prepareStatementStrategy=#sqlPrepareStatementStrategy&quot; /&gt;&lt;setHeader headerName=&quot;license&quot;&gt;&lt;simple&gt;$simple{body}&lt;/simple&gt;&lt;/setHeader&gt;&lt;to uri=&quot;bean:bpmTypeConverter?method=fromList&quot;/&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="license"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::outputType" Value="SelectOne"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::hostname" Value="localhost"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::port" Value="3306"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::dbname" Value="sqlcomponentdb"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="root"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::password" Value="root"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:derby:target/ipp-test-DB"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::driver" Value="org.apache.derby.jdbc.EmbeddedDriver"/>
                   </carnot:Attributes>
@@ -378,11 +359,6 @@
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;sql:SELECT * FROM projects where id= :#idParam?outputType=SelectOne&amp;amp;dataSource=#xaAuditTrailConnectionFactory&amp;amp;alwaysPopulateStatement=true&amp;amp;prepareStatementStrategy=#sqlPrepareStatementStrategy&quot; /&gt;&lt;setHeader headerName=&quot;project&quot;&gt;&lt;simple&gt;$simple{body}&lt;/simple&gt;&lt;/setHeader&gt;&lt;to uri=&quot;bean:bpmTypeConverter?method=fromList&quot;/&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SqlApplicationTestModel:project:project"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::outputType" Value="SelectOne"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::hostname" Value="localhost"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::port" Value="3306"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::dbname" Value="sqlcomponentdb"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="carnot"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::password" Value="ag"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:derby:target/ipp-test-DB"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::driver" Value="org.apache.derby.jdbc.EmbeddedDriver"/>
                   </carnot:Attributes>
@@ -428,11 +404,6 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::databasetype" Value="others"/>
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;sql:insert into projects values (4, &amp;amp;apos;Felix&amp;amp;apos;, &amp;amp;apos;ASF&amp;amp;apos;)?dataSource=#xaAuditTrailConnectionFactory&amp;amp;alwaysPopulateStatement=true&amp;amp;prepareStatementStrategy=#sqlPrepareStatementStrategy&quot; /&gt;&lt;to uri=&quot;bean:bpmTypeConverter?method=fromList&quot;/&gt;"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::sqlQuery" Value="insert into projects values (4, 'Felix', 'ASF')"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::hostname" Value="localhost"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::port" Value="3306"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::dbname" Value="sqlcomponentdb"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="root"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::password" Value="root"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:derby:target/ipp-test-DB"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::driver" Value="org.apache.derby.jdbc.EmbeddedDriver"/>
                   </carnot:Attributes>
@@ -475,11 +446,6 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::connectionType" Value="direct"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::databasetype" Value="others"/>
                      <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;sql:Update PROJECTS set LICENSE=&amp;amp;apos;test&amp;amp;apos; where ID=3?dataSource=#xaAuditTrailConnectionFactory&amp;amp;alwaysPopulateStatement=true&amp;amp;prepareStatementStrategy=#sqlPrepareStatementStrategy&quot; /&gt;&lt;to uri=&quot;bean:bpmTypeConverter?method=fromList&quot;/&gt;"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::hostname" Value="localhost"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::port" Value="3306"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::dbname" Value="sqlcomponentdb"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="root"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::password" Value="root"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:derby:target/ipp-test-DB"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::driver" Value="org.apache.derby.jdbc.EmbeddedDriver"/>
                   </carnot:Attributes>

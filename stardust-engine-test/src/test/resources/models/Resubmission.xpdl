@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="Resubmission" Name="Resubmission">
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="Resubmission" Name="Resubmission">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
       <Vendor>SunGard CSA LLC, IPP</Vendor>
@@ -22,6 +23,18 @@
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
                <carnot:Role Oid="10905"/>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Participant>
+      <Participant Id="Role1" Name="Role 1">
+         <ParticipantType Type="ROLE"/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Role Oid="15172">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                  </carnot:Attributes>
+               </carnot:Role>
             </ExtendedAttribute>
          </ExtendedAttributes>
       </Participant>
@@ -228,6 +241,11 @@
                                  <carnot:EventAction Oid="15171" Id="EventAction1" Name="Event Action 1" Type="scheduleActivity" Kind="EVENT">
                                     <carnot:Attributes>
                                        <carnot:Attribute Name="carnot:engine:targetState" Value="5" Type="org.eclipse.stardust.engine.api.runtime.ActivityInstanceState"/>
+                                    </carnot:Attributes>
+                                 </carnot:EventAction>
+                                 <carnot:EventAction Oid="15173" Id="EventAction2" Name="Event Action 2" Type="delegateActivity" Kind="EVENT">
+                                    <carnot:Attributes>
+                                       <carnot:Attribute Name="carnot:engine:targetWorklist" Value="defaultPerformer" Type="org.eclipse.stardust.engine.core.extensions.actions.delegate.TargetWorklist"/>
                                     </carnot:Attributes>
                                  </carnot:EventAction>
                               </carnot:EventActions>

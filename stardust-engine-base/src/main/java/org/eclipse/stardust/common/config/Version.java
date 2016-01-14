@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,6 +54,8 @@ public class Version implements Comparable<Version>, Serializable
       mapStardust2Ipp.put(Version.createFixedVersion(2, 1, 1), Version.createFixedVersion(8, 1, 1));
       mapStardust2Ipp.put(Version.createFixedVersion(3, 0, 0), Version.createFixedVersion(8, 2, 0));
       mapStardust2Ipp.put(Version.createFixedVersion(3, 0, 1), Version.createFixedVersion(8, 2, 2));
+      // Version SD 3.0.2 never existed but is necessary to cover this intermediate step in RT upgrade
+      mapStardust2Ipp.put(Version.createFixedVersion(3, 0, 2), Version.createFixedVersion(8, 2, 3));
       mapStardust2Ipp.put(Version.createFixedVersion(3, 1, 0), Version.createFixedVersion(9, 0, 0));
 
       // map DEV builds to latest IPP release
@@ -93,7 +95,7 @@ public class Version implements Comparable<Version>, Serializable
       fixedVersion.setFixed(true);
       return fixedVersion;
    }
-   
+
    public static Version createVersion(String productName, String versionString)
    {
       Version version = new Version(versionString);

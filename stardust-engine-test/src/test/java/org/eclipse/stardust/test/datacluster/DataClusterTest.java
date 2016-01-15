@@ -18,6 +18,8 @@ import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,9 +31,7 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
 import org.eclipse.stardust.common.config.GlobalParameters;
-import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
-import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
-import org.eclipse.stardust.engine.api.query.ProcessInstances;
+import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
@@ -52,7 +52,7 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
  * This class contains functional tests for verification and synchronization of data
  * cluster commands of sysconsole and its console logging action as well.
  * </p>
- * 
+ *
  * @author Antje.Fuhrmann
  * @version $Revision$
  */
@@ -667,5 +667,69 @@ public class DataClusterTest
       final ProcessInstanceQuery query = ProcessInstanceQuery.findCompleted(processID);
       final ProcessInstances pis = queryService.getAllProcessInstances(query);
       return pis;
+   }
+
+   @Test
+   public void testNotInPredicateOnDataCluster() throws Exception
+   {
+      wfService.startProcess(PROCESS_DEF_ID_1, null, true);
+      long oid = findFirstAliveActivityInstanceOid(PROCESS_DEF_ID_1);
+      Map<String, Object> datas = new HashMap<String, Object>();
+      datas.put(STRING_DATA, STRING_DATA_VAL);
+      datas.put(INT_DATA, 123);
+      datas.put(LONG_DATA, 45678);
+      wfService.activateAndComplete(oid, null, datas);
+      Session session = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
+      DBDescriptor dbDescriptor = DBDescriptor.create(SessionFactory.AUDIT_TRAIL);
+      DDLManager ddlManager = new DDLManager(dbDescriptor);
+      Connection connection = session.getConnection();
+      String dropString = ddlManager.getDropTableStatementString(DB_SCHEMA, DC_TABLE);
+      DDLManager.executeOrSpoolStatement(dropString, connection, null);
+      connection.commit();
+      assertFalse(ddlManager.containsTable(DB_SCHEMA, DC_TABLE, session.getConnection()));
+      ByteArrayOutputStream logEntryBeforeSync = new ByteArrayOutputStream();
+      ByteArrayOutputStream logEntrySync = new ByteArrayOutputStream();
+      ByteArrayOutputStream logEntryAfterSync = new ByteArrayOutputStream();
+      SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
+            logEntryBeforeSync));
+      String logEntry = logEntryBeforeSync.toString();
+      assertTrue(logEntry.contains("Cluster table " + DB_SCHEMA + "." + DC_TABLE
+            + " does not exist."));
+      assertTrue(logEntry
+            .contains("The data cluster is invalid. There is 1 inconsistency."));
+      SchemaHelper.alterAuditTrailSynchronizeDataClusterTables(SYSOP, new PrintStream(
+            logEntrySync), null, null);
+      logEntry = logEntrySync.toString();
+      assertTrue(logEntry.contains("Cluster table " + DB_SCHEMA + "." + DC_TABLE
+            + " does not exist: Created table now."));
+      assertTrue(logEntry.contains("Inconsistent cluster table " + DB_SCHEMA + "."
+            + DC_TABLE
+            + ": Inserted missing existing process instances into cluster table."));
+      assertTrue(logEntry.contains("Synchronized data cluster table: " + DB_SCHEMA + "."
+            + DC_TABLE + ". There were 5 inconsistencies. "
+            + "All inconsistencies have been resolved now."));
+      SchemaHelper.alterAuditTrailVerifyDataClusterTables(SYSOP, new PrintStream(
+            logEntryAfterSync));
+      logEntry = logEntryAfterSync.toString();
+      assertTrue(logEntry
+            .contains("Verified data cluster. There are no inconsistencies."));
+      assertTrue(ddlManager.containsTable(DB_SCHEMA, DC_TABLE, session.getConnection()));
+
+      Collection<String> pds = new ArrayList<String>(3);
+      pds.add("aaa");
+      pds.add("bbb");
+      pds.add("ccc");
+
+      // This failed before fix applied for DC evaluation. NotIn-DataFilter had been evaluated to IN before
+      ActivityInstanceQuery aiquery = ActivityInstanceQuery.findAll();
+      aiquery.getFilter().add(DataFilter.notIn("aString", pds));
+      ActivityInstances ais = queryService.getAllActivityInstances(aiquery);
+      assertTrue(ais.getSize() == 1);
+
+      // Evaluateion of In-DataFilter worked before, too.
+      aiquery = ActivityInstanceQuery.findAll();
+      aiquery.getFilter().add(DataFilter.in("aString", pds));
+      ais = queryService.getAllActivityInstances(aiquery);
+      assertTrue(ais.getSize() == 0);
    }
 }

@@ -466,38 +466,38 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
             }
             else
             {
-					throw new PublicException(
-							BpmRuntimeError.QUERY_NULL_VALUES_NOT_SUPPORTED_WITH_OPERATOR
-									.raise(operator));
+               throw new PublicException(
+                     BpmRuntimeError.QUERY_NULL_VALUES_NOT_SUPPORTED_WITH_OPERATOR
+                           .raise(operator));
             }
          }
          else
          {
-         FieldRef lhsOperand = clusterTable.fieldRef(valueColumn, ignorePreparedStatements);
+            FieldRef lhsOperand = clusterTable.fieldRef(valueColumn, ignorePreparedStatements);
 
-         if ( !EvaluationOptions.isCaseSensitive(evaluationOptions))
-         {
-            // ignore case by applying LOWER(..) SQL function
-            lhsOperand = Functions.strLower(lhsOperand);
-         }
-
-         if (operator.isBinary())
-         {
-            Assert.isNotNull(valueColumn);
-
-            if (operator.equals(Operator.LIKE)
-                  && canonicalValue.getTypeKey() == BigData.STRING)
+            if (!EvaluationOptions.isCaseSensitive(evaluationOptions))
             {
-               resultTerm.add(Predicates.inList(clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
-                     new int[] { BigData.STRING, BigData.BIG_STRING }));
+               // ignore case by applying LOWER(..) SQL function
+               lhsOperand = Functions.strLower(lhsOperand);
             }
-            else
+
+            if (operator.isBinary())
             {
+               Assert.isNotNull(valueColumn);
+
+               if (operator.equals(Operator.LIKE)
+                     && canonicalValue.getTypeKey() == BigData.STRING)
+               {
+               resultTerm.add(Predicates.inList(clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
+                        new int[] {BigData.STRING, BigData.BIG_STRING}));
+               }
+               else
+               {
                   resultTerm.add(Predicates.isEqual(clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
                         canonicalValue.getTypeKey()));
-            }
+               }
 
-            if (matchValue instanceof Collection)
+               if (matchValue instanceof Collection)
                {
                   List<List< ? >> subLists = CollectionUtils.split(
                         (Collection) matchValue, SQL_IN_CHUNK_SIZE);
@@ -515,39 +515,46 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
                               }
                            });
 
-                     resultTerm.add(Predicates.inList(lhsOperand, valuesIter));
+                     if (operator.equals(Operator.NOT_IN))
+                     {
+                        mpTerm.add(Predicates.notInList(lhsOperand, valuesIter));
+                     }
+                     else
+                     {
+                        mpTerm.add(Predicates.inList(lhsOperand, valuesIter));
+                     }
                   }
                   resultTerm.add(mpTerm);
                }
-            else
-            {
+               else
+               {
                   resultTerm.add(new ComparisonTerm(lhsOperand,
                         (Operator.Binary) operator, getDataPredicateArgumentValue(
                               matchValue, evaluationOptions)));
+               }
             }
-         }
-         else if (operator.isTernary())
-         {
-            Assert.isNotNull(valueColumn);
-
-            if (!(matchValue instanceof Pair))
+            else if (operator.isTernary())
             {
-						throw new PublicException(
-								BpmRuntimeError.QUERY_INCONSISTENT_OPERATOR_USE
-										.raise(operator, matchValue));
-            }
+               Assert.isNotNull(valueColumn);
 
-            Pair pair = (Pair) matchValue;
-            Pair valuePair = new Pair(
-                  getDataPredicateArgumentValue(pair.getFirst(), evaluationOptions),
-                  getDataPredicateArgumentValue(pair.getSecond(), evaluationOptions));
+               if (!(matchValue instanceof Pair))
+               {
+                  throw new PublicException(
+                        BpmRuntimeError.QUERY_INCONSISTENT_OPERATOR_USE.raise(operator,
+                              matchValue));
+               }
+
+               Pair pair = (Pair) matchValue;
+               Pair valuePair = new Pair(
+                     getDataPredicateArgumentValue(pair.getFirst(), evaluationOptions),
+                     getDataPredicateArgumentValue(pair.getSecond(), evaluationOptions));
 
                resultTerm.add(Predicates.isEqual(clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
                      canonicalValue.getTypeKey()));
                resultTerm.add(new ComparisonTerm(lhsOperand, (Operator.Ternary) operator,
                      valuePair));
+            }
          }
-      }
       }
 
       return resultTerm;

@@ -13,10 +13,9 @@ package org.eclipse.stardust.engine.core.spi.extensions.runtime;
 import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.engine.api.query.AbstractDataFilter;
-import org.eclipse.stardust.engine.api.query.FilterAndTerm;
-import org.eclipse.stardust.engine.api.query.FilterCriterion;
-import org.eclipse.stardust.engine.api.query.FilterTerm;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.query.*;
+import org.eclipse.stardust.engine.api.query.SqlBuilderBase.DataAttributeKey;
 import org.eclipse.stardust.engine.core.persistence.Join;
 
 
@@ -34,6 +33,8 @@ public class DataFilterExtensionContext
    private boolean useDistinct = false;
 
    private boolean isFilterUsedInAndTerm = true;
+   
+   private Set<DataAttributeKey> clusteredFilters = CollectionUtils.newHashSet();
 
    public DataFilterExtensionContext(List<AbstractDataFilter> dataFilters)
    {
@@ -143,5 +144,32 @@ public class DataFilterExtensionContext
    public void setFilterUsedInAndTerm(boolean isFilterUsedInAndTerm)
    {
       this.isFilterUsedInAndTerm = isFilterUsedInAndTerm;
+   }
+
+   public boolean isClusteredFilter(AbstractDataFilter filter, Set<IData> datas)
+   {
+      boolean isClusteredFilter = false;
+      if (datas.isEmpty())
+      {
+         isClusteredFilter = clusteredFilters.contains(new DataAttributeKey(filter));
+      }
+      else
+      {
+         for (IData data : datas)
+         {
+            if (clusteredFilters.contains(new DataAttributeKey(data, filter
+                  .getAttributeName())))
+            {
+               isClusteredFilter = true;
+               break;
+            }
+         }
+      }
+      return isClusteredFilter;
+   }
+   
+   public void setClusteredFilter(Set<DataAttributeKey> clusteredFilters)
+   {
+      this.clusteredFilters = clusteredFilters;
    }
 }

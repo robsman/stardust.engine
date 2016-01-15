@@ -93,6 +93,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
 
       Map<DataAttributeKey, Set<DataCluster>> clusterBindings = CollectionUtils
             .newHashMap();
+      Set<DataAttributeKey> clusteredFilters = new HashSet<DataAttributeKey>();
       for (Map.Entry<DataCluster, Set<DataAttributeKey>> entry : clusterCandidates
             .entrySet())
       {
@@ -103,12 +104,14 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
             {
                boundClusters = CollectionUtils.newHashSet();
                clusterBindings.put(key, boundClusters);
+               clusteredFilters.add(key);
             }
             boundClusters.add(entry.getKey());
          }
       }
 
       DataFilterExtensionContext dataFilterExtensionContext = new DataFilterExtensionContext(query.getFilter());
+      dataFilterExtensionContext.setClusteredFilter(clusteredFilters);
 
       return super.buildSql(new ClusteredDataVisitationContext(query, type,
             evaluationContext, clusterBindings, dataFilterExtensionContext));

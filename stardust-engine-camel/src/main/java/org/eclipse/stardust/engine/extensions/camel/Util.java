@@ -286,7 +286,7 @@ public class Util
    public static boolean isApplicationRetryResponsibilityEnabled(final IApplication application){
       Boolean enabled=true;
       if(application.getAttribute(PredefinedConstants.SYNCHRONOUS_APPLICATION_RETRY_RESPONSIBILITY) != null)
-         enabled = ((String) application.getAttribute(SYNCHRONOUS_APPLICATION_RETRY_ENABLE)).equalsIgnoreCase("application");
+         enabled = ((String) application.getAttribute(PredefinedConstants.SYNCHRONOUS_APPLICATION_RETRY_RESPONSIBILITY)).equalsIgnoreCase("application");
    
       return enabled;
    }

@@ -36,6 +36,8 @@ import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
 public abstract class ModelParticipantBean extends IdentifiableElementBean
       implements IModelParticipant
 {
+   private static final long serialVersionUID = -7610223755977593259L;
+
    /** Organizations this participant is part of. */
    private List organizations = null;
 
@@ -577,7 +579,7 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
             {
                if(!isTreeRemoved((IOrganization) deployedModelParticipant))
                {
-                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organization.getId());
+                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organizationID);
                   inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                   isValid = false;
                }
@@ -586,7 +588,7 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
             {
                if(containsMember(deployedModelParticipant, true))
                {
-                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organization.getId());
+                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organizationID);
                   inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                   isValid = false;
                }
@@ -629,7 +631,7 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
             {
                if(!isTreeAdded((IOrganization) modelParticipant))
                {
-                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organization.getId());
+                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organizationID);
                   inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                   isValid = false;
                }
@@ -638,7 +640,7 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
             {
                if(containsMember(modelParticipant, false))
                {
-                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organization.getId());
+                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organizationID);
                   inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                   isValid = false;
                }

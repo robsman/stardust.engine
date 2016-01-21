@@ -213,7 +213,8 @@ public class BenchmarksTest
       if (instances.size() > 0)
       {
          ActivityInstance ai = instances.get(0);
-         assertEquals(ai.getProcessInstance().getBenchmark(), parentPi.getBenchmark());
+         assertEquals(ai.getProcessInstance().getBenchmark(), parentPi.getBenchmark());         
+         assertEquals("Benchmarked Parent Process", ai.getProcessInstance().getRootProcessInstanceName());
       }
       else
       {

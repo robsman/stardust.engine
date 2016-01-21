@@ -422,4 +422,9 @@ public class LazilyLoadingProcessInstanceDetails extends RuntimeObjectDetails im
    {
       return getProcessInstanceDetails().getBenchmark();
    }
+   
+   public String getRootProcessInstanceName()
+   {
+      return getProcessInstanceDetails().getRootProcessInstanceName();
+   }   
 }

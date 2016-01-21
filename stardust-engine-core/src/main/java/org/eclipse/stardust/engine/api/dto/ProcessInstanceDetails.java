@@ -42,7 +42,6 @@ import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
@@ -78,6 +77,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
    private EnumSet<ProcessInstanceDetailsOptions> detailsOptions;
 
    private final String processName;
+   private final String rootProcessName;
 
    private final long rootProcessOID;
 
@@ -142,6 +142,8 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       {
       }
       this.rootProcessOID = rootPIOID;
+      this.rootProcessName = processInstance.getRootProcessInstance() != null 
+            ? processInstance.getRootProcessInstance().getProcessDefinition().getName() : null;
       // </fix>
 
       // <fix>
@@ -803,4 +805,8 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       return this.benchmarkResult;
    }
 
+   public String getRootProcessInstanceName()
+   {
+      return rootProcessName;
+   }
 }

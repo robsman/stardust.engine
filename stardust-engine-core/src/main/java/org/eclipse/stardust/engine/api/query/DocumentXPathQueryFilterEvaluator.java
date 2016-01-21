@@ -99,6 +99,12 @@ public class DocumentXPathQueryFilterEvaluator implements FilterEvaluationVisito
             filter.getOperator(), filter.getValue());
    }
 
+   public Object visit(RootProcessInstanceFilter filter, Object context)
+   {
+      // TODO Auto-generated method stub
+      throw new UnsupportedOperationException();
+   }
+   
    public Object visit(ProcessDefinitionFilter filter, Object context)
    {
       // TODO Auto-generated method stub

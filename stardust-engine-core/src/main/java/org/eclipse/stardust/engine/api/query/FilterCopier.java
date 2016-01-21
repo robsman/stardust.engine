@@ -84,6 +84,11 @@ public class FilterCopier implements FilterEvaluationVisitor
       return filter;
    }
 
+   public Object visit(RootProcessInstanceFilter filter, Object context)
+   {
+      return filter;
+   }
+   
    public Object visit(ProcessDefinitionFilter filter, Object context)
    {
       return filter;

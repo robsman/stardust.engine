@@ -73,6 +73,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
    protected int allFromHierModeCounter = 0;
 
    private int appliedProcDefFilterJoinCounter = 0;
+   private int appliedRootProcDefFilterJoinCounter = 0;
 
    public ParsedQuery buildSql(Query query, Class type, EvaluationContext evaluationContext)
    {
@@ -302,6 +303,10 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          {
             joins.add((Join)join.getValue());
          }
+         else if (rawKey instanceof RootProcessInstanceFilterJoinKey) {
+            joins.add((Join)join.getValue());
+         }
+         
          else if (rawKey instanceof ProcessDefinitionFilterJoinKey) {
             joins.add((Join)join.getValue());
          }
@@ -528,9 +533,6 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
    public Object visit(BinaryOperatorFilter filter, Object rawContext)
    {
       VisitationContext context = (VisitationContext) rawContext;
-      
-      
-      
       FieldRef fieldRef = processAttributedScopedFilter(filter, context);
       return new ComparisonTerm(fieldRef, filter.getOperator(), filter.getValue());
    }
@@ -542,6 +544,116 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       return new ComparisonTerm(fieldRef, filter.getOperator(), filter.getValue());
    }
 
+   public Object visit(RootProcessInstanceFilter filter, Object rawContext)
+   {
+      VisitationContext context = (VisitationContext) rawContext;
+
+      FieldRef piProcDefFieldRef = ProcessInstanceBean.FR__PROCESS_DEFINITION;
+      int joinCount = context.getPredicateJoins().size() + 1;
+
+      final boolean isAiQuery = ActivityInstanceBean.class.equals(context.getType());
+      final boolean isAiQueryOnWorkItem = WorkItemBean.class.equals(context.getType());
+
+      ++appliedRootProcDefFilterJoinCounter;
+      if (appliedRootProcDefFilterJoinCounter > 1)
+      {
+         context.useDistinct(true);
+      }
+      
+      RootProcessInstanceFilterJoinKey piJoinKey = new RootProcessInstanceFilterJoinKey(filter, ProcessInstanceBean.class);
+
+      if (isAiQuery || isAiQueryOnWorkItem)
+      {
+         Join piJoin;
+
+         FieldRef frProcessInstance = ActivityInstanceBean.FR__PROCESS_INSTANCE;
+         if (isAiQueryOnWorkItem)
+         {
+            frProcessInstance = WorkItemBean.FR__ROOT_PROCESS_INSTANCE;
+         }
+
+         piJoin = (Join) context.getPredicateJoins().get(piJoinKey);
+         if (null == piJoin)
+         {
+            piJoin = new Join(ProcessInstanceBean.class, "RPIF_PI" + joinCount) //
+                  .on(frProcessInstance, ProcessInstanceBean.FIELD__OID);
+            context.getPredicateJoins().put(piJoinKey, piJoin);
+            if (!isAiQueryOnWorkItem)
+            {
+               piJoin.andOn(ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID);
+            }
+
+         }
+
+         piProcDefFieldRef = piJoin.fieldRef(ProcessInstanceBean.FIELD__PROCESS_DEFINITION);
+      }
+      
+      ModelManager modelManager = context.getEvaluationContext().getModelManager();
+
+      Set processRtOids = new HashSet();      
+      String namespace = null;
+      String processID = filter.getRootProcessID();
+      String processName = filter.getRootProcessName();
+      
+      if (processID != null && processID.startsWith("{"))
+      {
+         QName qname = QName.valueOf(processID);
+         namespace = qname.getNamespaceURI();
+         processID = qname.getLocalPart();
+      }
+
+      Iterator modelItr = null;
+      if (namespace != null)
+      {
+         modelItr = modelManager.getAllModelsForId(namespace);
+      }
+      else
+      {
+         modelItr = modelManager.getAllModels();
+      }
+
+      while (modelItr.hasNext())
+      {
+         IModel model = (IModel) modelItr.next();
+         if(processID != null)
+         {
+            IProcessDefinition process = model.findProcessDefinition(processID);
+            if (null != process)
+            {
+               if(processName == null || processName.equals(process.getName()))
+               {
+                  processRtOids.add(new Long(modelManager.getRuntimeOid(              
+                        process)));
+               }
+            }
+         }
+         else
+         {
+            for(IProcessDefinition process : model.getProcessDefinitions())
+            {
+               if(processName == null || processName.equals(process.getName()))
+               {
+                  processRtOids.add(new Long(modelManager.getRuntimeOid(              
+                        process)));
+               }               
+            }            
+         }
+      }
+
+      
+      ComparisonTerm predicate;
+      if (processRtOids.isEmpty())
+      {
+         predicate = Predicates.isNull(piProcDefFieldRef);
+      }
+      else
+      {
+         // model version policy will be enforced centrally
+         predicate = Predicates.inList(piProcDefFieldRef, processRtOids.iterator());
+      }
+      return predicate;
+   }   
+      
    public Object visit(ProcessDefinitionFilter filter, Object rawContext)
    {
       VisitationContext context = (VisitationContext) rawContext;
@@ -552,11 +664,11 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       final boolean isAiQuery = ActivityInstanceBean.class.equals(context.getType());
       final boolean isAiQueryOnWorkItem = WorkItemBean.class.equals(context.getType());
 
-         ++appliedProcDefFilterJoinCounter;
+      ++appliedProcDefFilterJoinCounter;
       if (appliedProcDefFilterJoinCounter > 1)
-         {
-            context.useDistinct(true);
-         }
+      {
+         context.useDistinct(true);
+      }
 
       ProcessDefinitionFilterJoinKey piJoinKey;
       ProcessDefinitionFilterJoinKey pihJoinKey;
@@ -608,7 +720,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
             piJoin.setDependency(pihJoin);
 
                context.getPredicateJoins().put(piJoinKey, piJoin);
-         }
+            }
          }
          else
          {
@@ -2568,6 +2680,60 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          return SqlBuilderBase.this;
       }
    }
+
+   
+   private class RootProcessInstanceFilterJoinKey
+   {
+      private Class<? extends PersistentBean> persistentBeanClass;
+
+
+      public RootProcessInstanceFilterJoinKey(RootProcessInstanceFilter filter,
+            Class<? extends PersistentBean> persistentBeanClass)
+      {
+         this.persistentBeanClass = persistentBeanClass;
+      }
+
+
+      @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = 1;
+         result = prime * result + getOuterType().hashCode();
+         result = prime * result
+               + ((persistentBeanClass == null) ? 0 : persistentBeanClass.hashCode());
+         return result;
+      }
+
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (obj == null)
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         RootProcessInstanceFilterJoinKey other = (RootProcessInstanceFilterJoinKey) obj;
+         if (!getOuterType().equals(other.getOuterType()))
+            return false;
+         if (persistentBeanClass == null)
+         {
+            if (other.persistentBeanClass != null)
+               return false;
+         }
+         else if (!persistentBeanClass.equals(other.persistentBeanClass))
+            return false;
+         return true;
+      }
+
+      private SqlBuilderBase getOuterType()
+      {
+         return SqlBuilderBase.this;
+      }
+   }
+   
+   
    
    private static class WorkitemKeyMap 
    {

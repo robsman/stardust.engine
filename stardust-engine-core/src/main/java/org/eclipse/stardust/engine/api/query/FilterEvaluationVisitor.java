@@ -31,6 +31,8 @@ public interface FilterEvaluationVisitor
 
    Object visit(ProcessDefinitionFilter filter, Object context);
 
+   Object visit(RootProcessInstanceFilter filter, Object context);
+      
    Object visit(ProcessStateFilter filter, Object context);
 
    Object visit(ProcessInstanceFilter filter, Object context);

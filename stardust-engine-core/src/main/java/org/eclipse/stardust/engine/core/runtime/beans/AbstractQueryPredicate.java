@@ -253,6 +253,11 @@ public abstract class AbstractQueryPredicate<T> implements Predicate<T>
          return and;
       }
 
+      public Object visit(RootProcessInstanceFilter filter, Object context)
+      {
+         throw new IllegalArgumentException("Unsupported filter: " + filter.getClass());
+      }
+      
       public Object visit(ProcessDefinitionFilter filter, Object context)
       {
          throw new IllegalArgumentException("Unsupported filter: " + filter.getClass());

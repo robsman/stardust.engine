@@ -141,6 +141,12 @@ public class PreferenceQueryEvaluator implements FilterEvaluationVisitor
       throw new UnsupportedOperationException();
    }
 
+   public Object visit(RootProcessInstanceFilter filter, Object context)
+   {
+      // TODO Auto-generated method stub
+      throw new UnsupportedOperationException();
+   }
+      
    public Object visit(ProcessStateFilter filter, Object context)
    {
       // TODO Auto-generated method stub

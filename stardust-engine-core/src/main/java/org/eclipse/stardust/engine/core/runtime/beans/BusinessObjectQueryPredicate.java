@@ -133,6 +133,11 @@ public class BusinessObjectQueryPredicate extends ModelAwareQueryPredicate<IData
          return null;
       }
 
+      public Object visit(RootProcessInstanceFilter filter, Object context)
+      {
+         return null;
+      }
+      
       public Object visit(ProcessDefinitionFilter filter, Object context)
       {
          return null;

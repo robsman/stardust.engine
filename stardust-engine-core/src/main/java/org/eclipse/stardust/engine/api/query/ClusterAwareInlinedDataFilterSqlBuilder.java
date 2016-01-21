@@ -667,6 +667,11 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
          return null;
       }
 
+      public Object visit(RootProcessInstanceFilter filter, Object context)
+      {
+         return null;
+      }
+            
       public Object visit(ProcessDefinitionFilter filter, Object context)
       {
          return null;

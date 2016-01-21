@@ -51,6 +51,11 @@ public class BigDataFilterFinder implements FilterEvaluationVisitor
       return Boolean.FALSE;
    }
 
+   public Object visit(RootProcessInstanceFilter filter, Object context)
+   {
+      return Boolean.FALSE;
+   }
+      
    public Object visit(ProcessDefinitionFilter filter, Object context)
    {
       return Boolean.FALSE;

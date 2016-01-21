@@ -477,6 +477,11 @@ public final class GenericQueryEvaluator implements FilterEvaluationVisitor
       return new ComparisonTerm(fieldRef, filter.getOperator(), filter.getValue());
    }
 
+   public Object visit(RootProcessInstanceFilter filter, Object context)
+   {
+      return NOTHING;      
+   }
+   
    public Object visit(ProcessDefinitionFilter filter, Object context)
    {
       Map joinCollector = (Map) context;

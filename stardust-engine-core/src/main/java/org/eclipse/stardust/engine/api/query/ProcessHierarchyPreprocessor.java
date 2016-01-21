@@ -208,6 +208,11 @@ public class ProcessHierarchyPreprocessor implements FilterEvaluationVisitor
       return new Node(filter);
    }
 
+   public Object visit(RootProcessInstanceFilter filter, Object rawContext)
+   {
+      return new Node(filter);
+   }
+      
    public Object visit(ProcessDefinitionFilter filter, Object rawContext)
    {
       return new Node(filter);

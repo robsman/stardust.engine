@@ -77,15 +77,20 @@ public class DataClusterSetupAnalyzer
          String newClusterTableName = newCluster.getTableName();
          DataCluster oldCluster = findCluster(newClusterTableName, oldSetup);
 
-         ProcessInstanceFieldInfo oldPiColumn = DataClusterMetaInfoRetriever.getProcessInstanceColumn(oldCluster);
-         ProcessInstanceFieldInfo newPiColumn = DataClusterMetaInfoRetriever.getProcessInstanceColumn(newCluster);
-
-         FieldInfoKey oldPiColumnKey = new FieldInfoKey(oldPiColumn);
-         FieldInfoKey newPiColumnKey = new FieldInfoKey(newPiColumn);
-         if(!CompareHelper.areEqual(oldPiColumnKey, newPiColumnKey))
+         if (oldCluster != null)
          {
-            //record if the pi column changes for saving pi column value(s)
-            observer.columnRenamed(newClusterTableName, oldPiColumn, newPiColumn);
+            ProcessInstanceFieldInfo oldPiColumn = DataClusterMetaInfoRetriever
+                  .getProcessInstanceColumn(oldCluster);
+            ProcessInstanceFieldInfo newPiColumn = DataClusterMetaInfoRetriever
+                  .getProcessInstanceColumn(newCluster);
+
+            FieldInfoKey oldPiColumnKey = new FieldInfoKey(oldPiColumn);
+            FieldInfoKey newPiColumnKey = new FieldInfoKey(newPiColumn);
+            if (!CompareHelper.areEqual(oldPiColumnKey, newPiColumnKey))
+            {
+               // record if the pi column changes for saving pi column value(s)
+               observer.columnRenamed(newClusterTableName, oldPiColumn, newPiColumn);
+            }
          }
       }
    }

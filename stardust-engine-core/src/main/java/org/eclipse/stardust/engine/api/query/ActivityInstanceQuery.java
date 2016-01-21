@@ -143,7 +143,7 @@ public class ActivityInstanceQuery extends Query
     */
    public static final Attribute BENCHMARK_VALUE =
          new Attribute(ActivityInstanceBean.FIELD__BENCHMAKRK_VALUE);
-
+   
    /**
     * The benchmark definition oid of the process instance the activity instance belongs to.
     *
@@ -153,6 +153,7 @@ public class ActivityInstanceQuery extends Query
          new Attribute(FIELD__PROCESS_INSTANCE_BENCHMARK_OID), ProcessInstanceBean.class,
          ActivityInstanceBean.FIELD__PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID,
          ProcessInstanceBean.FIELD__BENCHMARK_OID);
+
    /**
     * The priority of the process instance the activity instance belongs to.
     *
@@ -241,7 +242,8 @@ public class ActivityInstanceQuery extends Query
             SubProcessDataFilter.class,
             HierarchyDataFilter.class,
             DataPrefetchHint.class,
-            CurrentPartitionFilter.class
+            CurrentPartitionFilter.class,
+            RootProcessInstanceFilter.class
          }),
          ActivityInstanceQuery.class
    );

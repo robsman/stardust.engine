@@ -145,7 +145,7 @@ public class WorklistQuery extends Query
                ActivityStateFilter.class, PerformingUserFilter.class,
                PerformingParticipantFilter.class, PerformingOnBehalfOfFilter.class,
                DataFilter.class, SubProcessDataFilter.class, HierarchyDataFilter.class,
-               DataPrefetchHint.class, CurrentPartitionFilter.class});
+               DataPrefetchHint.class, CurrentPartitionFilter.class, RootProcessInstanceFilter.class});
 
    /**
     * Verifyer for preventing users from applying unsupported filter criteria.

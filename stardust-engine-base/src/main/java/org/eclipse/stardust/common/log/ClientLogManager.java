@@ -14,16 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.ResourceBundle;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 
@@ -32,15 +23,12 @@ import org.apache.log4j.Level;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.xml.DOMConfigurator;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.utils.xml.BaseXmlUtils;
+import org.eclipse.stardust.common.utils.xml.SecureEntityResolver;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import org.eclipse.stardust.common.error.BaseErrorCase;
-import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.utils.xml.BaseXmlUtils;
-
 
 /**
  * The ClientLogManager is a helper to explicitely bootstrap log4j in a safe manner.
@@ -220,6 +208,7 @@ public class ClientLogManager
 
          DocumentBuilder domBuilder = BaseXmlUtils.newDomBuilder(true);
          domBuilder.setErrorHandler(new LoggerXMLErrorHandler());
+         domBuilder.setEntityResolver(SecureEntityResolver.INSTANCE);
 
          Document doc = domBuilder.parse(inputSource);
          DOMConfigurator.configure(doc.getDocumentElement());
@@ -239,7 +228,7 @@ public class ClientLogManager
       String logDir = Parameters.instance().getString(LogProperties.DIRECTORY_PROPERTY, ".");
       String logFile = logDir + File.separator + applicationName + ".log";
 
-      Collection filters = Parameters.instance().getStrings(LogProperties.FILTERS_PROPERTY);
+      Collection<String> filters = Parameters.instance().getStrings(LogProperties.FILTERS_PROPERTY);
 
       if (filters.size() == 0)
       {
@@ -247,10 +236,10 @@ public class ClientLogManager
       }
       else
       {
-         Iterator itr = filters.iterator();
+         Iterator<String> itr = filters.iterator();
          while (itr.hasNext())
          {
-            createFilterCategory(logFile, (String) itr.next());
+            createFilterCategory(logFile, itr.next());
          }
       }
    }
@@ -348,7 +337,7 @@ public class ClientLogManager
       private static Parameters singleton;
 
       private Properties systemProperties;
-      private Map properties = new HashMap();
+      private Map<String, Object> properties = new HashMap<String, Object>();
 
       public static synchronized Parameters instance()
       {
@@ -374,10 +363,10 @@ public class ClientLogManager
          {
             ResourceBundle defaultBundle = ResourceBundle.getBundle("carnot", Locale.getDefault());
 
-            Enumeration keys = defaultBundle.getKeys();
+            Enumeration<String> keys = defaultBundle.getKeys();
             while (keys.hasMoreElements())
             {
-               String key = (String) keys.nextElement();
+               String key = keys.nextElement();
                Object value = defaultBundle.getObject(key);
                properties.put(key, value);
             }
@@ -417,7 +406,7 @@ public class ClientLogManager
          return defaultValue;
       }
 
-      public boolean getBoolean(String name, boolean defaultValue)
+      /*public boolean getBoolean(String name, boolean defaultValue)
       {
          final String[] trueWords = {"true", "enabled", "on"};
          final String[] falseWords = {"false", "disabled", "off"};
@@ -450,16 +439,16 @@ public class ClientLogManager
          throw new PublicException(
                BaseErrorCase.BASE_ENTRY_FOR_PROPERTY_CANNOT_BE_MAPPED_TO_TRUE_OR_FALSE
                      .raise(value, name));
-      }
+      }*/
 
-      public Collection getStrings(String name)
+      public Collection<String> getStrings(String name)
       {
          return getStrings(name, ",");
       }
 
-      public Collection getStrings(String name, String separators)
+      public Collection<String> getStrings(String name, String separators)
       {
-         LinkedList result = new LinkedList();
+         LinkedList<String> result = new LinkedList<String>();
          String str = getString(name);
 
          if (str == null)

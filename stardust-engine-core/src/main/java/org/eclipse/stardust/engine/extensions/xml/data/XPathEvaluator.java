@@ -44,6 +44,7 @@ import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.utils.xml.SecureEntityResolver;
 import org.eclipse.stardust.common.utils.xml.XPathUtils;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
@@ -268,14 +269,14 @@ public class XPathEvaluator implements AccessPathEvaluator, Stateless
             errors.add(exception);
          }
       });
+      domBuilder.setEntityResolver(SecureEntityResolver.INSTANCE);
 
       // TODO directly parse from existing DOM to improve efficiency
       StringWriter buffer = new StringWriter();
       XmlUtils.serialize(contextElement, new StreamResult(buffer), 1);
       try
       {
-         domBuilder
-               .parse(new InputSource(new StringReader(buffer.getBuffer().toString())));
+         domBuilder.parse(new InputSource(new StringReader(buffer.getBuffer().toString())));
       }
       catch (SAXException e)
       {
@@ -324,15 +325,14 @@ public class XPathEvaluator implements AccessPathEvaluator, Stateless
             errors.add(exception);
          }
       });
+      domBuilder.setEntityResolver(SecureEntityResolver.INSTANCE);
 
       // TODO directly parse from existing DOM to improve efficiency
       StringWriter buffer = new StringWriter();
-      XmlUtils.serialize(contextElement, new StreamResult(buffer), "UTF-8", 1, null,
-            dtdUrl);
+      XmlUtils.serialize(contextElement, new StreamResult(buffer), "UTF-8", 1, null, dtdUrl);
       try
       {
-         domBuilder
-               .parse(new InputSource(new StringReader(buffer.getBuffer().toString())));
+         domBuilder.parse(new InputSource(new StringReader(buffer.getBuffer().toString())));
       }
       catch (SAXException e)
       {

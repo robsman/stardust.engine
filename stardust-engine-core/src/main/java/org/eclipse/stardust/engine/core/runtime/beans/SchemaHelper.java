@@ -235,6 +235,7 @@ public class SchemaHelper
          {
             conn.close();
          }
+         reader.close();
       }
    }
 
@@ -1094,7 +1095,7 @@ public class SchemaHelper
       alterAuditTrailDataClusterTables(sysconPassword, configFileName, false, skipDdl,
             skipDml, spoolFile, DEFAULT_STATEMENT_DELIMITER);
    }
-   
+
    private static TransientRuntimeSetup getTransientRuntimeSetup(String configFileName)
    {
       DocumentBuilder domBuilder = new RuntimeSetupDocumentBuilder();
@@ -1116,46 +1117,46 @@ public class SchemaHelper
                BpmRuntimeError.ATDB_INVALID_RUNTIME_SETUP_CONFIGURATION_FILE.raise(), x);
       }
    }
-   
 
-   
+
+
    private static void applyClusterChanges(final Session session, IClusterChangeObserver clusterChanges, TransientRuntimeSetup newSetup, PrintStream sqlRecorder)
    {
       //when doing changes to the cluster table(columns), don't do anything strange
       //and take the column names as they are defined in the XML
       DatabaseHelper.columnNameModificationMode = ColumnNameModificationMode.NONE;
-      
+
       RuntimeItem runtimeItem = createRuntimeItem(session);
 
-      UpgradeObserver observer = new ErrorAwareObserver(); 
+      UpgradeObserver observer = new ErrorAwareObserver();
       runtimeItem.setSqlSpoolDevice(sqlRecorder);
-      
+
       final String schemaName = Parameters.instance().getString(
             SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX,
             Parameters.instance().getString(
                   SessionFactory.AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX));
-      
+
       try
       {
          if (null != sqlRecorder)
          {
             sqlRecorder.println("/* DDL-statements for cluster tables */");
          }
-         
+
          //process all drop table change
          Collection<DropTableInfo> dropChanges = clusterChanges.getDropInfos();
          for(DropTableInfo dropInfo: dropChanges)
          {
             DatabaseHelper.dropTable(runtimeItem, dropInfo, observer);
          }
-         
+
          //process all create table change
          Collection<CreateTableInfo> createChanges = clusterChanges.getCreateInfos();
          for(CreateTableInfo createInfo: createChanges)
          {
             DatabaseHelper.createTable(runtimeItem, createInfo, observer);
          }
-         
+
          //do the renaming - renaming means here:
          // 1) created the new column (already included in the {@link AlterTableInfo#getAddedFields()})
          Collection<AlterTableInfo> alterChanges = clusterChanges.getAlterInfos();
@@ -1163,9 +1164,9 @@ public class SchemaHelper
          {
             DatabaseHelper.alterTable(runtimeItem, alterInfo, observer, AlterMode.ADDED_COLUMNS_ONLY);
          }
-                  
+
          // 2) save it values from the old column to the new column
-         DataClusterSynchronizationInfo syncInfo 
+         DataClusterSynchronizationInfo syncInfo
             = clusterChanges.getDataClusterSynchronizationInfo();
          Map<String, Map<FieldInfo, FieldInfo>> columnRenames = syncInfo.getColumnRenames();
          for(String clusterTableName: columnRenames.keySet())
@@ -1176,7 +1177,7 @@ public class SchemaHelper
             builder.append(".");
             builder.append(clusterTableName);
             builder.append(" SET ");
-            
+
             Map<FieldInfo, FieldInfo> columnMapping = columnRenames.get(clusterTableName);
             Iterator<FieldInfo> columnIterator
                = columnMapping.keySet().iterator();
@@ -1184,7 +1185,7 @@ public class SchemaHelper
             {
                FieldInfo oldColumn = columnIterator.next();
                FieldInfo newColumn = columnMapping.get(oldColumn);
-               
+
                builder.append(newColumn.getName());
                builder.append(" = ");
                builder.append(oldColumn.getName());
@@ -1193,22 +1194,22 @@ public class SchemaHelper
                   builder.append(", ");
                }
             }
-            
+
             //retrieve values form old column and insert into new column, after that commit to allow
             //structural changes to the table
-            DDLManager.executeOrSpoolStatement(builder.toString(), session.getConnection(), sqlRecorder); 
+            DDLManager.executeOrSpoolStatement(builder.toString(), session.getConnection(), sqlRecorder);
             session.save();
          }
-         
+
          // 3) drop the old column(already included in {@link AlterTableInfo#getDroppedFields()})
          for(AlterTableInfo alterInfo: alterChanges)
          {
             DatabaseHelper.alterTable(runtimeItem, alterInfo, observer, AlterMode.ADDED_COLUMNS_IGNORED);
          }
-                           
+
          //delete old setup
          DataClusterHelper.deleteDataClusterSetup();
-         
+
          //insert new setup
          PropertyPersistor archiveProp = PropertyPersistor
                .findByName(Constants.CARNOT_ARCHIVE_AUDITTRAIL);
@@ -1227,7 +1228,7 @@ public class SchemaHelper
          {
             session.setUsingDataClusterOnArchiveAuditTrail(false);
          }
-         
+
          //force loading of new setup - to verify its working without problems
          Parameters.instance().set(RuntimeSetup.RUNTIME_SETUP_PROPERTY, null);
          RuntimeSetup.instance().getDataClusterSetup();
@@ -1247,7 +1248,7 @@ public class SchemaHelper
          Parameters.instance().set(RuntimeSetup.RUNTIME_SETUP_PROPERTY, null);
       }
    }
-   
+
    private static RuntimeItem createRuntimeItem(final Session session)
    {
       // Creating a RuntimeItem instance which is being used for schema modifications
@@ -1286,20 +1287,20 @@ public class SchemaHelper
       trace.error("Error during manipulating datacluster, removing invalid cluster setup: ", e);
       //try to clear invalid setup from database
       DataClusterHelper.deleteDataClusterSetup();
-      
+
       if(propagate)
       {
          throw new PublicException(e);
       }
    }
-   
-   
+
+
    public static void alterAuditTrailDataClusterTables(String sysconPassword,
          String configFileName, boolean upgrade, boolean skipDdl, boolean skipDml, PrintStream spoolFile,
          String statementDelimiter) throws SQLException
    {
       Session consoleSession = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
-      
+
       Map locals = new HashMap();
       locals.put(SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SESSION_SUFFIX, consoleSession);
 
@@ -1321,17 +1322,17 @@ public class SchemaHelper
                      BpmRuntimeError.ATDB_CLUSTER_CONFIGURATION_ALREADY_EXIST_USE_OPTION_DROP_OR_UPDATEDATACLUSTERS_FIRST
                            .raise());
             }
-            
+
             TransientRuntimeSetup transientSetup = getTransientRuntimeSetup(configFileName);
             DataCluster[] newSetup = transientSetup.getDataClusterSetup();
-            
+
             DataClusterSetupAnalyzer analyzer = new DataClusterSetupAnalyzer();
             changeObserver = analyzer.analyzeChanges(oldSetup, newSetup);
-            
+
             if(!skipDdl)
             {
                applyClusterChanges(consoleSession, changeObserver, transientSetup, spoolFile);
-            }  
+            }
          }
          else
          {
@@ -1339,8 +1340,8 @@ public class SchemaHelper
                   BpmRuntimeError.ATDB_CLUSTER_CONFIGURATION_DOES_NOT_EXIST_PROVIDE_VALID_CONFIGURATION_FILE
                         .raise());
          }
-         
-         
+
+
          final String schemaName = Parameters.instance().getString(
                SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX,
                Parameters.instance().getString(
@@ -1354,7 +1355,7 @@ public class SchemaHelper
                      .println("/* DML-statements for synchronization of cluster tables */");
             }
 
-            ddlManager.synchronizeDataCluster(true, changeObserver.getDataClusterSynchronizationInfo(), consoleSession.getConnection(), schemaName, spoolFile, statementDelimiter, null);         
+            ddlManager.synchronizeDataCluster(true, changeObserver.getDataClusterSynchronizationInfo(), consoleSession.getConnection(), schemaName, spoolFile, statementDelimiter, null);
          }
 
          if (null != spoolFile)
@@ -1615,7 +1616,7 @@ public class SchemaHelper
          ParametersFacade.popLayer();
       }
    }
-      
+
    private static class ErrorAwareObserver implements UpgradeObserver
    {
       @Override

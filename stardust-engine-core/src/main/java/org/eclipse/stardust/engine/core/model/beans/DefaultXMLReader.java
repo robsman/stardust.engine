@@ -44,6 +44,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
+import org.eclipse.stardust.common.utils.xml.SecureEntityResolver;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.model.XMLReader;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
@@ -1583,9 +1584,8 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          ParseErrorHandler errorHandler = new ParseErrorHandler();
          domBuilder.setErrorHandler(errorHandler);
 
-         RecordingEntityResolver entityResolver = new RecordingEntityResolver(xsdURL,
-               dtdURL);
-         domBuilder.setEntityResolver(entityResolver);
+         RecordingEntityResolver entityResolver = new RecordingEntityResolver(xsdURL, dtdURL);
+         domBuilder.setEntityResolver(new SecureEntityResolver(entityResolver));
 
          Document document = domBuilder.parse(inputSource);
 
@@ -1602,7 +1602,7 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
             domBuilder.setErrorHandler(errorHandler);
 
             entityResolver = new RecordingEntityResolver(xsdURL, dtdURL);
-            domBuilder.setEntityResolver(entityResolver);
+            domBuilder.setEntityResolver(new SecureEntityResolver(entityResolver));
 
             Properties transformProperties = new Properties();
             transformProperties.put(OutputKeys.DOCTYPE_SYSTEM, WORKFLOWMODEL_31_DTD_URL);

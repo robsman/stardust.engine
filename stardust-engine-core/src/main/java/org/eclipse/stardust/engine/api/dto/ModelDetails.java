@@ -70,9 +70,7 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
 
    private final Boolean alive;
 
-   private transient boolean resolved = false;
-
-   private transient SchemaLocatorAdapter schemaLocatorAdapter;
+   private transient volatile SchemaLocatorAdapter schemaLocatorAdapter = new SchemaLocatorAdapter(this);
 
    public ModelDetails(IModel model)
    {
@@ -324,14 +322,27 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
 
    public List<TypeDeclaration> getAllTypeDeclarations()
    {
-      resolve();
+      for (TypeDeclaration decl : unmodifiableTypeDeclarations)
+      {
+         updateSchemaResource(decl);
+      }
       return unmodifiableTypeDeclarations;
    }
 
    public TypeDeclaration getTypeDeclaration(String id)
    {
-      resolve();
-      return (TypeDeclaration) indexedTypeDecls.get(composeDefaultId(id));
+      TypeDeclaration decl = indexedTypeDecls.get(composeDefaultId(id));
+      updateSchemaResource(decl);
+      return decl;
+   }
+
+   private void updateSchemaResource(TypeDeclaration decl)
+   {
+      XpdlType type = decl.getXpdlType();
+      if (type instanceof SchemaTypeDetails && !((SchemaTypeDetails) type).isResolved())
+      {
+         ((SchemaTypeDetails) type).setResource((Internal) schemaLocatorAdapter.createResource());
+      }
    }
 
    public TypeDeclaration getTypeDeclaration(DocumentType documentType)
@@ -360,48 +371,9 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
       return null;
    }
 
-   /**
-    * Resolve the embedded schemas.
-    */
-   private void resolve()
-   {
-      if (!resolved)
-      {
-         synchronized (this)
-         {
-            if (!resolved)
-            {
-               if (schemaLocatorAdapter == null)
-               {
-                  schemaLocatorAdapter = new SchemaLocatorAdapter(this);
-               }
-               for (int i = 0; i < unmodifiableTypeDeclarations.size(); i++)
-               {
-                  TypeDeclarationDetails decl = (TypeDeclarationDetails) unmodifiableTypeDeclarations.get(i);
-                  XpdlType type = decl.getXpdlType();
-                  if (type instanceof SchemaTypeDetails)
-                  {
-                     SchemaTypeDetails schema = (SchemaTypeDetails) type;
-                     XSDSchema xsdSchema = schema.getSchema();
-                     if (xsdSchema != null)
-                     {
-                        synchronized (xsdSchema)
-                        {
-                           ((InternalEObject) xsdSchema).eSetResource((Internal) schemaLocatorAdapter.createResource(), null);
-                           xsdSchema.reset();
-                        }
-                     }
-                  }
-               }
-               resolved = true;
-               }
-            }
-         }
-   }
-
    public void setSchemaLocatorAdapter(SchemaLocatorAdapter schemaLocatorAdapter)
    {
-      this.schemaLocatorAdapter = schemaLocatorAdapter;
+      this.schemaLocatorAdapter = schemaLocatorAdapter == null ? new SchemaLocatorAdapter(this) : schemaLocatorAdapter;
    }
 
    public static class SchemaLocatorAdapter implements Adapter, XSDSchemaLocator

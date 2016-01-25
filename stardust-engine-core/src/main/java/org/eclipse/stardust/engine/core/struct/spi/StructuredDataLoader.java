@@ -38,8 +38,8 @@ import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 /**
  * Data loader for structured data. When structured data is deployed, the xpath table is filled.
  * When runtime loads a structured data definition, the xpath map (attribute) is filled from
- * the xpath table. 
- * 
+ * the xpath table.
+ *
  * @version $Revision$
  */
 public class StructuredDataLoader implements DataLoader, Stateless
@@ -50,13 +50,21 @@ public class StructuredDataLoader implements DataLoader, Stateless
 
    public void loadData(IData data)
    {
-      IXPathMap xPathMap;
+      IXPathMap xPathMap = null;
       if (ModelManagerFactory.isAvailable() && data.getModel().getModelOID() != 0 && !SessionFactory.isDebugSession())
       {
          ModelManager modelManager = ModelManagerFactory.getCurrent();
-         xPathMap = loadFullMode(modelManager, data);
-      } 
-      else
+//         xPathMap = loadFullMode(modelManager, data);
+         try
+         {
+            xPathMap = loadFullMode(modelManager, data);
+         }
+         catch (Exception ex)
+         {
+            // (fh) fallback to local mode
+         }
+      }
+      if (xPathMap == null)
       {
          trace.debug("ModelManager is not available, assuming 'local mode'");
          xPathMap = loadLocalMode(data);
@@ -125,8 +133,8 @@ public class StructuredDataLoader implements DataLoader, Stateless
    private IXPathMap createXPathMap(Set<TypedXPath> allXPaths, AccessPoint accessPoint)
    {
       // this is _only_ needed for debugger:
-      // try to assign unique OIDs derived from hashcodes of XPaths 
-      // No ModelManager is present in the debugger scenario, 
+      // try to assign unique OIDs derived from hashcodes of XPaths
+      // No ModelManager is present in the debugger scenario,
       // but process execution involving structured data requires having XPath OIDs
 
       if(allXPaths != null)
@@ -148,7 +156,7 @@ public class StructuredDataLoader implements DataLoader, Stateless
       {
          // create xpath mapping
          Set<TypedXPath> xPaths = findAllXPaths(data, data.getModel());
-         
+
          Map<Long,TypedXPath> allXPaths = CollectionUtils.newMap();
 
          if (null != xPaths)
@@ -186,14 +194,14 @@ public class StructuredDataLoader implements DataLoader, Stateless
          if (null != xPaths)
          {
             Map<Long, StructuredDataBean> structDataDefRecords = loadXPathDefinitions(modelOID, dataRtOid);
-            
+
             Map<Long,TypedXPath> allXPaths = CollectionUtils.newMap();
             for (TypedXPath xPath : xPaths)
             {
                // dataId and xPath must uniquely map to an xPathRtOid
                long xPathRtOid = rtOidRegistry.getRuntimeOid(
                      IRuntimeOidRegistry.STRUCTURED_DATA_XPATH, RuntimeOidUtils.getFqId(data, xPath.getXPath()));
-               
+
                StructuredDataBean xPathBean = null;
                if (xPathRtOid == 0)
                {
@@ -210,13 +218,13 @@ public class StructuredDataLoader implements DataLoader, Stateless
                   xPathBean = (StructuredDataBean) structDataDefRecords.get(Long.valueOf(xPathRtOid));
                   if (xPathBean == null)
                   {
-                     // if, for some reason, the StructuredDataBean for exising xPathRtOid was not found 
+                     // if, for some reason, the StructuredDataBean for exising xPathRtOid was not found
                      // for the current modelOID, create one
                      xPathBean = new StructuredDataBean(xPathRtOid, dataRtOid, modelOID,
                            xPath.getXPath());
                   }
                }
-               
+
                allXPaths.put(new Long(xPathBean.getOID()), xPath);
             }
          }
@@ -296,11 +304,11 @@ public class StructuredDataLoader implements DataLoader, Stateless
          return providers.iterator();
       }
    }
-   
+
    private static Map<Long, StructuredDataBean> loadXPathDefinitions(long modelOid, long dataRtOid)
    {
       Map<Long, StructuredDataBean> result = CollectionUtils.newHashMap();
-      
+
       for (Iterator i = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)
             .getIterator(
                   StructuredDataBean.class, //
@@ -311,7 +319,7 @@ public class StructuredDataLoader implements DataLoader, Stateless
          StructuredDataBean sdd = (StructuredDataBean) i.next();
          result.put(new Long(sdd.getOID()), sdd);
       }
-      
+
       return result;
    }
 

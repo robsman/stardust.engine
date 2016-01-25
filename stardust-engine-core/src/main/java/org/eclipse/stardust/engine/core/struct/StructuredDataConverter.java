@@ -385,6 +385,7 @@ public class StructuredDataConverter
          String nodeName = childNode.getLocalName();
          String xPath = typedXPath.getXPath();
          if (xPath.isEmpty() && xPathMap.getXPath(xPath) != typedXPath
+               && StringUtils.isNotEmpty(childNode.getNamespaceURI())
                && (typedXPath.hasWildcards() || !sameNamespace(childNode, typedXPath)))
          {
             nodeName = "{" + childNode.getNamespaceURI() + "}" + nodeName;

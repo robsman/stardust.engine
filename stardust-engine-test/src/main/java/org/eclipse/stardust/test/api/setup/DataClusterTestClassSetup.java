@@ -30,10 +30,17 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
  */
 public class DataClusterTestClassSetup extends TestClassSetup
 {
-   private static final String DATA_CLUSTER_CONFIG = "data-cluster.xml";
+   private String clusterConfigFile = "data-cluster.xml";
 
    private static final Log LOG = LogFactory.getLog(TestClassSetup.class);
 
+   public DataClusterTestClassSetup(String clusterConfigFile, UsernamePasswordPair userPwdPair,
+         ForkingServiceMode forkingServiceMode, final String... modelNames)
+   {
+      this(userPwdPair, forkingServiceMode, modelNames);
+      this.clusterConfigFile = clusterConfigFile;
+   }
+   
    public DataClusterTestClassSetup(UsernamePasswordPair userPwdPair,
          ForkingServiceMode forkingServiceMode, final String... modelNames)
    {
@@ -53,7 +60,7 @@ public class DataClusterTestClassSetup extends TestClassSetup
       dbms.init();
       dbms.start();
       dbms.createSchema();
-      ClassPathResource resource = new ClassPathResource(DATA_CLUSTER_CONFIG);
+      ClassPathResource resource = new ClassPathResource(clusterConfigFile);
       File configFile;
       try
       {

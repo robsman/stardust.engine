@@ -18,6 +18,7 @@ import java.util.*;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
+import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Direction;
@@ -43,6 +44,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingP
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.command.Configurable;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
+import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManagerFactory;
 import org.eclipse.stardust.engine.core.spi.artifact.impl.BenchmarkDefinitionArtifactType;
@@ -1320,10 +1322,20 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       return delegateToParticipant(oid, (ParticipantInfo) null);
    }
 
-   public Worklist getWorklist(WorklistQuery query)
+   public Worklist getWorklist(final WorklistQuery query)
    {
-      return new WorklistQueryEvaluator(query, new EvaluationContext(
-            ModelManagerFactory.getCurrent(), SecurityProperties.getUser())).buildWorklist();
+      ForkingServiceFactory factory = (ForkingServiceFactory)
+            Parameters.instance().get(EngineProperties.FORKING_SERVICE_HOME);
+      ForkingService forkingService = factory.get();
+      
+      return (Worklist) forkingService.isolate(new Action()
+            {
+               public Object execute()
+               {
+                  return new WorklistQueryEvaluator(query, new EvaluationContext(
+                        ModelManagerFactory.getCurrent(), SecurityProperties.getUser())).buildWorklist();                  
+               }         
+            });      
    }
 
    public ActivityInstance activateNextActivityInstance(WorklistQuery query)
@@ -1333,7 +1345,11 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       boolean loop = false;
 
       ActivityInstance result = null;
-      Worklist wl = getWorklist(query);
+      
+      EmbeddedServiceFactory sf = new EmbeddedServiceFactory();
+      WorkflowService embeddedWorkflowService = sf.getService(WorkflowService.class);
+      
+      Worklist wl = embeddedWorkflowService.getWorklist(query);
       int cumulatedSize = wl.getCumulatedSize();
 
       if (cumulatedSize == 0)
@@ -1345,7 +1361,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       {
          if (loop)
          {
-            wl = getWorklist(query);
+            wl = embeddedWorkflowService.getWorklist(query);
             cumulatedSize = wl.getCumulatedSize();
             if (cumulatedSize == 0)
             {

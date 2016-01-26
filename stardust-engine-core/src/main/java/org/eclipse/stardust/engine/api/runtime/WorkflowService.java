@@ -26,6 +26,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.core.runtime.command.Configurable;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
+import org.eclipse.stardust.engine.core.runtime.utils.TransientState;
 
 /**
  * The WorkflowService provides all functionality for workflow operations in a
@@ -1186,6 +1187,7 @@ public interface WorkflowService extends Service
     * @return An instance of {@link Worklist} making up the requested view on the
     *         current user's worklist.
     */
+   @TransientState
    @ExecutionPermission(
          id=ExecutionPermission.Id.readActivityInstanceData,
          scope=ExecutionPermission.Scope.workitem,

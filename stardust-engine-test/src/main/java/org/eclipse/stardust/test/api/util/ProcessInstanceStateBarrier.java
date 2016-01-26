@@ -105,7 +105,7 @@ public class ProcessInstanceStateBarrier
       {
          throw new NullPointerException("Process instance state must not be null.");
       }
-      if (piState.equals(ProcessInstanceState.Created) || piState.equals(ProcessInstanceState.Aborting))
+      if (piState.equals(ProcessInstanceState.Created) || piState.equals(ProcessInstanceState.Aborting) || piState.equals(ProcessInstanceState.Halting))
       {
          throw new UnsupportedOperationException("Waiting for process instance state '" + piState + "' is not supported.");
       }
@@ -160,11 +160,15 @@ public class ProcessInstanceStateBarrier
 
       condition = new ProcessInstanceStateCondition(piOid, piState);
 
-      for (final ProcessInstanceState pis : piStates.get(piOid))
+      Set<ProcessInstanceState> states = piStates.get(piOid);
+      if (states != null)
       {
-         if (condition.matches(piOid, pis))
+         for (final ProcessInstanceState pis : states)
          {
-            return true;
+            if (condition.matches(piOid, pis))
+            {
+               return true;
+            }
          }
       }
 
@@ -241,6 +245,24 @@ public class ProcessInstanceStateBarrier
       public void processAborted(final IProcessInstance pi)
       {
          registerTransactionAwareMonitor(pi.getOID(), ProcessInstanceState.Aborted);
+      }
+
+      /* (non-Javadoc)
+       * @see org.eclipse.stardust.engine.core.spi.monitoring.IProcessExecutionMonitor#processHalted(org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance)
+       */
+      @Override
+      public void processHalted(final IProcessInstance pi)
+      {
+         registerTransactionAwareMonitor(pi.getOID(), ProcessInstanceState.Halted);
+      }
+
+      /* (non-Javadoc)
+       * @see org.eclipse.stardust.engine.core.spi.monitoring.IProcessExecutionMonitor#processResumed(org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance)
+       */
+      @Override
+      public void processResumed(final IProcessInstance pi)
+      {
+         registerTransactionAwareMonitor(pi.getOID(), ProcessInstanceState.Active);
       }
 
       /*

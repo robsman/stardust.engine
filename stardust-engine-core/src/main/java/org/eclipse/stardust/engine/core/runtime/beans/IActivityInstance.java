@@ -28,21 +28,21 @@ import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
 
 /** */
 public interface IActivityInstance extends AttributedIdentifiablePersistent
-{  
+{
    /**
     * Sets the state an activity instance is in - regarding quality control.
     * See also {@link QualityAssuranceUtils.QualityAssuranceState}
     * @param s - the state to set
     */
    public void setQualityAssuranceState(QualityAssuranceState s);
-   
+
    /**
     * Get the state an activity instance is in - regarding quality control.
     * See also {@link QualityAssuranceUtils.QualityAssuranceState}
     * @return the state an activity instance is in - regarding quality control
     */
-   public QualityAssuranceState getQualityAssuranceState();   
-   
+   public QualityAssuranceState getQualityAssuranceState();
+
    /**
     * @return The state of the activity instance.
     */
@@ -101,20 +101,20 @@ public interface IActivityInstance extends AttributedIdentifiablePersistent
     * Retrieves the user, the activity instance is performed by.
     */
    public IUser getPerformedBy();
-   
+
    /**
     * Retrieves the department the activity instance is assigned to. This will
     * only be the case if the current performer is a scoped model participant
     * or the activity instance has been completed.
-    * 
+    *
     * @return the assigned department, otherwise null.
     */
    public IDepartment getCurrentDepartment();
-   
+
    public double getCriticality();
-   
+
    public int getBenchmarkValue();
-   
+
    public long getCurrentDepartmentOid();
 
    public boolean isCompleted();
@@ -126,7 +126,7 @@ public interface IActivityInstance extends AttributedIdentifiablePersistent
    public boolean isAborting();
 
    boolean isDefaultCaseActivityInstance();
-   
+
    long getProcessInstanceOID();
 
    void removeFromWorklists();
@@ -164,9 +164,13 @@ public interface IActivityInstance extends AttributedIdentifiablePersistent
    void bind(IEventHandler handler, EventHandlerBinding aspect);
 
    void unbind(IEventHandler handler, EventHandlerBinding aspect);
-   
+
    void doStartActivity(IActivity activity) throws IllegalStateChangeException;
 
    void doCompleteActivity() throws IllegalStateChangeException;
+
+   boolean isHalted();
+
+   boolean isHalting();
 
 }

@@ -52,4 +52,18 @@ public interface IProcessExecutionMonitor
     */
    void processInterrupted(IProcessInstance process);
 
+   /**
+    * Propagate that the Process has been halted.
+    *
+    * @param process Process Instance.
+    */
+   void processHalted(IProcessInstance process);
+
+   /**
+    * Propagate that the Process has been resumed from Interrupted or Halted.
+    *
+    * @param process Process Instance.
+    */
+   void processResumed(IProcessInstance process);
+
 }

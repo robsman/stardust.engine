@@ -57,7 +57,7 @@ public class EventUtils
    private static final String HANDLER_SCOPE = "handler.";
    private static int RETRY_FAILURE_MAX = Parameters.instance().getInteger("event.retry.failure", 5);
    public static int DEACTIVE_TYPE = 1024;
-   
+
    public static IEventHandler getEventHandler(long modelOid, long eventHandlerOid)
    {
       try
@@ -66,10 +66,10 @@ public class EventUtils
       }
       catch(Exception ignored)
       {}
-      
+
       return null;
    }
-   
+
    public static IEventHandler getEventHandler(ModelElementList<IEventHandler> eventHandlers,
          long eventHandlerModelElementOid)
    {
@@ -82,7 +82,7 @@ public class EventUtils
       }
       return null;
    }
-   
+
    public static String getHandlerScope(IEventHandler handler)
    {
       return HANDLER_SCOPE + handler.getElementOID() + ".";
@@ -96,7 +96,7 @@ public class EventUtils
    public static String getFailureScope(EventBindingBean binding)
    {
       return FAILURE_SCOPE + binding.getOID() + ".";
-   }   
+   }
 
    public static AttributedIdentifiablePersistent getEventSourceInstance(Event event)
    {
@@ -154,12 +154,12 @@ public class EventUtils
       for (int i = 0; i < owner.getEventHandlers().size(); ++i)
       {
          IEventHandler handler = (IEventHandler) owner.getEventHandlers().get(i);
-         
+
          if ( !conditionTypeId.equals(handler.getType().getId()))
          {
             continue;
          }
-         
+
          //set the oid of the element so that logging for that event will contain that information
          event.setHandlerModelElementOID(handler.getOID());
 
@@ -203,12 +203,12 @@ public class EventUtils
                         : Collections.EMPTY_MAP;
                }
                else
-*/               
+*/
 //               {
 //                  actionAttributes = action.getAllAttributes();
 //               }
 //               instance.bootstrap(actionAttributes, handler.getAllAccessPoints());
-               
+
                try
                {
                   event = instance.execute(event);
@@ -235,7 +235,7 @@ public class EventUtils
    public static void processPullEvent(Event event)
    {
       final AttributedIdentifiablePersistent context = getEventSourceInstance(event);
-      
+
       EventHandlerOwner owner = getEventSourceDefinition(context);
       IEventHandler handler = ModelManagerFactory.getCurrent().findEventHandler(
             owner.getModel().getModelOID(), event.getHandlerOID());
@@ -248,8 +248,10 @@ public class EventUtils
          }
          IProcessInstance processInstance = getProcessInstance(event);
          if (processInstance.isTerminated()
-               || context instanceof IActivityInstance
-               && ((IActivityInstance) context).isTerminated())
+               || (context instanceof IActivityInstance
+                     && ((IActivityInstance) context).isTerminated())
+               || (processInstance.isHalted() || context instanceof IActivityInstance
+                     && ((IActivityInstance) context).isHalted()))
          {
             detachAll(context); // (fh) Normally should not happen
             AuditTrailLogger.getInstance(LogCode.EVENT, context)
@@ -292,10 +294,10 @@ public class EventUtils
 
                   AuditTrailLogger.getInstance(LogCode.ENGINE, context).error(message, e);
                }
-               // @todo (france, ub): how to handle other exceptions?                              
+               // @todo (france, ub): how to handle other exceptions?
                catch (RuntimeException ex)
-               {        
-            	   
+               {
+
                   checkForDeactivation(context, handler, action);
                   throw ex;
                }
@@ -310,7 +312,7 @@ public class EventUtils
          trace.warn("No handler found for oid " + event.getHandlerOID() + " in " + owner);
       }
    }
-   
+
    private static void clearEventErrorCounter(AttributedIdentifiablePersistent context, final IEventHandler handler) {
       int objectType = getEventSourceType(context);
       final EventBindingBean binding = EventBindingBean.find(objectType,
@@ -319,7 +321,7 @@ public class EventUtils
       {
          String key = getFailureScope(binding) + EVENT_FAILURE_COUNTER;
          Parameters.instance().set(key, null);
-      }   
+      }
    }
 
    private static void checkForDeactivation(
@@ -342,14 +344,14 @@ public class EventUtils
             if (binding != null)
             {
                String key = getFailureScope(binding) + EVENT_FAILURE_COUNTER;
-               Integer countValue = Parameters.instance().getInteger(key, 0);               
+               Integer countValue = Parameters.instance().getInteger(key, 0);
                countValue++;
                if (countValue >= RETRY_FAILURE_MAX)
                {
                   deactivate(context, handler);
                   Parameters.instance().set(key, null);
                }
-               else 
+               else
                {
                   Parameters.instance().setInteger(key, countValue);
                }
@@ -364,13 +366,13 @@ public class EventUtils
       {
          return;
       }
-      
+
       final Object eventHandlerType = eventHandler.getAttribute(EventHandlerBean.BOUNDARY_EVENT_TYPE_KEY);
       if (eventHandlerType == null)
       {
          return;
       }
-      
+
       final IActivityInstance ai = (IActivityInstance) source;
       if (EventHandlerBean.BOUNDARY_EVENT_TYPE_INTERRUPTING_VALUE.equals(eventHandlerType))
       {
@@ -385,26 +387,26 @@ public class EventUtils
          throw new IllegalArgumentException("Illegal boundary event type attribute '" + eventHandlerType + "'.");
       }
    }
-   
+
    private static void enableInterruptingExceptionFlow(final IActivityInstance ai, final String eventHandlerId)
    {
       ai.setPropertyValue(ActivityInstanceBean.BOUNDARY_EVENT_HANDLER_ACTIVATED_PROPERTY_KEY, eventHandlerId);
    }
-   
+
    private static void triggerNonInterruptingExceptionFlow(final IActivityInstance ai, final String eventHandlerId)
    {
       final IActivity currentActivity = ai.getActivity();
       final ITransition exceptionTransition = currentActivity.getExceptionTransition(eventHandlerId);
       final IActivity exceptionFlowActivity = exceptionTransition.getToActivity();
-      
+
       /* create the token to be consumed ... */
       final TransitionTokenBean exceptionTransitionToken = new TransitionTokenBean(ai.getProcessInstance(), exceptionTransition, ai.getOID());
       exceptionTransitionToken.persist();
-      
+
       /* ... by the activity thread created */
       ActivityThread.schedule(ai.getProcessInstance(), exceptionFlowActivity, null, false, null, null, false);
    }
-   
+
    public static void bind(AttributedIdentifiablePersistent runtimeObject,
          IEventHandler handler, EventHandlerBinding bindParams)
    {
@@ -417,7 +419,7 @@ public class EventUtils
                + ", skipping event binding.");
          return;
       }
-      
+
       binder.bind(objectType, runtimeObject.getOID(), handler, MapUtils.merge(
             handler.getAllAttributes(),
             (null != bindParams) ? bindParams.getAllAttributes() : null));
@@ -438,7 +440,7 @@ public class EventUtils
             final Map actionAttributes = (actionBinding instanceof EventBindingDetails)
                   ? ((EventBindingDetails) actionBinding).getAllDynamicAttributes()
                   : actionBinding.getAllAttributes();
-   
+
             runtimeObject.addPropertyValues(MapUtils.scope(actionAttributes,
                   getActionScope(action)));
          }
@@ -454,7 +456,7 @@ public class EventUtils
          final EventBindingBean binding)
    {
       int cnt_ = 0;
-      // check counter and increase  
+      // check counter and increase
       // context.lock();
       Integer counter = (Integer) context.getPropertyValue(getFailureScope(binding) + EVENT_FAILURE_COUNTER);
       if(counter != null)
@@ -464,7 +466,7 @@ public class EventUtils
       cnt_++;
       context.setPropertyValue(getFailureScope(binding) + EVENT_FAILURE_COUNTER, Integer.valueOf(cnt_));
    }
-      
+
    public static void deactivate(AttributedIdentifiablePersistent runtimeObject,
          IEventHandler handler)
    {
@@ -480,8 +482,8 @@ public class EventUtils
          trace.warn("Unable to retrieve event binder for handler " + handler.getOID()
                + ", skipping event deactivation.");
       }
-   }   
-   
+   }
+
    public static void unbind(AttributedIdentifiablePersistent runtimeObject,
          IEventHandler handler, EventHandlerBinding bindParams)
    {
@@ -489,7 +491,7 @@ public class EventUtils
 
       final EventBinder binder = getBinder(handler);
       if (null != binder)
-      {         
+      {
          if (handler.hasUnbindActions())
          {
             // @todo (france, ub): any unbind actions here?
@@ -612,7 +614,7 @@ public class EventUtils
       final int objectType = getEventSourceType(runtimeObject);
 
       boolean hasEvents = false;
-      
+
       final EventHandlerOwner owner = getEventSourceDefinition(runtimeObject);
       for (int i = 0; i < owner.getEventHandlers().size(); ++i)
       {
@@ -620,19 +622,19 @@ public class EventUtils
 
          // TODO (ellipsis) can the condition for cleaning property scopes defined even tighter?
          hasEvents = true;
-         
+
          if (((IEventConditionType)handler.getType()).getImplementation() != EventType.Engine)
          {
             getBinder(handler).unbind(objectType, runtimeObject.getOID(), handler);
             getBinder(handler).unbind(objectType + DEACTIVE_TYPE, runtimeObject.getOID(), handler);
          }
       }
-      
+
       if (hasEvents)
       {
          PropertyUtils.removePropertyWithPrefix(runtimeObject, HANDLER_SCOPE);
-         PropertyUtils.removePropertyWithPrefix(runtimeObject, ACTION_SCOPE);         
-         PropertyUtils.removePropertyWithPrefix(runtimeObject, FAILURE_SCOPE);         
+         PropertyUtils.removePropertyWithPrefix(runtimeObject, ACTION_SCOPE);
+         PropertyUtils.removePropertyWithPrefix(runtimeObject, FAILURE_SCOPE);
       }
    }
 
@@ -763,26 +765,26 @@ public class EventUtils
          }
       }
    }
-   
+
    public static void recoverEvent(AttributedIdentifiablePersistent runtimeObject)
    {
-      PropertyUtils.removePropertyWithPrefix(runtimeObject, FAILURE_SCOPE);         
+      PropertyUtils.removePropertyWithPrefix(runtimeObject, FAILURE_SCOPE);
 
       ResultIterator iterator = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getIterator(
-            EventBindingBean.class, // 
+            EventBindingBean.class, //
             QueryExtension.where(Predicates.andTerm( //
                   Predicates.isEqual(EventBindingBean.FR__OBJECT_OID, runtimeObject.getOID()),//
                   Predicates.greaterThan(EventBindingBean.FR__TYPE, EventUtils.DEACTIVE_TYPE),//
                   Predicates.isEqual(EventBindingBean.FR__PARTITION, SecurityProperties.getPartitionOid()))));
-                  
+
       while(iterator.hasNext())
       {
          EventBindingBean eventBinding = (EventBindingBean) iterator.next();
          int type = eventBinding.getType();
-         eventBinding.setType(type - DEACTIVE_TYPE);         
+         eventBinding.setType(type - DEACTIVE_TYPE);
       }
    }
-   
+
    public static long countDeactiveEventBindings()
    {
       Set processes = getDeactiveEventBindings();
@@ -793,21 +795,21 @@ public class EventUtils
    {
       // get all from event binding where type > DEACTIVE_TYPE
       ResultIterator iterator = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getIterator(
-            EventBindingBean.class, // 
+            EventBindingBean.class, //
             QueryExtension.where(Predicates.greaterThan(EventBindingBean.FR__TYPE, EventUtils.DEACTIVE_TYPE)));
-         
+
       Set processes = new HashSet();
       while(iterator.hasNext())
       {
          EventBindingBean eventBinding = (EventBindingBean) iterator.next();
          int type = eventBinding.getType() - EventUtils.DEACTIVE_TYPE;
          long objectOID = eventBinding.getObjectOID();
-         
+
          // if activity, get process
          if(type == 1)
          {
             ActivityInstanceBean activityInstanceBean = ActivityInstanceBean.findByOID(objectOID);
-            objectOID = activityInstanceBean.getProcessInstance().getOID();                  
+            objectOID = activityInstanceBean.getProcessInstance().getOID();
          }
          processes.add(objectOID);
       }

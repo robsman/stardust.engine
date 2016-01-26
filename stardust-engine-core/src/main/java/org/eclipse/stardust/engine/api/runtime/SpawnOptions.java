@@ -31,7 +31,7 @@ public class SpawnOptions implements Serializable
    /**
     * The processing behavior of the originating process instance. Must be <b><code>true</code></b>.
     */
-   private boolean abortProcessInstance;
+   private SpawnMode spawnMode;
 
    /**
     * The operation comment.
@@ -57,7 +57,27 @@ public class SpawnOptions implements Serializable
     */
    public SpawnOptions(String comment)
    {
-      this(new ProcessStateSpec(), true, comment, null);
+      this(new ProcessStateSpec(), SpawnMode.ABORT, comment, null);
+   }
+
+
+   /**
+    * Creates a new SpawnOptions that allows to specify the starting activity and detailed data copy options.
+    *
+    * @param startActivity the activity from which the spawned process instance should start.
+    *        If null, the spawned process instance will start from the default start activity.
+    * @param abortProcessInstance use true to abort the originating process instance.
+    * @param comment a comment describing the operation. May be null.
+    * @param dataCopyOptions instructions on how the data should be transferred from the
+    *        originating process instance to the spawned process instance. If null, then
+    *        {@link DataCopyOptions.DEFAULT} is used.
+    * @deprecated use {@link #SpawnOptions(String, SpawnMode, String, DataCopyOptions)}
+    */
+   @Deprecated
+   public SpawnOptions(String startActivity, boolean abortProcessInstance, String comment,
+         DataCopyOptions dataCopyOptions)
+   {
+      this(ProcessStateSpec.simpleSpec(startActivity), abortProcessInstance ? SpawnMode.ABORT : SpawnMode.KEEP, comment, dataCopyOptions);
    }
 
    /**
@@ -65,35 +85,33 @@ public class SpawnOptions implements Serializable
     *
     * @param startActivity the activity from which the spawned process instance should start.
     *        If null, the spawned process instance will start from the default start activity.
-    * @param abortProcessInstance true to abort the originating process instance. Currently only
-    *        a value of true is accepted for processing.
+    * @param spawnMode specifies what action to take with the originating process instance. {@link SpawnMode#Keep}, {@link SpawnMode#ABORT} or {@link SpawnMode#HALT}.
     * @param comment a comment describing the operation. May be null.
     * @param dataCopyOptions instructions on how the data should be transferred from the
     *        originating process instance to the spawned process instance. If null, then
     *        {@link DataCopyOptions.DEFAULT} is used.
     */
-   public SpawnOptions(String startActivity, boolean abortProcessInstance, String comment,
+   public SpawnOptions(String startActivity, SpawnMode spawnMode, String comment,
          DataCopyOptions dataCopyOptions)
    {
-      this(ProcessStateSpec.simpleSpec(startActivity), abortProcessInstance, comment, dataCopyOptions);
+      this(ProcessStateSpec.simpleSpec(startActivity), spawnMode, comment, dataCopyOptions);
    }
 
    /**
     * Creates a new SpawnOptions that allows to specify the starting activity and detailed data copy options.
     *
     * @param ProcessStateSpec information about the started activities.
-    * @param abortProcessInstance true to abort the originating process instance. Currently only
-    *        a value of true is accepted for processing.
+    * @param spawnMode specifies what action to take with the originating process instance. {@link SpawnMode#Keep}, {@link SpawnMode#ABORT} or {@link SpawnMode#HALT}.
     * @param comment a comment describing the operation. May be null.
     * @param dataCopyOptions instructions on how the data should be transferred from the
     *        originating process instance to the spawned process instance. If null, then
     *        {@link DataCopyOptions.DEFAULT} is used.
     */
-   private SpawnOptions(ProcessStateSpec processStateSpec, boolean abortProcessInstance, String comment,
+   private SpawnOptions(ProcessStateSpec processStateSpec, SpawnMode spawnMode, String comment,
          DataCopyOptions dataCopyOptions)
    {
       this.processStateSpec = processStateSpec;
-      this.abortProcessInstance = abortProcessInstance;
+      this.spawnMode = spawnMode;
       this.comment = comment;
       this.dataCopyOptions = dataCopyOptions;
    }
@@ -128,11 +146,21 @@ public class SpawnOptions implements Serializable
    /**
     * Retrieves the processing behavior of the originating process instance.
     *
-    * @return true, if the originating process instance should be aborted, false if it should be completed.
+    * @return true, if the originating process instance should be aborted.
     */
    public boolean isAbortProcessInstance()
    {
-      return abortProcessInstance;
+      return SpawnMode.ABORT.equals(spawnMode);
+   }
+
+   /**
+    * Retrieves the processing behavior of the originating process instance.
+    *
+    * @return true, if the originating process instance should be halted.
+    */
+   public boolean isHaltProcessInstance()
+   {
+      return SpawnMode.HALT.equals(spawnMode);
    }
 
    /**
@@ -154,5 +182,12 @@ public class SpawnOptions implements Serializable
    public DataCopyOptions getDataCopyOptions()
    {
       return dataCopyOptions;
+   }
+
+   public enum SpawnMode
+   {
+      KEEP,
+      ABORT,
+      HALT
    }
 }

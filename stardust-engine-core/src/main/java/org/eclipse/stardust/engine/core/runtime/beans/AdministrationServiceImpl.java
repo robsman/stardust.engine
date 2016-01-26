@@ -936,10 +936,18 @@ public class AdministrationServiceImpl
             service = factory.get();
 
             // first try is synchronous.
-            service
-            .isolate(new ProcessAbortionJanitor(new AbortionJanitorCarrier(piOid, userOid)));
+            service.isolate(new ProcessAbortionJanitor(new AbortionJanitorCarrier(piOid,
+                  userOid)));
          }
-         else if ( !processInstance.isCompleted())
+         else if (processInstance.isHalting())
+         {
+            service = factory.get();
+
+            // first try is synchronous.
+            service
+                  .isolate(new ProcessHaltJanitor(new HaltJanitorCarrier(piOid, userOid)));
+         }
+         else if (!processInstance.isCompleted())
          {
             service = factory.get();
 
@@ -1162,7 +1170,7 @@ public class AdministrationServiceImpl
 
          AdminServiceUtils.deletePartitionRuntimeArtifacts(
                SecurityProperties.getPartitionOid(), session);
-         
+
          cleanupDeployments(session);
          cleanupModelReferences(session);
 

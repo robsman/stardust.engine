@@ -38,7 +38,7 @@ import org.eclipse.stardust.common.IntKey;
 public class ProcessInstanceState extends IntKey
 {
    private static final long serialVersionUID = -4498255161862762726L;
-   
+
    /**
     * The process instance has just been created.
     */
@@ -63,8 +63,16 @@ public class ProcessInstanceState extends IntKey
     * The process instance is in progress of being aborted directly by a user.
     */
    public static final int ABORTING = 4;
+   /**
+    * The process instance is in progress of being halted directly by a user.
+    */
+   public static final int HALTING = 5;
+   /**
+    * The process instance has been halted.
+    */
+   public static final int HALTED = 6;
 
-   public static final ProcessInstanceState Created = 
+   public static final ProcessInstanceState Created =
          new ProcessInstanceState(CREATED, "Created");
    public static final ProcessInstanceState Active =
          new ProcessInstanceState(ACTIVE, "Active");
@@ -73,21 +81,27 @@ public class ProcessInstanceState extends IntKey
    public static final ProcessInstanceState Completed =
          new ProcessInstanceState(COMPLETED, "Completed");
    public static final ProcessInstanceState Interrupted =
-      new ProcessInstanceState(INTERRUPTED, "Interrupted");
+         new ProcessInstanceState(INTERRUPTED, "Interrupted");
    public static final ProcessInstanceState Aborting =
-      new ProcessInstanceState(ABORTING, "Aborting");
-   
+         new ProcessInstanceState(ABORTING, "Aborting");
+   public static final ProcessInstanceState Halting =
+         new ProcessInstanceState(HALTING, "Halting");
+   public static final ProcessInstanceState Halted =
+         new ProcessInstanceState(HALTED, "Halted");
+
    private static final ProcessInstanceState[] KEYS = new ProcessInstanceState[]
          {
             Active,
             Aborted,
             Completed,
             Interrupted,
-            Aborting
+            Aborting,
+            Halting,
+            Halted
          };
 
    /**
-    * 
+    *
     * @return returns all possible {@link ProcessInstanceState}
     */
    public static Set<ProcessInstanceState> getAllStates()
@@ -97,10 +111,10 @@ public class ProcessInstanceState extends IntKey
       {
          allStates.add(key);
       }
-      
+
       return allStates;
    }
-   
+
    /**
     * Factory method to get the ProcessInstanceState corresponding to the given code.
     *
@@ -118,7 +132,7 @@ public class ProcessInstanceState extends IntKey
       {
          return KEYS[value];
       }
-      
+
       return (ProcessInstanceState) getKey(ProcessInstanceState.class, value);
    }
 

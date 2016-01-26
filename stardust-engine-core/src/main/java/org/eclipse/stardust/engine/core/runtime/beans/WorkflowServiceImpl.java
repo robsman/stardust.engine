@@ -30,6 +30,7 @@ import org.eclipse.stardust.engine.api.dto.*;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.SpawnOptions.SpawnMode;
 import org.eclipse.stardust.engine.core.benchmark.BenchmarkUtils;
 import org.eclipse.stardust.engine.core.model.beans.ScopedModelParticipant;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
@@ -445,7 +446,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          }
       }
 
-      ProcessInstanceUtils.checkGroupTermination(group);
+      ProcessInstanceUtils.checkGroupTermination(group, StopMode.ABORT);
 
       return DetailsFactory.create(group);
    }
@@ -671,8 +672,9 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          InvalidArgumentException
    {
       DataCopyOptions dataCopyOptions = new DataCopyOptions(copyData, null, data, true);
-      SpawnOptions options = new SpawnOptions(null, abortProcessInstance, comment,
-            dataCopyOptions);
+      SpawnOptions options = new SpawnOptions(null, abortProcessInstance
+            ? SpawnMode.ABORT
+            : SpawnMode.KEEP, comment, dataCopyOptions);
       return spawnPeerProcessInstance(processInstanceOid, spawnProcessID, options);
    }
 
@@ -717,6 +719,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                BpmRuntimeError.BPMRT_PI_IS_ALREADY_TERMINATED.raise(processInstanceOid));
       }
 
+      // retrieve model of originating process instance.
       IProcessDefinition originatingProcessDefinition = originatingProcessInstance.getProcessDefinition();
       IModel model = (IModel) originatingProcessDefinition.getModel();
 
@@ -732,25 +735,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          }
       }
 
-      PredefinedProcessInstanceLinkTypes linkType = PredefinedProcessInstanceLinkTypes.SWITCH;
-
-      if (options == null)
-      {
-         options = SpawnOptions.DEFAULT;
-      }
+      // retrieve targeted process definition.
       String processId = qname.getLocalPart();
-      if (options.isAbortProcessInstance())
-      {
-         if (processId.equals(originatingProcessDefinition.getId()))
-         {
-            linkType = PredefinedProcessInstanceLinkTypes.UPGRADE;
-         }
-      }
-      else
-      {
-         linkType = PredefinedProcessInstanceLinkTypes.SPAWN;
-      }
-
       IProcessDefinition processDefinition = model.findProcessDefinition(processId);
       if (processDefinition == null)
       {
@@ -759,8 +745,37 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                processId);
       }
 
+      if (options == null)
+      {
+         options = SpawnOptions.DEFAULT;
+      }
+
+      // Determine Link Type
+      PredefinedProcessInstanceLinkTypes linkType = null;
       if (options.isAbortProcessInstance())
       {
+         if (processId.equals(originatingProcessDefinition.getId()))
+         {
+            linkType = PredefinedProcessInstanceLinkTypes.UPGRADE;
+         }
+         else
+         {
+            linkType = PredefinedProcessInstanceLinkTypes.SWITCH;
+         }
+      }
+      else if (options.isHaltProcessInstance())
+      {
+         linkType = PredefinedProcessInstanceLinkTypes.INSERT;
+      }
+      else
+      {
+         linkType = PredefinedProcessInstanceLinkTypes.SPAWN;
+      }
+
+      // Handle aborting or halting of originating process.
+      if (options.isAbortProcessInstance() || options.isHaltProcessInstance())
+      {
+         // check authorization
          BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
          Authorization2Predicate authorizationPredicate = runtimeEnvironment.getAuthorizationPredicate();
          if (authorizationPredicate != null)
@@ -768,9 +783,11 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
             authorizationPredicate.check(originatingProcessInstance);
          }
 
-         abortProcessInstance(processInstanceOid, AbortScope.RootHierarchy);
+         StopMode stopMode = options.isAbortProcessInstance() ? StopMode.ABORT : StopMode.HALT;
+         internalStopProcessInstance(processInstanceOid, AbortScope.RootHierarchy, stopMode);
       }
 
+      // Handle data copy
       DataCopyOptions dco = options.getDataCopyOptions();
       if (dco == null)
       {
@@ -795,10 +812,12 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          DataCopyUtils.copyNotes(originatingProcessInstance, processInstance);
       }
 
+      // create process instance link
       IProcessInstanceLinkType link = ProcessInstanceLinkTypeBean.findById(linkType);
       new ProcessInstanceLinkBean(originatingProcessInstance, processInstance, link,
             options.getComment());
 
+      // run the target process instance
       ProcessStateSpec spec = options.getProcessStateSpec();
       Iterator<List<String>> itr = spec.iterator();
       if (!itr.hasNext())
@@ -1741,8 +1760,17 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    public ProcessInstance abortProcessInstance(long processInstanceOID,
          AbortScope abortScope) throws ObjectNotFoundException, AccessForbiddenException
    {
+      IProcessInstance processInstance = internalStopProcessInstance(processInstanceOID,
+            abortScope, StopMode.ABORT);
+      // return the details.
+      return DetailsFactory.create(processInstance);
+   }
+
+   private IProcessInstance internalStopProcessInstance(long processInstanceOID, AbortScope abortScope, StopMode stopMode)
+   {
       // fetch the process.
-      IProcessInstance processInstance = ProcessInstanceBean.findByOID(processInstanceOID);
+      IProcessInstance processInstance = ProcessInstanceBean
+            .findByOID(processInstanceOID);
 
       if (processInstance.isCaseProcessInstance())
       {
@@ -1750,13 +1778,13 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                BpmRuntimeError.BPMRT_PI_IS_CASE.raise(processInstanceOID));
       }
 
+      // TODO check if change needed for halt
       // allow this operation only on spawned processes.
       if (processInstance.getStartingActivityInstance() != null)
       {
-         // throw new
-         // AccessForbiddenException(BpmRuntimeError.ATDB_PROCESS_INSTANCE_NOT_SPAWNED.raise(processInstanceOID));
-         IActivityInstance activityInstance = processInstance.getStartingActivityInstance();
-         if ( !activityInstance.isTerminated())
+         IActivityInstance activityInstance = processInstance
+               .getStartingActivityInstance();
+         if (!activityInstance.isTerminated())
          {
             if (activityInstance instanceof ActivityInstanceBean)
             {
@@ -1779,36 +1807,43 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                && (abortScope == null || abortScope == AbortScope.RootHierarchy))
          {
             pi = ProcessInstanceUtils.getActualRootPI(pi);
-            trace.info("Aborting subprocess, starting from root process instance " + pi
+            trace.info(stopMode.getTransitionState() + " subprocess, starting from root process instance " + pi
                   + ".");
          }
          else
          {
-            trace.info("Aborting process instance " + pi + ".");
+            trace.info(stopMode.getTransitionState() + " process instance " + pi + ".");
          }
 
-         // abort the process.
-         if ( !pi.isTerminated() && !pi.isAborting())
+         // stop the process.
+         if (!pi.isTerminated() && !pi.isAborting() && !pi.isHalting() && !pi.isHalted())
          {
-            ProcessInstanceUtils.abortProcessInstance(pi);
+            ProcessInstanceUtils.stopProcessInstance(pi, stopMode);
          }
          else
          {
+            String currentState = null;
             if (pi.isTerminated())
             {
-               trace.info("Skipping abort of already terminated process instance " + pi
-                     + ".");
+               currentState = "terminated";
             }
-            else
+            else if (pi.isAborting())
             {
-               trace.info("Skipping abort of already aborting process instance " + pi
-                     + ".");
+               currentState = StopMode.ABORT.getTransitionState();
             }
+            else if (pi.isHalting())
+            {
+               currentState = StopMode.HALT.getTransitionState();
+            }
+            else if (pi.isHalted())
+            {
+               currentState = StopMode.HALT.getFinalState();
+            }
+            trace.info("Skipping " + stopMode.getModeName() + " of already "
+                  + currentState + " process instance " + pi + ".");
          }
       }
-
-      // return the details.
-      return DetailsFactory.create(processInstance);
+      return processInstance;
    }
 
    public ActivityInstance getActivityInstance(long oid) throws ObjectNotFoundException
@@ -1910,16 +1945,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       IActivityInstance activityInstance = ActivityInstanceBean.findByOID(activityInstanceOID);
 
-      if (activityInstance.isTerminated())
-      {
-         throw new BindingException(
-               BpmRuntimeError.BPMRT_AI_IS_ALREADY_TERMINATED.raise(activityInstanceOID));
-      }
-      if (activityInstance.isAborting())
-      {
-         throw new BindingException(
-               BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS.raise(activityInstanceOID));
-      }
+      checkInvalidState(activityInstanceOID, activityInstance);
 
       if (eventHandler.getHandler().getModelOID() != ModelUtils.nullSafeGetModelOID(activityInstance.getActivity()))
       {
@@ -1942,16 +1968,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       IProcessInstance processInstance = ProcessInstanceBean.findByOID(processInstanceOID);
 
-      if (processInstance.isTerminated())
-      {
-         throw new BindingException(
-               BpmRuntimeError.ATDB_PROCESS_INSTANCE_TERMINATED.raise(processInstanceOID));
-      }
-      if (processInstance.isAborting())
-      {
-         throw new BindingException(
-               BpmRuntimeError.ATDB_PROCESS_INSTANCE_ABORTING.raise(processInstanceOID));
-      }
+      checkInvalidState(processInstanceOID, processInstance);
 
       if (eventHandler.getHandler().getModelOID() != ModelUtils.nullSafeGetModelOID(processInstance.getProcessDefinition()))
       {
@@ -1972,16 +1989,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       IActivityInstance activityInstance = ActivityInstanceBean.findByOID(activityInstanceOID);
 
-      if (activityInstance.isTerminated())
-      {
-         throw new BindingException(
-               BpmRuntimeError.BPMRT_AI_IS_ALREADY_TERMINATED.raise(activityInstanceOID));
-      }
-      if (activityInstance.isAborting())
-      {
-         throw new BindingException(
-               BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS.raise(activityInstanceOID));
-      }
+      checkInvalidState(activityInstanceOID, activityInstance);
 
       activityInstance.bind(getIEventHandler(activityInstance, handler), null);
 
@@ -1994,16 +2002,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       IProcessInstance processInstance = ProcessInstanceBean.findByOID(processInstanceOID);
 
-      if (processInstance.isTerminated())
-      {
-         throw new BindingException(
-               BpmRuntimeError.ATDB_PROCESS_INSTANCE_TERMINATED.raise(processInstanceOID));
-      }
-      if (processInstance.isAborting())
-      {
-         throw new BindingException(
-               BpmRuntimeError.ATDB_PROCESS_INSTANCE_ABORTING.raise(processInstanceOID));
-      }
+      checkInvalidState(processInstanceOID, processInstance);
 
       processInstance.bind(getIEventHandler(processInstance, handler), null);
 
@@ -2015,16 +2014,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       IActivityInstance activityInstance = ActivityInstanceBean.findByOID(activityInstanceOID);
 
-      if (activityInstance.isTerminated())
-      {
-         throw new BindingException(
-               BpmRuntimeError.BPMRT_AI_IS_ALREADY_TERMINATED.raise(activityInstanceOID));
-      }
-      if (activityInstance.isAborting())
-      {
-         throw new BindingException(
-               BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS.raise(activityInstanceOID));
-      }
+      checkInvalidState(activityInstanceOID, activityInstance);
 
       activityInstance.unbind(getIEventHandler(activityInstance, eventHandler), null);
 
@@ -2037,6 +2027,43 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       IProcessInstance processInstance = ProcessInstanceBean.findByOID(processInstanceOID);
 
+      checkInvalidState(processInstanceOID, processInstance);
+
+      processInstance.unbind(getIEventHandler(processInstance, eventHandler), null);
+
+      return DetailsFactory.create(processInstance);
+   }
+
+   private void checkInvalidState(long activityInstanceOID,
+         IActivityInstance activityInstance)
+   {
+      if (activityInstance.isTerminated())
+      {
+         throw new BindingException(
+               BpmRuntimeError.BPMRT_AI_IS_ALREADY_TERMINATED.raise(activityInstanceOID));
+      }
+      if (activityInstance.isAborting())
+      {
+         throw new BindingException(
+               BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS.raise(activityInstanceOID));
+      }
+      if (activityInstance.isHalting())
+      {
+         // TODO exception
+         throw new BindingException(
+               BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS.raise(activityInstanceOID));
+      }
+      if (activityInstance.isHalted())
+      {
+         // TODO exception
+         throw new BindingException(
+               BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS.raise(activityInstanceOID));
+      }
+   }
+
+   private void checkInvalidState(long processInstanceOID,
+         IProcessInstance processInstance)
+   {
       if (processInstance.isTerminated())
       {
          throw new BindingException(
@@ -2047,10 +2074,18 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          throw new BindingException(
                BpmRuntimeError.ATDB_PROCESS_INSTANCE_ABORTING.raise(processInstanceOID));
       }
-
-      processInstance.unbind(getIEventHandler(processInstance, eventHandler), null);
-
-      return DetailsFactory.create(processInstance);
+      if (processInstance.isHalting())
+      {
+         // TODO exception
+         throw new BindingException(
+               BpmRuntimeError.ATDB_PROCESS_INSTANCE_ABORTING.raise(processInstanceOID));
+      }
+      if (processInstance.isHalted())
+      {
+         // TODO exception
+         throw new BindingException(
+               BpmRuntimeError.ATDB_PROCESS_INSTANCE_ABORTING.raise(processInstanceOID));
+      }
    }
 
    public EventHandlerBinding getActivityInstanceEventHandler(long activityInstanceOID,

@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.monitoring;
 
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.StopMode;
 import org.eclipse.stardust.engine.core.spi.monitoring.IProcessExecutionMonitor;
 import org.eclipse.stardust.engine.extensions.events.signal.WorkCompletionSignalEmitter;
 
@@ -26,17 +27,26 @@ public class DefaultProcessExecutionMonitor implements IProcessExecutionMonitor
 
    public void processCompleted(IProcessInstance process)
    {
-      ProcessInstanceUtils.checkGroupTermination(process);
+      ProcessInstanceUtils.checkGroupTermination(process, StopMode.ABORT);
 
       WorkCompletionSignalEmitter.processCompleted(process);
    }
 
    public void processAborted(IProcessInstance process)
    {
-      ProcessInstanceUtils.checkGroupTermination(process);
+      ProcessInstanceUtils.checkGroupTermination(process, StopMode.ABORT);
+   }
+
+   public void processHalted(IProcessInstance process)
+   {
+      ProcessInstanceUtils.checkGroupTermination(process, StopMode.HALT);
    }
 
    public void processInterrupted(IProcessInstance process)
+   {
+   }
+
+   public void processResumed(IProcessInstance process)
    {
    }
 }

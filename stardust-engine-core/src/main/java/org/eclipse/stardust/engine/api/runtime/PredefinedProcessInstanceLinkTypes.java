@@ -11,7 +11,7 @@
 package org.eclipse.stardust.engine.api.runtime;
 
 /**
- * 
+ *
  * @author Florin.Herinean
  * @version $Revision: $
  */
@@ -21,8 +21,9 @@ public enum PredefinedProcessInstanceLinkTypes
    JOIN("Join Process Instance"),
    UPGRADE("Upgrade Process Instance"),
    SPAWN("Spawn Process Instance"),
-   RELATED("Related Process Instance");
-   
+   RELATED("Related Process Instance"),
+   INSERT("Inserted Process Instance");
+
    private String id;
    private String description;
 

@@ -21,10 +21,8 @@ import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IEventHandler;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 
@@ -205,6 +203,10 @@ public interface IProcessInstance extends SymbolTable, AttributedIdentifiablePer
    boolean isAborted();
 
    boolean isAborting();
+
+   boolean isHalted();
+
+   boolean isHalting();
 
    void bind(IEventHandler handler, EventHandlerBinding aspect);
 

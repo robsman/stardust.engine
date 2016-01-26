@@ -812,10 +812,12 @@ public interface WorkflowService extends Service
     *            implemented).
     * @throws ConcurrencyException
     *            if a lock on process instances cannot be obtained.
+    * @deprecated use {@link #spawnPeerProcessInstance(long, String, SpawnOptions)}
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.spawnPeerProcessInstance,
          defaults={ExecutionPermission.Default.ALL})
+   @Deprecated
    public ProcessInstance spawnPeerProcessInstance(long processInstanceOid,
          String spawnProcessID, boolean copyData, Map<String, ? extends Serializable> data,
          boolean abortProcessInstance, String comment) throws IllegalOperationException,

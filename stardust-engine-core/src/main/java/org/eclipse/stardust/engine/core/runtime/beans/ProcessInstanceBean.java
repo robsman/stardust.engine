@@ -573,6 +573,10 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          {
             MonitoringUtils.processExecutionMonitors().processAborted(this);
          }
+         if (state == ProcessInstanceState.HALTED)
+         {
+            MonitoringUtils.processExecutionMonitors().processHalted(this);
+         }
          if (state == ProcessInstanceState.COMPLETED)
          {
             MonitoringUtils.processExecutionMonitors().processCompleted(this);
@@ -1076,6 +1080,20 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return  ProcessInstanceState.ABORTING == state;
    }
 
+   @Override
+   public boolean isHalted()
+   {
+      fetch();
+      return  ProcessInstanceState.HALTED == state;
+   }
+
+   @Override
+   public boolean isHalting()
+   {
+      fetch();
+      return  ProcessInstanceState.HALTING == state;
+   }
+
    /**
     * Returns all activity instances already performed on behalf of this process.
     * This is the audit trail of the process.
@@ -1264,6 +1282,8 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    public void resetInterrupted()
    {
       setState(ProcessInstanceState.ACTIVE);
+
+      MonitoringUtils.processExecutionMonitors().processResumed(this);
    }
 
    /**

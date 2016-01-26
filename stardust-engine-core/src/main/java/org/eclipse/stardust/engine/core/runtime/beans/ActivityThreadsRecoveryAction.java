@@ -144,7 +144,8 @@ public class ActivityThreadsRecoveryAction implements Action
                   Predicates.andTerm(
                         Predicates.isEqual(ActivityInstanceBean.FR__PROCESS_INSTANCE, processInstanceOID),
                         Predicates.notEqual(ActivityInstanceBean.FR__STATE, ActivityInstanceState.COMPLETED),
-                        Predicates.notEqual(ActivityInstanceBean.FR__STATE, ActivityInstanceState.ABORTED))));
+                        Predicates.notEqual(ActivityInstanceBean.FR__STATE, ActivityInstanceState.ABORTED),
+                        Predicates.notEqual(ActivityInstanceBean.FR__STATE, ActivityInstanceState.HALTED))));
 
       while(iterator.hasNext())
       {

@@ -27,7 +27,7 @@ public class ProcessExecutionMonitorMediator implements IProcessExecutionMonitor
    private static final Logger trace = LogManager.getLogger(ProcessExecutionMonitorMediator.class);
 
    private final List<IProcessExecutionMonitor> monitors;
-   
+
    public ProcessExecutionMonitorMediator(List<IProcessExecutionMonitor> monitors)
    {
       this.monitors = monitors;
@@ -48,7 +48,7 @@ public class ProcessExecutionMonitorMediator implements IProcessExecutionMonitor
          }
       }
    }
-   
+
    public void processCompleted(IProcessInstance process)
    {
       for (int i = 0; i < monitors.size(); ++i)
@@ -64,7 +64,7 @@ public class ProcessExecutionMonitorMediator implements IProcessExecutionMonitor
          }
       }
    }
-   
+
    public void processAborted(IProcessInstance process)
    {
       for (int i = 0; i < monitors.size(); ++i)
@@ -95,5 +95,38 @@ public class ProcessExecutionMonitorMediator implements IProcessExecutionMonitor
             trace.warn("Failed broadcasting process execution monitor event.", e);
          }
       }
+   }
+
+   public void processHalted(IProcessInstance process)
+   {
+      for (int i = 0; i < monitors.size(); ++i)
+      {
+         IProcessExecutionMonitor monitor = monitors.get(i);
+         try
+         {
+            monitor.processHalted(process);
+         }
+         catch (Exception e)
+         {
+            trace.warn("Failed broadcasting process execution monitor event.", e);
+         }
+      }
+   }
+
+   public void processResumed(IProcessInstance process)
+   {
+      for (int i = 0; i < monitors.size(); ++i)
+      {
+         IProcessExecutionMonitor monitor = monitors.get(i);
+         try
+         {
+            monitor.processResumed(process);
+         }
+         catch (Exception e)
+         {
+            trace.warn("Failed broadcasting process execution monitor event.", e);
+         }
+      }
+
    }
 }

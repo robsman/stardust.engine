@@ -18,9 +18,12 @@ import org.eclipse.stardust.common.error.ConcurrencyException;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.persistence.PhantomException;
+import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -90,7 +93,7 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
          try
          {
             ((IdentifiablePersistentBean) activityInstance).reloadAttribute(ActivityInstanceBean.FIELD__STATE);
-            if (!activityInstance.isTerminated() && !activityInstance.isAborting())
+            if (ActivityInstanceUtils.isActiveState(activityInstance))
             {
                activityInstance.activate();
                // do out data mappings if necessary
@@ -113,17 +116,48 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
       }
       else
       {
-         // No startingActivityInstance found, but this could be a spawned sub process.
-         // Lookup parent, complete parent process if possible.
-         resumeParentOfSpawnedSubprocess(pi, hasParent);
+         boolean haltedFound = false;
+         //re-schedule halted process
+         ResultIterator<IProcessInstanceLink> links = ProcessInstanceLinkBean.findAllForProcessInstance(pi);
+         if (links !=null)
+         {
+            while (links.hasNext())
+            {
+               IProcessInstanceLink link = links.next();
+               if (PredefinedProcessInstanceLinkTypes.INSERT.getId().equals(
+                     link.getLinkType().getId()) && link.getProcessInstanceOID() != pi.getOID())
+               {
+                  trace.info("Scheduling process resume for halted process: " + link.getProcessInstanceOID());
+                  resumeHaltedProcessHierarchy(link.getProcessInstanceOID());
+                  haltedFound = true;
+               }
+            }
+         }
+
+         // halted processes are spawned using spawn peer process, no hierarchy parent exists.
+         if (!haltedFound)
+         {
+            // No startingActivityInstance or insert process link found, but this could be a spawned sub process.
+            // Lookup parent, complete parent process if possible.
+            resumeParentOfSpawnedSubprocess(pi, hasParent);
+         }
       }
+   }
+
+   private void resumeHaltedProcessHierarchy(long processInstanceOid)
+   {
+      // TODO Resume janitor -> recover non interrupted/hibernated
+      ProcessResumeJanitor processResumeJanitor = new ProcessResumeJanitor(
+            new ResumeJanitorCarrier(processInstanceOid));
+      processResumeJanitor.execute();
    }
 
    static void resumeParentOfSpawnedSubprocess(IProcessInstance pi, boolean hasParent)
    {
       if (pi.getRootProcessInstanceOID() != pi.getOID())
       {
-         IProcessInstance parentProcessInstance = ProcessInstanceHierarchyBean.findParentForSubProcessInstanceOid(pi.getOID());
+         IProcessInstance parentProcessInstance = ProcessInstanceHierarchyBean
+               .findParentForSubProcessInstanceOid(pi.getOID());
          if (parentProcessInstance != null)
          {
             ProcessCompletionJanitor processCompletionJanitor = new ProcessCompletionJanitor(

@@ -35,14 +35,14 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 /**
  * Adapter class which converts IWorkItems to IActivityInstances. Not all methods
  * are supported and will throw UnsupportedOperationException.
- * 
+ *
  * @author stephan.born
  * @version $Revision: 5162 $
  */
 public class WorkItemAdapter extends AttributedIdentifiablePersistentBean implements IActivityInstance
 {
    /**
-    * 
+    *
     */
    private static final long serialVersionUID = 7050026372389262860L;
    private IWorkItem workItem;
@@ -196,6 +196,16 @@ public class WorkItemAdapter extends AttributedIdentifiablePersistentBean implem
       throw new UnsupportedOperationException();
    }
 
+   public boolean isHalted()
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   public boolean isHalting()
+   {
+      throw new UnsupportedOperationException();
+   }
+
    public boolean isTerminated()
    {
       ActivityInstanceState state = workItem.getState();
@@ -272,7 +282,7 @@ public class WorkItemAdapter extends AttributedIdentifiablePersistentBean implem
    {
       throw new UnsupportedOperationException();
    }
-   
+
    public void setPropertyValue(String name, Serializable value)
    {
       throw new UnsupportedOperationException();
@@ -321,7 +331,7 @@ public class WorkItemAdapter extends AttributedIdentifiablePersistentBean implem
          DmlManager manager = session.getDMLManager(getPropertyImplementationClass());
          persistenceController = manager.createPersistenceController(session, this);
       }
-      
+
       return persistenceController;
    }
 
@@ -344,7 +354,7 @@ public class WorkItemAdapter extends AttributedIdentifiablePersistentBean implem
    {
       this.persistenceController = persistenceController;
    }
-   
+
    public IDepartment getCurrentDepartment()
    {
       return workItem.getDepartment();
@@ -359,7 +369,7 @@ public class WorkItemAdapter extends AttributedIdentifiablePersistentBean implem
    {
       return workItem.getCriticality();
    }
-   
+
    public int getBenchmarkValue()
    {
       return workItem.getBenchmarkValue();

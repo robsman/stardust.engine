@@ -98,9 +98,9 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    public static final String FIELD__CRITICALITY = "criticality";
 
    public static final String FIELD__PROPERTIES_AVAILABLE = "propertiesAvailable";
-   
+
    public static final String FIELD__BENCHMAKRK_VALUE = "benchmarkValue";
-      
+
 
    public static final FieldRef FR__OID = new FieldRef(ActivityInstanceBean.class,
          FIELD__OID);
@@ -144,7 +144,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    public static final FieldRef FR__BENCHMARK_VALUE = new FieldRef(
          ActivityInstanceBean.class, FIELD__BENCHMAKRK_VALUE);
-   
+
    public static final String TABLE_NAME = "activity_instance";
 
    public static final String DEFAULT_ALIAS = "ai";
@@ -525,6 +525,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                ActivityInstanceState.getState(state), this.getState());
       }
       ProcessInstanceState piState = getProcessInstance().getState();
+      // TODO Analyze for Halting.
       if (ProcessInstanceUtils.isInAbortingPiHierarchy(getProcessInstance())
             && !(state == ActivityInstanceState.ABORTED || state == ActivityInstanceState.ABORTING))
       {
@@ -654,7 +655,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    {
       markModified(FIELD__BENCHMAKRK_VALUE);
       this.benchmarkValue = benchmarkValue;
-   }   
+   }
    public boolean isDefaultCaseActivityInstance()
    {
       fetch();
@@ -857,6 +858,16 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             || (ActivityInstanceState.Aborted == state);
    }
 
+   public boolean isHalting()
+   {
+      return ActivityInstanceState.Halting == getState();
+   }
+
+   public boolean isHalted()
+   {
+      return ActivityInstanceState.Halted == getState();
+   }
+
    public boolean isHibernated()
    {
       return ActivityInstanceState.Hibernated == getState();
@@ -983,7 +994,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    private void putToParticipantWorklist(IModelParticipant participant, long departmentOid)
    {
       fetch();
-      
+
       if ((ModelManagerFactory.getCurrent().getRuntimeOid(participant) != this.currentPerformer)
             || (departmentOid != this.currentDepartment))
       {
@@ -994,7 +1005,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
          recordHistoricState();
          recordInitialPerformer();
-      
+
          try
          {
             // marking fields as modified is deferred to finally block
@@ -1291,12 +1302,12 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                         getActivity().getImplementationProcessDefinition(),
                         ActivityInstanceBean.this, SecurityProperties.getUser(),
                         Collections.EMPTY_MAP, true);
-                  
+
                   if (BenchmarkUtils.isBenchmarkedPI(getProcessInstance()))
                   {
                      instance.setBenchmark(getProcessInstance().getBenchmark());
                   }
-                  
+
                   return instance;
                }
             });
@@ -1306,12 +1317,12 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             subProcess = ProcessInstanceBean.createInstance(
                   getActivity().getImplementationProcessDefinition(),
                   SecurityProperties.getUser(), Collections.EMPTY_MAP, true);
-            
+
             if (BenchmarkUtils.isBenchmarkedPI(getProcessInstance()))
             {
                subProcess.setBenchmark(getProcessInstance().getBenchmark());
             }
-            
+
             if (ActivityInstanceUtils.isTransientExecutionScenario(this))
             {
                if (subProcess.getAuditTrailPersistence() == AuditTrailPersistence.ENGINE_DEFAULT)
@@ -1721,12 +1732,12 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             return applicationInstance.invoke(activity.getApplicationOutDataMappingAccessPoints());
          }
          catch (InvocationTargetException e)
-         {            
+         {
             if (number > -1)
             {
-               trace.warn("Unexpected exception : " + e.getMessage() + ".");            
+               trace.warn("Unexpected exception : " + e.getMessage() + ".");
                trace.warn("Retrying " + (number + 1) + ((0 < number) ? " times." : " time."));
-                              
+
                try
                {
                   Thread.sleep(time * 1000);
@@ -2670,7 +2681,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          }
       }
    }
-   
+
    /**
     * This method is called when importing an activity instance from an archive.
     * This is the only time this should be called, it initialized the initial performer

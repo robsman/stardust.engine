@@ -30,10 +30,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.Attribute;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.PropertyLayer;
@@ -74,37 +71,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
-import org.eclipse.stardust.engine.core.runtime.beans.AbortionJanitorCarrier;
-import org.eclipse.stardust.engine.core.runtime.beans.AbstractPropertyWithUser;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceProperty;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityThread;
-import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
-import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.EventBindingBean;
-import org.eclipse.stardust.engine.core.runtime.beans.EventUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
-import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
-import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessAbortionJanitor;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceLinkBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceProperty;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadData;
-import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadWorkerCarrier;
-import org.eclipse.stardust.engine.core.runtime.beans.TransitionInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.TransitionTokenBean;
-import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -577,8 +544,15 @@ public class ProcessInstanceUtils
    public static void abortProcessInstance(IProcessInstance pi)
          throws ConcurrencyException
    {
+      stopProcessInstance(pi, StopMode.ABORT);
+   }
+
+   public static void stopProcessInstance(IProcessInstance pi, StopMode stopMode)
+         throws ConcurrencyException
+   {
       ProcessInstanceBean processInstance = (ProcessInstanceBean) pi;
 
+      // TODO why not lock root first to prevent deadlock? always top down.
       processInstance.lock();
       ProcessInstanceBean rootProcessInstance = (ProcessInstanceBean) processInstance.getRootProcessInstance();
       rootProcessInstance.lock();
@@ -592,7 +566,7 @@ public class ProcessInstanceUtils
       {
          throw new InternalException(e);
       }
-
+      // TODO halt: needs adaptions for halt?
       if (processInstance.getPersistenceController().isCreated()
             && (processInstance.getPersistenceController().getSession() instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session))
       {
@@ -605,27 +579,39 @@ public class ProcessInstanceUtils
       }
       else
       {
-         // Mark this PI itself as aborting
-         processInstance.setState(ProcessInstanceState.ABORTING);
-
-         // Mark this PI at its root PI as aborting
+         // Mark this PI at its root PI as aborting/halting
          final long piOid = processInstance.getOID();
+         // TODO Analyze for Halting.
          rootProcessInstance.addAbortingPiOid(piOid);
 
          final long userOid = SecurityProperties.getUserOID();
+         HierarchyStateChangeJanitorCarrier carrier = null;
+         if (StopMode.ABORT.equals(stopMode))
+         {
+            // Mark this PI itself as aborting.
+            processInstance.setState(ProcessInstanceState.ABORTING);
+            carrier = new AbortionJanitorCarrier(piOid, userOid);
+         }
+         else if (StopMode.HALT.equals(stopMode))
+         {
+            // Mark this PI itself as halting.
+            processInstance.setState(ProcessInstanceState.HALTING);
+            carrier = new HaltJanitorCarrier(piOid, userOid);
+         }
 
-         AbortionJanitorCarrier carrier = new AbortionJanitorCarrier(piOid, userOid);
          BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
          if (rtEnv.getExecutionPlan() != null)
          {
-            ProcessAbortionJanitor janitor = new ProcessAbortionJanitor(carrier);
+            Action janitor = carrier.doCreateAction();
             janitor.execute();
          }
          else
          {
-            // abort the complete subprocess hierarchy asynchronously.
+            // abort/halt the complete subprocess hierarchy asynchronously.
             ProcessAbortionJanitor.scheduleJanitor(carrier);
          }
+
+
       }
    }
 
@@ -937,7 +923,7 @@ public class ProcessInstanceUtils
    {
    }
 
-   public static void checkGroupTermination(IProcessInstance process)
+   public static void checkGroupTermination(IProcessInstance process, StopMode stopMode)
    {
       if (process.getStartingActivityInstance() == null)
       {
@@ -947,7 +933,7 @@ public class ProcessInstanceUtils
             List<IProcessInstance> members = ProcessInstanceHierarchyBean.findChildren(root);
             if (members.isEmpty())
             {
-               abortProcessInstance(root);
+               stopProcessInstance(root, stopMode);
             }
             else
             {

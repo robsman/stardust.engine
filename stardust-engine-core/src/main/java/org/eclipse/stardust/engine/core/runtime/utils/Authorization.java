@@ -167,14 +167,6 @@ public final class Authorization
       IModel activeModel = modelManager.findActiveModel();
       if (null == activeModel)
       {
-         if (SecurityProperties.isInternalAuthorization())
-         {
-            // if no model is active & internal authentication, MOTU can do anything.
-            if (PredefinedConstants.MOTU.equals(user.getAccount()))
-            {
-               return;
-            }
-         }
          if (isEmpty(roles) && user.hasRole(PredefinedConstants.ADMINISTRATOR_ROLE))
          {
             return;

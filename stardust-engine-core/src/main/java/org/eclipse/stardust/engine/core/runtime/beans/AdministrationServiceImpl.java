@@ -58,7 +58,6 @@ import org.eclipse.stardust.engine.core.model.beans.NullConfigurationVariablesPr
 import org.eclipse.stardust.engine.core.model.parser.info.ExternalPackageInfo;
 import org.eclipse.stardust.engine.core.model.parser.info.ModelInfo;
 import org.eclipse.stardust.engine.core.model.parser.info.ModelInfoRetriever;
-import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.persistence.DeleteDescriptor;
@@ -1676,20 +1675,6 @@ public class AdministrationServiceImpl
       try
       {
          ModelManager modelManager = ModelManagerFactory.getCurrent();
-
-         IModel predefinedModel = modelManager.findActiveModel(PredefinedConstants.PREDEFINED_MODEL_ID);
-         if (predefinedModel == null)
-         {
-            List<ParsedDeploymentUnit> predefinedModelElement = ModelUtils.getPredefinedModelElement();
-            if (predefinedModelElement != null)
-            {
-               modelManager.deployModel(predefinedModelElement, DeploymentOptions.DEFAULT);
-            }
-            else
-            {
-               trace.warn("Could not load PredefinedModel.xpdl");
-            }
-         }
 
          List<DeploymentInfo> infos = modelManager.deployModel(elements, options);
          boolean success = true;

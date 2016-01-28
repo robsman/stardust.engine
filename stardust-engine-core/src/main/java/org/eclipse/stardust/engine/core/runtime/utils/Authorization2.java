@@ -145,7 +145,7 @@ public class Authorization2
             if (models.isEmpty())
             {
                if ( !SecurityProperties.isInternalAuthorization()
-                     || !PredefinedConstants.MOTU.equals(context.getUser().getAccount()))
+                     || !(context.getUser().hasRole(PredefinedConstants.ADMINISTRATOR_ROLE)))
                {
                   requiredGrant = PredefinedConstants.ADMINISTRATOR_ROLE;
                }

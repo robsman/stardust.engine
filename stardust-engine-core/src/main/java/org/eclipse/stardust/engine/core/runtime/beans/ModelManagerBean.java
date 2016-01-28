@@ -892,9 +892,10 @@ public class ModelManagerBean implements ModelManager
             boolean archive = PropertyPersistor.findByName(Constants.CARNOT_ARCHIVE_AUDITTRAIL) != null;
             Parameters.instance().setBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL, archive);
 
-            // Load predefined model only if a model is already deployed and it does not exist.
-            // This only happens on runtime upgrade. Usually the predefined model is deployed with the first model deployment.
-            if (!archive && getModelCount() > 0
+            // Load predefined model only if it does not exist.
+            // If no other model is deployed the administrator role of predefined model
+            // will be assigned to motu user.
+            if (!archive
                   && null == findActiveModel(PredefinedConstants.PREDEFINED_MODEL_ID))
             {
                List<ParsedDeploymentUnit> predefinedModelElement = ModelUtils.getPredefinedModelElement();
@@ -910,6 +911,13 @@ public class ModelManagerBean implements ModelManager
                      IModel model = persistedModel.fetchModel();
                      if (PredefinedConstants.PREDEFINED_MODEL_ID.equals(model.getId()))
                      {
+                        if (getModelCount() == 0)
+                        {
+                           UserBean user = getMotuUser(rtEnv);
+                           IRole role = (IRole) model
+                                 .findParticipant(PredefinedConstants.ADMINISTRATOR_ROLE);
+                           user.addToParticipants(role, null);
+                        }
                         models.add(0, model);
                      }
                   }
@@ -919,7 +927,7 @@ public class ModelManagerBean implements ModelManager
                   trace.warn("Could not load PredefinedModel.xpdl");
                }
             }
-         }
+         } 
 
          recomputeAlivenessCache();
 
@@ -1029,6 +1037,16 @@ public class ModelManagerBean implements ModelManager
             }
             MonitoringUtils.partitionMonitors().modelLoaded(model);
          }
+      }
+      
+      private UserBean getMotuUser(BpmRuntimeEnvironment rtEnv)
+      {
+         IAuditTrailPartition partition = (IAuditTrailPartition) rtEnv
+               .get(SecurityProperties.CURRENT_PARTITION);
+         UserRealmBean userRealm = UserRealmBean.findById(
+               PredefinedConstants.DEFAULT_REALM_ID, partition.getOID());
+         UserBean user = UserBean.findByAccount(PredefinedConstants.MOTU, userRealm);
+         return user;
       }
 
       private Map<Long, IModelPersistor> getModelPersistors()

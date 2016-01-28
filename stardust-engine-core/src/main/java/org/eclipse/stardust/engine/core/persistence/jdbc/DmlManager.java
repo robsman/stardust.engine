@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,13 +22,8 @@ import java.sql.*;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
 import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Parameters;
@@ -783,29 +778,34 @@ public class DmlManager
       {
          boolean useBindValues = null != bindValueList;
 
-         //performance optimization for mixed mode: if comparison value starts with '%'
-         //then value will not be bound as prepared statement parameter but set as literal in SQL
-         if(useLiteralsWhereAppropriate)
+         // performance optimizations for mixed mode
+         if (useBindValues && useLiteralsWhereAppropriate)
          {
-            if(op.equals(Operator.LIKE) && value instanceof String)
+            // do NOT use bind values in these cases:
+
+            // if comparison value for LIKE starts with '%'
+            if (op.equals(Operator.LIKE) && value instanceof String)
             {
                String stringValue = (String) value;
-               if(stringValue.startsWith("%"))
+               if (stringValue.startsWith("%"))
                {
                   useBindValues = false;
                }
             }
-         }
 
-         if(lhsField.isIgnorePreparedStatements())
-         {
-            useBindValues = false;
+            // if field is configured not to use bind values in data cluster configuration
+            if (lhsField.isIgnorePreparedStatements())
+            {
+               useBindValues = false;
+            }
          }
 
          if (value instanceof FieldRef)
          {
             sqlUtils.appendFieldRef(buffer, (FieldRef) value);
          }
+         // Same as this?
+         // else if (useBindValues && (!lhsField.isLiteralField() || !useLiteralsWhereAppropriate))
          else if ((useLiteralsWhereAppropriate && useBindValues && !lhsField.isLiteralField()) ||
                (useBindValues && !useLiteralsWhereAppropriate))
          {

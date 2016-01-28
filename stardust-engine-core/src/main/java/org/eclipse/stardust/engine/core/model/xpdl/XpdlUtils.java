@@ -10,53 +10,35 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.xpdl;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.URL;
 import java.util.StringTokenizer;
 
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.URIResolver;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
-
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.TimeMeasure;
 import org.eclipse.stardust.common.config.CurrentVersion;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.utils.xml.SecureEntityResolver;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.core.model.beans.DefaultConfigurationVariablesProvider;
-import org.eclipse.stardust.engine.core.model.beans.DefaultXMLReader;
-import org.eclipse.stardust.engine.core.model.beans.DefaultXMLWriter;
-import org.eclipse.stardust.engine.core.model.beans.IConfigurationVariablesProvider;
-import org.eclipse.stardust.engine.core.model.beans.ModelBean;
-import org.eclipse.stardust.engine.core.model.beans.NullConfigurationVariablesProvider;
-import org.eclipse.stardust.engine.core.model.beans.XMLConstants;
+import org.eclipse.stardust.engine.core.model.beans.*;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 
 public class XpdlUtils
 {
@@ -245,7 +227,7 @@ public class XpdlUtils
       Source cwmSource;
       if (fixPre31Ns)
       {
-         Document carnotDom = XmlUtils.parseString(carnotXml, DEFAULT_SAX_HANDLER);
+         Document carnotDom = XmlUtils.parseString(carnotXml, (EntityResolver) null);
 
          String ns = carnotDom.getDocumentElement().getNamespaceURI();
          if (StringUtils.isEmpty(ns) //
@@ -266,7 +248,7 @@ public class XpdlUtils
          XMLReader cwmReader = XmlUtils.newXmlReader(false);
 
          cwmReader.setErrorHandler(DEFAULT_SAX_HANDLER);
-         cwmReader.setEntityResolver(DEFAULT_SAX_HANDLER);
+         cwmReader.setEntityResolver(SecureEntityResolver.INSTANCE);
 
          try
          {
@@ -297,7 +279,7 @@ public class XpdlUtils
       XMLReader xpdlReader = XmlUtils.newXmlReader(false);
 
       xpdlReader.setErrorHandler(DEFAULT_SAX_HANDLER);
-      xpdlReader.setEntityResolver(DEFAULT_SAX_HANDLER);
+      xpdlReader.setEntityResolver(SecureEntityResolver.INSTANCE);
 
       try
       {
@@ -429,7 +411,7 @@ public class XpdlUtils
       XMLReader xpdlReader = XmlUtils.newXmlReader(false);
 
       xpdlReader.setErrorHandler(DEFAULT_SAX_HANDLER);
-      xpdlReader.setEntityResolver(DEFAULT_SAX_HANDLER);
+      xpdlReader.setEntityResolver(SecureEntityResolver.INSTANCE);
 
       try
       {
@@ -458,7 +440,7 @@ public class XpdlUtils
       XMLReader xpdlReader = XmlUtils.newXmlReader(false);
 
       xpdlReader.setErrorHandler(DEFAULT_SAX_HANDLER);
-      xpdlReader.setEntityResolver(DEFAULT_SAX_HANDLER);
+      xpdlReader.setEntityResolver(SecureEntityResolver.INSTANCE);
 
       try
       {
@@ -576,7 +558,7 @@ public class XpdlUtils
       Document xpdlDoc;
       try
       {
-         xpdlDoc = XmlUtils.parseSource(new InputSource(new FileInputStream(xpdlFile)), DEFAULT_SAX_HANDLER);
+         xpdlDoc = XmlUtils.parseSource(new InputSource(new FileInputStream(xpdlFile)), (EntityResolver) null);
       }
       catch (FileNotFoundException e)
       {
@@ -596,7 +578,7 @@ public class XpdlUtils
    public static IModel loadXpdlModel(String xpdlString,
          IConfigurationVariablesProvider confVarProvider, boolean includeDiagrams)
    {
-      Document xpdlDoc = XmlUtils.parseString(xpdlString, DEFAULT_SAX_HANDLER);
+      Document xpdlDoc = XmlUtils.parseString(xpdlString, (EntityResolver) null);
 
       return loadXpdlModel(new DOMSource(xpdlDoc.getDocumentElement()), confVarProvider,
             includeDiagrams);
@@ -650,7 +632,7 @@ public class XpdlUtils
 
       convertCarnot2Xpdl(new DOMSource(document.getDocumentElement()), target);
    }
-   
+
    public static String fixQualityAssuranceCode(String code)
    {
       String[] split = code.split("#");
@@ -658,7 +640,7 @@ public class XpdlUtils
       {
          return code;
       }
-      return "#" + split[1];      
+      return "#" + split[1];
    }
 
    private static class CarnotEntityResolver extends

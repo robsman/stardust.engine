@@ -30,10 +30,12 @@ public interface ModelElement extends Serializable, AttributeHolder, RuntimeAttr
 
    RootElement getModel();
 
+   @Deprecated
    void addReference(Hook reference);
 
    void setParent(ModelElement parent);
 
+   @Deprecated
    void removeReference(Hook reference);
 
    ModelElement getParent();
@@ -47,6 +49,13 @@ public interface ModelElement extends Serializable, AttributeHolder, RuntimeAttr
     */
    public long getOID();
 
+   /**
+    * Sets an elementOID for the given model element. These must be
+    * unique within the model.
+    * @param elementOID elementOID that identifies this model element
+    * @deprecated Please use {@link #register(int)} instead
+    */
+   @Deprecated
    void setElementOID(int elementOID);
 
    boolean isTransient();

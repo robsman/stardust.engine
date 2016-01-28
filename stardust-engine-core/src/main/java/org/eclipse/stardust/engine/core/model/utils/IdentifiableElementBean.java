@@ -70,6 +70,7 @@ public abstract class IdentifiableElementBean extends ModelElementBean
    {
       markModified();
       this.id = id;
+      qualifiedId = null;
    }
    
    @Override

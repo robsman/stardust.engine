@@ -779,14 +779,13 @@ public class ModelBean extends RootElementBean
       T item = list.find(id);
       if (uuid != null)
       {
-         String elementUUID = item.getStringAttribute("carnot:model:uuid");
-         if (item == null || !uuid.equals(elementUUID))
+         if (item == null || !uuid.equals(item.getStringAttribute("carnot:model:uuid")))
          {
             for (T other : list)
             {
                if (other != item)
                {
-                  elementUUID = other.getStringAttribute("carnot:model:uuid");
+                  String elementUUID = other.getStringAttribute("carnot:model:uuid");
                   if (uuid.equals(elementUUID))
                   {
                      return other;

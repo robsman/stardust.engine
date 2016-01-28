@@ -153,7 +153,7 @@ public class ModelUtils
 
    public static <T extends Identifiable> T findById(List<T> items, String id)
    {
-      if (StringUtils.isNotEmpty(id))
+      if (items != null && StringUtils.isNotEmpty(id))
       {
          for (T item : items)
          {

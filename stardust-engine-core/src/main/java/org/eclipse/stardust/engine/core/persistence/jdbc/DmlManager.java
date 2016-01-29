@@ -783,16 +783,6 @@ public class DmlManager
          {
             // do NOT use bind values in these cases:
 
-            // if comparison value for LIKE starts with '%'
-            if (op.equals(Operator.LIKE) && value instanceof String)
-            {
-               String stringValue = (String) value;
-               if (stringValue.startsWith("%"))
-               {
-                  useBindValues = false;
-               }
-            }
-
             // if field is configured not to use bind values in data cluster configuration
             if (lhsField.isIgnorePreparedStatements())
             {

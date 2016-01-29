@@ -1621,13 +1621,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
    private Serializable getInDataPath(IProcessInstance processInstance, IDataPath path)
    {
-      IData data = path.getData();
-      if (data == null)
-      {
-         throw new ObjectNotFoundException(
-               BpmRuntimeError.MDL_DANGLING_IN_DATA_PATH.raise(path));
-      }
-      return (Serializable) processInstance.getInDataValue(data, path.getAccessPath());
+      return new CompositeDataPathEvaluator(processInstance).getDataPathValue(path);
    }
 
    public void setOutDataPath(long processOID, String id, Object value)

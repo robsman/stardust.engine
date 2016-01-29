@@ -16,6 +16,7 @@ import static org.eclipse.stardust.common.StringUtils.isEmpty;
 import java.io.Serializable;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,16 +37,13 @@ import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 
 public class ConfigurationVariableUtils
 {
+   private static final char DEFAULT_VARIABLE_PREFIX = '$';
+
    private static final Logger trace = LogManager.getLogger(ConfigurationVariableUtils.class);
 
-   // pattern: description
-   //    (?<!\\\\): Lookbehind assertion: variable shall not be escaped, i.e start with \
-   //    \\$\\{(\\w+)\\}: the variable matches ${name} and group results in "name"
-   private static Pattern modelVars = Pattern.compile("(?<!\\\\)\\$\\{(\\w+)(:\\w+)?\\}");
-   // pattern: description
-   //    \\\\: variable is escaped, i.e starts with \
-   //    (\\$\\{\\w+\\}): the escaped variable matches ${name} and group results in "${name}"
-   private static Pattern escapedModelVars = Pattern.compile("\\\\(\\$\\{(\\w+)(:\\w+)?\\})");
+   private static Map<Character, Pattern> modelVars = new ConcurrentHashMap<Character, Pattern>();
+
+   private static Map<Character, Pattern> escapedModelVars = new ConcurrentHashMap<Character, Pattern>();
 
    /**
     * The moduleId of preferences used to store configuration variables.
@@ -221,12 +219,40 @@ public class ConfigurationVariableUtils
 
    public static Matcher getConfigurationVariablesMatcher(String text)
    {
-      return modelVars.matcher(text);
+      return getConfigurationVariablesMatcher(DEFAULT_VARIABLE_PREFIX, text);
+   }
+
+   public static Matcher getConfigurationVariablesMatcher(char variablePrefix, String text)
+   {
+      Pattern pattern = modelVars.get(variablePrefix);
+      if (pattern == null)
+      {
+         // pattern: description
+         //    (?<!\\\\): Lookbehind assertion: variable shall not be escaped, i.e start with \
+         //    \\$\\{(\\w+)\\}: the variable matches ${name} and group results in "name"
+         pattern = Pattern.compile("(?<!\\\\)\\" + variablePrefix + "\\{(\\w+)(:\\w+)?\\}");
+         modelVars.put(variablePrefix, pattern);
+      }
+      return pattern.matcher(text);
    }
 
    public static Matcher getEscapedConfigurationVariablesMatcher(String text)
    {
-      return escapedModelVars.matcher(text);
+      return getEscapedConfigurationVariablesMatcher(DEFAULT_VARIABLE_PREFIX, text);
+   }
+
+   public static Matcher getEscapedConfigurationVariablesMatcher(char variablePrefix, String text)
+   {
+      Pattern pattern = escapedModelVars.get(variablePrefix);
+      if (pattern == null)
+      {
+         // pattern: description
+         //    \\\\: variable is escaped, i.e starts with \
+         //    (\\$\\{\\w+\\}): the escaped variable matches ${name} and group results in "${name}"
+         pattern = Pattern.compile("\\\\(\\" + variablePrefix + "\\{(\\w+)(:\\w+)?\\})");
+         escapedModelVars.put(variablePrefix, pattern);
+      }
+      return pattern.matcher(text);
    }
 
    /**
@@ -241,8 +267,12 @@ public class ConfigurationVariableUtils
       return RegEx.REUtil.quoteMeta(literal);
    }
 
-   public static String replace(ConfigurationVariable modelVariable,
-         String value)
+   public static String replace(ConfigurationVariable modelVariable, String value)
+   {
+      return replace(modelVariable, DEFAULT_VARIABLE_PREFIX, value);
+   }
+
+   public static String replace(ConfigurationVariable modelVariable, char variablePrefix, String value)
    {
       String result;
 
@@ -252,7 +282,7 @@ public class ConfigurationVariableUtils
       // pattern: description
       //    (?<!\\\\): Lookbehind assertion: variable shall not be escaped, i.e start with \
       //    (\\$\\{" + name + "\\}): the variable matches ${name}
-      String tobeReplacedPattern = "(?<!\\\\)(\\$\\{" + name + "(:" + type.name() + ")?\\})";
+      String tobeReplacedPattern = "(?<!\\\\)(\\" + variablePrefix + "\\{" + name + "(:" + type.name() + ")?\\})";
       String newValue = StringUtils.isEmpty(modelVariable.getValue())
             ? modelVariable.getDefaultValue()
             : modelVariable.getValue();
@@ -323,9 +353,14 @@ public class ConfigurationVariableUtils
 
    public static String evaluate(IConfigurationVariablesProvider provider, String text)
    {
+      return evaluate(provider, DEFAULT_VARIABLE_PREFIX, text);
+   }
+
+   public static String evaluate(IConfigurationVariablesProvider provider, char variablePrefix, String text)
+   {
       // register names of potential variables
       Set<String> detectedCvNames = newHashSet();
-      Matcher varMatcher = getConfigurationVariablesMatcher(text);
+      Matcher varMatcher = getConfigurationVariablesMatcher(variablePrefix, text);
       while (varMatcher.find())
       {
          String varCandidate = varMatcher.group(1);
@@ -341,13 +376,13 @@ public class ConfigurationVariableUtils
          {
             if (detectedCvNames.contains(var.getName()))
             {
-               text = replace(var, text);
+               text = replace(var, variablePrefix, text);
             }
          }
       }
 
       // replace escaped Variables: \${abc} -> ${abc}
-      Matcher escMatcher = getEscapedConfigurationVariablesMatcher(text);
+      Matcher escMatcher = getEscapedConfigurationVariablesMatcher(variablePrefix, text);
       if (escMatcher.find())
       {
          text = escMatcher.replaceAll("$1");

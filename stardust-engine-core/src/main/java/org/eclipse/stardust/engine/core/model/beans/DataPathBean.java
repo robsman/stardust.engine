@@ -101,8 +101,12 @@ public class DataPathBean extends IdentifiableElementBean
       IData data = getData();
       if (data == null)
       {
-         BpmValidationError error = BpmValidationError.DATA_NO_DATA_SPECIFIED_FOR_DATAPATH.raise();
-         inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+         if (!Direction.IN.isCompatibleWith(direction))
+         {
+            BpmValidationError error = BpmValidationError.DATA_NO_DATA_SPECIFIED_FOR_DATAPATH.raise();
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+         }
+         // TODO (fh) add validation of expression
       }
       else if (isKeyDescriptor())
       {

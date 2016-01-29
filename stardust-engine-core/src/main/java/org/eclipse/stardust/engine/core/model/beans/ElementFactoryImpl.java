@@ -136,7 +136,7 @@ public class ElementFactoryImpl implements ElementFactory
    public IActivity createActivity(Element node, IProcessDefinition process, IModel model, Map subprocessList)
    {
       IActivity activity = process.createActivity(id, name, description, elementOID);
-      
+
       activity.setAllowsAbortByPerformer(reader.getBooleanAttribute(ALLOWS_ABORT_BY_PERFORMER_ATT, false));
       activity.setHibernateOnCreation(reader.getBooleanAttribute(HIBERNATE_ON_CREATION, false));
 
@@ -199,7 +199,7 @@ public class ElementFactoryImpl implements ElementFactory
             activity.setQualityAssurancePerformer(participant);
          }
       }
-      
+
       String processID = reader.getRawAttribute(PROCESS_ID_REF);
       if (processID != null)
       {
@@ -444,7 +444,7 @@ public class ElementFactoryImpl implements ElementFactory
          IDataType type = model.findDataType(dataType);
          data = model.createData(id, type, name,
                description, isPredefined, elementOID, attributes);
-         
+
          NodeList children = ((Element) node).getElementsByTagNameNS(NS_XPDL_2_1, XPDL_EXTERNAL_REFERENCE);
          for (int i = 0; i < children.getLength(); i++)
          {
@@ -581,11 +581,11 @@ public class ElementFactoryImpl implements ElementFactory
    {
       String dataId = reader.getRawAttribute(DATA_REF_ATT);
       IData data = ((IModel)trigger.getModel()).findData(dataId);
-      
+
       String dataPath = reader.getAttribute(DATA_PATH_ATT);
       String parameterId = reader.getAttribute(PARAMETER);
       String parameterPath = reader.getAttribute(PARAMETER_PATH);
-      
+
       return trigger.createParameterMapping(data, dataPath, parameterId, parameterPath, elementOID);
    }
 
@@ -598,9 +598,9 @@ public class ElementFactoryImpl implements ElementFactory
          IData data = null;
          if(!StringUtils.isEmpty(dataId))
          {
-            data = model.findData(dataId);            
+            data = model.findData(dataId);
          }
-            
+
          String dataPath = reader.getAttribute(DATA_PATH_ATT);
          boolean isUser = reader.getBooleanAttribute(IS_USER_ATT, false);
 
@@ -683,7 +683,7 @@ public class ElementFactoryImpl implements ElementFactory
             }
          }
       }
-      
+
       transition.setForkOnTraversal(reader.getBooleanAttribute(FORK_ON_TRAVERSAL_ATT, false));
       return transition;
    }
@@ -696,11 +696,11 @@ public class ElementFactoryImpl implements ElementFactory
       String dataID = reader.getRawAttribute(DATA_REF_ATT);
       String directionName = reader.getRawAttribute(DIRECTION_ATT);
       String dataPath = reader.getAttribute(DATA_PATH_ATT);
-            
+
       String applicationPath = reader.getAttribute(APPLICATION_PATH_ATT);
       String applicationAccessPointId = reader.getAttribute(APPLICATION_ACCESS_POINT_ATT);
       String context = reader.getAttribute(CONTEXT_ATT);
-      
+
       IData data = null;
       if(!StringUtils.isEmpty(dataID))
       {
@@ -710,7 +710,7 @@ public class ElementFactoryImpl implements ElementFactory
             warn(ConversionWarning.MEDIUM,
                   "Data '" + dataID + "' for data mapping not found.", null, activity);
             return null;
-         }         
+         }
       }
 
       //avoid duplicate mappings (at least check)
@@ -1134,15 +1134,23 @@ public class ElementFactoryImpl implements ElementFactory
    {
       IOrganization organization = (IOrganization) model.findParticipant(reader.getRawAttribute(ID_ATT));
       reader.setNode(subNode);
-      IModelParticipant associated = model.findParticipant(reader.getRawAttribute(PARTICIPANT_ATT));
-      organization.addToParticipants(associated);
+      String participantRef = reader.getRawAttribute(PARTICIPANT_ATT);
+      IModelParticipant associated = model.findParticipant(participantRef);
+      if (associated != null)
+      {
+         organization.addToParticipants(associated);
+      }
+      else
+      {
+         trace.warn("Invalid participant reference '" + participantRef + "' for " + organization);
+      }
       return associated;
    }
 
    public IModelParticipant attachTeamLead(Node organizationNode, IModel model)
    {
       IOrganization organization = (IOrganization) model.findParticipant(reader.getRawAttribute(ID_ATT));
-      
+
       IRole teamLead = null;
       String teamLeadID = reader.getRawAttribute(TEAM_LEAD);
       if (!StringUtils.isEmpty(teamLeadID))
@@ -1179,7 +1187,7 @@ public class ElementFactoryImpl implements ElementFactory
          throw new ModelParsingException(
                BpmRuntimeError.MDL_UNSUPPORTED_IPP_VERSION.raise(version, id));
       }
-      
+
       NodeList scriptElements = node.getElementsByTagNameNS(NS_XPDL_2_1, XPDL_SCRIPT);
       if (scriptElements.getLength() == 0)
       {
@@ -1208,7 +1216,7 @@ public class ElementFactoryImpl implements ElementFactory
       trace.debug("Max OID used in model: " + maxOID);
 
       ((ModelBean) model).setCurrentElementOID(maxOID + 1);
-      
+
       return model;
    }
 
@@ -1288,7 +1296,7 @@ public class ElementFactoryImpl implements ElementFactory
 
       return new ExternalPackageDefinition(id, name, attributes, href, model);
    }
-   
+
    private Map<String, String> getExtendedAttributes(Node node)
    {
       Map<String, String> attributes = CollectionUtils.newMap();
@@ -1348,40 +1356,40 @@ public class ElementFactoryImpl implements ElementFactory
       String code = reader.getAttribute("code");
       String value = reader.getAttribute("value");
       String name = reader.getAttribute("name");
-      
+
       return qualityAssurance.createQualityAssuranceCode(code, value, name);
    }
 
    public IQualityAssuranceCode createQualityAssuranceCode(Node node, IActivity activity, IModel model)
-   {      
+   {
       Node firstChild = node.getFirstChild();
       String textContent = firstChild.getTextContent();
       int index = textContent.indexOf("#");
       String code = textContent.substring(index + 1);
-      
+
       IQualityAssurance qualityAssurance = model.getQualityAssurance();
-      return qualityAssurance.findQualityAssuranceCode(code);      
+      return qualityAssurance.findQualityAssuranceCode(code);
    }
 
    public void createQualityAssuranceAttributes(Node node, IActivity activity, IModel model)
    {
-      String name = reader.getAttribute(NAME_ATT);      
+      String name = reader.getAttribute(NAME_ATT);
       if(name.equals(PredefinedConstants.ACTIVITY_IS_QUALITY_ASSURANCE_ATT))
       {
          boolean isQualityAssuranceEnabled = reader.getBooleanAttribute(VALUE, false);
          if(isQualityAssuranceEnabled)
          {
             activity.setQualityAssuranceEnabled();
-         }         
+         }
       }
       else if(name.equals(PredefinedConstants.QUALITY_ASSURANCE_PROBABILITY_ATT))
       {
-         int intValue = 0;         
-         
+         int intValue = 0;
+
          try
          {
             intValue = Integer.parseInt(reader.getChildValue(VALUE));
-            activity.setQualityAssuranceProbability(intValue);                     
+            activity.setQualityAssuranceProbability(intValue);
          }
          catch (NumberFormatException e)
          {

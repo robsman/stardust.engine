@@ -1583,8 +1583,7 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          ParseErrorHandler errorHandler = new ParseErrorHandler();
          domBuilder.setErrorHandler(errorHandler);
 
-         RecordingEntityResolver entityResolver = new RecordingEntityResolver(xsdURL,
-               dtdURL);
+         RecordingEntityResolver entityResolver = new RecordingEntityResolver(xsdURL, dtdURL);
          domBuilder.setEntityResolver(entityResolver);
 
          Document document = domBuilder.parse(inputSource);

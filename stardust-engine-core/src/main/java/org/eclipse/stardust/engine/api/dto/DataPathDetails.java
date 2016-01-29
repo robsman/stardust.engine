@@ -34,7 +34,8 @@ import org.eclipse.stardust.engine.core.struct.spi.StructuredDataXMLValidator;
 public class DataPathDetails extends ModelElementDetails implements DataPath
 {
    private static final String FALLBACK_TYPE_NAME = Object.class.getName();
-   
+   private static final String STRING_TYPE_NAME = String.class.getName();
+
    private static final long serialVersionUID = -1198825507540508071L;
 
    private static final Logger trace = LogManager.getLogger(DataPathDetails.class);
@@ -64,52 +65,57 @@ public class DataPathDetails extends ModelElementDetails implements DataPath
    {
       super(path);
 
-      try
+      IData iData = path.getData();
+      if (iData == null)
       {
-         IDataType dataType = (IDataType) path.getData().getType();
-         String validatorClass = dataType
-               .getStringAttribute(PredefinedConstants.VALIDATOR_CLASS_ATT);
-         final boolean isArchiveAuditTrail = ParametersFacade.instance().getBoolean(
-               Constants.CARNOT_ARCHIVE_AUDITTRAIL, false);
-
-         if (!StringUtils.isEmpty(validatorClass))
-         {
-            ExtendedDataValidator validator = SpiUtils
-                  .createExtendedDataValidator(validatorClass);
-
-            type = isArchiveAuditTrail && !isPrimitiveOrStructValidator(validator)
-                  ? FALLBACK_TYPE_NAME
-                  : validator
-                        .getBridgeObject(
-                              path.getData(),
-                              path.getAccessPath(),
-                              Direction.OUT.equals(path.getDirection())
-                                    ? Direction.IN
-                                    : Direction.OUT, null).getEndClass().getName();
-         }
-         else
-         {
-            type = FALLBACK_TYPE_NAME;
-         }
+         type = STRING_TYPE_NAME;
       }
-      catch (Exception e)
+      else
       {
-         trace.warn("", e);
-         this.type = FALLBACK_TYPE_NAME;
+         try
+         {
+            IDataType dataType = (IDataType) iData.getType();
+            String validatorClass = dataType
+                  .getStringAttribute(PredefinedConstants.VALIDATOR_CLASS_ATT);
+            final boolean isArchiveAuditTrail = ParametersFacade.instance().getBoolean(
+                  Constants.CARNOT_ARCHIVE_AUDITTRAIL, false);
+
+            if (!StringUtils.isEmpty(validatorClass))
+            {
+               ExtendedDataValidator validator = SpiUtils
+                     .createExtendedDataValidator(validatorClass);
+
+               type = isArchiveAuditTrail && !isPrimitiveOrStructValidator(validator)
+                     ? FALLBACK_TYPE_NAME
+                     : validator.getBridgeObject(iData, path.getAccessPath(),
+                                 Direction.OUT.equals(path.getDirection())
+                                       ? Direction.IN
+                                       : Direction.OUT, null).getEndClass().getName();
+            }
+            else
+            {
+               type = FALLBACK_TYPE_NAME;
+            }
+         }
+         catch (Exception e)
+         {
+            trace.warn("", e);
+            this.type = FALLBACK_TYPE_NAME;
+         }
       }
 
       direction = path.getDirection();
       descriptor = path.isDescriptor();
       keyDescriptor = path.isKeyDescriptor();
       accessPath = path.getAccessPath();
-      data = path.getData().getId();
+      data = iData == null ? null : iData.getId();
 
       ModelElement parent = path.getParent();
       this.processDefinitionId = (parent instanceof IProcessDefinition)
             ? ((IProcessDefinition) parent).getId()
             : null;
    }
-   
+
    private boolean isPrimitiveOrStructValidator(ExtendedDataValidator validator)
    {
       return validator instanceof PrimitiveValidator

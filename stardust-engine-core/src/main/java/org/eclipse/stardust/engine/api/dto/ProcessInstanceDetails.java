@@ -142,7 +142,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       {
       }
       this.rootProcessOID = rootPIOID;
-      this.rootProcessName = processInstance.getRootProcessInstance() != null 
+      this.rootProcessName = processInstance.getRootProcessInstance() != null
             ? processInstance.getRootProcessInstance().getProcessDefinition().getName() : null;
       // </fix>
 
@@ -165,9 +165,9 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       this.startingTime = processInstance.getStartTime();
       this.terminationTime = processInstance.getTerminationTime();
       this.state = processInstance.getState();
- 
+
       this.benchmark = processInstance.getBenchmark();
-      
+
       if (benchmark > 0)
       {
          try
@@ -441,12 +441,15 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       for (int i = 0; i < dataPaths.size(); ++i)
       {
          IDataPath dataPath = (IDataPath) dataPaths.get(i);
-         boolean predefined = dataPath.getData().isPredefined();
-         if (dataPath.isDescriptor() && !predefined)
+         IData data = dataPath.getData();
+         if (data != null)
          {
-            if ( !limitDescriptors || descriptorIds.contains(dataPath.getId()))
+            if (dataPath.isDescriptor() && !data.isPredefined())
             {
-               dataItems.add(dataPath.getData());
+               if (!limitDescriptors || descriptorIds.contains(dataPath.getId()))
+               {
+                  dataItems.add(data);
+               }
             }
          }
       }
@@ -456,18 +459,14 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       for (int i = 0; i < dataPaths.size(); ++i)
       {
          IDataPath dataPath = (IDataPath) dataPaths.get(i);
-
          if (dataPath.isDescriptor())
          {
             try
             {
-               if ( !limitDescriptors || descriptorIds.contains(dataPath.getId()))
+               if (!limitDescriptors || descriptorIds.contains(dataPath.getId()))
                {
-                  descriptors.put(
-                        dataPath.getId(),
-                        processInstance.getInDataValue(dataPath.getData(),
-                              dataPath.getAccessPath()));
-
+                  CompositeDataPathEvaluator evaluator = new CompositeDataPathEvaluator(processInstance);
+                  descriptors.put(dataPath.getId(), evaluator.getDataPathValue(dataPath));
                   descriptorDefinitions.add(DetailsFactory.create(dataPath));
                }
             }
@@ -675,7 +674,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             lIter = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getCache(
                   LogEntryBean.class)
                   .iterator();
-            
+
          }
          while (lIter != null && lIter.hasNext())
          {
@@ -689,7 +688,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             }
          }
       }
-      
+
       if (isEventTypeSet(eventTypes, HistoricalEventType.DATA_CHANGE))
       {
          Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
@@ -699,7 +698,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             lIter = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getCache(
                   LogEntryBean.class)
                   .iterator();
-            
+
          }
          while (lIter != null && lIter.hasNext())
          {
@@ -716,7 +715,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
                      logEntry.getSubject()));
             }
          }
-      }      
+      }
 
       if (isEventTypeSet(eventTypes, HistoricalEventType.STATE_CHANGE))
       {

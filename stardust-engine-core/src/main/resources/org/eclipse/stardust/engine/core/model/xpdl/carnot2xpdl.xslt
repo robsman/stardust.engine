@@ -756,6 +756,8 @@
                                  <xsl:attribute name="Expression"><xsl:value-of select="@applicationPath" /></xsl:attribute>
                               </xsl:if>
                            </carnot:AccessPointRef>
+                           
+                           <xsl:call-template name="carnot-attributes" />                           
                         </carnot:DataFlow>
                      </xsl:for-each>
                   </carnot:DataFlows>

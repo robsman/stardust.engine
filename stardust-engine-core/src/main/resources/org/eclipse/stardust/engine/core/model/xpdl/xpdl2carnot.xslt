@@ -725,6 +725,9 @@
                   <xsl:if test="@Direction">
                         <xsl:attribute name="direction"><xsl:value-of select="@Direction"/></xsl:attribute>
                   </xsl:if>
+
+                  <xsl:call-template name="carnot-attributes"/>
+                  
                   </dataMapping>
                </xsl:for-each>
                <xsl:call-template name="carnot-event-handlers"/>

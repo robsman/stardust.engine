@@ -2,7 +2,7 @@
 <Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="Resubmission" Name="Resubmission">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
-      <Vendor>SunGard CSA LLC, IPP</Vendor>
+      <Vendor>Eclipse.org, Eclipse Process Manager</Vendor>       
       <Created>Wed Nov 19 11:02:07 CET 2008</Created>
       <Description>Scoped_N_Conditional_Participants:&#13;
 - Scoped organization hierarchy.&#13;
@@ -336,7 +336,7 @@
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
-         <carnot:Package Oid="1" CarnotVersion="9.0.0" ModelOid="0">
+         <carnot:Package Oid="1" CarnotVersion="4.0.0" ModelOid="0">
             <carnot:MetaTypes>
                <carnot:DataTypes>
                   <carnot:DataType Oid="10002" Id="primitive" Name="Primitive Data" IsPredefined="true">

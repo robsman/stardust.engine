@@ -2,7 +2,7 @@
 <Package xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2002/XPDL1.0" xsi:schemaLocation="http://www.wfmc.org/2002/XPDL1.0 http://wfmc.org/standards/docs/TC-1025_schema_10_xpdl.xsd" Id="DmsConcurrent" Name="DmsConcurrent">
    <PackageHeader>
       <XPDLVersion>1.0</XPDLVersion>
-      <Vendor>SunGard CSA LLC</Vendor>
+      <Vendor>Eclipse.org, Eclipse Process Manager</Vendor>       
       <Created>Wed Aug 10 13:26:36 CEST 2011</Created>
    </PackageHeader>
    <RedefinableHeader PublicationStatus="UNDER_REVISION">
@@ -495,7 +495,7 @@
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
-         <carnot:Package Oid="1" CarnotVersion="5.3.7" ModelOid="0">
+         <carnot:Package Oid="1" CarnotVersion="4.0.0" ModelOid="0">
             <carnot:MetaTypes>
                <carnot:DataTypes>
                   <carnot:DataType Oid="10002" Id="primitive" Name="Primitive Data" IsPredefined="true">

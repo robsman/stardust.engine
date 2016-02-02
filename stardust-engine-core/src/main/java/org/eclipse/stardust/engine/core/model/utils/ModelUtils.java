@@ -16,6 +16,8 @@ import java.util.*;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.emf.ecore.xml.type.internal.RegEx;
+
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.SplicingIterator;
 import org.eclipse.stardust.common.StringUtils;
@@ -329,6 +331,53 @@ public class ModelUtils
    {
       return ref != null && ref.getExternalPackage().getReferencedModel() == process.getModel()
           && ref.getId().equals(process.getId());
+   }
+   
+   public static String replaceDescriptorVariable(String literal, String value, String newValue)
+   {
+      String tobeReplaced = "";
+      String replacement = "";
+      if (!newValue.startsWith("%{")) //$NON-NLS-1$
+      {
+         tobeReplaced = literal.substring(2, literal.length() - 1);
+         replacement = newValue;
+         if (replacement.indexOf("%") > -1) //$NON-NLS-1$
+         {
+            replacement = replacement.replace("%", "\\%"); //$NON-NLS-1$ //$NON-NLS-2$
+         }
+         List<String> list1 = new ArrayList<String>();
+         while (value.indexOf("%{" + tobeReplaced + "}") > -1) //$NON-NLS-1$ //$NON-NLS-2$
+         {
+            int idx = value.indexOf("%{" + tobeReplaced + "}"); //$NON-NLS-1$ //$NON-NLS-2$
+            if (idx == 0 || (idx > 0 && value.charAt(idx - 1) != '\\'))
+            {
+               value = value.replaceFirst("(\\%\\{" + tobeReplaced + "\\})", replacement); //$NON-NLS-1$ //$NON-NLS-2$
+            }
+            else
+            {
+               list1.add("\\%\\{" + tobeReplaced + "\\}"); //$NON-NLS-1$ //$NON-NLS-2$
+               value = value.replaceFirst("(\\%\\{" + tobeReplaced + "\\})", "*0*0*0*0*"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            }
+         }
+         for (Iterator<String> i = list1.iterator(); i.hasNext();)
+         {
+            String string = i.next();
+            value = value.replaceFirst("(\\*0\\*0\\*0\\*0\\*)", string); //$NON-NLS-1$
+         }
+      }
+      else
+      {
+         tobeReplaced = literal.substring(2, literal.length() - 1);
+         replacement = newValue.substring(2, newValue.length() - 1);
+         if (replacement.indexOf("%") > -1) //$NON-NLS-1$
+         {
+            replacement = replacement.replace("%", "\\%"); //$NON-NLS-1$ //$NON-NLS-2$
+         }
+         tobeReplaced = RegEx.REUtil.quoteMeta(tobeReplaced);
+         value = value.replaceAll("(\\%\\{" + tobeReplaced + "\\})", "\\%\\{" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+               + replacement + "\\}"); //$NON-NLS-1$
+      }
+      return value;
    }
 
    private ModelUtils()

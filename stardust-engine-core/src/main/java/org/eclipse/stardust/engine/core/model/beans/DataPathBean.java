@@ -10,13 +10,17 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.beans;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
+import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.model.utils.SingleRef;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.struct.*;
@@ -41,6 +45,8 @@ public class DataPathBean extends IdentifiableElementBean
    public static final String DESCRIPTOR_ATT = "Descriptor";
    private boolean descriptor;
    private boolean keyDescriptor;
+   
+   private Pattern pattern = Pattern.compile("(\\%\\{[^{}]+\\})");
 
    DataPathBean()
    {
@@ -106,7 +112,14 @@ public class DataPathBean extends IdentifiableElementBean
             BpmValidationError error = BpmValidationError.DATA_NO_DATA_SPECIFIED_FOR_DATAPATH.raise();
             inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
-         // TODO (fh) add validation of expression
+         if (isDescriptor()) 
+         {
+            String type = this.getStringAttribute("type");
+            if (type != null) 
+            {
+               validateDescriptor(getAccessPath(), inconsistencies);   
+            }            
+         }
       }
       else if (isKeyDescriptor())
       {
@@ -181,6 +194,90 @@ public class DataPathBean extends IdentifiableElementBean
          }
       }
    }
+   
+   private String validateDescriptor(String value, List inconsistencies)
+   {      
+      if (!getDirection().equals(Direction.IN))
+      {
+         BpmValidationError error = BpmValidationError.COMPOSITE_LINK_DESCRIPTOR_HAS_TO_BE_IN_DATAPATH
+               .raise(this.getId());
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
+      }
+      if (value == null)
+      {
+         BpmValidationError error = BpmValidationError.COMPOSITE_LINK_DESCRIPTOR_NO_DATAPATH
+               .raise(this.getId());
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
+         return null;
+      }
+  
+      String id = null;
+      String newValue = value;
+      Matcher matcher = pattern.matcher(newValue);
+      while (matcher.find())
+      {
+         if ((matcher.start() == 0) || ((matcher.start() > 0)
+               && (newValue.charAt(matcher.start() - 1) != '\\')))
+         {
+            String ref = newValue.substring(matcher.start(), matcher.end());
+            ref = ref.trim();
+            id = ref;
+            id = id.replace("%{", "");
+            id = id.replace("}", "");
+            if (id.equals(this.getId()))
+            {
+               BpmValidationError error = BpmValidationError.REFERENCED_DATAPTH_IS_A_CIRCULAR_DEPENDENCY
+                     .raise(this.getId());
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+               return value;
+            }
+
+            IProcessDefinition process = (IProcessDefinition) this.getParent();
+            IDataPath refDataPath = findDataPath(process, id);
+            if (refDataPath == null)
+            {
+               BpmValidationError error = BpmValidationError.REFERENCED_DESCRIPTOR_DOES_NOT_EXIST
+                     .raise(this.getId(), ref);
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+               return value;
+            }
+            String refAccessPath = refDataPath.getAccessPath();
+            if (refAccessPath == null)
+            {
+               BpmValidationError error = BpmValidationError.REFERENCED_DESCRIPTOR_NO_DATAPATH
+                     .raise(ref);
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
+               refAccessPath = "";
+            }           
+            value = ModelUtils.replaceDescriptorVariable("%{" + id + "}", value, refAccessPath);
+         }          
+         else
+         {
+            if (newValue.charAt(matcher.start() - 1) == '\\')
+            {
+               value = value.replaceFirst("\\\\\\%\\{", "*0*0*0*0*");
+            }
+         }
+      }
+      if (value.indexOf("%{") > -1)
+      {
+         return validateDescriptor(value, inconsistencies);
+      }
+      return value;
+   }
+   
+   private IDataPath findDataPath(IProcessDefinition process, String ref)
+   {
+      for (Iterator<IDataPath> i = process.getDataPaths().iterator(); i.hasNext();)
+      {
+         IDataPath dataPath = i.next();
+         if (dataPath.getId().equals(ref))
+         {
+            return dataPath;
+         }
+      }
+      return null;
+   }
 
    public void setData(IData data)
    {
@@ -210,5 +307,6 @@ public class DataPathBean extends IdentifiableElementBean
    public String toString()
    {
       return "Data Path: '" + getId() + "'";
-   }
+   }  
+
 }

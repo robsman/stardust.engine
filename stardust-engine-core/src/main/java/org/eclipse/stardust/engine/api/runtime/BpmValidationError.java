@@ -219,7 +219,13 @@ public class BpmValidationError extends ErrorCase
    public static final Args DATA_UNSPECIFIED_TYPE_FOR_PRIMITIVE_DATA = new Args("DATA01026");
    public static final Args DATA_NO_SCHEMA_FOUND_FOR_STRUCTURED_DATA = new Args("DATA01027");
    public static final Args ACCESSPATH_INVALID_FOR_DATAPATH = new Args("DATA01028");
-
+   
+   public static final Args REFERENCED_DESCRIPTOR_DOES_NOT_EXIST = new Args("DATA01029");
+   public static final Args REFERENCED_DATAPTH_IS_A_CIRCULAR_DEPENDENCY = new Args("DATA01030");
+   public static final Args REFERENCED_DESCRIPTOR_NO_DATAPATH = new Args("DATA01031");
+   public static final Args COMPOSITE_LINK_DESCRIPTOR_NO_DATAPATH = new Args("DATA01032");
+   public static final Args COMPOSITE_LINK_DESCRIPTOR_HAS_TO_BE_IN_DATAPATH = new Args("DATA01033");
+     
    //Event related
    public static final Args EVEN_DUPLICATE_ID_FOR_EVENT_HANDLER = new Args("EVEN01000");
    public static final Args EVEN_ID_FOR_EVENT_HANDLER_EXCEEDS_MAXIMUM_LENGTH_OF_CHARACTERS = new Args("EVEN01001");

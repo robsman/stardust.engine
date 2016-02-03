@@ -21,7 +21,7 @@ import org.eclipse.stardust.common.Base64;
  * @author Thomas.Wolfram
  *
  */
-public class DefaultHashProvider implements HashProvider
+public class DefaultHashProvider implements HashProvider, HashProvider.Factory
 {
 
    private static final String SHA512 = "SHA-512";
@@ -67,6 +67,12 @@ public class DefaultHashProvider implements HashProvider
       }
 
       return hash(key, value).equals(hash);
+   }
+
+   @Override
+   public HashProvider getInstance() throws NoSuchAlgorithmException
+   {
+      return new DefaultHashProvider();
    }
 
 }

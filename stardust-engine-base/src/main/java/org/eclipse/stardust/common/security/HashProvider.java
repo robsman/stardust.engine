@@ -11,6 +11,8 @@
 
 package org.eclipse.stardust.common.security;
 
+import java.security.NoSuchAlgorithmException;
+
 import org.eclipse.stardust.common.annotations.SPI;
 import org.eclipse.stardust.common.annotations.Status;
 import org.eclipse.stardust.common.annotations.UseRestriction;
@@ -25,6 +27,14 @@ import org.eclipse.stardust.common.annotations.UseRestriction;
 public interface HashProvider
 {
 
+   /**
+    * Factory for {@link HashProvider}.
+    */
+   public interface Factory
+   {
+      HashProvider getInstance() throws NoSuchAlgorithmException;
+   }
+   
    /**
     * Returns algorithm used in implementation
     * 

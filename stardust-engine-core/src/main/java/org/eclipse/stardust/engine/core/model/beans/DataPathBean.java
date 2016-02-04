@@ -119,7 +119,7 @@ public class DataPathBean extends IdentifiableElementBean
          if (isDescriptor()) 
          {
             String type = this.getStringAttribute("type");
-            if (type == null) 
+            if (type != null) 
             {
                refMap = new HashMap<String, DataPathReference>(); 
                DataPathReference reference = new DataPathReference(this, new ArrayList<DataPathReference>());

@@ -42,7 +42,8 @@ import org.junit.runners.Suite.SuiteClasses;
                StructuredDataSanityTest.class,
                StructuredTypeDefinitionTest.class,
                VolatileDataTest.class,
-               ConstantsDataMappingsTest.class
+               ConstantsDataMappingsTest.class,
+               DataDescriptorInjectionModelExtenderTest.class
              })
 public class DataTestSuite
 {

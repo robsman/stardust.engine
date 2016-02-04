@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="DataModel" Name="Data Model">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
-      <Vendor>Eclipse.org, Eclipse Process Manager</Vendor>       
+      <Vendor>Eclipse.org, Eclipse Process Manager</Vendor>
       <Created>Mon Apr 16 16:38:52 CEST 2012</Created>
    </PackageHeader>
    <RedefinableHeader PublicationStatus="UNDER_REVISION">
@@ -612,6 +612,76 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </DataField>
+      <DataField Id="BUSINESS_DATE" Name="Business Date" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="DATETIME"/>
+         </DataType>
+         <Description>Business Date.</Description>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="10231" Type="primitive" IsPredefined="true">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:type" Value="Timestamp" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="firstName" Name="firstName" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <InitialValue>Frank</InitialValue>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="10232" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                     <carnot:Attribute Name="carnot:engine:defaultValue" Value="Frank"/>
+                     <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="lastName" Name="lastName" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <InitialValue>Underwood</InitialValue>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="10233" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                     <carnot:Attribute Name="carnot:engine:defaultValue" Value="Underwood"/>
+                     <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="invoiceId" Name="invoiceId" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="10234" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                     <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
    </DataFields>
    <WorkflowProcesses>
       <WorkflowProcess Id="ProcessDefinition_1" Name="Process Definition 1" AccessLevel="PRIVATE">
@@ -807,6 +877,52 @@
                      </carnot:DataPath>
                      <carnot:DataPath Oid="10125" Id="MyTimestampOutDataPath" Name="MyTimestampOutDataPath" Direction="OUT" IsDescriptor="false">
                         <carnot:DataRef Id="MyTimestamp" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10235" Id="FirstName" Name="First Name" Direction="IN" IsDescriptor="false">
+                        <carnot:DataRef Id="firstName" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10236" Id="LastName" Name="Last Name" Direction="IN" IsDescriptor="false">
+                        <carnot:DataRef Id="lastName" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10237" Id="InvoiceId" Name="Invoice Id" Direction="IN" IsDescriptor="false">
+                        <carnot:DataRef Id="invoiceId" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10238" Id="FullName" Name="Full Name" Direction="IN" IsDescriptor="true">
+                        <carnot:DataRef Id="" Expression="%{FirstName} %{LastName}"/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="type" Value="Composite"/>
+                        </carnot:Attributes>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10239" Id="Invoice" Name="Invoice" Direction="IN" IsDescriptor="true">
+                        <carnot:DataRef Id="" Expression="http://fisglobal.com?id=%{InvoiceId}"/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="type" Value="Link"/>
+                           <carnot:Attribute Name="text" Value="Invoice"/>
+                        </carnot:Attributes>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10240" Id="Composite2Levels" Name="Composite2Levels" Direction="IN" IsDescriptor="true">
+                        <carnot:DataRef Id="" Expression="Name: %{FullName}, URL: %{Invoice}"/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="type" Value="Composite"/>
+                        </carnot:Attributes>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10241" Id="Composite3Levels" Name="Composite3Levels" Direction="IN" IsDescriptor="true">
+                        <carnot:DataRef Id="" Expression="Composition [%{Composite2Levels}, %{CircularStart}]"/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="type" Value="Composite"/>
+                        </carnot:Attributes>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10242" Id="CircularStart" Name="CircularStart" Direction="IN" IsDescriptor="true">
+                        <carnot:DataRef Id="" Expression="+%{CircularEnd}-"/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="type" Value="Composite"/>
+                        </carnot:Attributes>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10243" Id="CircularEnd" Name="CircularEnd" Direction="IN" IsDescriptor="true">
+                        <carnot:DataRef Id="" Expression="*%{CircularStart}#"/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="type" Value="Composite"/>
+                        </carnot:Attributes>
                      </carnot:DataPath>
                   </carnot:DataPaths>
                   <carnot:EventHandlers/>

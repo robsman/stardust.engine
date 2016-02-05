@@ -43,6 +43,7 @@ import org.eclipse.stardust.engine.core.model.utils.ExclusionComputer;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger.LoggingBehaviour;
@@ -249,7 +250,8 @@ public class ActivityThread implements Runnable
    {
       if (isInAbortingPiHierarchy())
       {
-         Long oid = (Long) processInstance.getPropertyValue(ProcessInstanceBean.ABORTING_USER_OID);
+         Long oid = (Long) processInstance
+               .getPropertyValue(ProcessInstanceBean.ABORTING_USER_OID);
          if (oid == null)
          {
             oid = Long.valueOf(0);
@@ -263,11 +265,36 @@ public class ActivityThread implements Runnable
          }
          else
          {
-            error = BpmRuntimeError.BPMRT_CANNOT_RUN_AI_INVALID_PI_STATE.raise(
-               activityInstance.getOID(), processInstance.getOID());
+            error = BpmRuntimeError.BPMRT_CANNOT_RUN_AI_INVALID_PI_STATE
+                  .raise(activityInstance.getOID(), processInstance.getOID());
          }
-         ProcessAbortionJanitor.scheduleJanitor(new AbortionJanitorCarrier(
-               this.processInstance.getOID(),oid));
+         ProcessAbortionJanitor.scheduleJanitor(
+               new AbortionJanitorCarrier(this.processInstance.getOID(), oid));
+         throw new IllegalOperationException(error);
+      }
+
+      if (isInHaltingPiHierarchyAndHaltable())
+      {
+         Long oid = (Long) processInstance
+               .getPropertyValue(ProcessInstanceBean.HALTING_USER_OID);
+         if (oid == null)
+         {
+            oid = Long.valueOf(0);
+         }
+         // TODO: trace the real state: halted or halting.
+         BpmRuntimeError error;
+         if (activityInstance == null)
+         {
+            error = BpmRuntimeError.BPMRT_CANNOT_RUN_A_INVALID_PI_STATE.raise(activity,
+                  processInstance.getOID());
+         }
+         else
+         {
+            error = BpmRuntimeError.BPMRT_CANNOT_RUN_AI_INVALID_PI_STATE
+                  .raise(activityInstance.getOID(), processInstance.getOID());
+         }
+         ProcessHaltJanitor.scheduleJanitor(
+               new HaltJanitorCarrier(this.processInstance.getOID(), oid));
          throw new IllegalOperationException(error);
       }
 
@@ -384,7 +411,7 @@ public class ActivityThread implements Runnable
                executedActivities++;
 
                if (!activityInstance.isTerminated() || activityInstance.isAborting()
-                     || isInAbortingPiHierarchy())
+                     || isInAbortingPiHierarchy() || isInHaltingPiHierarchyAndHaltable())
                {
                   break;
                }
@@ -460,6 +487,12 @@ public class ActivityThread implements Runnable
    private boolean isInAbortingPiHierarchy()
    {
       return ProcessInstanceUtils.isInAbortingPiHierarchy(this.processInstance);
+   }
+
+   private boolean isInHaltingPiHierarchyAndHaltable()
+   {
+      return ProcessInstanceUtils.isInHaltingPiHierarchy(this.processInstance)
+            && ActivityInstanceUtils.isHaltable(activityInstance);
    }
 
    private void createActivityInstance(List<TransitionTokenBean> inTokens)

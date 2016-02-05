@@ -83,13 +83,16 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    // TODO: property name "NOTE" is too simple.
    private static final String PI_NOTE = "NOTE";
    protected static final String ABORTING_PI_OID = "Infinity.RootProcessInstance.AbortingPiOid";
+   protected static final String HALTING_PI_OID = "Infinity.RootProcessInstance.HaltingPiOid";
    public static final String ABORTING_USER_OID = "Infinity.RootProcessInstance.AbortingUserOid";
+   public static final String HALTING_USER_OID = "Infinity.RootProcessInstance.HaltingUserOid";
    public static final String PI_NOTE_CONTEXT_PREFIX_PATTERN = "<context kind=\"{0}\" oid=\"{1}\" />";
 
    private static final int PI_PROPERTY_FLAG_ANY = 1;          // first bit
    public static final int PI_PROPERTY_FLAG_NOTE = 2;          // second bit
-   // PI_ABORTING useful for root process instances only
+   // PI_ABORTING and PI_HALTING useful for root process instances only
    public static final int PI_PROPERTY_FLAG_PI_ABORTING = 4;   // third bit
+   public static final int PI_PROPERTY_FLAG_PI_HALTING = 8;   // fourth bit
    private static final int PI_PROPERTY_FLAG_ALL = ~(3 << 30); // all bits, but the first two reserved for audit trail persistence mode
 
    private static final int PI_AUDIT_TRAIL_PROPERTY_FLAG_ENGINE_DEFAULT = 0;
@@ -1690,6 +1693,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       propIndexHandler.handleIndexForGeneralProperties();
       propIndexHandler.handleIndexForNoteProperty(noteExists());
       propIndexHandler.handleIndexForPiAbortingProperty(abortingPiExists());
+      propIndexHandler.handleIndexForPiHaltingProperty(haltingPiExists());
 
       // cluster after caches are refreshed, else results in duplicate cache entry.
       SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).cluster(clonedNote);
@@ -1736,9 +1740,35 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return attributes;
    }
 
+   public void addHaltingPiOid(long oid)
+   {
+      setPropertyValue(HALTING_PI_OID, new Long(oid));
+   }
+
+   public void removeHaltingPiOid(long oid)
+   {
+      removeProperty(HALTING_PI_OID, new Long(oid));
+   }
+
+   public List/*<Attribute>*/ getHaltingPiOids()
+   {
+      List attributes = (List) getPropertyValue(HALTING_PI_OID);
+      if(null == attributes)
+      {
+         return Collections.EMPTY_LIST;
+      }
+
+      return attributes;
+   }
+
    public void addAbortingUserOid(long oid)
    {
       setPropertyValue(ABORTING_USER_OID, new Long(oid));
+   }
+
+   public void addHaltingUserOid(long executingUserOid)
+   {
+      setPropertyValue(HALTING_USER_OID, new Long(oid));
    }
 
    public void addPropertyValues(Map attributes)
@@ -1748,6 +1778,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       propIndexHandler.handleIndexForGeneralProperties();
       propIndexHandler.handleIndexForNoteProperty(noteExists());
       propIndexHandler.handleIndexForPiAbortingProperty(abortingPiExists());
+      propIndexHandler.handleIndexForPiHaltingProperty(haltingPiExists());
    }
 
    public void setPropertyValue(String name, Serializable value)
@@ -1757,6 +1788,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       propIndexHandler.handleIndexForGeneralProperties();
       propIndexHandler.handleIndexForNoteProperty(noteExists());
       propIndexHandler.handleIndexForPiAbortingProperty(abortingPiExists());
+      propIndexHandler.handleIndexForPiHaltingProperty(haltingPiExists());
    }
 
    public void removeProperty(String name)
@@ -1766,6 +1798,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       propIndexHandler.handleIndexForGeneralProperties();
       propIndexHandler.handleIndexForNoteProperty(noteExists());
       propIndexHandler.handleIndexForPiAbortingProperty(abortingPiExists());
+      propIndexHandler.handleIndexForPiHaltingProperty(haltingPiExists());
    }
 
    public void removeProperty(String name, Serializable value)
@@ -1775,6 +1808,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       propIndexHandler.handleIndexForGeneralProperties();
       propIndexHandler.handleIndexForNoteProperty(noteExists());
       propIndexHandler.handleIndexForPiAbortingProperty(abortingPiExists());
+      propIndexHandler.handleIndexForPiHaltingProperty(haltingPiExists());
    }
 
    /* (non-Javadoc)
@@ -1946,6 +1980,12 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    private boolean abortingPiExists()
    {
       Attribute property = (Attribute) getAllProperties().get(ABORTING_PI_OID);
+      return propertyExists(property);
+   }
+
+   private boolean haltingPiExists()
+   {
+      Attribute property = (Attribute) getAllProperties().get(HALTING_PI_OID);
       return propertyExists(property);
    }
 
@@ -2170,6 +2210,18 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          else
          {
             unmarkPropertyAsAvailable(PI_PROPERTY_FLAG_PI_ABORTING);
+         }
+      }
+
+      public void handleIndexForPiHaltingProperty(boolean piHalting)
+      {
+         if (piHalting)
+         {
+            markPropertyAsAvailable(PI_PROPERTY_FLAG_PI_HALTING);
+         }
+         else
+         {
+            unmarkPropertyAsAvailable(PI_PROPERTY_FLAG_PI_HALTING);
          }
       }
 

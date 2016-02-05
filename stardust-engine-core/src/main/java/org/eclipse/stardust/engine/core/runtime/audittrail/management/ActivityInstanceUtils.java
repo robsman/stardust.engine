@@ -428,4 +428,19 @@ public class ActivityInstanceUtils
       return !activityInstance.isTerminated() && !activityInstance.isAborting()
             && !activityInstance.isHalting() && !activityInstance.isHalted();
    }
+
+   public static boolean isHaltable(IActivityInstance activityInstanceBean)
+   {
+      IActivity activity = activityInstanceBean.getActivity();
+
+      // do not halt multi instance activities
+      if (activity.getLoopCharacteristics() instanceof IMultiInstanceLoopCharacteristics)
+      {
+         return false;
+      }
+
+      // TODO do not halt application state for interactive and non-interactive
+
+      return true;
+   }
 }

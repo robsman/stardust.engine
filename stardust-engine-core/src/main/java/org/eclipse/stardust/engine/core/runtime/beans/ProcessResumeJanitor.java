@@ -60,6 +60,9 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
 
          if (canResume(pi))
          {
+            IProcessInstance rootProcessInstance = pi.getRootProcessInstance();
+            rootProcessInstance.lock();
+            rootProcessInstance.removeHaltingPiOid(pi.getOID());
 
             // sets to active and sends resume event.
             pi.resetInterrupted();
@@ -111,8 +114,11 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
 
       if (historicStates2 == null || !historicStates2.hasNext())
       {
-         throw new InternalException(
-               "ActivityInstanceHistory is needed to restore state before halted.");
+//         throw new InternalException(
+//               "ActivityInstanceHistory for ai '" + activityInstance.getOID()
+//                     + "' is needed to restore state before halted.");
+         trace.warn("Activity instance "+activityInstance.getOID()+" has no historical states. Resuming to Created state." );
+         activityInstance.setState(ActivityInstanceState.CREATED, executingUserOid);
       }
 
       while (historicStates2.hasNext())

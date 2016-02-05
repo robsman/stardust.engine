@@ -230,6 +230,12 @@ public interface IProcessInstance extends SymbolTable, AttributedIdentifiablePer
 
    List/**/ getAbortingPiOids();
 
+   void addHaltingPiOid(long oid);
+
+   void removeHaltingPiOid(long oid);
+
+   List/**/ getHaltingPiOids();
+
    public long getReferenceDeployment();
 
    public AuditTrailPersistence getAuditTrailPersistence();

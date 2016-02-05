@@ -359,6 +359,78 @@ public class ProcessInstanceUtils
    }
 
    /**
+    * Checks if the process tree for the given processInstance. If the process instance
+    * itself or any of its parents is in {@link ProcessInstanceState#HALTED} or
+    * {@link ProcessInstanceState#HALTING} state, true is returned,
+    */
+   public static boolean isInHaltingPiHierarchy(IProcessInstance processInstance)
+   {
+      boolean result = false;
+      final Long piOid = Long.valueOf(processInstance.getOID());
+
+      if (piOid.longValue() == processInstance.getRootProcessInstanceOID())
+      {
+         return isHaltedStateSafe(processInstance);
+      }
+      else
+      {
+         IProcessInstance rootPi = processInstance.getRootProcessInstance();
+
+         if (isHaltedStateSafe(rootPi))
+         {
+            result = true;
+         }
+         else
+         {
+            if ( !rootPi.getPersistenceController().isLocked())
+            {
+               try
+               {
+                  rootPi.getPersistenceController().reloadAttribute(
+                        ProcessInstanceBean.FIELD__PROPERTIES_AVAILABLE);
+               }
+               catch (PhantomException e)
+               {
+                  throw new InternalException(e);
+               }
+            }
+            if (rootPi.isPropertyAvailable(ProcessInstanceBean.PI_PROPERTY_FLAG_PI_HALTING))
+            {
+               List haltingOids = new ArrayList();
+               for (Iterator iter = rootPi.getHaltingPiOids().iterator(); iter.hasNext();)
+               {
+                  Attribute attribute = (Attribute) iter.next();
+                  haltingOids.add(attribute.getValue());
+               }
+
+               IProcessInstance currentPi = processInstance;
+               while (null != currentPi)
+               {
+                  if (haltingOids.contains(Long.valueOf(currentPi.getOID())))
+                  {
+                     result = true;
+                     break;
+                  }
+
+                  // get the parent process instance, if any.
+                  IActivityInstance startingActivityInstance = currentPi.getStartingActivityInstance();
+                  if (null == startingActivityInstance)
+                  {
+                     currentPi = null;
+                  }
+                  else
+                  {
+                     currentPi = startingActivityInstance.getProcessInstance();
+                  }
+               }
+            }
+         }
+      }
+
+      return result;
+   }
+
+   /**
     * Tests if the given process instance has a persisted state of ABORTING or ABORTED.
     * After that call the state is recovered.
     *
@@ -399,6 +471,50 @@ public class ProcessInstanceUtils
             }
          }
       }
+   }
+
+   /**
+    * Tests if the given process instance has a persisted state of HALTING or HALTED.
+    * After that call the state is recovered.
+    *
+    * @param pi
+    *           the process instance
+    * @return true if the persisted state is HALTING or HALTED
+    */
+   private static boolean isHaltedStateSafe(IProcessInstance pi)
+   {
+      return pi.isHalting() || pi.isHalted();
+//      ProcessInstanceState stateBackup = pi.getState();
+//      if (ProcessInstanceState.Halting.equals(stateBackup)
+//            || ProcessInstanceState.Halted.equals(stateBackup))
+//      {
+//         return true;
+//      }
+//      try
+//      {
+//         ((PersistentBean) pi).reloadAttribute(ProcessInstanceBean.FIELD__STATE);
+//         return pi.isHalting() || pi.isHalted();
+//      }
+//      catch (PhantomException x)
+//      {
+//         throw new InternalException(x);
+//      }
+//      finally
+//      {
+//         if ( !stateBackup.equals(pi.getState()))
+//         {
+//            try
+//            {
+//               Reflect.getField(ProcessInstanceBean.class,
+//                     ProcessInstanceBean.FIELD__STATE).setInt(pi, stateBackup.getValue());
+//            }
+//            catch (Exception e)
+//            {
+//               // should never happen
+//               throw new InternalException(e);
+//            }
+//         }
+//      }
    }
 
    public static int deleteProcessInstances(List<Long> piOids, Session session)
@@ -566,34 +682,36 @@ public class ProcessInstanceUtils
       {
          throw new InternalException(e);
       }
-      // TODO halt: needs adaptions for halt?
+
       if (processInstance.getPersistenceController().isCreated()
             && (processInstance.getPersistenceController().getSession() instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session))
       {
          // can potentially abort synchronously as there can be no concurrent activity
          // thread (the PI was not yet INSERTed into the Audit Trail DB)
 
-         abortProcessInstanceFromSessionCache(
+         stopProcessInstanceFromSessionCache(
                (org.eclipse.stardust.engine.core.persistence.jdbc.Session) pi.getPersistenceController().getSession(),
-               processInstance);
+               processInstance, stopMode);
       }
       else
       {
-         // Mark this PI at its root PI as aborting/halting
          final long piOid = processInstance.getOID();
-         // TODO Analyze for Halting.
-         rootProcessInstance.addAbortingPiOid(piOid);
-
          final long userOid = SecurityProperties.getUserOID();
+
+         // TODO Analyze for Halting.
          HierarchyStateChangeJanitorCarrier carrier = null;
          if (StopMode.ABORT.equals(stopMode))
          {
+            // Mark this PI at its root PI as aborting
+            rootProcessInstance.addAbortingPiOid(piOid);
             // Mark this PI itself as aborting.
             processInstance.setState(ProcessInstanceState.ABORTING);
             carrier = new AbortionJanitorCarrier(piOid, userOid);
          }
          else if (StopMode.HALT.equals(stopMode))
          {
+            // Mark this PI at its root PI as halting.
+            rootProcessInstance.addHaltingPiOid(piOid);
             // Mark this PI itself as halting.
             processInstance.setState(ProcessInstanceState.HALTING);
             carrier = new HaltJanitorCarrier(piOid, userOid);
@@ -615,55 +733,74 @@ public class ProcessInstanceUtils
       }
    }
 
-   private static void abortProcessInstanceFromSessionCache(Session session,
-         IProcessInstance pi)
+   private static void stopProcessInstanceFromSessionCache(Session session,
+         IProcessInstance pi, StopMode stopMode)
    {
-      // handle potential abort scenarios
-      Set<Long> abortingPiOids = newTreeSet();
-      abortingPiOids.add(pi.getOID());
+      // handle potential stop scenarios
+      Set<Long> stoppingPiOids = newTreeSet();
+      stoppingPiOids.add(pi.getOID());
 
-      // phase one: collect full PI hierarchy to be aborted
+      // phase one: collect full PI hierarchy to be stopped.
       Collection<PersistenceController> cachedPiHierarchy = session.getCache(ProcessInstanceHierarchyBean.class);
       for (PersistenceController pcPiHier : cachedPiHierarchy)
       {
          ProcessInstanceHierarchyBean piHier = (ProcessInstanceHierarchyBean) pcPiHier.getPersistent();
          if (pi == piHier.getProcessInstance()) // is parent PI
          {
-            abortingPiOids.add(piHier.getSubProcessInstance().getOID());
+            stoppingPiOids.add(piHier.getSubProcessInstance().getOID());
          }
       }
 
-      // phase two: abort full PI hierarchy starting from PI to be aborted
+      // phase two: stop full PI hierarchy starting from PI to be stopped.
       Collection<PersistenceController> cachedPis = session.getCache(ProcessInstanceBean.class);
       for (PersistenceController pcPi : cachedPis)
       {
-         ProcessInstanceBean piToAbort = (ProcessInstanceBean) pcPi.getPersistent();
-         if (abortingPiOids.contains(piToAbort.getOID())) // is abort candidate
+         ProcessInstanceBean piToStop = (ProcessInstanceBean) pcPi.getPersistent();
+         if (stoppingPiOids.contains(piToStop.getOID())) // is abort candidate
          {
-            if ( !piToAbort.isTerminated())
+            if ( !piToStop.isTerminated())
             {
-               if (piToAbort.isAborting())
+               if (StopMode.ABORT.equals(stopMode))
                {
-                  piToAbort.getRootProcessInstance().removeAbortingPiOid(
-                        piToAbort.getOID());
+                  if (piToStop.isAborting())
+                  {
+                     piToStop.getRootProcessInstance()
+                           .removeAbortingPiOid(piToStop.getOID());
+                  }
+                  piToStop.setState(ProcessInstanceState.ABORTED);
+                  EventUtils.detachAll(piToStop);
+                  ProcessInstanceUtils.cleanupProcessInstance(piToStop);
                }
-               piToAbort.setState(ProcessInstanceState.ABORTED);
-               EventUtils.detachAll(piToAbort);
-               ProcessInstanceUtils.cleanupProcessInstance(piToAbort);
+               else if (StopMode.HALT.equals(stopMode))
+               {
+                  if (piToStop.isHalting())
+                  {
+                     piToStop.getRootProcessInstance()
+                           .removeHaltingPiOid(piToStop.getOID());
+                  }
+                  piToStop.setState(ProcessInstanceState.HALTED);
+               }
             }
          }
       }
 
-      // phase three: abort all non-terminated AIs for aborted PIs
+      // phase three: stop all non-terminated AIs for stopped PIs
       for (PersistenceController pcAi : (Collection<PersistenceController>) session.getCache(ActivityInstanceBean.class))
       {
-         ActivityInstanceBean aiToAbort = (ActivityInstanceBean) pcAi.getPersistent();
-         if (abortingPiOids.contains(aiToAbort.getProcessInstanceOID())
-               && !aiToAbort.isTerminated())
+         ActivityInstanceBean aiToStop = (ActivityInstanceBean) pcAi.getPersistent();
+         if (stoppingPiOids.contains(aiToStop.getProcessInstanceOID())
+               && !aiToStop.isTerminated())
          {
-            aiToAbort.setState(ActivityInstanceState.ABORTED);
-            aiToAbort.removeFromWorklists();
-            EventUtils.detachAll(aiToAbort);
+            if (StopMode.ABORT.equals(stopMode))
+            {
+               aiToStop.setState(ActivityInstanceState.ABORTED);
+               aiToStop.removeFromWorklists();
+               EventUtils.detachAll(aiToStop);
+            }
+            else if (StopMode.HALT.equals(stopMode))
+            {
+               aiToStop.setState(ActivityInstanceState.HALTED);
+            }
          }
       }
    }

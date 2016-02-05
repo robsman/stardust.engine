@@ -16,6 +16,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.*;
@@ -23,13 +24,16 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runners.MethodSorters;
 
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.query.*;
+import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
+import org.eclipse.stardust.engine.api.query.ActivityInstances;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceDetailsPolicy;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.SpawnOptions.SpawnMode;
-import org.eclipse.stardust.engine.core.runtime.beans.BenchmarkDaemon;
 import org.eclipse.stardust.engine.core.runtime.beans.EventDaemon;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
@@ -38,6 +42,7 @@ import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.eclipse.stardust.vfs.impl.utils.CollectionUtils;
 
 /**
  * <p>
@@ -52,6 +57,7 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 public class SpawnPeerInsertProcessTest
 {
    public static final String MODEL_NAME = "SpawnProcessModel";
+   public static final String MODEL_NAME2 = "MultiInstance";
 
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
 
@@ -59,7 +65,7 @@ public class SpawnPeerInsertProcessTest
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
 
    @ClassRule
-   public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
+   public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.JMS, MODEL_NAME, MODEL_NAME2);
 
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
@@ -265,6 +271,9 @@ public class SpawnPeerInsertProcessTest
       assertActivityInstanceExists(pi.getOID(), "Activity_1", ActivityInstanceState.HIBERNATED);
    }
 
+   /**
+    * Tests that event action triggered by event daemon is working if previously halted processes is resumed.
+    */
    @Test
    public void testInsertWithTimerEvent() throws TimeoutException, InterruptedException
    {
@@ -304,6 +313,9 @@ public class SpawnPeerInsertProcessTest
       assertActivityInstanceExists(pi.getOID(), "Activity_1", ActivityInstanceState.HIBERNATED);
    }
 
+   /**
+    * Tests that event action triggered by event daemon is ignored for halted processes.
+    */
    @Test
    public void testInsertWithTimerEventWhileHalted() throws TimeoutException, InterruptedException
    {
@@ -345,19 +357,81 @@ public class SpawnPeerInsertProcessTest
       assertActivityInstanceExists(pi.getOID(), "Activity_1", ActivityInstanceState.SUSPENDED);
    }
 
+   @Test
+   public void testInsertMultiInstance() throws TimeoutException, InterruptedException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+
+      Map<String, Object> multi = CollectionUtils.newMap();
+      //
+      multi.put("List", createMultiInstanceList(5));
+
+      Map<String, Object> inputData = CollectionUtils.newMap();
+      inputData.put("Multi", multi);
+
+      ProcessInstance pi = wfs.startProcess("{MultiInstance}Main", new StartOptions(inputData , true));
+      assertThat(pi.getState(), is(ProcessInstanceState.Active));
+
+      // Spawn process
+      SpawnOptions options = new SpawnOptions(null, SpawnMode.HALT, null, null);
+      ProcessInstance peer = wfs.spawnPeerProcessInstance(
+            pi.getOID(), "{MultiInstance}Sub2", options);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
+
+      assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(), PredefinedProcessInstanceLinkTypes.INSERT);
+
+      completeActivityInstances(peer.getOID(), 1);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Completed);
+
+
+      // wait for manual activity after completed multi-instance activity.
+      int tryCount = 10;
+      while (tryCount-- > 0)
+      {
+         try
+         {
+            wfs.activateNextActivityInstanceForProcessInstance(pi.getOID());
+            assertActivityInstanceExists(pi.getOID(), "Manual",
+                  ActivityInstanceState.APPLICATION);
+            tryCount = 0;
+         }
+         catch (ObjectNotFoundException e)
+         {
+            doWait(1000);
+            if (tryCount == 0)
+            {
+               Assert.fail("Expected AI 'Manual' not found");
+            }
+         }
+      }
+   }
+
+   // ************** UTILS ***************
+
+   private Object createMultiInstanceList(int count)
+   {
+      List<String> list = CollectionUtils.newList();
+
+      for (int i = 0; i < count; i++)
+      {
+         list.add(""+i);
+      }
+      return list;
+   }
+
    private void doWait(int i)
    {
       try
       {
-         Thread.sleep(3000);
+         Thread.sleep(i);
       }
       catch (InterruptedException e)
       {
          e.printStackTrace();
       }
    }
-
-   // ************** UTILS ***************
 
    private void assertProcessInstanceLinkExists(long piOid, long sourcePiOid,
          PredefinedProcessInstanceLinkTypes linkType)

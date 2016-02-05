@@ -47,7 +47,7 @@ public class CompositeDataPathEvaluator
       return result;
    }
 
-   private String evaluate(IDataPath path)
+   public String evaluate(IDataPath path)
    {
       String expression = path.getAccessPath();
       if (expression == null)
@@ -55,6 +55,11 @@ public class CompositeDataPathEvaluator
          return null;
       }
       cache.put(path, "");
+      return evaluate(expression);
+   }
+
+   public String evaluate(String expression)
+   {
       return ConfigurationVariableUtils.evaluate(getVariablesProvider(), '%', expression);
    }
 

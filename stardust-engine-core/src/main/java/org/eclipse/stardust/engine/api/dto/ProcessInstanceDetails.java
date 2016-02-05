@@ -467,7 +467,8 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
                {
                   CompositeDataPathEvaluator evaluator = new CompositeDataPathEvaluator(processInstance);
                   descriptors.put(dataPath.getId(), evaluator.getDataPathValue(dataPath));
-                  descriptorDefinitions.add(DetailsFactory.create(dataPath));
+                  DataPath definition = DetailsFactory.create(dataPath, evaluator);
+                  descriptorDefinitions.add(definition);
                }
             }
             catch (Exception x)

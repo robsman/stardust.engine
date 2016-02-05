@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.dto;
 
+import java.io.Serializable;
+
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.ParametersFacade;
@@ -23,7 +25,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 import org.eclipse.stardust.engine.core.struct.spi.StructuredDataXMLValidator;
-
 
 /**
  * Wraps meta information for a data accessPath as defined in the model.
@@ -46,8 +47,7 @@ public class DataPathDetails extends ModelElementDetails implements DataPath
    private boolean keyDescriptor;
    private String accessPath;
    private String data;
-
-   private final String processDefinitionId;
+   private String processDefinitionId;
 
    DataPathDetails(CaseDescriptorRef ref)
    {
@@ -111,9 +111,26 @@ public class DataPathDetails extends ModelElementDetails implements DataPath
       data = iData == null ? null : iData.getId();
 
       ModelElement parent = path.getParent();
-      this.processDefinitionId = (parent instanceof IProcessDefinition)
+      processDefinitionId = (parent instanceof IProcessDefinition)
             ? ((IProcessDefinition) parent).getId()
             : null;
+   }
+
+   /**
+    * Clone constructor
+    *
+    * @param details the original object
+    */
+   DataPathDetails(DataPathDetails details, Serializable evaluatedAccessPath )
+   {
+      super(details);
+      type = details.type;
+      direction = details.direction;
+      descriptor = details.descriptor;
+      keyDescriptor = details.keyDescriptor;
+      data = details.data;
+      accessPath = evaluatedAccessPath == null ? details.accessPath : evaluatedAccessPath.toString();
+      processDefinitionId = details.processDefinitionId;
    }
 
    private boolean isPrimitiveOrStructValidator(ExtendedDataValidator validator)

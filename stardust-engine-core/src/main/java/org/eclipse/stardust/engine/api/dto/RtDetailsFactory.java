@@ -11,9 +11,11 @@
 package org.eclipse.stardust.engine.api.dto;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.engine.api.model.CaseDescriptorRef;
 import org.eclipse.stardust.engine.api.model.DataPath;
 import org.eclipse.stardust.engine.api.model.IDataPath;
@@ -29,10 +31,10 @@ import org.eclipse.stardust.engine.core.runtime.utils.PerformerUtils;
 public class RtDetailsFactory
 {
    private static final String DATA_PATH_KEY = DataPathDetails.class.getName();
-   
+
    private Map<Object, Object> cache = CollectionUtils.newMap();
    private boolean usingCaches = false;
-   
+
    public boolean isUsingCaches()
    {
       return usingCaches;
@@ -43,13 +45,31 @@ public class RtDetailsFactory
       this.usingCaches = usingCaches;
    }
 
-   public DataPath createDetails(IDataPath dp)
+   public DataPath createDetails(IDataPath dp, CompositeDataPathEvaluator compositeDataPathEvaluator)
    {
       DataPath details = dp.getRuntimeAttribute(DATA_PATH_KEY);
       if (details == null)
       {
          details = new DataPathDetails(dp);
          dp.setRuntimeAttribute(DATA_PATH_KEY, details);
+      }
+      if (details instanceof DataPathDetails
+            && compositeDataPathEvaluator != null
+            && dp.getData() == null
+            && Direction.IN.isCompatibleWith(details.getDirection()))
+      {
+         details = new DataPathDetails((DataPathDetails) details,
+               // (fh) value should already be computed in the cache
+               compositeDataPathEvaluator.getDataPathValue(dp));
+         if ("Link".equals(details.getAttribute("type")))
+         {
+            Object text = details.getAttribute("text");
+            if (text instanceof String)
+            {
+               ((DataPathDetails) details).injectAttributes(Collections.singletonMap("text",
+                     compositeDataPathEvaluator.evaluate((String) text)));
+            }
+         }
       }
       return details;
    }
@@ -145,7 +165,7 @@ public class RtDetailsFactory
       }
       return details;
    }
-   
+
    public Department createDepartmentDetails(IDepartment department)
    {
       Key key = new Key(department);
@@ -157,7 +177,7 @@ public class RtDetailsFactory
       }
       return details;
    }
-   
+
    private static class Key
    {
       private Object[] items;

@@ -533,7 +533,7 @@ public class DetailsFactory
       return detail;
    }
 
-   public static DataPath create(IDataPath internal)
+   public static DataPath create(IDataPath internal, CompositeDataPathEvaluator compositeDataPathEvaluator)
    {
       if (internal == null)
       {
@@ -542,7 +542,7 @@ public class DetailsFactory
       try
       {
          BpmRuntimeEnvironment rte = PropertyLayerProviderInterceptor.getCurrent();
-         return rte.getDetailsFactory().createDetails(internal);
+         return rte.getDetailsFactory().createDetails(internal, compositeDataPathEvaluator);
       }
       catch (Exception x)
       {

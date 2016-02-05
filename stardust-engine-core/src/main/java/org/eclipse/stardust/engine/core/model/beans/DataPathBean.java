@@ -108,6 +108,12 @@ public class DataPathBean extends IdentifiableElementBean
          BpmValidationError error = BpmValidationError.DATA_NO_NAME_SPECIFIED_FOR_DATAPATH.raise();
          inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
       }
+      if (!isDescriptor() && this.hasVariable(this.getAccessPath()))
+      {
+         BpmValidationError error = BpmValidationError.DATAPATH_VARIABLE_ONLY_ALLOWED_FOR_COMPOSITE_LINK_DESCRIPTORS
+               .raise(getName());
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
+      }
       IData data = getData();
       if (data == null)
       {
@@ -202,13 +208,13 @@ public class DataPathBean extends IdentifiableElementBean
       }
    }
    
-   private DataPathReference resolveReferences(DataPathReference reference, List inconsistencies)
+   private void resolveReferences(DataPathReference reference, List inconsistencies)
    { 
       IDataPath dataPathType = reference.getDataPath();
       String value = reference.getDataPath().getAccessPath();
-      if (!this.hasVariabled(value))
+      if (!this.hasVariable(value))
       {
-         return reference;
+         return;
       }
       String id = null;
       Matcher matcher = pattern.matcher(value);
@@ -231,7 +237,7 @@ public class DataPathBean extends IdentifiableElementBean
                BpmValidationError error = BpmValidationError.REFERENCED_DESCRIPTOR_DOES_NOT_EXIST
                      .raise(this.getId(), ref);
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
-               return reference;
+               return;
             }
             String refAccessPath = refDataPathType.getAccessPath();
             
@@ -255,12 +261,12 @@ public class DataPathBean extends IdentifiableElementBean
                BpmValidationError error = BpmValidationError.REFERENCED_DATAPTH_IS_A_CIRCULAR_DEPENDENCY
                      .raise(this.getId());
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
-               return reference;
+               return;
             }
             resolveReferences(refDataPathTypeReference, inconsistencies);            
          }
       }
-      return reference;
+      return;
    }
       
    private IDataPath findDataPath(IProcessDefinition process, String ref)
@@ -336,10 +342,22 @@ public class DataPathBean extends IdentifiableElementBean
 
    }
    
-   private boolean hasVariabled(String value)
+   private boolean hasVariable(String value)
    {
+      if (value == null)
+      {
+         return false;
+      }
       Matcher matcher = pattern.matcher(value);
-      return matcher.find();
+      while (matcher.find())
+      {
+         if ((matcher.start() == 0) || ((matcher.start() > 0)
+               && (value.charAt(matcher.start() - 1) != '\\')))
+         {
+            return true;
+         }
+      }
+      return false;
    }
    
    private boolean hasCircularDependency(String referencingDataPathID,

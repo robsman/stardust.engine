@@ -225,6 +225,8 @@ public class BpmValidationError extends ErrorCase
    public static final Args REFERENCED_DESCRIPTOR_NO_DATAPATH = new Args("DATA01031");
    public static final Args COMPOSITE_LINK_DESCRIPTOR_NO_DATAPATH = new Args("DATA01032");
    public static final Args COMPOSITE_LINK_DESCRIPTOR_HAS_TO_BE_IN_DATAPATH = new Args("DATA01033");
+   public static final Args DATAPATH_VARIABLE_ONLY_ALLOWED_FOR_COMPOSITE_LINK_DESCRIPTORS = new Args("DATA01034");
+
      
    //Event related
    public static final Args EVEN_DUPLICATE_ID_FOR_EVENT_HANDLER = new Args("EVEN01000");

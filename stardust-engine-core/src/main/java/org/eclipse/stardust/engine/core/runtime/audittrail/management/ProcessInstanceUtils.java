@@ -668,7 +668,6 @@ public class ProcessInstanceUtils
    {
       ProcessInstanceBean processInstance = (ProcessInstanceBean) pi;
 
-      // TODO why not lock root first to prevent deadlock? always top down.
       processInstance.lock();
       ProcessInstanceBean rootProcessInstance = (ProcessInstanceBean) processInstance.getRootProcessInstance();
       rootProcessInstance.lock();
@@ -698,7 +697,6 @@ public class ProcessInstanceUtils
          final long piOid = processInstance.getOID();
          final long userOid = SecurityProperties.getUserOID();
 
-         // TODO Analyze for Halting.
          HierarchyStateChangeJanitorCarrier carrier = null;
          if (StopMode.ABORT.equals(stopMode))
          {
@@ -728,7 +726,6 @@ public class ProcessInstanceUtils
             // abort/halt the complete subprocess hierarchy asynchronously.
             ProcessAbortionJanitor.scheduleJanitor(carrier);
          }
-
 
       }
    }

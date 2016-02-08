@@ -117,19 +117,27 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
       else
       {
          boolean haltedFound = false;
-         //re-schedule halted process
-         ResultIterator<IProcessInstanceLink> links = ProcessInstanceLinkBean.findAllForProcessInstance(pi);
-         if (links !=null)
+         // Re-schedule halted process only for non transient execution.
+         // Halted processes can only be created in non transitive scenarios by wfs#spawnPeerProcess
+         // so skipping the lookup is possible for transient execution.
+         if (!ProcessInstanceUtils.isTransientExecutionScenario(pi))
          {
-            while (links.hasNext())
+            ResultIterator<IProcessInstanceLink> links = ProcessInstanceLinkBean
+                  .findAllForProcessInstance(pi);
+            if (links != null)
             {
-               IProcessInstanceLink link = links.next();
-               if (PredefinedProcessInstanceLinkTypes.INSERT.getId().equals(
-                     link.getLinkType().getId()) && link.getProcessInstanceOID() != pi.getOID())
+               while (links.hasNext())
                {
-                  trace.info("Scheduling process resume for halted process: " + link.getProcessInstanceOID());
-                  resumeHaltedProcessHierarchy(link.getProcessInstanceOID());
-                  haltedFound = true;
+                  IProcessInstanceLink link = links.next();
+                  if (PredefinedProcessInstanceLinkTypes.INSERT.getId()
+                        .equals(link.getLinkType().getId())
+                        && link.getProcessInstanceOID() != pi.getOID())
+                  {
+                     trace.info("Scheduling process resume for halted process: "
+                           + link.getProcessInstanceOID());
+                     resumeHaltedProcessHierarchy(link.getProcessInstanceOID());
+                     haltedFound = true;
+                  }
                }
             }
          }

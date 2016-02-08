@@ -370,13 +370,13 @@ public class ProcessInstanceUtils
 
       if (piOid.longValue() == processInstance.getRootProcessInstanceOID())
       {
-         return isHaltedStateSafe(processInstance);
+         return processInstance.isHalting() || processInstance.isHalted();
       }
       else
       {
          IProcessInstance rootPi = processInstance.getRootProcessInstance();
 
-         if (isHaltedStateSafe(rootPi))
+         if (rootPi.isHalting() || rootPi.isHalted())
          {
             result = true;
          }
@@ -471,50 +471,6 @@ public class ProcessInstanceUtils
             }
          }
       }
-   }
-
-   /**
-    * Tests if the given process instance has a persisted state of HALTING or HALTED.
-    * After that call the state is recovered.
-    *
-    * @param pi
-    *           the process instance
-    * @return true if the persisted state is HALTING or HALTED
-    */
-   private static boolean isHaltedStateSafe(IProcessInstance pi)
-   {
-      return pi.isHalting() || pi.isHalted();
-//      ProcessInstanceState stateBackup = pi.getState();
-//      if (ProcessInstanceState.Halting.equals(stateBackup)
-//            || ProcessInstanceState.Halted.equals(stateBackup))
-//      {
-//         return true;
-//      }
-//      try
-//      {
-//         ((PersistentBean) pi).reloadAttribute(ProcessInstanceBean.FIELD__STATE);
-//         return pi.isHalting() || pi.isHalted();
-//      }
-//      catch (PhantomException x)
-//      {
-//         throw new InternalException(x);
-//      }
-//      finally
-//      {
-//         if ( !stateBackup.equals(pi.getState()))
-//         {
-//            try
-//            {
-//               Reflect.getField(ProcessInstanceBean.class,
-//                     ProcessInstanceBean.FIELD__STATE).setInt(pi, stateBackup.getValue());
-//            }
-//            catch (Exception e)
-//            {
-//               // should never happen
-//               throw new InternalException(e);
-//            }
-//         }
-//      }
    }
 
    public static int deleteProcessInstances(List<Long> piOids, Session session)

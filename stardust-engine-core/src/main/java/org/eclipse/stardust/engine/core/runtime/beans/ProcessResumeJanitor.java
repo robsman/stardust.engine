@@ -13,7 +13,6 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.util.Iterator;
 
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
@@ -79,27 +78,12 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
 
                   restoreStateFromHistory(activityInstance);
 
-                  // runs auto bound events. not needed because events not stopped.
-                  // activityInstance.start();
-
                   // Run recovery. This also calls recovery on all events.
                   ActivityThreadsRecoveryAction activityThreadsRecoveryAction = new ActivityThreadsRecoveryAction(
                         pi.getOID());
                   activityThreadsRecoveryAction.execute();
-
-                  // resume activity instance thread only if not suspended.
-                  // ActivityInstanceUtils.scheduleNewActivityThread(activityInstance);
-
-                  // TODO add to worklist?
-                  // activityInstance.removeFromWorklists();
-                  // TODO attach events?
-                  // EventUtils.detachAll(activityInstance);
                }
             }
-
-            // TODO attach events?
-            // EventUtils.detachAll(pi);
-
             AuditTrailLogger.getInstance(LogCode.ENGINE, pi)
                   .info("Process instance resumed.");
          }
@@ -114,10 +98,8 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
 
       if (historicStates2 == null || !historicStates2.hasNext())
       {
-//         throw new InternalException(
-//               "ActivityInstanceHistory for ai '" + activityInstance.getOID()
-//                     + "' is needed to restore state before halted.");
-         trace.warn("Activity instance "+activityInstance.getOID()+" has no historical states. Resuming to Created state." );
+         trace.warn("Activity instance " + activityInstance.getOID()
+               + " has no historical states. Resuming to Created state.");
          activityInstance.setState(ActivityInstanceState.CREATED, executingUserOid);
       }
 
@@ -143,19 +125,20 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
             }
             else if (ActivityInstanceState.Suspended.equals(state))
             {
-               // return to suspended
+               // return to suspended.
                activityInstance.setState(ActivityInstanceState.SUSPENDED,
                      executingUserOid);
             }
             else if (ActivityInstanceState.Created.equals(state))
             {
-               // TODO should not happen. run recover. set created?
-               activityInstance.setState(ActivityInstanceState.SUSPENDED,
+               // Recovery will continue the ai.
+               activityInstance.setState(ActivityInstanceState.CREATED,
                      executingUserOid);
             }
             else if (ActivityInstanceState.Halted.equals(state))
             {
-               // double entry, continue with next state before halted.
+               // in case of multiple 'halted' entries, continue with next state before
+               // halted.
                continue;
             }
             else
@@ -206,7 +189,6 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
    @Override
    protected void postProcessPi(ProcessInstanceBean pi)
    {
-      // TODO do cleanup?
    }
 
    public String toString()

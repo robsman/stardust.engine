@@ -154,7 +154,7 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
 
    private void resumeHaltedProcessHierarchy(long processInstanceOid)
    {
-      // TODO Resume janitor -> recover non interrupted/hibernated
+      // Always create Janitor. Each janitor decides if it can resume the process.
       ProcessResumeJanitor processResumeJanitor = new ProcessResumeJanitor(
             new ResumeJanitorCarrier(processInstanceOid));
       processResumeJanitor.execute();

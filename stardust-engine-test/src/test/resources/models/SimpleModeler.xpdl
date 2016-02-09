@@ -296,7 +296,7 @@
                      <carnot:DataPath Oid="63" Id="DataPath_1" Name="Data Path 1" Direction="IN" IsDescriptor="true">
                         <carnot:DataRef Id="CURRENT_MODEL" Expression=""/>
                      </carnot:DataPath>
-                     <carnot:DataPath Oid="64" Id="DataPath_2" Name="Data Path 2" Direction="IN" IsDescriptor="true">
+                     <carnot:DataPath Oid="64" Id="BusinessDate_1" Name="Data Path 2" Direction="IN" IsDescriptor="true">
                         <carnot:DataRef Id="CURRENT_USER" Expression=""/>
                      </carnot:DataPath>
                   </carnot:DataPaths>

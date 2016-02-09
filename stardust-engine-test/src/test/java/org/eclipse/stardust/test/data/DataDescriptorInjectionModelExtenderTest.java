@@ -69,7 +69,7 @@ public class DataDescriptorInjectionModelExtenderTest
          List<DataPath> paths = pd.getAllDataPaths();   
          for (DataPath p : paths)
          {
-            if (p.getId().equals("DataPath_3") && pd.getId().equals("ProcessDefinition_1"))
+            if (p.getId().equals("BusinessDate_2") && pd.getId().equals("ProcessDefinition_1"))
             {
                value = (Date) serviceFactory.getWorkflowService().getInDataPath(pi.getOID(), p.getId());
                path = p;
@@ -82,6 +82,7 @@ public class DataDescriptorInjectionModelExtenderTest
       {
          Assert.assertTrue(path.isDescriptor());
          assertEquals(path.getData(), PredefinedConstants.BUSINESS_DATE);            
+         assertEquals(path.getName(), "Business Date");                     
          assertEquals(value.getYear(), 2000);
       }
       else
@@ -105,7 +106,7 @@ public class DataDescriptorInjectionModelExtenderTest
          List<DataPath> paths = pd.getAllDataPaths();   
          for (DataPath p : paths)
          {
-            if (p.getId().equals("DataPath_1") && pd.getId().equals("ProcessDefinition_2"))
+            if (p.getId().equals("BusinessDate_1") && pd.getId().equals("ProcessDefinition_2"))
             {
                value = (Date) serviceFactory.getWorkflowService().getInDataPath(pi.getOID(), p.getId());
                path = p;
@@ -117,7 +118,8 @@ public class DataDescriptorInjectionModelExtenderTest
       if (value != null && path != null)
       {
          Assert.assertTrue(path.isDescriptor());
-         assertEquals(path.getData(), PredefinedConstants.BUSINESS_DATE);            
+         assertEquals(path.getData(), PredefinedConstants.BUSINESS_DATE);       
+         assertEquals(path.getName(), "Business Date");                              
          assertEquals(value.getYear(), 2000);
       }
       else

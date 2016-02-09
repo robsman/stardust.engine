@@ -33,7 +33,8 @@ public class DataDescriptorInjectionModelExtender extends AbstractPartitionMonit
 {
    Logger trace = LogManager.getLogger(DataDescriptorInjectionModelExtender.class);
    
-   private String prefix = "DataPath";
+   private String prefix = "BusinessDate";
+   private String name = "Business Date";
 
    @Override
    public void modelLoaded(IModel model)
@@ -84,7 +85,7 @@ public class DataDescriptorInjectionModelExtender extends AbstractPartitionMonit
          factory.computeNames(list);
          
          String id = factory.getId();
-         IDataPath dataPath = new DataPathBean(id, id, data, null, Direction.IN);
+         IDataPath dataPath = new DataPathBean(id, name, data, null, Direction.IN);
          dataPath.setDescriptor(true);
          pd.addToDataPaths(dataPath);
          dataPath.register(0);

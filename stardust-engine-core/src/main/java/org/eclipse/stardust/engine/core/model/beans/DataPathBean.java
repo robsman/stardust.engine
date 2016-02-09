@@ -131,7 +131,15 @@ public class DataPathBean extends IdentifiableElementBean
                DataPathReference reference = new DataPathReference(this, new ArrayList<DataPathReference>());
                refMap.put(this.getId(), reference);
                resolveReferences(reference, inconsistencies);   
-            }            
+            }
+            String text = this.getStringAttribute("text");
+            if (text != null) 
+            {
+               refMap = new HashMap<String, DataPathReference>(); 
+               DataPathReference reference = new DataPathReference(this, text, new ArrayList<DataPathReference>());
+               refMap.put(this.getId(), reference);
+               resolveReferences(reference, inconsistencies);   
+            }    
          }
       }
       else if (isKeyDescriptor())
@@ -209,9 +217,9 @@ public class DataPathBean extends IdentifiableElementBean
    }
    
    private void resolveReferences(DataPathReference reference, List inconsistencies)
-   { 
+   {
       IDataPath dataPathType = reference.getDataPath();
-      String value = reference.getDataPath().getAccessPath();
+      String value = reference.getValue();
       if (!this.hasVariable(value))
       {
          return;
@@ -220,8 +228,8 @@ public class DataPathBean extends IdentifiableElementBean
       Matcher matcher = pattern.matcher(value);
       while (matcher.find())
       {
-         if ((matcher.start() == 0) || ((matcher.start() > 0)
-               && (value.charAt(matcher.start() - 1) != '\\')))
+         if ((matcher.start() == 0)
+               || ((matcher.start() > 0) && (value.charAt(matcher.start() - 1) != '\\')))
          {
             String ref = value.substring(matcher.start(), matcher.end());
             ref = ref.trim();
@@ -229,9 +237,8 @@ public class DataPathBean extends IdentifiableElementBean
             id = id.replace("%{", "");
             id = id.replace("}", "");
             IProcessDefinition process = (IProcessDefinition) this.getParent();
-            IDataPath refDataPathType = findDataPath(process, id); 
-            
-            
+            IDataPath refDataPathType = findDataPath(process, id);
+
             if (refDataPathType == null)
             {
                BpmValidationError error = BpmValidationError.REFERENCED_DESCRIPTOR_DOES_NOT_EXIST
@@ -240,30 +247,31 @@ public class DataPathBean extends IdentifiableElementBean
                return;
             }
             String refAccessPath = refDataPathType.getAccessPath();
-            
+
             if (refAccessPath == null)
             {
                BpmValidationError error = BpmValidationError.REFERENCED_DESCRIPTOR_NO_DATAPATH
                      .raise(ref);
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
             }
-                                                     
-            DataPathReference refDataPathTypeReference = refMap.get(refDataPathType.getId());
+
+            DataPathReference refDataPathTypeReference = refMap
+                  .get(refDataPathType.getId());
             if (refDataPathTypeReference == null)
             {
                refDataPathTypeReference = new DataPathReference(refDataPathType,
                      new ArrayList<DataPathReference>());
                reference.getReferences().add(refDataPathTypeReference);
                refMap.put(refDataPathType.getId(), refDataPathTypeReference);
-            }     
-            if (this.hasCircularDependency(dataPathType.getId(), refDataPathTypeReference)) 
+            }
+            if (hasCircularDependency(dataPathType.getId(), refDataPathTypeReference))
             {
                BpmValidationError error = BpmValidationError.REFERENCED_DATAPTH_IS_A_CIRCULAR_DEPENDENCY
                      .raise(this.getId());
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                return;
             }
-            resolveReferences(refDataPathTypeReference, inconsistencies);            
+            resolveReferences(refDataPathTypeReference, inconsistencies);
          }
       }
       return;
@@ -316,28 +324,37 @@ public class DataPathBean extends IdentifiableElementBean
    {
       private IDataPath dataPath;
       private List<DataPathReference> references = new ArrayList<DataPathReference>();
+      private String value;
       
       public IDataPath getDataPath()
       {
          return dataPath;
       }
-      public void setDataPath(IDataPath dataPath)
-      {
-         this.dataPath = dataPath;
-      }
+
       public List<DataPathReference> getReferences()
       {
          return references;
       }
-      public void setReferences(List<DataPathReference> references)
+      
+      public String getValue()
       {
-         this.references = references;
+         return value;
       }
+      
       public DataPathReference(IDataPath dataPath, List<DataPathReference> references)
       {
          super();
          this.dataPath = dataPath;
          this.references = references;
+         this.value = dataPath.getAccessPath();
+      }
+      
+      public DataPathReference(IDataPath dataPath, String value, List<DataPathReference> references)
+      {
+         super();
+         this.dataPath = dataPath;
+         this.references = references;
+         this.value = value;
       }
 
    }
@@ -351,15 +368,15 @@ public class DataPathBean extends IdentifiableElementBean
       Matcher matcher = pattern.matcher(value);
       while (matcher.find())
       {
-         if ((matcher.start() == 0) || ((matcher.start() > 0)
-               && (value.charAt(matcher.start() - 1) != '\\')))
+         if ((matcher.start() == 0)
+               || ((matcher.start() > 0) && (value.charAt(matcher.start() - 1) != '\\')))
          {
             return true;
          }
       }
       return false;
    }
-   
+
    private boolean hasCircularDependency(String referencingDataPathID,
          DataPathReference referencedDataPath)
    {
@@ -375,8 +392,10 @@ public class DataPathBean extends IdentifiableElementBean
          if (hasCircularDependency(referencedDataPath.getDataPath().getId(), reference))
          {
             return true;
-         } else {
-            if (this.hasCircularDependency(referencingDataPathID, reference)) 
+         }
+         else
+         {
+            if (hasCircularDependency(referencingDataPathID, reference))
             {
                return true;
             }

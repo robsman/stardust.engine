@@ -196,7 +196,7 @@
       </DataField>
    </DataFields>
    <WorkflowProcesses>
-      <WorkflowProcess Id="ProcessDefinition_1" Name="Process Definition 1" AccessLevel="PUBLIC">
+      <WorkflowProcess Id="ExtendDescriptorProcessDefinition_1" Name="Process Definition 1" AccessLevel="PUBLIC">
          <ProcessHeader/>
          <Activities>
             <Activity Id="ManualActivity_1" Name="Manual Activity 1">
@@ -336,7 +336,7 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </WorkflowProcess>
-      <WorkflowProcess Id="ProcessDefinition_2" Name="Process Definition 2" AccessLevel="PUBLIC">
+      <WorkflowProcess Id="ExtendDescriptorProcessDefinition_2" Name="Process Definition 2" AccessLevel="PUBLIC">
          <ProcessHeader/>
          <Activities>
             <Activity Id="ManualActivity_2" Name="Manual Activity 2">

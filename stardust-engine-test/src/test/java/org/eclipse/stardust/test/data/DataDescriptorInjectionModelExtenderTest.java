@@ -43,6 +43,9 @@ public class DataDescriptorInjectionModelExtenderTest
    public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(serviceFactory);
 
    private Map<String, Object> processData;
+   
+   private static String PROCESS1 = "{SimpleModeler}ExtendDescriptorProcessDefinition_1";
+   private static String PROCESS2 = "{SimpleModeler}ExtendDescriptorProcessDefinition_2";
 
    @Before
    public void setup()
@@ -61,15 +64,16 @@ public class DataDescriptorInjectionModelExtenderTest
       DataPath path = null;
       
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
-            "ProcessDefinition_1", this.processData, true);
+            PROCESS1, this.processData, true);
       
-      List<ProcessDefinition> allProcessDefinitions = serviceFactory.getQueryService().getAllProcessDefinitions();
+      
+      List<ProcessDefinition> allProcessDefinitions = serviceFactory.getQueryService().getAllProcessDefinitions(pi.getModelOID());
       for(ProcessDefinition pd : allProcessDefinitions)
       {
          List<DataPath> paths = pd.getAllDataPaths();   
          for (DataPath p : paths)
          {
-            if (p.getId().equals("BusinessDate_2") && pd.getId().equals("ProcessDefinition_1"))
+            if (p.getId().equals("BusinessDate_2") && pd.getQualifiedId().equals(PROCESS1))
             {
                value = (Date) serviceFactory.getWorkflowService().getInDataPath(pi.getOID(), p.getId());
                path = p;
@@ -98,15 +102,15 @@ public class DataDescriptorInjectionModelExtenderTest
       DataPath path = null;
       
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
-            "ProcessDefinition_2", this.processData, true);
+            PROCESS2, this.processData, true);
             
-      List<ProcessDefinition> allProcessDefinitions = serviceFactory.getQueryService().getAllProcessDefinitions();
+      List<ProcessDefinition> allProcessDefinitions = serviceFactory.getQueryService().getAllProcessDefinitions(pi.getModelOID());
       for(ProcessDefinition pd : allProcessDefinitions)
       {
          List<DataPath> paths = pd.getAllDataPaths();   
          for (DataPath p : paths)
          {
-            if (p.getId().equals("BusinessDate_1") && pd.getId().equals("ProcessDefinition_2"))
+            if (p.getId().equals("BusinessDate_1") && pd.getQualifiedId().equals(PROCESS2))
             {
                value = (Date) serviceFactory.getWorkflowService().getInDataPath(pi.getOID(), p.getId());
                path = p;

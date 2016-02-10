@@ -10,12 +10,14 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.api.setup;
 
-import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
-import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-
 import org.junit.rules.ExternalResource;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+
+import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
+import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.util.TestModels;
+import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
 /**
  * <p>
@@ -58,6 +60,26 @@ public class TestSuiteSetup extends ExternalResource
    public TestSuiteSetup(final UsernamePasswordPair userPwdPair, final ForkingServiceMode forkingServiceMode, final String ... modelNames)
    {
       testClassSetup = new TestClassSetup(userPwdPair, forkingServiceMode, modelNames);
+   }
+   
+   /**
+    * <p>
+    * Initializes the object with the given username password pair and the models to deploy. Furthermore, it specifies which forking service
+    * mode to use. Additionally deployment warnings can explicitly be ignored.
+    * </p>
+    *
+    * @param userPwdPair the credentials of the user to use for runtime setup; must not be null
+    * @param forkingServiceMode the forking service's mode (JMS or non-JMS)
+    * @param ignoreWarnings to be set to true if warnings should be ignored during deployment
+    * @param modelNames the names of the models to deploy; may be null or empty
+    */
+   public TestSuiteSetup(final UsernamePasswordPair userPwdPair, final ForkingServiceMode forkingServiceMode, boolean ignoreWarnings, final String ... modelNames)
+   {
+      DeploymentOptions deploymentOptions = DeploymentOptions.DEFAULT;
+      deploymentOptions.setIgnoreWarnings(true);
+      TestModels testModels = new TestModels(deploymentOptions, modelNames);
+      testModels.deploymentOptions().setIgnoreWarnings(ignoreWarnings);
+      testClassSetup = new TestClassSetup(userPwdPair, forkingServiceMode, testModels);
    }
 
    /* (non-Javadoc)

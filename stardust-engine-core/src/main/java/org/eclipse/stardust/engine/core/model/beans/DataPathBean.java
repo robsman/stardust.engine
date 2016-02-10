@@ -268,7 +268,7 @@ public class DataPathBean extends IdentifiableElementBean
             {
                BpmValidationError error = BpmValidationError.REFERENCED_DATAPTH_IS_A_CIRCULAR_DEPENDENCY
                      .raise(this.getId());
-               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
                return;
             }
             resolveReferences(refDataPathTypeReference, inconsistencies);

@@ -50,5 +50,5 @@ public class DataTestSuite
 {
 
    @ClassRule
-   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, MODEL_NAME, VOLATILE_MODEL_NAME, CONSTANT_MODEL_NAME, SIMPLE_MODEL_NAME);
+   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, true, MODEL_NAME, VOLATILE_MODEL_NAME, CONSTANT_MODEL_NAME, SIMPLE_MODEL_NAME);
 }

@@ -17,11 +17,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -37,10 +33,7 @@ import org.eclipse.stardust.common.error.ConcurrencyException;
 import org.eclipse.stardust.engine.api.query.ActivityFilter;
 import org.eclipse.stardust.engine.api.query.AttributeOrder;
 import org.eclipse.stardust.engine.api.query.WorklistQuery;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -48,6 +41,7 @@ import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
+import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
 /**
@@ -91,11 +85,11 @@ public class CreateMultiThreadedDescriptorDataValueTest
    @Test
    public void testMultiThreadedDescriptorDataValueTest() throws Exception
    {
-      Date start = new Date();
-      
+      ArrayList<Long> piOIDs = new ArrayList<Long>(700);
       for(int i = 0; i < 700; i++)
       {
-         workflowService.startProcess(PD_1_ID, null, true);
+         ProcessInstance pi = workflowService.startProcess(PD_1_ID, null, true);
+         piOIDs.add(pi.getOID());
       }
             
       List<Runnable> runnables = new LinkedList<Runnable>();
@@ -107,18 +101,15 @@ public class CreateMultiThreadedDescriptorDataValueTest
 
       launchThreads(runnables);
       
-      try
+      Iterator<Long> oidIter = piOIDs.iterator();
+      while(oidIter.hasNext())
       {
-         Thread.sleep(10000);
-      }
-      catch (Exception e)
-      {
+         long oid = oidIter.next();
+         ProcessInstanceStateBarrier.instance().await(oid, ProcessInstanceState.Completed);
+         oidIter.remove();
       }
       
       testDataValue();
-      
-      Date end = new Date();      
-      long nmb = end.getTime() - start.getTime();
    }
    
    private void testDataValue() throws SQLException

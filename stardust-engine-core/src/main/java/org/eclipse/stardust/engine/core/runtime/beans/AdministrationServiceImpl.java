@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,6 +58,7 @@ import org.eclipse.stardust.engine.core.model.beans.NullConfigurationVariablesPr
 import org.eclipse.stardust.engine.core.model.parser.info.ExternalPackageInfo;
 import org.eclipse.stardust.engine.core.model.parser.info.ModelInfo;
 import org.eclipse.stardust.engine.core.model.parser.info.ModelInfoRetriever;
+import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.persistence.DeleteDescriptor;
@@ -1101,7 +1102,7 @@ public class AdministrationServiceImpl
          flushCaches();
       }
    }
-   
+
    /**
     * Removes all CARNOT-specific tables from the audit trail database.
     * All audit trail information is lost after calling this method.
@@ -1183,7 +1184,7 @@ public class AdministrationServiceImpl
 
          AdminServiceUtils.deletePartitionRuntimeArtifacts(
                SecurityProperties.getPartitionOid(), session);
-         
+
          cleanupDeployments(session);
          cleanupModelReferences(session);
 
@@ -1208,19 +1209,47 @@ public class AdministrationServiceImpl
 
          // On internal authentication motu has to be preserved
          // It is just reset to the initial state.
+         UserBean motu = null;
          if (SecurityProperties.isInternalAuthentication())
          {
             UserRealmBean carnotRealm = new UserRealmBean(
                   PredefinedConstants.DEFAULT_REALM_ID,
                   PredefinedConstants.DEFAULT_REALM_NAME,
                   (AuditTrailPartitionBean) SecurityProperties.getPartition(false));
-            IUser motu = new UserBean(PredefinedConstants.MOTU,
+            motu = new UserBean(PredefinedConstants.MOTU,
                   PredefinedConstants.MOTU_FIRST_NAME, PredefinedConstants.MOTU_LAST_NAME,
                   carnotRealm);
             motu.setPassword(motu.getId());
          }
 
          ModelManagerFactory.setDirty();
+
+         ModelManager modelManager = ModelManagerFactory.getCurrent();
+         IModel predefinedModel = modelManager
+               .findActiveModel(PredefinedConstants.PREDEFINED_MODEL_ID);
+         if (predefinedModel == null)
+         {
+            List<ParsedDeploymentUnit> predefinedModelElement = ModelUtils
+                  .getPredefinedModelElement();
+            if (predefinedModelElement != null)
+            {
+               modelManager.deployModel(predefinedModelElement,
+                     DeploymentOptions.DEFAULT);
+
+               // only add grant to user motu if it has been recreated before
+               if (motu != null)
+               {
+                  IModel model = modelManager.findLastDeployedModel();
+                  IRole role = (IRole) model
+                        .findParticipant(PredefinedConstants.ADMINISTRATOR_ROLE);
+                  motu.addToParticipants(role, null);
+               }
+            }
+            else
+            {
+               trace.warn("Could not load PredefinedModel.xpdl");
+            }
+         }
 
          trace.info("Entire Runtime and Modeling Environment cleaned up.");
       }

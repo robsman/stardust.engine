@@ -575,6 +575,13 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       }
       this.lastModifyingUser = workflowUserOid;
       this.state = state;
+      
+      if (trace.isInfoEnabled())
+      {
+         trace.info("State change for " + this + ": "
+               + ActivityInstanceState.getString(oldState) + "-->"
+               + ActivityInstanceState.getString(state) + ".");
+      }
 
       if (getActivity().hasEventHandlers(
             PredefinedConstants.ACTIVITY_STATECHANGE_CONDITION))
@@ -603,13 +610,6 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
          EventUtils.processAutomaticEvent(getActivity(),
                PredefinedConstants.SIGNAL_CONDITION, event);
-      }
-
-      if (trace.isInfoEnabled())
-      {
-         trace.info("State change for " + this + ": "
-               + ActivityInstanceState.getString(oldState) + "-->"
-               + ActivityInstanceState.getString(state) + ".");
       }
    }
 

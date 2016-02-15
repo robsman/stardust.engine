@@ -23,7 +23,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
 public class RealmsCache extends AbstractCache <UserRealmBean>
 {
    private static RealmsCache INSTANCE;
-   
+
    public static RealmsCache instance()
    {
       if (INSTANCE == null)
@@ -64,7 +64,7 @@ public class RealmsCache extends AbstractCache <UserRealmBean>
       return Collections.<UserRealmIdKey>singletonList(new UserRealmIdKey(
             realm.getId(), realm.getPartitionOid()));
    }
-   
+
    public UserRealmBean findById(String id, short partitionOid)
    {
       UserRealmIdKey idKey = new UserRealmIdKey(id, partitionOid);
@@ -85,7 +85,7 @@ public class RealmsCache extends AbstractCache <UserRealmBean>
    public static final class UserRealmIdKey implements CacheKey
    {
       private static final long serialVersionUID = 1L;
-      
+
       private String id;
       private short partitionOid;
 
@@ -116,15 +116,27 @@ public class RealmsCache extends AbstractCache <UserRealmBean>
          }
          return false;
       }
+
+      @Override
+      public String toString()
+      {
+         return "Realm [id=" + id + ", partitionOid=" + partitionOid + "]";
+      }
    }
-   
+
    public static final class UserRealmOidKey extends PrimaryKey
    {
       private static final long serialVersionUID = 1L;
-      
+
       public UserRealmOidKey(long oid)
       {
          super(oid);
+      }
+
+      @Override
+      public String toString()
+      {
+         return "Realm [oid=" + super.toString() + "]";
       }
    }
 }

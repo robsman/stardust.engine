@@ -80,6 +80,12 @@ public class UserDomainsCache extends AbstractCache<UserDomainBean>
       {
          super(oid);
       }
+
+      @Override
+      public String toString()
+      {
+         return "Domain [oid=" + super.toString() + "]";
+      }
    }
 
    /**
@@ -122,6 +128,12 @@ public class UserDomainsCache extends AbstractCache<UserDomainBean>
          }
 
          return false;
+      }
+
+      @Override
+      public String toString()
+      {
+         return "Domain [id=" + id + ", partitionOid=" + partitionOid + "]";
       }
    }
 

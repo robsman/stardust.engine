@@ -24,7 +24,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.IAuditTrailPartition;
 public class DepartmentsCache extends AbstractCache <DepartmentBean>
 {
    private static DepartmentsCache INSTANCE;
-   
+
    public static DepartmentsCache instance()
    {
       if (INSTANCE == null)
@@ -85,11 +85,11 @@ public class DepartmentsCache extends AbstractCache <DepartmentBean>
       }
       return department;
    }
-   
+
    public static final class DepartmentIdKey implements CacheKey
    {
       private static final long serialVersionUID = 1L;
-      
+
       private String id;
       private long parentDepartmentOid;
       private long runtimeOrganizationOid;
@@ -106,7 +106,9 @@ public class DepartmentsCache extends AbstractCache <DepartmentBean>
       @Override
       public String toString()
       {
-         return id;
+         return "Department [id=" + id + ", parentDepartmentOid="
+               + parentDepartmentOid + ", runtimeOrganizationOid="
+               + runtimeOrganizationOid + ", partitionOid=" + partitionOid + "]";
       }
 
       @Override
@@ -135,14 +137,20 @@ public class DepartmentsCache extends AbstractCache <DepartmentBean>
          return false;
       }
    }
-   
+
    public static final class DepartmentOidKey extends PrimaryKey
    {
       private static final long serialVersionUID = 1L;
-      
+
       public DepartmentOidKey(long oid)
       {
          super(oid);
+      }
+
+      @Override
+      public String toString()
+      {
+         return "Department [oid=" + super.toString() + "]";
       }
    }
 }

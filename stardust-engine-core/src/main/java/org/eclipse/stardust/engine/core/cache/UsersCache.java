@@ -24,7 +24,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
 public class UsersCache extends AbstractCache <UserBean>
 {
    private static UsersCache INSTANCE;
-   
+
    public static UsersCache instance()
    {
       if (INSTANCE == null)
@@ -66,7 +66,7 @@ public class UsersCache extends AbstractCache <UserBean>
       return Collections.<UserIdKey>singletonList(new UserIdKey(
             user.getId(), realm == null ? 0 : realm.getOID()));
    }
-   
+
    public UserBean findById(String id, long realmOid)
    {
       UserIdKey idKey = new UserIdKey(id, realmOid);
@@ -87,7 +87,7 @@ public class UsersCache extends AbstractCache <UserBean>
    public static final class UserIdKey implements CacheKey
    {
       private static final long serialVersionUID = 1L;
-      
+
       private String id;
       private long userRealmOid;
 
@@ -118,15 +118,27 @@ public class UsersCache extends AbstractCache <UserBean>
          }
          return false;
       }
+
+      @Override
+      public String toString()
+      {
+         return "User [id=" + id + ", realmOid=" + userRealmOid + "]";
+      }
    }
-   
+
    public static final class UserOidKey extends PrimaryKey
    {
       private static final long serialVersionUID = 1L;
-      
+
       public UserOidKey(long oid)
       {
          super(oid);
+      }
+
+      @Override
+      public String toString()
+      {
+         return "User [oid=" + super.toString() + "]";
       }
    }
 }

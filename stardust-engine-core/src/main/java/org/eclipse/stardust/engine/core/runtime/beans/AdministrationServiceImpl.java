@@ -1233,13 +1233,14 @@ public class AdministrationServiceImpl
                   .getPredefinedModelElement();
             if (predefinedModelElement != null)
             {
-               modelManager.deployModel(predefinedModelElement,
-                     DeploymentOptions.DEFAULT);
+               List<DeploymentInfo> deployedModels = modelManager.deployModel(
+                     predefinedModelElement, DeploymentOptions.DEFAULT);
 
                // only add grant to user motu if it has been recreated before
-               if (motu != null)
+               if (motu != null && SecurityProperties.isInternalAuthorization())
                {
-                  IModel model = modelManager.findLastDeployedModel();
+                  IModel model = modelManager.findModel(deployedModels.get(0)
+                        .getModelOID());
                   IRole role = (IRole) model
                         .findParticipant(PredefinedConstants.ADMINISTRATOR_ROLE);
                   motu.addToParticipants(role, null);

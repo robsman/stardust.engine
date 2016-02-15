@@ -913,10 +913,14 @@ public class ModelManagerBean implements ModelManager
                      {
                         if (getModelCount() == 0)
                         {
-                           UserBean user = getMotuUser(rtEnv);
-                           IRole role = (IRole) model
-                                 .findParticipant(PredefinedConstants.ADMINISTRATOR_ROLE);
-                           user.addToParticipants(role, null);
+                           UserBean motu = getMotuUser(rtEnv);
+                           if (motu != null
+                                 && SecurityProperties.isInternalAuthorization())
+                           {
+                              IRole role = (IRole) model
+                                    .findParticipant(PredefinedConstants.ADMINISTRATOR_ROLE);
+                              motu.addToParticipants(role, null);
+                           }
                         }
                         models.add(0, model);
                      }

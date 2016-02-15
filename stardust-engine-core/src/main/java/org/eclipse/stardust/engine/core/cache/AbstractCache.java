@@ -18,30 +18,28 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.spi.cache.Cache;
 
-
-
 /**
  * @author Florin.Herinean
  */
-public abstract class AbstractCache <V> 
+public abstract class AbstractCache <V>
 {
    private static final Logger trace = LogManager.getLogger(AbstractCache.class);
-   
+
    private Cache cache = null;
-   
+
    public AbstractCache(String id)
    {
       cache = CacheHelper.createCache(id);
    }
-   
+
    abstract PrimaryKey getKeyForValue(V value);
-   
+
    abstract PrimaryKey getKey(long oid);
-   
+
    abstract V retrieve(byte[] bytes) throws IOException;
-   
+
    abstract List<? extends CacheKey> getSecondaryKeys(V value);
-   
+
    V getValue(PrimaryKey key)
    {
       if (cache == null)
@@ -67,7 +65,7 @@ public abstract class AbstractCache <V>
       }
       return (V) result;
    }
-   
+
    PrimaryKey getPrimaryKey(CacheKey key)
    {
       if (cache == null)
@@ -76,17 +74,17 @@ public abstract class AbstractCache <V>
       }
       return (PrimaryKey) cache.get(key);
    }
-   
+
    void set(PrimaryKey key, V value)
    {
       if (cache != null)
       {
+         Object value2Store = value;
          if (value instanceof Cacheable)
          {
             try
             {
-               byte[] bytes = ((Cacheable) value).store();
-               cache.put(key, bytes);
+               value2Store = ((Cacheable) value).store();
             }
             catch (IOException ex)
             {
@@ -94,14 +92,10 @@ public abstract class AbstractCache <V>
                return;
             }
          }
-         else
-         {
-            cache.put(key, value);
-         }
-         //trace.info("Updated '" + value + "' in the cache.");
+         cache.put(key, value2Store);
       }
    }
-   
+
    void removeKey(CacheKey key)
    {
       if (cache != null)
@@ -109,7 +103,7 @@ public abstract class AbstractCache <V>
          cache.remove(key);
       }
    }
-   
+
    public V get(long oid)
    {
       return (V) getValue(getKey(oid));
@@ -120,7 +114,7 @@ public abstract class AbstractCache <V>
       if (cache != null)
       {
          PrimaryKey key = getKeyForValue(value);
-         
+
          try
          {
             set(key, value);
@@ -129,11 +123,11 @@ public abstract class AbstractCache <V>
             {
                if (force)
                {
-                  cache.putIfAbsent(secondary, key);
+                  cache.put(secondary, key);
                }
                else
                {
-                  cache.put(secondary, key);
+                  cache.putIfAbsent(secondary, key);
                }
             }
          }
@@ -154,7 +148,7 @@ public abstract class AbstractCache <V>
          }
       }
    }
-   
+
    public void remove(V value)
    {
       if (cache != null)
@@ -168,7 +162,7 @@ public abstract class AbstractCache <V>
          }
       }
    }
-   
+
    public boolean isCached(V value)
    {
       if (cache != null)

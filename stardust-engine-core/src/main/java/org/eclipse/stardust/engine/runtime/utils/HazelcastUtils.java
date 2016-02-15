@@ -20,7 +20,7 @@ public class HazelcastUtils
    /**
     * @return the one and only running Hazelcast instance
     */
-   public static HazelcastInstance getHazelcastInstance()
+   public static synchronized HazelcastInstance getHazelcastInstance()
    {
       final Set<HazelcastInstance> instances = Hazelcast.getAllHazelcastInstances();
       if (instances.isEmpty())
@@ -31,7 +31,20 @@ public class HazelcastUtils
       {
          throw new IllegalStateException("More than one Hazelcast instance is running on this JVM: " + instances);
       }
-      
-      return instances.iterator().next();
+
+      HazelcastInstance instance = instances.iterator().next();
+      /*LifecycleService lifecycleService = instance.getLifecycleService();
+      if (!lifecycleService.isRunning())
+      {
+         try
+         {
+            lifecycleService.restart();
+         }
+         catch (Exception ex)
+         {
+            trace.warn("Unable to start Hazelcast instance");
+         }
+      }*/
+      return instance;
    }
 }

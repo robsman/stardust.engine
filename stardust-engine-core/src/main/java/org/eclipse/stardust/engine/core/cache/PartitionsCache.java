@@ -24,7 +24,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
 public class PartitionsCache extends AbstractCache <AuditTrailPartitionBean>
 {
    private static PartitionsCache INSTANCE;
-   
+
    public static PartitionsCache instance()
    {
       if (INSTANCE == null)
@@ -38,7 +38,7 @@ public class PartitionsCache extends AbstractCache <AuditTrailPartitionBean>
    {
       super("partitions");
    }
-   
+
 
    @Override
    PrimaryKey getKeyForValue(AuditTrailPartitionBean partition)
@@ -66,7 +66,7 @@ public class PartitionsCache extends AbstractCache <AuditTrailPartitionBean>
       return Collections
             .<PartitionIdKey> singletonList(new PartitionIdKey(value.getId()));
    }
-   
+
    /**
     * @author stephan.born
     * @version $Revision: $
@@ -74,13 +74,19 @@ public class PartitionsCache extends AbstractCache <AuditTrailPartitionBean>
    public static final class PartitionOidKey extends PrimaryKey
    {
       private static final long serialVersionUID = 1L;
-      
+
       public PartitionOidKey(long oid)
       {
          super(oid);
       }
+
+      @Override
+      public String toString()
+      {
+         return "Partition [oid=" + super.toString() + "]";
+      }
    }
-   
+
    /**
     * @author stephan.born
     * @version $Revision: $
@@ -88,7 +94,7 @@ public class PartitionsCache extends AbstractCache <AuditTrailPartitionBean>
    public static final class PartitionIdKey implements CacheKey
    {
       private static final long serialVersionUID = 1L;
-      
+
       private String id;
 
       public PartitionIdKey(String id)
@@ -101,9 +107,9 @@ public class PartitionsCache extends AbstractCache <AuditTrailPartitionBean>
       {
          final int prime = 31;
          int result = 1;
-         
+
          result = prime * result + ((id == null) ? 0 : id.hashCode());
-         
+
          return result;
       }
 
@@ -115,8 +121,14 @@ public class PartitionsCache extends AbstractCache <AuditTrailPartitionBean>
             PartitionIdKey other = (PartitionIdKey) obj;
             return (id == other.id || id != null && id.equals(other.id));
          }
-         
+
          return false;
+      }
+
+      @Override
+      public String toString()
+      {
+         return "Partition [id=" + id + "]";
       }
    }
 

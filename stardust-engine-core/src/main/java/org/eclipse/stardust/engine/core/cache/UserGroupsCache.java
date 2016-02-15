@@ -24,7 +24,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserGroupBean;
 public class UserGroupsCache extends AbstractCache <UserGroupBean>
 {
    private static UserGroupsCache INSTANCE;
-   
+
    public static UserGroupsCache instance()
    {
       if (INSTANCE == null)
@@ -66,7 +66,7 @@ public class UserGroupsCache extends AbstractCache <UserGroupBean>
       return Collections.<UserGroupIdKey>singletonList(new UserGroupIdKey(
             group.getId(), partition == null ? 0 : partition.getOID()));
    }
-   
+
    public UserGroupBean findById(String id, short partitionOid)
    {
       UserGroupIdKey idKey = new UserGroupIdKey(id, partitionOid);
@@ -87,7 +87,7 @@ public class UserGroupsCache extends AbstractCache <UserGroupBean>
    public static final class UserGroupIdKey implements CacheKey
    {
       private static final long serialVersionUID = 1L;
-      
+
       private String id;
       private short partitionOid;
 
@@ -118,15 +118,27 @@ public class UserGroupsCache extends AbstractCache <UserGroupBean>
          }
          return false;
       }
+
+      @Override
+      public String toString()
+      {
+         return "Group [id=" + id + ", partitionOid=" + partitionOid + "]";
+      }
    }
-   
+
    public static final class UserGroupOidKey extends PrimaryKey
    {
       private static final long serialVersionUID = 1L;
-      
+
       public UserGroupOidKey(long oid)
       {
          super(oid);
+      }
+
+      @Override
+      public String toString()
+      {
+         return "Group [oid=" + super.toString() + "]";
       }
    }
 }

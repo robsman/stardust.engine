@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.beans;
 
+import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,8 +20,10 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
+import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.model.utils.SingleRef;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
+import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.struct.*;
 import org.eclipse.stardust.engine.core.struct.spi.StructDataTransformerKey;
 
@@ -124,13 +127,21 @@ public class DataPathBean extends IdentifiableElementBean
          }
          if (isDescriptor()) 
          {
+            String resolvedValue = null;
             String type = this.getStringAttribute("type");
             if (type != null) 
             {
                refMap = new HashMap<String, DataPathReference>(); 
                DataPathReference reference = new DataPathReference(this, new ArrayList<DataPathReference>());
                refMap.put(this.getId(), reference);
-               resolveReferences(reference, inconsistencies);   
+               resolvedValue = resolveReferences(reference, inconsistencies);   
+               if (type.equals("Link"))
+               {
+                  if (!hasVariable(resolvedValue))
+                  {
+                     checkLinkUrl(inconsistencies, resolvedValue);
+                  }
+               }
             }
             String text = this.getStringAttribute("text");
             if (text != null) 
@@ -138,7 +149,7 @@ public class DataPathBean extends IdentifiableElementBean
                refMap = new HashMap<String, DataPathReference>(); 
                DataPathReference reference = new DataPathReference(this, text, new ArrayList<DataPathReference>());
                refMap.put(this.getId(), reference);
-               resolveReferences(reference, inconsistencies);   
+               resolvedValue = resolveReferences(reference, inconsistencies);   
             }    
          }
       }
@@ -216,13 +227,14 @@ public class DataPathBean extends IdentifiableElementBean
       }
    }
    
-   private void resolveReferences(DataPathReference reference, List inconsistencies)
+   private String resolveReferences(DataPathReference reference, List inconsistencies)
    {
       IDataPath dataPathType = reference.getDataPath();
       String value = reference.getValue();
+      String result = value;
       if (!this.hasVariable(value))
       {
-         return;
+         return value;
       }
       String id = null;
       Matcher matcher = pattern.matcher(value);
@@ -244,7 +256,8 @@ public class DataPathBean extends IdentifiableElementBean
                BpmValidationError error = BpmValidationError.REFERENCED_DESCRIPTOR_DOES_NOT_EXIST
                      .raise(this.getId(), ref);
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
-               return;
+               result = ModelUtils.replaceDescriptorVariable("%{" + id + "}", result, "");
+               return result;
             }
             String refAccessPath = refDataPathType.getAccessPath();
 
@@ -253,6 +266,8 @@ public class DataPathBean extends IdentifiableElementBean
                BpmValidationError error = BpmValidationError.REFERENCED_DESCRIPTOR_NO_DATAPATH
                      .raise(ref);
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
+               result = ModelUtils.replaceDescriptorVariable("%{" + id + "}", result, "");
+               return result;
             }
 
             DataPathReference refDataPathTypeReference = refMap
@@ -269,12 +284,14 @@ public class DataPathBean extends IdentifiableElementBean
                BpmValidationError error = BpmValidationError.REFERENCED_DATAPTH_IS_A_CIRCULAR_DEPENDENCY
                      .raise(this.getId());
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
-               return;
+               result = ModelUtils.replaceDescriptorVariable("%{" + id + "}", result, "");
+               return result;
             }
-            resolveReferences(refDataPathTypeReference, inconsistencies);
+            result = ModelUtils.replaceDescriptorVariable("%{" + id + "}", result,
+                  resolveReferences(refDataPathTypeReference, inconsistencies));
          }
       }
-      return;
+      return result;
    }
       
    private IDataPath findDataPath(IProcessDefinition process, String ref)
@@ -402,6 +419,23 @@ public class DataPathBean extends IdentifiableElementBean
          }
       }
       return false;
+   }
+   
+   private void checkLinkUrl(List inconsistencies, String uri)
+   {
+      if (!StringUtils.isEmpty(uri))
+      {
+         try
+         {
+            new URL(XmlUtils.resolveResourceUri(uri));
+         }
+         catch (Exception ex)
+         {
+            BpmValidationError error = BpmValidationError.LINK_DESCRIPTOR_INVALID_URL
+                  .raise(this.getId(), uri);
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
+         }
+      }
    }
 
 

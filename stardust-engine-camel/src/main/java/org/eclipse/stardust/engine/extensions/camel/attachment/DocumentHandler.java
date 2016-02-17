@@ -105,7 +105,7 @@ public class DocumentHandler
          {
             exchange.getIn()
                   .addAttachment(checkFileNameHavingExtension(outputName,
-                        "docx"),
+           				"docx"),
                   new DataHandler(exchange.getIn().getBody(), "application/msword"));
          }
          else
@@ -120,7 +120,7 @@ public class DocumentHandler
       exchange.getIn().setBody(null);
    }
 
-   private String checkFileNameHavingExtension(String fileName, String extension)
+   private static String checkFileNameHavingExtension(String fileName, String extension)
    {
       if (fileName.endsWith("." + extension))
          return fileName;
@@ -249,6 +249,7 @@ public class DocumentHandler
       if (exchange != null)
       {
          DocumentManagementService dms = getDocumentManagementService();
+         
          String repositoryLocation = (String) exchange.getIn().getHeader(TARGET_PATH);
          Document document = null;
          if (StringUtils.isNotEmpty(repositoryLocation))
@@ -288,6 +289,16 @@ public class DocumentHandler
             exchange.getIn().setHeader(DOCUMENT_CONTENT, content);
             exchange.getIn().removeHeader(TARGET_PATH);
             exchange.getIn().removeHeader(inputDocumentTemplateAccessPointId);
+         }else if ((document == null)&& exchange.getIn().getHeader("CamelTemplatingTemplate")!=null && exchange.getIn().getHeader("CamelTemplatingTemplate").toString().contains("{urn:repositoryId:System}"))
+         {
+        	document = dms.getDocument((String) exchange.getIn().getHeader("CamelTemplatingTemplate"));
+            byte[] content = dms.retrieveDocumentContent((String) exchange.getIn().getHeader("CamelTemplatingTemplate"));
+            exchange.getIn().setHeader(DOCUMENT_CONTENT, content);
+            exchange.getIn().removeHeader(TARGET_PATH);
+            exchange.getIn().removeHeader(inputDocumentTemplateAccessPointId);
+            if (document.getName().endsWith("docx")){
+            	exchange.getIn().setHeader("CamelTemplatingFormat","docx");
+            }
          }
       }
    }
@@ -606,7 +617,7 @@ public class DocumentHandler
          DocumentManagementService dms)
    {
       Document document;
-      if (StringUtils.isNotEmpty(getTemplateId(requestItem)))
+      if (StringUtils.isNotEmpty(getTemplateId(requestItem))&&StringUtils.isEmpty(getOutgoingDocumentId(requestItem)))
       {
          document = getDocumentUsingRepositoryLocation(dms, getTemplateId(requestItem));
       }
@@ -653,8 +664,16 @@ public class DocumentHandler
       {
          documentType = "plain/text";
       }
-      exchange.getIn().addAttachment(documentName,
-            new DataHandler(new ByteArrayDataSource(content, documentType)));
+      
+      if (documentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")||documentType.equals("application/msword")){
+    	  exchange.getIn().addAttachment(checkFileNameHavingExtension(documentName, "docx"),
+    	            new DataHandler(new ByteArrayDataSource(content, documentType)));
+      }
+      else{
+    	  exchange.getIn().addAttachment(documentName,
+    	            new DataHandler(new ByteArrayDataSource(content, documentType)));
+      }
+      
 
       if (logger.isDebugEnabled())
       {

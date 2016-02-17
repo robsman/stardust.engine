@@ -18,7 +18,6 @@ import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Internal;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -332,7 +331,10 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
    public TypeDeclaration getTypeDeclaration(String id)
    {
       TypeDeclaration decl = indexedTypeDecls.get(composeDefaultId(id));
-      updateSchemaResource(decl);
+      if(decl != null)
+      {
+         updateSchemaResource(decl);
+      }
       return decl;
    }
 

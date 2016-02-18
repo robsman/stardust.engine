@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.beans;
 
-import java.util.Date;
 import java.util.List;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import org.eclipse.stardust.common.Unknown;
 import org.eclipse.stardust.common.config.CurrentVersion;
@@ -24,10 +27,6 @@ import org.eclipse.stardust.engine.core.model.gui.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 
 /**
@@ -610,7 +609,10 @@ public class NodeFactoryImpl implements NodeFactory
       Element node = document.createElementNS(NS_CARNOT_WORKFLOWMODEL_31, DATA_PATH);
       NodeWriter writer = new NodeWriter(node);
 
-      writer.writeReference(DATA_REF_ATT, dataPath.getData());
+      if (dataPath.getData() != null)
+      {
+         writer.writeReference(DATA_REF_ATT, dataPath.getData());
+      }
       writer.writeAttribute(DATA_PATH_ATT, dataPath.getAccessPath());
       writer.writeAttribute(DIRECTION_ATT, dataPath.getDirection());
       writer.writeAttribute(DESCRIPTOR_ATT, dataPath.isDescriptor());

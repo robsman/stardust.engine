@@ -79,7 +79,11 @@ public class DataUtils
       // DataPaths
       for (IDataPath iDataPath : pd.getDataPaths())
       {
-         dataIdsUsed.add(iDataPath.getData().getId());
+         IData data = iDataPath.getData();
+         if (data != null)
+         {
+            dataIdsUsed.add(iDataPath.getData().getId());
+         }         
       }
 
       for (IActivity iActivity : pd.getActivities())

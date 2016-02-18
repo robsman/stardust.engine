@@ -682,8 +682,9 @@ public class ExportImportSupport
    }
 
    private static boolean isPathToInclude(IDataPath path, Set<String> ids)
-   {
-      if (path.getData().getType().getId().equals(PredefinedConstants.PRIMITIVE_DATA))
+   {      
+      if (path.getData() != null && path.getData().getType().getId()
+            .equals(PredefinedConstants.PRIMITIVE_DATA))
       {
          boolean include;
          if (ArchiveManagerFactory.isKeyDescriptorsOnly())
@@ -796,7 +797,10 @@ public class ExportImportSupport
          List<IData> dataItems = new ArrayList<IData>(requestedDataPaths.size());
          for (IDataPath path : requestedDataPaths)
          {
-            dataItems.add(path.getData());
+            if (path.getData() != null)
+            {
+               dataItems.add(path.getData());
+            }
          }
          processInstance.preloadDataValues(dataItems);
 

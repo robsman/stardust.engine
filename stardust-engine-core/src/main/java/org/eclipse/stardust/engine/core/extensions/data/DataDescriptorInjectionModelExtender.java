@@ -68,11 +68,11 @@ public class DataDescriptorInjectionModelExtender extends AbstractPartitionMonit
             list.add(descriptor);
             
             // we have already a descriptor
-            if(descriptor.getData().equals(data))
+            if (descriptor.getData() != null && descriptor.getData().equals(data))
             {
                match = true;
                break;
-            }             
+            }            
          }
 
          if(match)

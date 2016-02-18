@@ -1604,7 +1604,10 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          List<IData> dataItems = new ArrayList<IData>(requestedDataPaths.size());
          for (IDataPath path : requestedDataPaths)
          {
-            dataItems.add(path.getData());
+            if (path.getData() != null)
+            {
+               dataItems.add(path.getData());
+            }
          }
          processInstance.preloadDataValues(dataItems);
 

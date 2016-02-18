@@ -3942,7 +3942,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          return isUsingMixedPreparedStatements() ? true : params.getBoolean(
                SessionProperties.DS_NAME_AUDIT_TRAIL.equals(name)
                ? KEY_AUDIT_TRAIL_USE_PREPARED_STATEMENTS
-               : name + SessionProperties.DS_USE_PREPARED_STATEMENTS_SUFFIX, false);
+               : name + SessionProperties.DS_USE_PREPARED_STATEMENTS_SUFFIX, true);
       }
    }
 

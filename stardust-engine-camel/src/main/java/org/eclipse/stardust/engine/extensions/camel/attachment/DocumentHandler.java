@@ -57,7 +57,7 @@ public class DocumentHandler
 
    public static final Logger logger = LogManager.getLogger(DocumentHandler.class);
 
-   private static final List<String> invalidPdfExtensions=Arrays.asList("png", "tif", "tiff", "gif", "jpg","jpeg", "jpe","jfif", "bmp", "dib");
+   private static final List<String> invalidPdfExtensions=Arrays.asList("png", "tif", "tiff", "gif", "jpg","jpeg", "jpe","jfif", "bmp", "dib","pdf");
    /**
     * Add DmsDocumentBean from Header to message Attachment
     *

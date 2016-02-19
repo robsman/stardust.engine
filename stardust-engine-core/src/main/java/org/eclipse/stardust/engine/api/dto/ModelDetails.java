@@ -23,8 +23,10 @@ import org.eclipse.emf.ecore.resource.Resource.Internal;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.ConcatenatedList;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.DeployedModel;
+import org.eclipse.stardust.engine.core.model.beans.QNameUtil;
 import org.eclipse.stardust.engine.core.model.beans.XMLConstants;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
@@ -352,7 +354,6 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
       TypeDeclaration typeDeclaration = null;
 
       String typeDeclarationId = getTypeDeclarationId(documentType);
-
       if (null != typeDeclarationId)
       {
          typeDeclaration = getTypeDeclaration(typeDeclarationId);
@@ -367,6 +368,14 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
          String documentTypeId = documentType.getDocumentTypeId();
          if (documentTypeId != null)
          {
+            QName qName = QName.valueOf(documentTypeId);            
+            String namespaceURI = qName.getNamespaceURI();
+            String modelId = QNameUtil.parseModelId(namespaceURI);
+            if(!StringUtils.isEmpty(modelId))
+            {
+               return new QName(modelId, qName.getLocalPart()).toString();               
+            }
+            
             return QName.valueOf(documentTypeId).getLocalPart();
          }
       }

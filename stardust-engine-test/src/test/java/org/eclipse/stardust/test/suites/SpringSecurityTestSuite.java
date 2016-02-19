@@ -15,9 +15,11 @@ import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.eclipse.stardust.test.security.PublicApiTest;
 import org.eclipse.stardust.test.security.SpringInternalAuthenticationTest;
 import org.eclipse.stardust.test.security.SpringPrincipalAuthenticationTest;
 import org.eclipse.stardust.test.security.SynchronithationProviderTest;
+
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -33,7 +35,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({ SpringInternalAuthenticationTest.class,
                 SpringPrincipalAuthenticationTest.class,
-                SynchronithationProviderTest.class
+                SynchronithationProviderTest.class,
+                PublicApiTest.class
               })
 public class SpringSecurityTestSuite
 {

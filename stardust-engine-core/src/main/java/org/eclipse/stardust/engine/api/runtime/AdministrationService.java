@@ -22,6 +22,7 @@ import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
+import org.eclipse.stardust.engine.core.security.PreferencesPermissionEvaluator;
 
 
 
@@ -687,6 +688,8 @@ public interface AdministrationService extends Service
     * @throws PublicException if <tt>scope</tt> is null.
     */
    @ExecutionPermission
+   @PublicPermission(evaluator = PreferencesPermissionEvaluator.class, assumptions = {
+         "moduleId=public"})
    Preferences getPreferences(PreferenceScope scope, String moduleId, String preferencesId);
 
    /**

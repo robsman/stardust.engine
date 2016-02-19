@@ -14,13 +14,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.runtime.beans.EmbeddedServiceFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.PublicUser;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
 
@@ -63,6 +65,21 @@ public class ServiceFactoryLocator
          if (CredentialProvider.CURRENT_TX == loginType)
          {
             return EmbeddedServiceFactory.CURRENT_TX();
+         }       
+         else if (CredentialProvider.PUBLIC_LOGIN == loginType)
+         {
+            Map credentials = CollectionUtils.newMap();
+            
+            credentials.put("user", PublicUser.DEFAULT_USER_ID);
+            credentials.put("password", PublicUser.DEFAULT_USER_PWD);            
+            
+            Map<Object,Object> modifiedProperties = CollectionUtils.newMap();
+            
+            modifiedProperties.putAll(properties);
+            
+            modifiedProperties.put("publicUser", true);
+            
+            return __get__(credentials, modifiedProperties);
          }
          else
          {

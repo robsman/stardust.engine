@@ -159,6 +159,7 @@ public interface UserService extends Service
    @ExecutionPermission(
             id = ExecutionPermission.Id.resetUserPassword,
             defaults = { ExecutionPermission.Default.ALL })
+   @PublicPermission
    void generatePasswordResetToken(String realm, String account);
 
    /**
@@ -184,6 +185,7 @@ public interface UserService extends Service
    @ExecutionPermission(
          id = ExecutionPermission.Id.resetUserPassword,
          defaults = { ExecutionPermission.Default.ALL })
+   @PublicPermission
    void resetPassword(String account, Map properties, String token) throws ConcurrencyException,
          ObjectNotFoundException, IllegalOperationException;
 

@@ -42,6 +42,11 @@ public abstract class CredentialProvider
     * (The login of the current transaction will be reused.)
     */
    public static final int CURRENT_TX = 3;
+   
+   /**
+    * Indicates the usage of a public login
+    */
+   public static final int PUBLIC_LOGIN = 4;
 
    public static final String SUBJECT = "subject";
 

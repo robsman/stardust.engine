@@ -70,7 +70,8 @@ public class UserServiceImpl implements UserService, Serializable
 
       // no tracking for configured users
       IUser currentUser = SecurityProperties.getUser();
-      if (SessionManager.isUserSessionTrackingDisabled(currentUser))
+      if (SessionManager.isUserSessionTrackingDisabled(currentUser)
+            || currentUser instanceof PublicUser)
       {
          return UserService.DISABLED_FOR_USER;
       }

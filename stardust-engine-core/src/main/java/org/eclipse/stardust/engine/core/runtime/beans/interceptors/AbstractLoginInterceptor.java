@@ -33,18 +33,7 @@ import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.api.runtime.LoginUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
-import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
-import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.IAuditTrailPartition;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.IUserDomain;
-import org.eclipse.stardust.engine.core.runtime.beans.LoggedInUser;
-import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.SynchronizationService;
-import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.LoginServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.ejb.interceptors.SessionBeanLoginInterceptor;
@@ -179,10 +168,20 @@ public class AbstractLoginInterceptor implements MethodInterceptor
             model = ModelManagerFactory.getCurrent().findLastDeployedModel();
          }
 
-         IUser user = SynchronizationService.synchronize(loggedInUser.getUserId(),
-               model, invocation.getParameters().getBoolean(
-                     SecurityProperties.AUTHORIZATION_SYNC_LOGIN_PROPERTY, true),
-               loggedInUser.getProperties());
+         IUser user;
+         if (isPublicUser(loggedInUser.getProperties()))
+         {
+            user = PublicUser.getInstance();
+         }
+         else
+         {
+            user = SynchronizationService.synchronize(
+                  loggedInUser.getUserId(),
+                  model,
+                  invocation.getParameters().getBoolean(
+                        SecurityProperties.AUTHORIZATION_SYNC_LOGIN_PROPERTY, true),
+                  loggedInUser.getProperties());
+         }
 
          // Re-authentication if re-auth properties are set on the InvokerPrincipal.
          doReauthentication(loggedInUser);
@@ -345,6 +344,16 @@ public class AbstractLoginInterceptor implements MethodInterceptor
       return method.getDeclaringClass().getName().equals(ManagedService.class.getName())
             && METHODNAME_LOGOUT.equals(method.getName());
    }
+   
+   private static Boolean isPublicUser(Map loginProperties)
+   {
+      if (loginProperties.get("publicUser") != null
+            && loginProperties.get("publicUser").equals(true))
+      {
+         return true;
+      }
+      return false;
+   }
 
    public static LoggedInUser doLogin(MethodInvocation invocation)
          throws LoginFailedException
@@ -365,8 +374,16 @@ public class AbstractLoginInterceptor implements MethodInterceptor
          final Map loginProperties = (2 < args.length)
                ? (Map) args[2]
                : Collections.EMPTY_MAP;
-         result = (ExternalLoginResult) service.isolate(new LoginAction(originalUserId, password,
+
+         if (isPublicUser(loginProperties))
+         {
+               result = ExternalLoginResult.testifySuccess(originalUserId, loginProperties);
+         }
+         else
+         {               
+               result = (ExternalLoginResult) service.isolate(new LoginAction(originalUserId, password,
                loginProperties));
+         }
          //give the login provider the possibility to modify the user id
          if (StringUtils.isNotEmpty(result.getUserId()))
          {
@@ -441,16 +458,27 @@ public class AbstractLoginInterceptor implements MethodInterceptor
       }
 
       IUser user;
-      try
+      
+      if (isPublicUser(loginProperties))
       {
-         user = SynchronizationService.synchronize(userId,
-               model, invocation.getParameters().getBoolean(
-                     SecurityProperties.AUTHORIZATION_SYNC_LOGIN_PROPERTY, true),
-               loginProperties);
+         user = PublicUser.getInstance();
       }
-      catch (ObjectNotFoundException e)
+      else
       {
-         throw new LoginFailedException(e.getError(), LoginFailedException.UNKNOWN_REASON);
+         try
+         {
+            user = SynchronizationService.synchronize(
+                  userId,
+                  model,
+                  invocation.getParameters().getBoolean(
+                        SecurityProperties.AUTHORIZATION_SYNC_LOGIN_PROPERTY, true),
+                  loginProperties);
+         }
+         catch (ObjectNotFoundException e)
+         {
+            throw new LoginFailedException(e.getError(),
+                  LoginFailedException.UNKNOWN_REASON);
+         }
       }
 
       return user;

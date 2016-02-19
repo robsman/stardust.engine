@@ -30,9 +30,11 @@ import org.eclipse.stardust.engine.core.runtime.beans.ServiceProviderFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 import org.eclipse.stardust.engine.extensions.ejb.utils.J2EEUtils;
+
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+
 import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
 import org.eclipse.stardust.engine.core.spi.runtime.IServiceProvider;
 
@@ -98,11 +100,15 @@ public class SpringServiceFactory extends AbstractSessionAwareServiceFactory
       }
 
       T serviceBean = appContext.getBean(provider.getSpringBeanName(), type);
-      if (SecurityProperties.isPrincipalBasedLogin() && userPrincipal == null
-            || serviceBean instanceof AbstractSpringServiceBean
-               && ((AbstractSpringServiceBean) serviceBean).getPrincipalProvider() != null)
+      if ( !isPublicUser(properties))
       {
-         return serviceBean;
+         if (SecurityProperties.isPrincipalBasedLogin()
+               && userPrincipal == null
+               || serviceBean instanceof AbstractSpringServiceBean
+               && ((AbstractSpringServiceBean) serviceBean).getPrincipalProvider() != null)
+         {
+            return serviceBean;
+         }
       }
 
       LoggedInUser loggedInUser;
@@ -121,6 +127,16 @@ public class SpringServiceFactory extends AbstractSessionAwareServiceFactory
             new SpringServiceInvocationHandler(serviceBean, loggedInUser));
    }
 
+   private static Boolean isPublicUser(Map loginProperties)
+   {
+      if (loginProperties.get("publicUser") != null
+            && loginProperties.get("publicUser").equals(true))
+      {
+         return true;
+      }
+      return false;
+   }
+   
    public void setCredentials(Map credentials)
    {
       HttpServletRequest request = (HttpServletRequest) credentials.get("request");

@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.core.security.utils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -31,10 +32,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.security.DesEncrypter;
 import org.eclipse.stardust.common.security.HMAC;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.runtime.AdministrationService;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.PasswordRules;
-import org.eclipse.stardust.engine.api.runtime.UserService;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
@@ -59,7 +57,9 @@ public class SecurityUtils
    private static String splitExpression = ";";
 
    private static final Method[] EXPIRED_USER_METHOD_WHITE_LIST;
-      
+   
+   private static final Method[] PUBLIC_USER_METHOD_WHITE_LIST;
+   
    static
    {
       try
@@ -72,6 +72,10 @@ public class SecurityUtils
                UserService.class.getMethod("getUser", new Class[] {}),
                UserService.class.getMethod("modifyLoginUser", new Class[] {
                      String.class, String.class, String.class, String.class, String.class})};
+         
+         PUBLIC_USER_METHOD_WHITE_LIST = new Method[] {
+               UserService.class.getMethod("startSession", new Class[] {String.class}),
+               UserService.class.getMethod("closeSession", new Class[] {String.class})};
       }
       catch(NoSuchMethodException x)
       {
@@ -301,6 +305,73 @@ public class SecurityUtils
          }
       }      
       return false;
+   }
+   
+   public static boolean acceptPublicMethod(Method method)
+   {
+      for (int i = 0; i < PUBLIC_USER_METHOD_WHITE_LIST.length; ++i)
+      {
+         if (PUBLIC_USER_METHOD_WHITE_LIST[i].equals(method))
+         {
+            return true;
+         }
+      }   
+      return false;
+   }
+   
+   public static boolean evaluatePublicMethod(MethodInvocation invocation)
+   {      
+      
+      if ( !invocation.getMethod()
+            .getAnnotation(PublicPermission.class)
+            .evaluator()
+            .equals(Object.class))
+      {
+         PermissionEvaluator evaluator = null;
+         try
+         {
+            evaluator = (PermissionEvaluator) invocation.getMethod()
+                  .getAnnotation(PublicPermission.class)
+                  .evaluator()
+                  .getConstructor(new Class[] {String[].class})
+                  .newInstance(
+                        (new Object[] {invocation.getMethod()
+                              .getAnnotation(PublicPermission.class)
+                              .assumptions()}));
+         }
+         catch (InstantiationException e)
+         {            
+            throw new InternalException("Cannot instantiate PermissionEvaluator.", e);
+         }
+         catch (IllegalAccessException e)
+         {
+            throw new InternalException("Cannot instantiate PermissionEvaluator.", e);
+         }
+         catch (IllegalArgumentException e)
+         {
+            throw new InternalException("Cannot instantiate PermissionEvaluator.", e);
+         }
+         catch (SecurityException e)
+         {
+            throw new InternalException("Cannot instantiate PermissionEvaluator.", e);
+         }
+         catch (InvocationTargetException e)
+         {
+            throw new InternalException("Cannot instantiate PermissionEvaluator.", e);
+         }
+         catch (NoSuchMethodException e)
+         {
+            throw new InternalException("Cannot instantiate PermissionEvaluator.", e);
+         }
+
+         if (evaluator != null)
+         {
+            return evaluator.isAllowed(invocation);
+         }
+
+         return false;
+      }
+      return true;
    }
    
    public static void publishGeneratedPassword(IUser user, String generatedPassword)

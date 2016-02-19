@@ -66,7 +66,7 @@ public class InternalCredentialProvider extends CredentialProvider
             setOptionalCredential(credentials, SecurityProperties.CRED_REALM,
                   ConsolePrompt.getRealm());
 
-            break;
+            break;           
          default:
             throw new InternalException("Unknown login type: " + loginType);
       }

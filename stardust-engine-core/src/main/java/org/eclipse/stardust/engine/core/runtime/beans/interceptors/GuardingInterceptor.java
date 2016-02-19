@@ -12,11 +12,15 @@ package org.eclipse.stardust.engine.core.runtime.beans.interceptors;
 
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.PublicPermission;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.PublicUser;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
+import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 
 /**
@@ -39,11 +43,30 @@ public class GuardingInterceptor implements MethodInterceptor
       if (SecurityProperties.getUser() == null)
       {
          throw new AccessForbiddenException(BpmRuntimeError.AUTHx_NOT_LOGGED_IN.raise());
-      }
+      }      
       try
       {
-         if (!invocation.getMethod().getDeclaringClass().getName().equals("java.lang.Object"))
+         IUser user = SecurityProperties.getUser();
+         if (user instanceof PublicUser)
          {
+            if (invocation.getMethod().getAnnotation(PublicPermission.class) == null
+                  && !SecurityUtils.acceptPublicMethod(invocation.getMethod()))
+            {
+               throw new AccessForbiddenException(
+                     BpmRuntimeError.AUTHx_AUTH_MISSING_GRANTS.raise(
+                           user.getOID(),
+                           String.valueOf(AuthorizationContext.create(
+                                 invocation.getMethod()).getPermission()),
+                           user.getAccount()));
+            }
+            if ( !SecurityUtils.acceptPublicMethod(invocation.getMethod())
+                  && !SecurityUtils.evaluatePublicMethod(invocation))
+            {
+               throw new AccessForbiddenException("Not allowed to access this resource");
+            }
+         }
+         else if (!invocation.getMethod().getDeclaringClass().getName().equals("java.lang.Object"))
+         {            
             // check if password must be changed
             SecurityUtils.checkPasswordExpired(SecurityProperties.getUser(), invocation);
 

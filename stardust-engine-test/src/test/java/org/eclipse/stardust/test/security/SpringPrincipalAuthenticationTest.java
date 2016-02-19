@@ -30,6 +30,7 @@ import java.util.Map;
 import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
+import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
 import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.api.runtime.UserService;
@@ -46,6 +47,7 @@ import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -88,7 +90,8 @@ public class SpringPrincipalAuthenticationTest extends AbstractSpringAuthenticat
       UserHome.create(sf, REGULAR_USER_ID);
 
       /* do an ordinary login with the regular user ... */
-      final UserService userService = ServiceFactoryLocator.get(REGULAR_USER_ID, REGULAR_USER_ID).getUserService();
+      //final UserService userService = ServiceFactoryLocator.get(REGULAR_USER_ID, REGULAR_USER_ID).getUserService();
+      final UserService userService = ServiceFactoryLocator.get(4).getUserService();
 
       /* (the user service needs to be decorated to simulate HTTP invocation) */
       addInBetweenInvocationHandler(userService);
@@ -97,7 +100,11 @@ public class SpringPrincipalAuthenticationTest extends AbstractSpringAuthenticat
       currentInvokerPrincipal = new InvokerPrincipal(MOTU, emptyMap());
 
       setAuthModeToPrincipal();
-
+      
+      //ServiceFactory sf = ServiceFactoryLocator.get(4);
+      
+      //sf.getUserService();
+      
       /* ... and execute a service call, which should return the user 'motu' */
       final User user = userService.getUser();
       assertThat(user.getAccount(), equalTo(MOTU));

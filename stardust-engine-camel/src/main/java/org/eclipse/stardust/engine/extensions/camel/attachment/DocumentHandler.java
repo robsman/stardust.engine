@@ -578,8 +578,14 @@ public class DocumentHandler
                   {
                      byte[] content = dms.retrieveDocumentContent(document.getId());
                      String attachmentFileName=(StringUtils.isNotEmpty(getName(requestItem)))?getName(requestItem):document.getName();
-                     addDocumentToExchangeAttachment(exchange, content,attachmentFileName ,
-                           document.getContentType());
+                     if (document.getName().endsWith(".pdf")){
+                    	 addDocumentToExchangeAttachment(exchange, content,checkFileNameHavingExtension(attachmentFileName, "pdf") ,
+                                 document.getContentType());
+                     }else{
+                    	 addDocumentToExchangeAttachment(exchange, content,attachmentFileName ,
+                                 document.getContentType());
+                     }
+                    	 
                   }
                }
             }else{

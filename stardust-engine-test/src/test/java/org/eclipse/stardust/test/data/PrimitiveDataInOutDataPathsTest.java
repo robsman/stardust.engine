@@ -12,18 +12,19 @@ package org.eclipse.stardust.test.data;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.data.DataModelConstants.*;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
+import java.util.*;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.engine.api.model.DataPath;
+import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.DescriptorPolicy;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
@@ -51,7 +52,7 @@ public class PrimitiveDataInOutDataPathsTest
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
 
    @ClassRule
-   public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
+   public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME, "Model11");
 
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
@@ -243,7 +244,16 @@ public class PrimitiveDataInOutDataPathsTest
    @Test
    public void testLinkDescriptor()
    {
-      testDescriptor("http://fisglobal.com?id=666", "Invoice");
+      ProcessInstance pi = testDescriptor("http://fisglobal.com?id=666", "Invoice");
+      List<DataPath> defs = pi.getDescriptorDefinitions();
+      for (DataPath def : defs)
+      {
+         if ("Invoice".equals(def.getId()))
+         {
+            String retrievedValue = (String) def.getAttribute("text");
+            assertThat(retrievedValue , equalTo("See invoice '666' details"));
+         }
+      }
    }
 
    @Test
@@ -253,15 +263,99 @@ public class PrimitiveDataInOutDataPathsTest
    }
 
    @Test
-   public void testCircularCompositeDescriptor()
+   public void testMultiLevelCircularCompositeDescriptor()
    {
-      testDescriptor("*+-#", "CircularEnd");
+      testDescriptor("Composition [Name: Frank Underwood, URL: http://fisglobal.com?id=666]", "Composite3Levels");
    }
 
    @Test
-   public void testMultiLevelCircularCompositeDescriptor()
+   public void malfunctioningLinkText()
    {
-      testDescriptor("Composition [Name: Frank Underwood, URL: http://fisglobal.com?id=666, +*#-]", "Composite3Levels");
+      Map<String, String> data = CollectionUtils.newMap();
+      data.put("Ticker", "3XK");
+      data.put("CompanyName", "Triple Killer Networks");
+      ProcessInstance pi = sf.getWorkflowService().startProcess("{Model11}StockQuote", data, true);
+
+      ProcessInstanceQuery query = ProcessInstanceQuery.findAll();
+      query.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));
+      query.setPolicy(DescriptorPolicy.WITH_DESCRIPTORS);
+      pi = sf.getQueryService().findFirstProcessInstance(query);
+
+      String accessPathValue = (String) pi.getDescriptorValue("StockChart");
+      assertThat(accessPathValue , equalTo("https://finance/yahoo/com/q?s=3XK"));
+
+      boolean found = false;
+      List<DataPath> defs = pi.getDescriptorDefinitions();
+      for (DataPath def : defs)
+      {
+         if ("StockChart".equals(def.getId()))
+         {
+            accessPathValue = (String) def.getAttribute("text");
+            assertThat(accessPathValue , equalTo("Stock Chart for Triple Killer Networks (3XK)"));
+            found = true;
+         }
+      }
+      assertThat(found, is(true));
+
+      ActivityInstanceQuery aiQuery = ActivityInstanceQuery.findAlive(pi.getOID(), "GetCompanyInfo");
+      aiQuery.setPolicy(DescriptorPolicy.WITH_DESCRIPTORS);
+      ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(aiQuery);
+
+      pi = ai.getProcessInstance();
+      accessPathValue = (String) pi.getDescriptorValue("StockChart");
+      assertThat(accessPathValue , equalTo("https://finance/yahoo/com/q?s=3XK"));
+
+      found = false;
+      defs = pi.getDescriptorDefinitions();
+      for (DataPath def : defs)
+      {
+         if ("StockChart".equals(def.getId()))
+         {
+            accessPathValue = (String) def.getAttribute("text");
+            assertThat(accessPathValue , equalTo("Stock Chart for Triple Killer Networks (3XK)"));
+            found = true;
+         }
+      }
+      assertThat(found, is(true));
+
+
+   }
+
+   @Test
+   public void malfunctioningLinkText2()
+   {
+      checkLink("goog", "Google");
+      checkLink("yah", "Yahoo");
+   }
+
+   protected Map<String, String> checkLink(String ticker, String companyName)
+   {
+      Map<String, String> data = CollectionUtils.newMap();
+      data.put("Ticker", ticker);
+      data.put("CompanyName", companyName);
+      ProcessInstance pi = sf.getWorkflowService().startProcess("{Model11}StockQuote", data, true);
+
+      ProcessInstanceQuery query = ProcessInstanceQuery.findAll();
+      query.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));
+      query.setPolicy(DescriptorPolicy.WITH_DESCRIPTORS);
+      pi = sf.getQueryService().findFirstProcessInstance(query);
+
+      String accessPathValue = (String) pi.getDescriptorValue("StockChart");
+      assertThat(accessPathValue , equalTo("https://finance/yahoo/com/q?s=" + ticker));
+
+      boolean found = false;
+      List<DataPath> defs = pi.getDescriptorDefinitions();
+      for (DataPath def : defs)
+      {
+         if ("StockChart".equals(def.getId()))
+         {
+            accessPathValue = (String) def.getAttribute("text");
+            assertThat(accessPathValue , equalTo("Stock Chart for " + companyName + " (" + ticker + ")"));
+            found = true;
+         }
+      }
+      assertThat(found, is(true));
+      return data;
    }
 
    private long startProcess()
@@ -271,7 +365,7 @@ public class PrimitiveDataInOutDataPathsTest
       return pi.getOID();
    }
 
-   private <T extends Serializable> void testDescriptor(final T value, final String descriptorId)
+   private <T extends Serializable> ProcessInstance testDescriptor(final T value, final String descriptorId)
    {
       ProcessInstanceQuery query = ProcessInstanceQuery.findAll();
       query.where(ProcessInstanceQuery.OID.isEqual(piOid));
@@ -285,6 +379,19 @@ public class PrimitiveDataInOutDataPathsTest
       @SuppressWarnings("unchecked")
       final T dataPathValue = (T) sf.getWorkflowService().getInDataPath(piOid, descriptorId);
       assertThat(dataPathValue, equalTo(value));
+
+      List<DataPath> defs = pi.getDescriptorDefinitions();
+      for (DataPath def : defs)
+      {
+         if (descriptorId.equals(def.getId()))
+         {
+            @SuppressWarnings("unchecked")
+            T accessPathValue = (T) def.getAccessPath();
+            assertThat(accessPathValue , equalTo(value));
+         }
+      }
+
+      return pi;
    }
 
    private <T extends Serializable> void testFor(final T value, final String inDataPath, final String outDataPath)

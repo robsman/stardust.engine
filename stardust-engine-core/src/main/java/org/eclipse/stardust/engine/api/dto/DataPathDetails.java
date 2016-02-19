@@ -121,9 +121,9 @@ public class DataPathDetails extends ModelElementDetails implements DataPath
     *
     * @param details the original object
     */
-   DataPathDetails(DataPathDetails details, Serializable evaluatedAccessPath )
+   DataPathDetails(DataPathDetails details, Serializable evaluatedAccessPath)
    {
-      super(details);
+      super(details, true);
       type = details.type;
       direction = details.direction;
       descriptor = details.descriptor;

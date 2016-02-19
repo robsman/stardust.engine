@@ -28,13 +28,13 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 public class ModelElementDetails implements org.eclipse.stardust.engine.api.model.ModelElement
 {
    private static final long serialVersionUID = -6777155032013205956L;
-   
+
    private final short partitionOid;
    private final String partitionId;
-   
+
    private final int modelOID;
    private final int elementOID;
-   
+
    private final String namespace;
    private final String id;
    private final String name;
@@ -47,7 +47,7 @@ public class ModelElementDetails implements org.eclipse.stardust.engine.api.mode
       IAuditTrailPartition partition = SecurityProperties.getPartition();
       this.partitionOid = partition.getOID();
       this.partitionId = partition.getId();
-      
+
       this.modelOID = modelOID;
       this.elementOID = elementOID;
       this.qualifiedId = '{' + namespace + '}' + id;
@@ -75,18 +75,31 @@ public class ModelElementDetails implements org.eclipse.stardust.engine.api.mode
 
    protected ModelElementDetails(ModelElementDetails template)
    {
-      this.partitionOid = template.partitionOid;
-      this.partitionId = template.partitionId;
-      
-      this.modelOID = template.modelOID;
-      this.elementOID = template.elementOID;
-      this.namespace = template.namespace;
-      this.id = template.id;
-      this.name = template.name;
-      this.description = template.description;
-      
-      this.attributes = template.attributes;
-      this.qualifiedId = template.qualifiedId;
+      this(template, false);
+   }
+
+   protected ModelElementDetails(ModelElementDetails template, boolean cloneAttributes)
+   {
+      partitionOid = template.partitionOid;
+      partitionId = template.partitionId;
+
+      modelOID = template.modelOID;
+      elementOID = template.elementOID;
+      namespace = template.namespace;
+      id = template.id;
+      name = template.name;
+      description = template.description;
+
+      if (cloneAttributes)
+      {
+         attributes = new HashMap();
+         attributes.putAll(template.getAllAttributes());
+      }
+      else
+      {
+         attributes = template.attributes;
+      }
+      qualifiedId = template.qualifiedId;
    }
 
    public short getPartitionOID()
@@ -98,7 +111,7 @@ public class ModelElementDetails implements org.eclipse.stardust.engine.api.mode
    {
       return partitionId;
    }
-   
+
    public int getModelOID()
    {
       return modelOID;
@@ -123,7 +136,7 @@ public class ModelElementDetails implements org.eclipse.stardust.engine.api.mode
    {
       return name;
    }
-   
+
    public String getQualifiedId()
    {
       return qualifiedId;
@@ -132,8 +145,8 @@ public class ModelElementDetails implements org.eclipse.stardust.engine.api.mode
    public String getDescription()
    {
       return description;
-   }   
-   
+   }
+
    public Map getAllAttributes()
    {
       return Collections.unmodifiableMap(attributes);

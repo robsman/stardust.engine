@@ -623,7 +623,14 @@ public class DocumentHandler
       }
       else
       {
-         document = dms.getDocument(getOutgoingDocumentId(requestItem));
+    	  if(getOutgoingDocumentId(requestItem).contains("{urn:repositoryId:System}")){
+    		 String documentPath = dms.getDocument(getOutgoingDocumentId(requestItem)).getPath();
+    		 document = dms.getDocument(documentPath);
+    	  }else{
+    		  document = dms.getDocument(getOutgoingDocumentId(requestItem));
+    	  }
+    	  
+         
       }
       return document;
    }

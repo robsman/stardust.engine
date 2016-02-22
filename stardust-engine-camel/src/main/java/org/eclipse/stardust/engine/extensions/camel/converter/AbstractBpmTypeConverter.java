@@ -8,10 +8,15 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.apache.camel.Exchange;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.dto.ModelDetails;
 import org.eclipse.stardust.engine.api.dto.TypeDeclarationDetails;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.beans.TypeDeclarationBean;
@@ -30,7 +35,8 @@ import com.google.gson.*;
 public abstract class AbstractBpmTypeConverter
 {
    protected Exchange exchange;
-
+   private static boolean isStrict = Parameters.instance().getBoolean("XPath.StrictEvaluation", true);
+   public static final Logger logger = LogManager.getLogger(AbstractBpmTypeConverter.class);
    protected AbstractBpmTypeConverter(Exchange exchange)
    {
       this.exchange = exchange;
@@ -166,13 +172,29 @@ public abstract class AbstractBpmTypeConverter
          }
          else if (entry.getValue().isJsonPrimitive())
          {
-
             JsonPrimitive primitive = entry.getValue().getAsJsonPrimitive();
-
             String xPath = "".equals(path) ? entry.getKey() : path + "/" + entry.getKey();
+            TypedXPath typedXPath = xPathMap.getXPath(path);
+            if(isStrict){
+               if(xPathMap.containsXPath(xPath))
+               {
+                  setPrimitiveValue(typedXPath, primitive, entry, complexType);
+               }else{
+                  throw new IllegalOperationException(
+                        BpmRuntimeError.MDL_UNKNOWN_XPATH.raise(xPath));
+               }
+            }else{//StrictEvaluation disabled
+               if(xPathMap.containsXPath(xPath)){
+                  setPrimitiveValue(typedXPath, primitive, entry, complexType);
+               }else{
+                  logger.warn("XPath "+xPath+" is not defined");
+               }
+            }
+         }
+      }
+   }
 
-            TypedXPath typedXPath = xPathMap.getXPath(xPath);
-
+   private void setPrimitiveValue(TypedXPath typedXPath, JsonPrimitive primitive, Entry<String, JsonElement> entry, Map<String, Object> complexType){
             if (typedXPath != null)
             {
 
@@ -211,9 +233,8 @@ public abstract class AbstractBpmTypeConverter
                      break;
                }
             }
+
          }
-      }
-   }
    protected IData getData(IModel model, String dataId){
       return model.findData(dataId);
    }

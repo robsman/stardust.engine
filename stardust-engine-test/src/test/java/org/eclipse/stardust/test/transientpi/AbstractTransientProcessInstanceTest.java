@@ -31,6 +31,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
@@ -42,6 +43,7 @@ import javax.transaction.SystemException;
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
@@ -49,8 +51,11 @@ import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.api.spring.SpringUtils;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage;
+import org.eclipse.stardust.engine.core.persistence.jms.AbstractJmsBytesMessageReader;
+import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobAuditTrailPersistor;
 import org.eclipse.stardust.engine.core.runtime.beans.AdministrationServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
@@ -207,7 +212,7 @@ public class AbstractTransientProcessInstanceTest
       boolean terminatedGracefully = executor.awaitTermination(10, TimeUnit.SECONDS);
       if ( !terminatedGracefully)
       {
-         throw new IllegalStateException("Executor hasn't been terminated gracefully.");
+         throw new java.lang.IllegalStateException("Executor hasn't been terminated gracefully.");
       }
 
       return piOids;
@@ -570,7 +575,7 @@ public class AbstractTransientProcessInstanceTest
       {
          if ( !EXPECTED_DATA_STRING.equals(data))
          {
-            throw new IllegalStateException();
+            throw new java.lang.IllegalStateException();
          }
       }
    }
@@ -608,6 +613,63 @@ public class AbstractTransientProcessInstanceTest
       {
          /* initializes the model manager */
          ModelManagerFactory.getCurrent().getLastDeployment();
+
+         return null;
+      }
+   }
+
+
+   public void writeFromQueueToAuditTrail(ServiceFactory sf, final String queueName) throws JMSException
+   {
+      final Queue queue = testClassSetup.queue(queueName);
+      final JmsTemplate jmsTemplate = new JmsTemplate();
+      jmsTemplate.setConnectionFactory(testClassSetup.queueConnectionFactory());
+      jmsTemplate.setReceiveTimeout(5000L);
+
+      final Message message = jmsTemplate.receive(queue);
+      if (message == null)
+      {
+         throw new JMSException("Timeout while receiving.");
+      }
+      if ( !(message instanceof BytesMessage))
+      {
+         throw new UnsupportedOperationException("Can only read from bytes message.");
+      }
+
+      final ServiceCommand writeToAuditTrail = new WriteToAuditTrailCommand((BytesMessage) message);
+      sf.getWorkflowService().execute(writeToAuditTrail);
+   }
+
+   private static final class WriteToAuditTrailCommand implements ServiceCommand
+   {
+      private static final long serialVersionUID = -1945946762667325417L;
+
+      private final BytesMessage message;
+
+      public WriteToAuditTrailCommand(final BytesMessage message)
+      {
+         this.message = message;
+      }
+
+      @Override
+      public Serializable execute(final ServiceFactory sf)
+      {
+         final AbstractJmsBytesMessageReader reader = new AbstractJmsBytesMessageReader()
+         {
+            @Override
+            protected BytesMessage nextBlobContainer() throws PublicException
+            {
+               return message;
+            }
+
+         };
+         reader.nextBlob();
+
+         final ProcessBlobAuditTrailPersistor persistor = new ProcessBlobAuditTrailPersistor();
+         persistor.persistBlob(reader);
+         persistor.writeIntoAuditTrail((org.eclipse.stardust.engine.core.persistence.jdbc.Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL), 1);
+
+         reader.close();
 
          return null;
       }

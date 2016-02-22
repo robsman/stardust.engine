@@ -47,17 +47,36 @@ public class UserHome
     * </p>
     *
     * @param sf a service factory needed for creating the user
-    * @param userId the ID the user's <i>account<>/i>, <i>first name</i>, <i>last name</i>, <i>description</i> and <i>password</i> will be initialized with
+    * @param userId the ID the user's <i>account</i>, <i>first name</i>, <i>last name</i>, <i>description</i> and <i>password</i> will be initialized with
     * @param grants the grants the user should be initialized with
     * @return the created user
     */
    public static User create(final ServiceFactory sf, final String userId, final ModelParticipantInfo ... grants)
    {
-      if (userId == null)
+      return create(sf, new UserCredentials(userId, userId), grants);
+   }
+
+   /**
+    * <p>
+    * Creates a new user with the given user ID and initializes the created user with the given grants.
+    * </p>
+    *
+    * @param sf a service factory needed for creating the user
+    * @param credentials the user's credentials. The user's <i>account</i>, <i>first name</i>, <i>last name</i>, <i>description</i> will be initialized with userId. The <i>password</i> will be initialized with password.
+    * @param grants the grants the user should be initialized with
+    * @return the created user
+    */
+   public static User create(final ServiceFactory sf, final UserCredentials credentials, final ModelParticipantInfo ... grants)
+   {
+      if (credentials == null)
+      {
+         throw new NullPointerException("UserCredentials object must not be null.");
+      }
+      if (credentials.getUserId() == null)
       {
          throw new NullPointerException("User ID must not be null.");
       }
-      if (userId.isEmpty())
+      if (credentials.getUserId().isEmpty())
       {
          throw new IllegalArgumentException("User ID must not be empty.");
       }
@@ -73,7 +92,7 @@ public class UserHome
          Collections.addAll(grantList, grants);
       }
 
-      final CreateUserWithGrantsCommand createUserCmd = new CreateUserWithGrantsCommand(userId, grantList);
+      final CreateUserWithGrantsCommand createUserCmd = new CreateUserWithGrantsCommand(credentials, grantList);
       final User user = (User) sf.getWorkflowService().execute(createUserCmd);
       return user;
    }
@@ -106,6 +125,11 @@ public class UserHome
    public static User create(final ServiceFactory sf, final String userId)
    {
       return create(sf, userId, new ModelParticipantInfo[0]);
+   }
+
+   public static User modify(final ServiceFactory sf, final User changes)
+   {
+      return sf.getUserService().modifyUser(changes);
    }
 
    /**
@@ -217,16 +241,39 @@ public class UserHome
       /* utility class; do not allow the creation of an instance */
    }
 
-   private static final class CreateUserWithGrantsCommand implements ServiceCommand
+   public static final class UserCredentials
    {
-      private static final long serialVersionUID = 2504537023808759739L;
-
       private final String userId;
-      private final List<ModelParticipantInfo> grants;
+      private final String password;
 
-      public CreateUserWithGrantsCommand(final String userId, final List<ModelParticipantInfo> grants)
+      public UserCredentials(String userId, String password)
       {
          this.userId = userId;
+         this.password = password;
+      }
+
+      public String getPassword()
+      {
+         return password;
+      }
+
+      public String getUserId()
+      {
+         return userId;
+      }
+   }
+
+   private static final class CreateUserWithGrantsCommand implements ServiceCommand
+   {
+      private static final long serialVersionUID = -7717434128443697514L;
+
+      private final UserCredentials credentials;
+      private final List<ModelParticipantInfo> grants;
+
+      public CreateUserWithGrantsCommand(final UserCredentials credentials,
+            final List<ModelParticipantInfo> grants)
+      {
+         this.credentials = credentials;
          this.grants = grants;
       }
 
@@ -235,14 +282,17 @@ public class UserHome
       {
          final UserService userService = sf.getUserService();
 
-         final User user = userService.createUser(userId, userId, userId, userId, userId, null, null, null);
+         final String userId = credentials.getUserId();
+         final String password = credentials.getPassword();
+
+         User user = userService.createUser(userId, userId, userId, userId, password, null, null, null);
          if ( !grants.isEmpty())
          {
             for (final ModelParticipantInfo m : grants)
             {
                user.addGrant(m);
             }
-            userService.modifyUser(user);
+            user = userService.modifyUser(user);
          }
          return user;
       }

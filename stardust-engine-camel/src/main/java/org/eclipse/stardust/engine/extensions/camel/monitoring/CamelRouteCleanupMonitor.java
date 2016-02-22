@@ -2,11 +2,7 @@ package org.eclipse.stardust.engine.extensions.camel.monitoring;
 
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_CONTEXT_ID_ATT;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_TRIGGER_TYPE;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.INVOCATION_PATTERN_EXT_ATT;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.INVOCATION_TYPE_EXT_ATT;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.PRP_APPLICATION_CONTEXT;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.InvocationPatterns.SENDRECEIVE;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.InvocationTypes.ASYNCHRONOUS;
 import static org.eclipse.stardust.engine.extensions.camel.Util.getRouteId;
 import static org.eclipse.stardust.engine.extensions.camel.Util.isProducerApplication;
 import static org.eclipse.stardust.engine.extensions.camel.Util.isConsumerApplication;
@@ -70,7 +66,8 @@ public class CamelRouteCleanupMonitor implements IPartitionMonitor
 
                   IApplication app = apps.get(ai);
 
-                  if (app != null)
+                  if (app != null && (app.getType().getId().equals(CamelConstants.CAMEL_CONSUMER_APPLICATION_TYPE) || app
+                          .getType().getId().equals(CamelConstants.CAMEL_PRODUCER_APPLICATION_TYPE)))
                   {
                      String camelContextId = (String) app.getAttribute(CAMEL_CONTEXT_ID_ATT);
                      CamelContext camelContext = (CamelContext) applicationContext.getBean(camelContextId);

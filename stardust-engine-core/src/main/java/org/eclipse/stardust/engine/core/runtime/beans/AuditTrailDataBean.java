@@ -13,11 +13,9 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.util.Iterator;
 
 import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.PersistentModelElement;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 
@@ -49,6 +47,7 @@ public class AuditTrailDataBean extends IdentifiablePersistentBean implements Pe
    public static final String[] data_idx2_INDEX = new String[] {
          FIELD__ID, FIELD__OID, FIELD__MODEL};
 
+   @ForeignKey (modelElement=ModelBean.class)
    private long model;
 
    private static final int id_COLUMN_LENGTH =50;

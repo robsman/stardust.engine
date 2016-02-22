@@ -63,6 +63,10 @@ public class CreateBusinessObjectTest
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(sf);
 
+   /** 
+    * Test if the business object is created via the WorkflowService. Furthermore a
+    * department must be created which is assigned to the managed organization.
+    */
    @Test
    public void testCreateBO()
    {
@@ -72,24 +76,26 @@ public class CreateBusinessObjectTest
       initialValue.put("price", 300);
       
       Data data = findDataForUpdate(qualifiedBusinessObjectId1);
-      Department targetDepartment = null;
-                  
+      
       BusinessObject businessObjectInstance = sf.getWorkflowService().createBusinessObjectInstance(qualifiedBusinessObjectId1, initialValue);
       assertNotNull(businessObjectInstance);
       assertThat(businessObjectInstance.getId(), is(getBOId(qualifiedBusinessObjectId1)));
-            
+      
       final List<Department> deps = sf.getQueryService().findAllDepartments(null, null);
-      for(Department dep : deps)
-      {
-         targetDepartment = dep;
-      }
+      assertNotNull(deps);
+      assertThat(deps.size(), is(1));
+      Department targetDepartment = deps.iterator().next();
       assertNotNull(targetDepartment);
-      assertNotNull(targetDepartment.getOrganization());      
+      assertNotNull(targetDepartment.getOrganization());
       assertThat(targetDepartment.getId(), is(getPK(data, initialValue)));
       assertThat(targetDepartment.getName(), is(getNameValue(data, initialValue)));
       assertThat(targetDepartment.getOrganization().getId(), is(getOrganizationIds(data).get(0)));
-   }   
+   }
 
+   /** 
+    * Validate that it is not possible to create more than one business object instances
+    * with the same primary key
+    */
    @Test(expected = ObjectExistsException.class)
    public void testCreateBOExists()
    {
@@ -100,43 +106,52 @@ public class CreateBusinessObjectTest
                   
       BusinessObject businessObjectInstance = sf.getWorkflowService().createBusinessObjectInstance(qualifiedBusinessObjectId1, initialValue);
       assertNotNull(businessObjectInstance);
-      businessObjectInstance = sf.getWorkflowService().createBusinessObjectInstance(qualifiedBusinessObjectId1, initialValue);
-   }   
       
+      initialValue.put("name", "Company A"); // PK
+      initialValue.put("street", "Light way");
+      initialValue.put("price", 400);
+
+      businessObjectInstance = sf.getWorkflowService().createBusinessObjectInstance(qualifiedBusinessObjectId1, initialValue);
+   }
+   
+   /** 
+    * Test if the automatic department generation for business objects is reusing
+    * the already existing department if a new BO is created where the primary key of
+    * the BO instance has the same value as the corresponding departmentId.
+    */
    @Test
    public void testCreateBODepartmentExists()
    {
-      Map<String, Object> initialValue1 = CollectionUtils.newMap();
-      initialValue1.put("name", "Company A1");
-      initialValue1.put("street", "Dark way1");
-      initialValue1.put("price", 3001);
-      
       Data data = findDataForUpdate(qualifiedBusinessObjectId1);
-      Department targetDepartment = null;                  
-      
-      DepartmentHome.create(sf, (String) getPK(data, initialValue1), (String) getNameValue(data, initialValue1), getOrganizationIds(data).get(0), null);
 
       Map<String, Object> initialValue = CollectionUtils.newMap();
       initialValue.put("name", "Company A");
       initialValue.put("street", "Dark way");
       initialValue.put("price", 300);
-            
+
+      DepartmentHome.create(sf, (String) getPK(data, initialValue),
+            (String) getNameValue(data, initialValue), getOrganizationIds(data).get(0), null);
+
       BusinessObject businessObjectInstance = sf.getWorkflowService().createBusinessObjectInstance(qualifiedBusinessObjectId1, initialValue);
       assertNotNull(businessObjectInstance);
       assertThat(businessObjectInstance.getId(), is(getBOId(qualifiedBusinessObjectId1)));
-            
+
       final List<Department> deps = sf.getQueryService().findAllDepartments(null, null);
-      for(Department dep : deps)
-      {
-         targetDepartment = dep;
-      }
+      assertNotNull(deps);
+      assertThat(deps.size(), is(1));
+      Department targetDepartment = deps.iterator().next();
+      
       assertNotNull(targetDepartment);
-      assertNotNull(targetDepartment.getOrganization());      
+      assertNotNull(targetDepartment.getOrganization());
       assertThat(targetDepartment.getId(), is(getPK(data, initialValue)));
       assertThat(targetDepartment.getName(), is(getNameValue(data, initialValue)));
-      assertThat(targetDepartment.getOrganization().getId(), is(getOrganizationIds(data).get(0)));      
-   }      
+      assertThat(targetDepartment.getOrganization().getId(), is(getOrganizationIds(data).get(0)));
+   }
 
+   /**
+    * Test that the business object instance can be updated and that the engine doesn't
+    * try to create a new department but is reusing the already existing one.
+    */
    @Test
    public void testUpdateBODepartmentExists()
    {
@@ -150,9 +165,9 @@ public class CreateBusinessObjectTest
       initialValue2.put("price", 3002);
       
       Data data = findDataForUpdate(qualifiedBusinessObjectId1);
-      Department targetDepartment = null;                  
       
-      DepartmentHome.create(sf, (String) getPK(data, initialValue1), (String) getNameValue(data, initialValue1), getOrganizationIds(data).get(0), null);
+      DepartmentHome.create(sf, (String) getPK(data, initialValue1), 
+            (String) getNameValue(data, initialValue1), getOrganizationIds(data).get(0), null);
 
       BusinessObject businessObjectInstance1 = sf.getWorkflowService().createBusinessObjectInstance(qualifiedBusinessObjectId1, initialValue1);
       assertNotNull(businessObjectInstance1);
@@ -161,25 +176,25 @@ public class CreateBusinessObjectTest
       BusinessObject businessObjectInstance2 = sf.getWorkflowService().updateBusinessObjectInstance(qualifiedBusinessObjectId1, initialValue2);
       assertNotNull(businessObjectInstance2);
       assertThat(businessObjectInstance2.getId(), is(getBOId(qualifiedBusinessObjectId1)));
-            
+      
       final List<Department> deps = sf.getQueryService().findAllDepartments(null, null);
-      for(Department dep : deps)
-      {
-         targetDepartment = dep;            
-      }
+      assertNotNull(deps);
+      assertThat(deps.size(), is(1));
+      Department targetDepartment = deps.iterator().next();
+      
       assertNotNull(targetDepartment);
-      assertNotNull(targetDepartment.getOrganization());      
+      assertNotNull(targetDepartment.getOrganization());
       assertThat(targetDepartment.getId(), is(getPK(data, initialValue2)));
       assertThat(targetDepartment.getName(), is(getNameValue(data, initialValue2)));
-      assertThat(targetDepartment.getOrganization().getId(), is(getOrganizationIds(data).get(0)));      
-   }   
+      assertThat(targetDepartment.getOrganization().getId(), is(getOrganizationIds(data).get(0)));
+   }
       
    /* helper methods */
          
    private String getBOId(String qualifiedBusinessObjectId)
    {
       QName qname = QName.valueOf(qualifiedBusinessObjectId);
-      return qname.getLocalPart();      
+      return qname.getLocalPart();
    }
    
    private Data findDataForUpdate(String qualifiedBusinessObjectId)
@@ -204,7 +219,7 @@ public class CreateBusinessObjectTest
             if (businessObjectId.equals(dataId))
             {
                return data;
-            }   
+            }
          }
       }
       return null;
@@ -219,18 +234,18 @@ public class CreateBusinessObjectTest
       {
          String[] managedOrganizationsArray = managedOrganizations.split(",");
          for (String organizationFullId : managedOrganizationsArray) 
-         {            
+         {
             organizationFullId = organizationFullId.substring(1, organizationFullId.length() - 1);
             //organizationFullId = organizationFullId.replaceAll("\\[", "");
             //organizationFullId = organizationFullId.replaceAll("\\]", "");
             organizationFullId = organizationFullId.replaceAll("\\\"", "");
-                        
+            
             String organizationId = organizationFullId;
             if (organizationFullId.split(":").length > 1)
             {
-               organizationId = organizationFullId.split(":")[1];               
+               organizationId = organizationFullId.split(":")[1];
                organizationIds.add(organizationId);
-            }            
+            }
          }
       }
       
@@ -264,6 +279,6 @@ public class CreateBusinessObjectTest
          }
       }
 
-      return null;      
-   }      
+      return null;
+   }
 }

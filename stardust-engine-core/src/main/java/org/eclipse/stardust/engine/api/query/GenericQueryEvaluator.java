@@ -218,7 +218,7 @@ public final class GenericQueryEvaluator implements FilterEvaluationVisitor
             countAll ? totalCount : null);
    }
 
-   private GenericQueryEvaluator(Query query, Class type, EvaluationContext context)
+   GenericQueryEvaluator(Query query, Class type, EvaluationContext context)
    {
       this.query = query;
 
@@ -742,6 +742,11 @@ public final class GenericQueryEvaluator implements FilterEvaluationVisitor
       else if (LogEntryBean.class.isAssignableFrom(filter.getType()) )
       {
          resultTerm = Predicates.isEqual(LogEntryBean.FR__PARTITION, filter
+               .getPartitionOid());
+      }
+      else if (RuntimeArtifactBean.class.isAssignableFrom(filter.getType()) )
+      {
+         resultTerm = Predicates.isEqual(RuntimeArtifactBean.FR__PARTITION, filter
                .getPartitionOid());
       }
       else

@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 68817 
+ * Generated from Revision
  */
 package org.eclipse.stardust.engine.api.ejb3.beans;
 
@@ -19,7 +19,7 @@ import javax.ejb.Local;
  * assigned to the predefined role <tt>Administrator</tt>.</p>
  *
  * @author ubirkemeyer
- * @version 68817
+ * @version $Revision
  */
 @Local
 public interface AdministrationService extends org.eclipse.stardust.engine.core.runtime.ejb.Ejb3ManagedService
@@ -97,9 +97,10 @@ public interface AdministrationService extends org.eclipse.stardust.engine.core.
     */
     public java.util.List<org.eclipse.stardust.engine.api.runtime.DeploymentInfo>
          deployModel(
-         java.util.List deploymentElements,
-         org.eclipse.stardust.engine.api.runtime.DeploymentOptions options,
-         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         java.util.List<org.eclipse.stardust.engine.api.runtime.DeploymentElement>
+         deploymentElements, org.eclipse.stardust.engine.api.runtime.DeploymentOptions
+         options, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -109,7 +110,8 @@ public interface AdministrationService extends org.eclipse.stardust.engine.core.
          setPrimaryImplementation(
          long interfaceModelOid, java.lang.String processId, java.lang.String
          implementationModelId, org.eclipse.stardust.engine.api.runtime.LinkingOptions
-         options, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         options, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -125,8 +127,8 @@ public interface AdministrationService extends org.eclipse.stardust.engine.core.
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deleteProcesses(java.util.List piOids)
     */
     public void deleteProcesses(
-         java.util.List piOids, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.util.List<java.lang.Long> piOids,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -150,8 +152,8 @@ public interface AdministrationService extends org.eclipse.stardust.engine.core.
     */
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          setProcessInstancePriority(
-         long oid, int priority, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         long oid, int priority,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -168,7 +170,8 @@ public interface AdministrationService extends org.eclipse.stardust.engine.core.
     */
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          abortProcessInstance(
-         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -176,15 +179,16 @@ public interface AdministrationService extends org.eclipse.stardust.engine.core.
     */
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          recoverProcessInstance(
-         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#recoverProcessInstances(java.util.List oids)
     */
     public void recoverProcessInstances(
-         java.util.List oids, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.util.List<java.lang.Long> oids,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -253,7 +257,8 @@ public interface AdministrationService extends org.eclipse.stardust.engine.core.
     */
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          startProcess(
-         long modelOID, java.lang.String id, java.util.Map data, boolean synchronously,
+         long modelOID, java.lang.String id, java.util.Map<java.lang.String,?> data,
+         boolean synchronously,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
@@ -262,7 +267,7 @@ public interface AdministrationService extends org.eclipse.stardust.engine.core.
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          forceCompletion(
-         long activityInstanceOID, java.util.Map accessPoints,
+         long activityInstanceOID, java.util.Map<java.lang.String,?> accessPoints,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
@@ -271,21 +276,23 @@ public interface AdministrationService extends org.eclipse.stardust.engine.core.
     */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          forceSuspendToDefaultPerformer(
-         long activityInstanceOID, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         long activityInstanceOID,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getUser()
     */
     public org.eclipse.stardust.engine.api.runtime.User
-         getUser(org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         getUser(
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#flushCaches()
     */
-    public void flushCaches(
+    public void
+         flushCaches(
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
@@ -310,7 +317,8 @@ public interface AdministrationService extends org.eclipse.stardust.engine.core.
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setProfile(org.eclipse.stardust.engine.api.model.ProfileScope scope, java.util.Map profile)
     */
     public void setProfile(
-         org.eclipse.stardust.engine.api.model.ProfileScope scope, java.util.Map profile,
+         org.eclipse.stardust.engine.api.model.ProfileScope scope,
+         java.util.Map<java.lang.String,?> profile,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
@@ -339,7 +347,8 @@ public interface AdministrationService extends org.eclipse.stardust.engine.core.
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getDepartment(long oid)
     */
     public org.eclipse.stardust.engine.api.runtime.Department getDepartment(
-         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -355,7 +364,8 @@ public interface AdministrationService extends org.eclipse.stardust.engine.core.
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#removeDepartment(long oid)
     */
     public void removeDepartment(
-         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -380,8 +390,10 @@ public interface AdministrationService extends org.eclipse.stardust.engine.core.
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#savePreferences(java.util.List preferences)
     */
-    public void savePreferences(
-         java.util.List preferences, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+    public void
+         savePreferences(
+         java.util.List<org.eclipse.stardust.engine.core.preferences.Preferences>
+         preferences, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
@@ -391,8 +403,8 @@ public interface AdministrationService extends org.eclipse.stardust.engine.core.
     public
          org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables
          getConfigurationVariables(
-         java.lang.String modelId, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.lang.String modelId,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -411,8 +423,8 @@ public interface AdministrationService extends org.eclipse.stardust.engine.core.
     public
          java.util.List<org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables>
          getConfigurationVariables(
-         java.util.List modelIds, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
-         __tunneledContext)
+         java.util.List<java.lang.String> modelIds,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
@@ -450,6 +462,59 @@ public interface AdministrationService extends org.eclipse.stardust.engine.core.
     public void
          setGlobalPermissions(
          org.eclipse.stardust.engine.api.runtime.RuntimePermissions permissions,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deployRuntimeArtifact(org.eclipse.stardust.engine.api.runtime.RuntimeArtifact runtimeArtifact)
+    */
+    public org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact
+         deployRuntimeArtifact(
+         org.eclipse.stardust.engine.api.runtime.RuntimeArtifact runtimeArtifact,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#overwriteRuntimeArtifact(long oid, org.eclipse.stardust.engine.api.runtime.RuntimeArtifact runtimeArtifact)
+    */
+    public org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact
+         overwriteRuntimeArtifact(
+         long oid, org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         runtimeArtifact, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deleteRuntimeArtifact(long oid)
+    */
+    public void deleteRuntimeArtifact(
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getRuntimeArtifact(long oid)
+    */
+    public org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         getRuntimeArtifact(
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getSupportedRuntimeArtifactTypes()
+    */
+    public java.util.List<org.eclipse.stardust.engine.api.runtime.ArtifactType>
+         getSupportedRuntimeArtifactTypes(
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#createProcessInstanceLinkType(java.lang.String id, java.lang.String description)
+    */
+    public org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType
+         createProcessInstanceLinkType(
+         java.lang.String id, java.lang.String description,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException;
          }

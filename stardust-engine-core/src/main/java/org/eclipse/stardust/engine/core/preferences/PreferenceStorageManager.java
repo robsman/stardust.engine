@@ -25,6 +25,7 @@ import org.eclipse.stardust.engine.api.query.PreferenceQueryEvaluator;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.ReconfigurationInfo;
 import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -119,6 +120,11 @@ public class PreferenceStorageManager implements IPreferenceStorageManager
 
    public List<ReconfigurationInfo> savePreferences(Preferences preferences, boolean force)
    {
+      if (Parameters.instance().getBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL, false))
+      {
+         throw new PublicException(BpmRuntimeError.JDBC_ARCHIVE_AUDITTRAIL_DOES_NOT_ALLOW_CHANGES.raise());
+      }
+      
       checkUpdatePermissions(preferences);
 
       List<ReconfigurationInfo> infos = CollectionUtils.newArrayList();

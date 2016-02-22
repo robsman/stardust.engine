@@ -77,9 +77,6 @@ public class Utils
                + SessionProperties.DS_SESSION_SUFFIX, session);
          ParametersFacade.pushLayer(locals);
 
-         // enable AI state logging
-         params.setString("ProcessWarehouse.ActivityInstanceLog", "on"); //$NON-NLS-1$ //$NON-NLS-2$
-
          // simulating bootstrapping
          ItemLocatorUtils.registerDescription(ModelManagerFactory.ITEM_NAME,
                new ItemDescription(new ModelManagerLoader(), params.getString(

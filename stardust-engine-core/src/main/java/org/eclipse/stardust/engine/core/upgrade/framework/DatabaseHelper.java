@@ -103,10 +103,18 @@ public final class DatabaseHelper
    public static void createTable(RuntimeItem item, TableInfo tableInfo)
          throws SQLException
    {
-      executeDdlStatement(
-            item,
-            "create table " + getQualifiedName(tableInfo.getTableName()) + "("
-            + tableInfo.getTableDefinition() + ")");
+      StringBuffer sqlStmt = new StringBuffer("create table ");
+      sqlStmt.append(getQualifiedName(tableInfo.getTableName()));
+      sqlStmt.append("(").append(tableInfo.getTableDefinition()).append(")");
+      
+      DBDescriptor dbDescriptor = item.getDbDescriptor();
+      final String tableOptions = dbDescriptor.getCreateTableOptions();
+      if (!StringUtils.isEmpty(tableOptions))
+      {
+         sqlStmt.append(" ").append(tableOptions);
+      }
+      
+      executeDdlStatement(item, sqlStmt.toString());
    }
 
    /**
@@ -277,7 +285,9 @@ public final class DatabaseHelper
          buffer.append(delimiter).append(getColumnName(dbDescriptor, field)).append(" ");
          buffer.append(dbDescriptor.getSQLType(field.type, field.size));
 
-         if (field.isPK && dbDescriptor.supportsIdentityColumns()
+         if (field.isPK
+               && (dbDescriptor.supportsIdentityColumns() || DBMSKey.MYSQL_SEQ
+                     .equals(dbDescriptor.getDbmsKey()))
                && !StringUtils.isEmpty(tableInfo.getSequenceName()))
          {
             buffer.append(" ")
@@ -292,6 +302,12 @@ public final class DatabaseHelper
          delimiter = ", ";
       }
       buffer.append(")");
+      
+      final String tableOptions = dbDescriptor.getCreateTableOptions();
+      if (!StringUtils.isEmpty(tableOptions))
+      {
+         buffer.append(" ").append(tableOptions);
+      }
 
       try
       {

@@ -99,8 +99,13 @@ public abstract class SchedulingRecurrence
       return processSchedule != null ? SchedulingUtils.CLIENT_DATE_FORMAT.format(processSchedule) : null;
    }
 
-   @SuppressWarnings("deprecation")
    public Date processSchedule(JsonObject json, boolean daemon)
+   {
+      return processSchedule(json, daemon, 0);
+   }
+
+   @SuppressWarnings("deprecation")
+   public Date processSchedule(JsonObject json, boolean daemon, int offsetDay)
    {
       JsonObject recurrenceRange = json.get("recurrenceRange").getAsJsonObject();
 
@@ -108,20 +113,28 @@ public abstract class SchedulingRecurrence
       String executionTime = getExecutionTime(json);
       startDate = SchedulingUtils.getParsedDate(startDateStr + ' ' + executionTime, SchedulingUtils.INPUT_DATE_FORMAT);
 
+      Calendar instance = Calendar.getInstance();
+      instance.setTime(startDate);
+      instance.add(Calendar.DAY_OF_YEAR, offsetDay);
+      startDate = instance.getTime();
+
       // Set Current time to compare with Scheduled Execution time.
       // startDate.setHours(0);
       // startDate.setMinutes(0);
       startDate.setSeconds(0);
-      trace.info("Start Date: " + startDate);
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("Start Date: " + startDate);
+      }
 
       switch (SchedulingUtils.EndMode.valueOf(recurrenceRange.get("endMode").getAsString()))
       {
       case noEnd:
-         return getNoEndNextExecutionDate(getCronExpression(json, daemon));
+         return getNoEndNextExecutionDate(getCronExpression(json, daemon), offsetDay);
       case endAfterNOcurrences:
-         return getNthExecutionDate(daemon, recurrenceRange, getCronExpression(json, false));
+         return getNthExecutionDate(daemon, recurrenceRange, getCronExpression(json, false), offsetDay);
       case endByDate:
-         return getByDateNextExecutionDate(recurrenceRange, getCronExpression(json, daemon));
+         return getByDateNextExecutionDate(recurrenceRange, getCronExpression(json, daemon), offsetDay);
       }
       return null;
    }
@@ -170,8 +183,10 @@ public abstract class SchedulingRecurrence
       {
          this.startDate = startDate1;
       }
-
-      trace.info("Start Date: " + this.startDate);
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("Start Date: " + this.startDate);
+      }
 
       setStartTimeString(false);
       this.startDate.setHours(0);
@@ -183,7 +198,10 @@ public abstract class SchedulingRecurrence
       endDateObj.setMinutes(59);
       endDateObj.setSeconds(59);
 
-      trace.info("End Date: " + endDateObj);
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("End Date: " + endDateObj);
+      }
 
       try
       {
@@ -192,9 +210,12 @@ public abstract class SchedulingRecurrence
          List<Date> futureExecutionDatesInRange = generateFutureExecutionDatesInRange(
                cronExpressionFuture, this.startDate, endDateObj);
 
-         trace.info("Future occurences between Start date: " + this.startDate
+         if (trace.isDebugEnabled())
+         {
+            trace.debug("Future occurences between Start date: " + this.startDate
                + " and End Date: " + endDateObj + ": "
                + futureExecutionDatesInRange.toString());
+         }
 
          return futureExecutionDatesInRange;
       }
@@ -214,7 +235,10 @@ public abstract class SchedulingRecurrence
 
       Date nextValidTimeAfter = cronExpression.getNextValidTimeAfter(clonedStartDate);
       futureExecutionDatesInRange.add(nextValidTimeAfter);
-      trace.info("Next Execution Date: " + nextValidTimeAfter);
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("Next Execution Date: " + nextValidTimeAfter);
+      }
       clonedStartDate = nextValidTimeAfter;
       if (endDate == null)
       {
@@ -239,7 +263,10 @@ public abstract class SchedulingRecurrence
    {
       setStartTimeString(daemon);
       String cronExpressionInput = generateSchedule(json);
-      trace.info("CronExpression: " + cronExpressionInput.toString());
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("CronExpression: " + cronExpressionInput.toString());
+      }
       try
       {
          return new CronExpression(cronExpressionInput);
@@ -252,9 +279,14 @@ public abstract class SchedulingRecurrence
    }
 
    @SuppressWarnings("deprecation")
-   protected Date getByDateNextExecutionDate(JsonObject recurrenceRange, CronExpression cronExpression)
+   protected Date getByDateNextExecutionDate(JsonObject recurrenceRange, CronExpression cronExpression, int offsetDay)
    {
       Date currentDate = getTimeStamp();
+
+      Calendar instance = Calendar.getInstance();
+      instance.setTime(currentDate);
+      instance.add(Calendar.DAY_OF_YEAR, offsetDay);
+      currentDate = instance.getTime();
 
       String endDateStr = recurrenceRange.get("endDate").getAsString();
       Date endDate = SchedulingUtils.getParsedDate(endDateStr, SchedulingUtils.CLIENT_DATE_FORMAT);
@@ -262,17 +294,26 @@ public abstract class SchedulingRecurrence
       endDate.setMinutes(59);
       endDate.setSeconds(59);
 
-      trace.info("End Date: " + endDate);
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("End Date: " + endDate);
+      }
       if (endDate != null)
       {
          if (startDate.after(endDate))
          {
-            trace.info("Invalid Dates: Start Date is after End Date");
+            if (trace.isDebugEnabled())
+            {
+               trace.debug("Invalid Dates: Start Date is after End Date");
+            }
          }
          else if (startDate.before(currentDate) && endDate.before(currentDate))
          {
             // Start Date and End Date are less than current date.
-            trace.info("Start Date and End Date are less than current date");
+            if (trace.isDebugEnabled())
+            {
+               trace.debug("Start Date and End Date are less than current date");
+            }
          }
          else if (!currentDate.before(startDate) && !currentDate.after(endDate))
          {
@@ -281,16 +322,31 @@ public abstract class SchedulingRecurrence
          }
          else if (startDate.after(currentDate))
          {
+            // we have to do this because of wrong result if it is the same day (startDate after currentDate on same day)
+            Date compareDate = (Date) startDate.clone();
+            compareDate.setHours(currentDate.getHours());
+            compareDate.setMinutes(currentDate.getMinutes());
+
+            // from here next execution date
+            Date startDateClone = (Date) startDate.clone();
+            startDateClone.setHours(0);
+            startDateClone.setMinutes(0);
+            startDateClone.setSeconds(0);
             // Future Date Scenario
-            return getNextExecutionDate(cronExpression, startDate, endDate);
+            return getNextExecutionDate(cronExpression, compareDate.after(currentDate) ? startDateClone : currentDate, endDate);
          }
       }
       return null;
    }
 
-   protected Date getNthExecutionDate(boolean daemon, JsonObject recurrenceRange, CronExpression cronExpression)
+   protected Date getNthExecutionDate(boolean daemon, JsonObject recurrenceRange, CronExpression cronExpression, int offsetDay)
    {
       Date currentDate = getTimeStamp();
+
+      Calendar instance = Calendar.getInstance();
+      instance.setTime(currentDate);
+      instance.add(Calendar.DAY_OF_YEAR, offsetDay);
+      currentDate = instance.getTime();
 
       // stop after n occurrences
       int occurences = recurrenceRange.get("occurences").getAsInt();
@@ -302,7 +358,10 @@ public abstract class SchedulingRecurrence
 
       // Generate n Future Execution Dates
       List<Date> nFutureExecutionDates = generateNFutureExecutionDates(cronExpression, startDate, occurences);
-      trace.info("N Future occurences: " + nFutureExecutionDates.toString());
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("N Future occurences: " + nFutureExecutionDates.toString());
+      }
 
       Date lastDate = nFutureExecutionDates.get(nFutureExecutionDates.size() - 1);
       if (!lastDate.before(currentDate))
@@ -315,16 +374,38 @@ public abstract class SchedulingRecurrence
             }
          }
       }
-      trace.info("All Occurences are finished");
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("All Occurences are finished");
+      }
       return null;
    }
 
-   protected Date getNoEndNextExecutionDate(CronExpression cronExpression)
+   @SuppressWarnings("deprecation")
+   protected Date getNoEndNextExecutionDate(CronExpression cronExpression, int offsetDay)
    {
       Date currentDate = getTimeStamp();
 
-      trace.info("No End Date is selected");
-      return getNextExecutionDate(cronExpression, startDate.after(currentDate) ? startDate : currentDate, null);
+      Calendar instance = Calendar.getInstance();
+      instance.setTime(currentDate);
+      instance.add(Calendar.DAY_OF_YEAR, offsetDay);
+      currentDate = instance.getTime();
+
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("No End Date is selected");
+      }
+      // we have to do this because of wrong result if it is the same day (startDate after currentDate on same day)
+      Date compareDate = (Date) startDate.clone();
+      compareDate.setHours(currentDate.getHours());
+      compareDate.setMinutes(currentDate.getMinutes());
+
+      // from here next execution date
+      Date startDateClone = (Date) startDate.clone();
+      startDateClone.setHours(0);
+      startDateClone.setMinutes(0);
+      startDateClone.setSeconds(0);
+      return getNextExecutionDate(cronExpression, compareDate.after(currentDate) ? startDateClone : currentDate, null);
    }
 
    /**
@@ -369,7 +450,10 @@ public abstract class SchedulingRecurrence
    private Date getNextExecutionDate(CronExpression cronExpression, Date startDate, Date endDate)
    {
       Date nextValidTimeAfter = cronExpression.getNextValidTimeAfter(startDate);
-      trace.info("Next Execution Date: " + nextValidTimeAfter);
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("Next Execution Date: " + nextValidTimeAfter);
+      }
       if (endDate == null)
       {
          return nextValidTimeAfter;

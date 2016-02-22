@@ -60,4 +60,9 @@ public class WaitTimeout
    {
       return unit;
    }
+   
+   public String toString()
+   {
+      return time + " " + unit.toString().toLowerCase();
+   }
 }

@@ -1,1 +1,2 @@
 org.eclipse.stardust.engine.core.extensions.bo.BusinessObjectModelExtender
+org.eclipse.stardust.engine.extensions.events.signal.WorkCompletionPartitionMonitor

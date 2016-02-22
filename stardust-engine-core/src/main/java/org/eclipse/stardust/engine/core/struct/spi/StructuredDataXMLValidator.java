@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.w3c.dom.Element;
 
@@ -21,40 +22,52 @@ import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
+import org.eclipse.stardust.engine.core.spi.extensions.model.*;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
-import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
-import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
-import org.eclipse.stardust.engine.core.struct.DataXPathMap;
-import org.eclipse.stardust.engine.core.struct.IXPathMap;
-import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
-import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
-import org.eclipse.stardust.engine.core.struct.TypedXPath;
-import org.eclipse.stardust.engine.core.struct.Utils;
-
-
+import org.eclipse.stardust.engine.core.struct.*;
 
 /**
  * DataValidator for structured data
  *
  * @version $Revision$
  */
-public class StructuredDataXMLValidator implements ExtendedDataValidator, Stateless
+public class StructuredDataXMLValidator implements ExtendedDataValidator, Stateless, StructuredDataValidator
 {
-
    public boolean isStateless()
    {
       return true;
    }
 
+   public List validate(IData data)
+   {
+      Vector inconsistencies = new Vector();
+      
+      String typeId = data.getType().getId();
+      if (StructuredDataConstants.STRUCTURED_DATA.equals(typeId))
+      {
+         IReference ref = data.getExternalReference();
+         // local data only 
+         if(ref == null)
+         {
+            IXPathMap xPathMap = StructuredTypeRtUtils.getXPathMap(data);
+            if (xPathMap == null)
+            {
+               BpmValidationError error = BpmValidationError.DATA_NO_SCHEMA_FOUND_FOR_STRUCTURED_DATA.raise(data.getId()); 
+               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+            }
+         }
+      }
+      
+      return inconsistencies;
+   }
+      
    public List validate(Map attributes)
    {
-      // @todo (france, ub):
       return Collections.EMPTY_LIST;
    }
 
@@ -292,6 +305,5 @@ public class StructuredDataXMLValidator implements ExtendedDataValidator, Statel
          }
          return type;
       }
-
    }
 }

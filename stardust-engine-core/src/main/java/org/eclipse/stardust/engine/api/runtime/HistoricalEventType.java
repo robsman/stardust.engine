@@ -39,9 +39,15 @@ public class HistoricalEventType extends IntKey
    public final static int STATE_CHANGE = 4;
 
    /**
+    * The HistoricalEvent describes a data change
+    */
+   public final static int DATA_CHANGE = 5;
+   
+   /**
     * The HistoricalEvent describes a delegation event.
     */
    public final static int DELEGATION = 8;
+   
 
    /**
     * The HistoricalEvent describes an event execution event.
@@ -53,7 +59,7 @@ public class HistoricalEventType extends IntKey
    public final static HistoricalEventType StateChange = new HistoricalEventType(STATE_CHANGE, "State Change");
    public final static HistoricalEventType Delegation = new HistoricalEventType(DELEGATION, "Delegation");
    public final static HistoricalEventType EventExecution = new HistoricalEventType(EVENT_EXECUTION, "EventExecution");
-
+   public final static HistoricalEventType DataChange = new HistoricalEventType(DATA_CHANGE, "Data Change");
    /**
     * Factory method to get the HistoricalEventType object corresponding to the numerical code.
     *

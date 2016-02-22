@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,7 +43,7 @@ public class DeleteDescriptor extends TableDescriptor implements FieldRefResolve
 
       return result;
    }
-   
+
    public static DeleteDescriptor from(String schema, Class type, String tableAlias)
    {
       DeleteDescriptor result = new DeleteDescriptor(schema);
@@ -53,7 +53,7 @@ public class DeleteDescriptor extends TableDescriptor implements FieldRefResolve
 
       return result;
    }
-   
+
    public static DeleteDescriptor fromLockTable(Class type)
    {
       return fromLockTable(null, type);
@@ -68,26 +68,26 @@ public class DeleteDescriptor extends TableDescriptor implements FieldRefResolve
 
       return result;
    }
-   
+
    private DeleteDescriptor(String schemaName)
    {
       super(schemaName);
       this.qe = new QueryExtension();
    }
-   
+
    public FieldRef resolveFieldRef(FieldRef field)
    {
       // TODO cache resolvable tables
       Map resolvableTables = new HashMap();
       Set unresolvableTables = new HashSet();
-      
+
       // don't use any alias on the table to delete from
       resolvableTables.put(getTableName(), this);
-      
+
       for (Iterator i = qe.getJoins().iterator(); i.hasNext();)
       {
          Join join = (Join) i.next();
-         
+
          ITableDescriptor conflictingTable = (ITableDescriptor) resolvableTables.get(join.getTableName());
          if (null == conflictingTable)
          {
@@ -98,11 +98,11 @@ public class DeleteDescriptor extends TableDescriptor implements FieldRefResolve
             unresolvableTables.add(join.getTableName());
          }
       }
-      
+
       resolvableTables.keySet().removeAll(unresolvableTables);
-      
+
       FieldRef result;
-      
+
       ITableDescriptor resolvedTable = (ITableDescriptor) resolvableTables.get(field.getType()
             .getTableName());
       if (null != resolvedTable)
@@ -122,7 +122,7 @@ public class DeleteDescriptor extends TableDescriptor implements FieldRefResolve
 
       return result;
    }
-   
+
    public String getTableName()
    {
       return isAffectingLockTable() ? tdType.getLockTableName() : tdType.getTableName();
@@ -137,38 +137,38 @@ public class DeleteDescriptor extends TableDescriptor implements FieldRefResolve
    {
       return innerJoin(getSchemaName(), rhsType, null);
    }
-   
+
    public Join innerJoin(String schema, Class rhsType)
    {
       return innerJoin(schema, rhsType, null);
    }
-   
+
    public Join innerJoin(Class rhsType, String rhsAlias)
    {
       return innerJoin(null, rhsType, rhsAlias);
    }
-   
+
    public Join innerJoin(String schema, Class rhsType, String rhsAlias)
    {
-      Join join = new Join(rhsType, rhsAlias);
+      Join join = new Join(schema, rhsType, rhsAlias);
       join.setRequired(true);
 
       qe.addJoin(join);
 
       return join;
    }
-   
+
    /**
     * Convenience method which creates an empty QueryExtension and adds a given
     * <code>PredicateTerm</code>.
-    * 
+    *
     * @param predicateTerm The predicate term
     * @return The new query extension
     */
    public DeleteDescriptor where(PredicateTerm predicateTerm)
    {
       qe.setWhere(predicateTerm);
-      
+
       return this;
    }
 

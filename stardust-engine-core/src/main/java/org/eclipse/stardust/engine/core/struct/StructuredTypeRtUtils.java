@@ -1053,13 +1053,16 @@ public class StructuredTypeRtUtils
    public static XSDSchema getSchema(IModel model, ITypeDeclaration decl)
    {
       IXpdlType type = decl.getXpdlType();
-      if (type instanceof IExternalReference)
+      if(type != null)
       {
-         return ((IExternalReference) type).getSchema(model);
-      }
-      else if (type instanceof SchemaTypeBean)
-      {
-         return ((SchemaTypeBean) type).getSchema();
+         if (type instanceof IExternalReference)
+         {
+            return ((IExternalReference) type).getSchema(model);
+         }
+         else if (type instanceof SchemaTypeBean)
+         {
+            return ((SchemaTypeBean) type).getSchema();
+         }
       }
       return null;
    }

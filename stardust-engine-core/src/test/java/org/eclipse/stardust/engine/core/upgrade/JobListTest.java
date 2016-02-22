@@ -23,9 +23,6 @@ import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.engine.core.upgrade.framework.ModelItem;
 import org.eclipse.stardust.engine.core.upgrade.framework.ModelUpgrader;
 
-import junit.framework.TestCase;
-
-
 /**
  * Test cases for testing the correct processing of the job list.
  *
@@ -34,7 +31,10 @@ import junit.framework.TestCase;
  */
 public class JobListTest
 {
-   String model = "<MODEL carnot_xml_version=\"2.0.0\" id=\"ACME_Workflow_Model\"/>";
+   String model = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>"
+                + "<model xmlns=\"http://www.carnot.ag/workflowmodel/3.1\" "
+                + "id=\"ACME_Workflow_Model\" name=\"ACME Workflow Model\" "
+                + "carnotVersion=\"2.0.0\" vendor=\"SunGard CSA LLC, IPP\"/>";
 
    /**
     * Tests that upgrade process is stopped if a maximum version is provided.
@@ -51,10 +51,10 @@ public class JobListTest
       jobs.add(job21);
       jobs.add(job22);
       jobs.add(job27);
-      ModelItem item = new ModelItem(model);
+      ModelItem item = new ModelItem(null, Long.MIN_VALUE, model);
       ModelUpgrader upgrader = new ModelUpgrader(item, jobs);
-      ModelItem newModel = (ModelItem) upgrader.upgradeToVersion(Version.createFixedVersion(2,6,9), false);
-      assertEquals(job22.getVersion(), newModel.getVersion());
+      upgrader.upgradeToVersion(Version.createFixedVersion(2,6,9), false);
+      assertEquals(job22.getVersion(), item.getVersion());
       assertTrue(!job19.wasVisited());
       assertTrue(job21.wasVisited());
       assertTrue(job22.wasVisited());
@@ -77,7 +77,7 @@ public class JobListTest
       jobs.add(job21);
       jobs.add(job22);
       jobs.add(current);
-      ModelItem item = new ModelItem(model);
+      ModelItem item = new ModelItem(null, Long.MIN_VALUE, model);
       ModelUpgrader upgrader = new ModelUpgrader(item, jobs);
       ModelItem newModel = (ModelItem) upgrader.upgrade(false);
       assertEquals(current.getVersion(), newModel.getVersion());
@@ -104,7 +104,7 @@ public class JobListTest
       jobs.add(job21);
       jobs.add(job22);
       jobs.add(current);
-      ModelItem item = new ModelItem(model);
+      ModelItem item = new ModelItem(null, Long.MIN_VALUE, model);
       ModelUpgrader upgrader = new ModelUpgrader(item, jobs);
       ModelItem newModel = (ModelItem) upgrader.upgrade(false);
       assertEquals(current.getVersion(), newModel.getVersion());
@@ -131,7 +131,7 @@ public class JobListTest
       jobs.add(job21);
       jobs.add(job22);
       jobs.add(current);
-      ModelItem item = new ModelItem(model);
+      ModelItem item = new ModelItem(null, Long.MIN_VALUE, model);
       ModelUpgrader upgrader = new ModelUpgrader(item, jobs);
       ModelItem newModel = (ModelItem) upgrader.upgrade(true);
       assertEquals(current.getVersion(), newModel.getVersion());

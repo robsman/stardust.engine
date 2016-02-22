@@ -28,11 +28,11 @@ public class RuntimeOidRegistry implements IRuntimeOidRegistry
    private static final Logger trace = LogManager.getLogger(IRuntimeOidRegistry.class);
 
    public static final int PARTITION_PART_SHIFT = 48;
-   
+
    private final Map rtOidRegistry = CollectionUtils.newMap();
    private final Map rtOidReverseMap = CollectionUtils.newMap();
    private final short partitionOid;
-   
+
    public RuntimeOidRegistry(final short partitionOid)
    {
       this.partitionOid = partitionOid;
@@ -41,7 +41,7 @@ public class RuntimeOidRegistry implements IRuntimeOidRegistry
    public long getRuntimeOid(ElementType type, String[] fqId)
    {
       long result = 0;
-      
+
       Map typeRegistry = (Map) rtOidRegistry.get(type);
       if (null != typeRegistry)
       {
@@ -55,17 +55,17 @@ public class RuntimeOidRegistry implements IRuntimeOidRegistry
 
       if (0 != result)
       {
-         Assert.condition(((result >> PARTITION_PART_SHIFT) + 1l) == partitionOid,
+         Assert.condition(partitionOid == getPartitionFromRuntimeOid(result),
                "Partition part of runtime oid "+result+" does not match with partiton oid "+partitionOid+".");
       }
 
       return result;
    }
-   
+
    public String[] getFqId(ElementType type, long rtOid)
    {
       String[] result = StringUtils.EMPTY_STRING_ARRAY;
-      
+
       Map idRegistry = (Map) rtOidReverseMap.get(type);
       if (null != idRegistry)
       {
@@ -75,10 +75,10 @@ public class RuntimeOidRegistry implements IRuntimeOidRegistry
             result = id;
          }
       }
-      
+
       return result;
    }
-   
+
    public void registerRuntimeOid(ElementType type, String[] fqId, long rtOid)
          throws InternalException
    {
@@ -88,7 +88,7 @@ public class RuntimeOidRegistry implements IRuntimeOidRegistry
       }
       try
       {
-         Assert.condition(((rtOid >> PARTITION_PART_SHIFT) + 1l) == partitionOid,
+         Assert.condition(getPartitionFromRuntimeOid(rtOid) == partitionOid,
                "Partition part of runtime oid " + rtOid
                      + " does not match with partiton oid " + partitionOid + ".");
       }
@@ -103,7 +103,7 @@ public class RuntimeOidRegistry implements IRuntimeOidRegistry
          typeRegistry = new HashMap();
          rtOidRegistry.put(type, typeRegistry);
       }
-      
+
       String fqIdKey = RuntimeOidUtils.internalizeFqId(fqId);
       Long oid = (Long) typeRegistry.get(fqIdKey);
       if (null != oid)
@@ -118,7 +118,7 @@ public class RuntimeOidRegistry implements IRuntimeOidRegistry
       else
       {
          typeRegistry.put(fqIdKey, new Long(rtOid));
-         
+
          Map idRegistry = (Map) rtOidReverseMap.get(type);
          if (null == idRegistry)
          {
@@ -128,7 +128,7 @@ public class RuntimeOidRegistry implements IRuntimeOidRegistry
          idRegistry.put(new Long(rtOid), fqId);
       }
    }
-   
+
    public long registerNewRuntimeOid(ElementType type, String[] fqId)
          throws InternalException
    {
@@ -147,10 +147,20 @@ public class RuntimeOidRegistry implements IRuntimeOidRegistry
       }
       else
       {
-         newOid = 1 + ((partitionOid - 1l) << PARTITION_PART_SHIFT);
+         newOid = firstOidInPartition(partitionOid);
       }
-      
+
       registerRuntimeOid(type, fqId, newOid);
       return newOid;
+   }
+
+   public static long getPartitionFromRuntimeOid(long runtimeOid)
+   {
+      return (runtimeOid >> PARTITION_PART_SHIFT) + 1l;
+   }
+
+   public static long firstOidInPartition(short partitionOid)
+   {
+      return 1 + ((partitionOid - 1l) << PARTITION_PART_SHIFT);
    }
 }

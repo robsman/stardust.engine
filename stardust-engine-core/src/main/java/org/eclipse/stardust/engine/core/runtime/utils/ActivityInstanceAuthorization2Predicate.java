@@ -17,6 +17,7 @@ import java.util.Map;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.query.DataPrefetchHint;
 import org.eclipse.stardust.engine.api.query.ExcludeUserPolicy;
 import org.eclipse.stardust.engine.api.query.Query;
@@ -25,14 +26,14 @@ import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 
 /**
- * 
+ *
  * @author Florin.Herinean
  * @version $Revision: $
  */
 public class ActivityInstanceAuthorization2Predicate extends AbstractAuthorization2Predicate
 {
    private static final Logger trace = LogManager.getLogger(ActivityInstanceAuthorization2Predicate.class);
-   
+
    private static final FieldRef[] LOCAL_STRINGS = {
       ActivityInstanceBean.FR__ACTIVITY,
       ActivityInstanceBean.FR__MODEL,
@@ -55,10 +56,10 @@ public class ActivityInstanceAuthorization2Predicate extends AbstractAuthorizati
       {
          excludeUserPolicy = true;
       }
-      
+
       return super.addPrefetchDataHints(query);
    }
-   
+
    public FieldRef[] getLocalFields()
    {
       return LOCAL_STRINGS;
@@ -84,7 +85,7 @@ public class ActivityInstanceAuthorization2Predicate extends AbstractAuthorizati
                long currentUserPerformer = rs.getLong(ActivityInstanceBean.FIELD__CURRENT_USER_PERFORMER);
                long processInstanceOid = rs.getLong(ActivityInstanceBean.FIELD__PROCESS_INSTANCE);
                long departmentOid = rs.getLong(ActivityInstanceBean.FIELD__CURRENT_DEPARTMENT);
-               
+
                if (excludeUserPolicy)
                {
                   Map<String, Long> dataValueOids = CollectionUtils.newMap();
@@ -111,7 +112,7 @@ public class ActivityInstanceAuthorization2Predicate extends AbstractAuthorizati
                      return false;
                   }
                }
-               
+
                context.setActivityData(processInstanceOid, activityRtOid, modelOid, currentPerformer,
                      currentUserPerformer, departmentOid);
                return Authorization2.hasPermission(context);
@@ -125,8 +126,12 @@ public class ActivityInstanceAuthorization2Predicate extends AbstractAuthorizati
          }
          else if (o instanceof IActivityInstance)
          {
-            IActivityInstance ai = (IActivityInstance) o;
-            context.setActivityInstance(ai);
+            context.setActivityInstance((IActivityInstance) o);
+            return Authorization2.hasPermission(context);
+         }
+         else if (o instanceof IActivity)
+         {
+            context.setModelElementData((IActivity) o);
             return Authorization2.hasPermission(context);
          }
       }

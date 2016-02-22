@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -74,7 +74,12 @@ public class CollectionUtils
 
    public static <E> List<E> newListFromIterator(Iterator<E> iterator)
    {
-      return newArrayListFromIterator(iterator);
+      return newArrayListFromIterator(iterator, null);
+   }
+
+   public static <E> List<E> newListFromIterator(Iterator<E> iterator, Predicate<E> predicate)
+   {
+      return newArrayListFromIterator(iterator, predicate);
    }
 
    /**
@@ -107,10 +112,22 @@ public class CollectionUtils
 
    public static <E> List<E> newArrayListFromIterator(Iterator<? extends E> iterator)
    {
+      return newArrayListFromIterator(iterator, null);
+   }
+
+   public static <E> List<E> newArrayListFromIterator(Iterator<? extends E> iterator, Predicate<E> predicate)
+   {
       ArrayList<E> result = newArrayList();
-      while (iterator.hasNext())
+
+      Iterator<? extends E> it = iterator;
+      if (predicate != null)
       {
-         result.add(iterator.next());
+         it = new FilteringIterator<E>(iterator, predicate);
+      }
+
+      while (it.hasNext())
+      {
+         result.add(it.next());
       }
       return result;
    }
@@ -191,10 +208,23 @@ public class CollectionUtils
 
    public static <E> HashSet<E> newHashSetFromIterator(Iterator<E> iterator)
    {
+      return newHashSetFromIterator(iterator, null);
+   }
+
+   public static <E> HashSet<E> newHashSetFromIterator(Iterator<E> iterator,
+         Predicate<E> predicate)
+   {
       HashSet<E> result = newHashSet();
-      while (iterator.hasNext())
+
+      Iterator<E> it = iterator;
+      if (predicate != null)
       {
-         result.add(iterator.next());
+         it = new FilteringIterator<E>(iterator, predicate);
+      }
+
+      while (it.hasNext())
+      {
+         result.add(it.next());
       }
       return result;
    }

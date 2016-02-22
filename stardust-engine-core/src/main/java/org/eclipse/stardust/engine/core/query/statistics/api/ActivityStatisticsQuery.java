@@ -31,11 +31,6 @@ public class ActivityStatisticsQuery extends CustomActivityInstanceQuery
    
    public static final String ID = ActivityStatisticsQuery.class.getName();
 
-   public static ActivityStatisticsQuery forAllProcesses()
-   {
-      return new ActivityStatisticsQuery();
-   }
-
    public static ActivityStatisticsQuery forProcesses(
          ProcessDefinition process)
    {

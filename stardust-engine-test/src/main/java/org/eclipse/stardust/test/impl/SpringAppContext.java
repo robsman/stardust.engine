@@ -10,9 +10,12 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.impl;
 
+import static org.eclipse.stardust.common.CollectionUtils.newHashSet;
+
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.engine.api.spring.SpringConstants;
 import org.eclipse.stardust.engine.api.spring.SpringUtils;
@@ -20,7 +23,6 @@ import org.eclipse.stardust.test.api.setup.ApplicationContextConfiguration;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestRtEnvException;
 import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
-
 import org.springframework.context.ConfigurableApplicationContext;
 
 
@@ -98,8 +100,19 @@ public class SpringAppContext
    {
       final StringBuilder sb = new StringBuilder();
 
-      final ApplicationContextConfiguration appCtxConfig = testClass.getAnnotation(ApplicationContextConfiguration.class);
-      if (appCtxConfig != null)
+      final Set<ApplicationContextConfiguration> appCtxConfigs = newHashSet();
+      Class<?> classIterator = testClass;
+      do
+      {
+         final ApplicationContextConfiguration appCtxConfig = classIterator.getAnnotation(ApplicationContextConfiguration.class);
+         if (appCtxConfig != null)
+         {
+            appCtxConfigs.add(appCtxConfig);
+         }
+         classIterator = classIterator.getSuperclass();
+      } while (classIterator != null);
+
+      for (ApplicationContextConfiguration appCtxConfig : appCtxConfigs)
       {
          for (final String l : appCtxConfig.locations())
          {

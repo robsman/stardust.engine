@@ -1146,6 +1146,77 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
          java.lang.String moduleId, java.lang.String bundleName, java.util.Locale locale)
          throws org.eclipse.stardust.common.error.WorkflowException;
          
+    /**
+     * Retrieves the artifact by the unique oid.
+     *
+     * @param oid The oid of the artifact.
+     *
+     * @return The artifact or <code>null<code> if it does not exist.
+     *
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getRuntimeArtifact(long oid)
+     */
+    public org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         getRuntimeArtifact(long oid)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+    /**
+     * Retrieves all DeployedRuntimeArtifacts satisfying the criteria specified in the
+     * provided query.
+     *
+     * @param query the deployed runtime artifact query.
+     *
+     * @return The deployed runtime artifacts matching the specified criteria.
+     *
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getRuntimeArtifacts(
+     *     org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query)
+     */
+    public org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifacts
+         getRuntimeArtifacts(
+         org.eclipse.stardust.engine.api.query.DeployedRuntimeArtifactQuery query)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+    /**
+     * Gets a specific process instance link type.
+     *
+     * @param id the in of the process instance link type.
+     *
+     * @return the process instance link type.
+     *
+     * @throws ObjectNotFoundException if there is no process instance link type with the specified
+     *     id.
+     *     <em>Instances of {@link ObjectNotFoundException} will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessInstanceLinkType(
+     *     java.lang.String id)
+     */
+    public org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType
+         getProcessInstanceLinkType(java.lang.String id)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+    /**
+     * Gets all process instance link types defined.
+     *
+     * @return a list of process instance link types.
+     *
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllProcessInstanceLinkTypes()
+     */
+    public
+         java.util.List<org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType>
+         getAllProcessInstanceLinkTypes()
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
     void login(java.lang.String userId, java.lang.String password)
          throws org.eclipse.stardust.common.error.WorkflowException;
 

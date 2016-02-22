@@ -41,6 +41,12 @@ public interface SpringConstants
    final String BEAN_ID_USER_SERVICE = "carnotUserService";
 
    final String BEAN_ID_FORKING_SERVICE = "carnotForkingService";
+   
+   final String BEAN_ID_JMS_CONNECTION_FACTORY = "CarnotJmsConnectionFactory";
+   
+   final String BEAN_ID_JMS_EXPORT_QUEUE = "CarnotJmsExportQueue";
+   
+   final String BEAN_ID_JMS_ARCHIVE_QUEUE = "CarnotJmsArchiveQueue";
 
    final String REPORTING_TX_TIMEOUT = "Carnot.Spring.TxTimeout.Reporting";
 

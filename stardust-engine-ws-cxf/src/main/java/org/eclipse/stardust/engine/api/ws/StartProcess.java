@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="parameters" type="{http://eclipse.org/stardust/ws/v2012a/api}Parameters"/>
  *         &lt;element name="startSynchronously" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="attachments" type="{http://eclipse.org/stardust/ws/v2012a/api}InputDocuments" minOccurs="0"/>
+ *         &lt;element name="benchmarkId" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -37,7 +38,8 @@ import javax.xml.bind.annotation.XmlType;
     "processId",
     "parameters",
     "startSynchronously",
-    "attachments"
+    "attachments",
+    "benchmarkId"
 })
 @XmlRootElement(name = "startProcess")
 public class StartProcess {
@@ -50,6 +52,8 @@ public class StartProcess {
     protected Boolean startSynchronously;
     @XmlElementRef(name = "attachments", namespace = "http://eclipse.org/stardust/ws/v2012a/api", type = JAXBElement.class)
     protected JAXBElement<InputDocumentsXto> attachments;
+    @XmlElementRef(name = "benchmarkId", namespace = "http://eclipse.org/stardust/ws/v2012a/api", type = JAXBElement.class)
+    protected JAXBElement<String> benchmarkId;
 
     /**
      * Gets the value of the processId property.
@@ -145,6 +149,30 @@ public class StartProcess {
      */
     public void setAttachments(JAXBElement<InputDocumentsXto> value) {
         this.attachments = ((JAXBElement<InputDocumentsXto> ) value);
+    }
+
+    /**
+     * Gets the value of the benchmarkId property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link JAXBElement }{@code <}{@link String }{@code >}
+     *     
+     */
+    public JAXBElement<String> getBenchmarkId() {
+        return benchmarkId;
+    }
+
+    /**
+     * Sets the value of the benchmarkId property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link JAXBElement }{@code <}{@link String }{@code >}
+     *     
+     */
+    public void setBenchmarkId(JAXBElement<String> value) {
+        this.benchmarkId = ((JAXBElement<String> ) value);
     }
 
 }

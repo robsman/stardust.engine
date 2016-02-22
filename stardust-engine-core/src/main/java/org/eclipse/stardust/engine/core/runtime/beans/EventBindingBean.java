@@ -13,7 +13,9 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.util.Iterator;
 
 import org.eclipse.stardust.engine.api.model.IEventHandler;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.ForeignKey;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
@@ -62,6 +64,7 @@ public class EventBindingBean extends IdentifiablePersistentBean implements IPro
    private long objectOID;
    private int type;
 
+   @ForeignKey (modelElement=ModelBean.class)
    private long model;
    private long handlerOID;
 

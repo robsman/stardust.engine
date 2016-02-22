@@ -123,7 +123,7 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
             case 2:
                if (!dryRun && !schemaUpgrade)
                {
-                  info("Upgrading Model...");
+                  info("Upgrading Models...");
                   upgradeModel(recover);
                   setUpgradeState(UPGRADE_LEVEL3);
                   info("...Model migration done.");
@@ -221,12 +221,11 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
          if (model != null)
          {
             ModelUpgrader modelUpgrader = new ModelUpgrader(model);
-            ModelItem newModel = (ModelItem) modelUpgrader.upgradeToVersion(getVersion(),
-                  recover);
+            modelUpgrader.upgradeToVersion(getVersion(), recover);
 
-            if (newModel != null && !model.getModel().equals(newModel.getModel()))
+            if (model.isChanged())
             {
-               dumpModel(oid, newModel);
+               dumpModel(oid, model);
             }
          }
       }
@@ -271,7 +270,7 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
       {
          return null;
       }
-      return new ModelItem(buffer.toString());
+      return new ModelItem(item, oid, buffer.toString());
    }
 
    protected void dumpModel(long oid, ModelItem model) throws UpgradeException

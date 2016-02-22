@@ -33,7 +33,7 @@ public class HistoricalEventPolicy implements EvaluationPolicy
    public final static HistoricalEventPolicy ALL_EVENTS = new HistoricalEventPolicy(
          HistoricalEventType.EXCEPTION | HistoricalEventType.STATE_CHANGE
                | HistoricalEventType.NOTE | HistoricalEventType.DELEGATION
-               | HistoricalEventType.EVENT_EXECUTION);
+               | HistoricalEventType.EVENT_EXECUTION | HistoricalEventType.DATA_CHANGE);
    
    /**
     * Creates a policy for a given event type resp. event types.

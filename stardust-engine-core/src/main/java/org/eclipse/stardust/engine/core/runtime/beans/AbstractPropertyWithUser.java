@@ -37,12 +37,17 @@ public abstract class AbstractPropertyWithUser extends AbstractProperty
    }
 
    /**
-    * @return the user who last modified the property, or null if the user is unknown.
+    * @return the user who last modified the property, or null if the user is unknown or
+    *         oid is 0.
     */
    public IUser getUser()
    {
       fetch();
       if (Unknown.LONG == workflowUser)
+      {
+         return null;
+      }
+      else if (0 == workflowUser)
       {
          return null;
       }

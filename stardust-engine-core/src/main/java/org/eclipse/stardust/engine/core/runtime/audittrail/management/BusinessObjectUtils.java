@@ -18,6 +18,7 @@ import java.util.*;
 import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Predicate;
 import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.ObjectExistsException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
@@ -31,13 +32,13 @@ import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQueryEvaluator.ParsedQueryProcessor;
+import org.eclipse.stardust.engine.api.query.QueryUtils;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject.Definition;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject.Value;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
-import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean.DataValueChangeListener;
@@ -59,6 +60,24 @@ public class BusinessObjectUtils
 {
    private static final String BUSINESS_OBJECT_ATT = PredefinedConstants.MODEL_SCOPE + "BusinessObject";
    private static final String BUSINESS_OBJECT_RELATIONSHIPS_ATT = BUSINESS_OBJECT_ATT + ":Relationships";
+
+   public static final Predicate dataFilterPredicate = new Predicate()
+   {
+      @Override
+      public boolean accept(Object o)
+      {
+         return o instanceof DataFilter;
+      }
+   };
+
+   private static final Predicate sdvPredicate = new Predicate()
+   {
+      @Override
+      public boolean accept(Object o)
+      {
+         return StructuredDataValueBean.class.equals(o);
+      }
+   };
 
    public static BusinessObjects getBusinessObjects(BusinessObjectQuery query)
    {
@@ -83,7 +102,7 @@ public class BusinessObjectUtils
       }
 
       final Map<IData, List<BusinessObject.Value>> values = withValues
-            ? fetchValues(allData, queryEvaluator.getPkValue(), query.getFilter()) : null;
+            ? fetchValues(allData, queryEvaluator.getPkValue(), query.getFilter(), query) : null;
       if (values != null)
       {
          allData = values.keySet();
@@ -113,7 +132,7 @@ public class BusinessObjectUtils
             new TransformingIterator<IData, BusinessObject>(allData.iterator(), transformer)));
    }
 
-   private static boolean isUniqueBusinessObject(Set<IData> allData)
+   public static boolean isUniqueBusinessObject(Set<IData> allData)
    {
       String modelId = null;
       String dataId = null;
@@ -135,7 +154,7 @@ public class BusinessObjectUtils
       return true;
    }
 
-   private static Set<IData> collectData(final ModelManager modelManager, BusinessObjectQueryPredicate queryEvaluator)
+   public static Set<IData> collectData(final ModelManager modelManager, BusinessObjectQueryPredicate queryEvaluator)
    {
       BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
       Authorization2Predicate auth = runtimeEnvironment == null ? null : runtimeEnvironment.getAuthorizationPredicate();
@@ -198,7 +217,7 @@ public class BusinessObjectUtils
       }
    }
 
-   private static Map<IData, List<Value>> fetchValues(Set<IData> allData, Object pkValue, FilterAndTerm term)
+   private static Map<IData, List<Value>> fetchValues(Set<IData> allData, Object pkValue, FilterAndTerm term, Query query)
    {
       Map<IData, List<BusinessObject.Value>> values = CollectionUtils.newMap();
       for (IData data : allData)
@@ -209,14 +228,14 @@ public class BusinessObjectUtils
             String pk = data.getAttribute(PredefinedConstants.PRIMARY_KEY_ATT);
             pi.where(DataFilter.isEqual(data.getId(), pk, (Serializable) pkValue));
          }
-         copyDataFilters(term, pi.getFilter());
+         copyFilters(term, pi.getFilter(), dataFilterPredicate);
          ProcessInstanceQueryEvaluator eval = new ProcessInstanceQueryEvaluator(pi, QueryServiceUtils.getDefaultEvaluationContext());
          ParsedQuery parsedQuery = eval.parseQuery();
          List<Join> predicateJoins = parsedQuery.getPredicateJoins();
          PredicateTerm parsedTerm = filter(parsedQuery.getPredicateTerm());
 
          QueryDescriptor queryDescriptor = createFetchQuery(data, pkValue, predicateJoins, parsedTerm);
-         fetchValues(values, data, queryDescriptor);
+         fetchValues(values, data, queryDescriptor, query);
       }
       return values;
    }
@@ -237,7 +256,7 @@ public class BusinessObjectUtils
       desc
             .innerJoin(ClobDataBean.class)
             .on(dvJoin.fieldRef(DataValueBean.FIELD__NUMBER_VALUE), ClobDataBean.FIELD__OID);
-      applyRestrictions(desc, predicateJoins);
+      applyRestrictions(desc, predicateJoins, sdvPredicate);
 
       List<PredicateTerm> predicates = CollectionUtils.newList();
       predicates.add(Predicates.isEqual(ProcessInstanceBean.FR__PROCESS_DEFINITION, -1));
@@ -266,32 +285,56 @@ public class BusinessObjectUtils
       return desc;
    }
 
-   protected static void fetchValues(Map<IData, List<BusinessObject.Value>> values,
-         IData data, QueryDescriptor queryDescriptor)
+   protected static int fetchValues(Map<IData, List<BusinessObject.Value>> values,
+         IData data, QueryDescriptor queryDescriptor, Query query)
    {
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-      ResultSet resultSet = session.executeQuery(queryDescriptor);
+      ResultSet resultSet = session.executeQuery(queryDescriptor, QueryUtils.getTimeOut(query));
+      SubsetPolicy subsetPolicy = QueryUtils.getSubset(query);
       try
       {
+         int skipped = 0;
+         int count = 0;
+         int total = 0;
          while (resultSet.next())
          {
-            long piOid = resultSet.getLong(1);
-            Clob clob = resultSet.getClob(2);
-
-            Document document = DocumentBuilder.buildDocument(clob.getCharacterStream());
-            boolean namespaceAware = StructuredDataXPathUtils.isNamespaceAware(document);
-            final IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
-            StructuredDataConverter converter = new StructuredDataConverter(xPathMap);
-
-            List<BusinessObject.Value> list = values.get(data);
-            if (list == null)
+            total++;
+            if (skipped < subsetPolicy.getSkippedEntries())
             {
-               list = CollectionUtils.newList();
-               values.put(data, list);
+               skipped++;
             }
-            Object value = converter.toCollection(document.getRootElement(), "", namespaceAware);
-            list.add(new BusinessObjectDetails.ValueDetails(piOid, value));
+            else
+            {
+               if (count < subsetPolicy.getMaxSize())
+               {
+                  count++;
+                  long piOid = resultSet.getLong(1);
+                  Clob clob = resultSet.getClob(2);
+
+                  Document document = DocumentBuilder.buildDocument(clob.getCharacterStream());
+                  boolean namespaceAware = StructuredDataXPathUtils.isNamespaceAware(document);
+                  final IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
+                  StructuredDataConverter converter = new StructuredDataConverter(xPathMap);
+
+                  List<BusinessObject.Value> list = values.get(data);
+                  if (list == null)
+                  {
+                     list = CollectionUtils.newList();
+                     values.put(data, list);
+                  }
+                  Object value = converter.toCollection(document.getRootElement(), "", namespaceAware);
+                  list.add(new BusinessObjectDetails.ValueDetails(piOid, value));
+               }
+               else
+               {
+                  if (!subsetPolicy.isEvaluatingTotalCount())
+                  {
+                     break;
+                  }
+               }
+            }
          }
+         return subsetPolicy.isEvaluatingTotalCount() ? total : 0;
       }
       catch (Exception e)
       {
@@ -299,38 +342,53 @@ public class BusinessObjectUtils
       }
       finally
       {
-         QueryUtils.closeResultSet(resultSet);
+         org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils.closeResultSet(resultSet);
       }
    }
 
-   private static void applyRestrictions(QueryDescriptor desc, List<Join> predicateJoins)
+   public static void applyRestrictions(QueryDescriptor desc, List<Join> predicateJoins, Predicate predicate)
    {
       if (predicateJoins != null)
       {
          for (Join join : predicateJoins)
          {
             ITableDescriptor tDesc = join.getRhsTableDescriptor();
-            if (tDesc instanceof TypeDescriptor && StructuredDataValueBean.class.equals(((TypeDescriptor) tDesc).getType()))
+            /*StructuredDataValueBean.class.equals(((TypeDescriptor) tDesc).getType())*/
+            if (tDesc instanceof TypeDescriptor)
             {
-               Join sdvJoin = null;
-               if (join.isRequired())
+               Class<?> type = ((TypeDescriptor) tDesc).getType();
+               if (predicate.accept(type))
                {
-                  sdvJoin = desc
-                        .innerJoin(StructuredDataValueBean.class, join.getTableAlias())
-                        .on(ProcessInstanceBean.FR__OID, StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
-               }
-               else
-               {
-                  sdvJoin = desc
-                        .leftOuterJoin(StructuredDataValueBean.class, join.getTableAlias())
-                        .on(ProcessInstanceBean.FR__OID, StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
-               }
-               AndTerm restriction = join.getRestriction();
-               if (restriction != null)
-               {
-                  for (PredicateTerm term : restriction.getParts())
+                  Join sdvJoin = null;
+                  if (join.isRequired())
                   {
-                     sdvJoin.where(replace(term, join, sdvJoin));
+                     sdvJoin = desc
+                           .innerJoin(type, join.getTableAlias());
+                  }
+                  else
+                  {
+                     sdvJoin = desc
+                           .leftOuterJoin(type, join.getTableAlias());
+                  }
+                  for (JoinElement element : join.getJoinConditions())
+                  {
+                     Pair<FieldRef, ? > condition = element.getJoinCondition();
+                     if (condition.getSecond() instanceof FieldRef)
+                     {
+                        sdvJoin.addJoinCondition(condition.getFirst(), ((FieldRef) condition.getSecond()).fieldName, element.getJoinConditionType());
+                     }
+                     else
+                     {
+                        sdvJoin.addJoinConditionConstant(condition.getFirst(), (String) condition.getSecond(), element.getJoinConditionType());
+                     }
+                  }
+                  AndTerm restriction = join.getRestriction();
+                  if (restriction != null)
+                  {
+                     for (PredicateTerm term : restriction.getParts())
+                     {
+                        sdvJoin.where(replace(term, join, sdvJoin));
+                     }
                   }
                }
             }
@@ -650,7 +708,7 @@ public class BusinessObjectUtils
       return data;
    }
 
-   private static PredicateTerm filter(PredicateTerm source)
+   public static PredicateTerm filter(PredicateTerm source)
    {
       // TODO: provide generic filtering like PredicateTerm.filter(Predicate)
       if (source instanceof MultiPartPredicateTerm)
@@ -701,29 +759,29 @@ public class BusinessObjectUtils
       return source;
    }
 
-   private static void copyDataFilters(FilterTerm source, FilterTerm target)
+   public static void copyFilters(FilterTerm source, FilterTerm target, Predicate predicate)
    {
       for (Object part : source.getParts())
       {
          if (part instanceof FilterAndTerm)
          {
-            copyDataFilters((FilterAndTerm) part, target.addAndTerm());
+            copyFilters((FilterAndTerm) part, target.addAndTerm(), predicate);
          }
          else if (part instanceof FilterAndNotTerm)
          {
-            copyDataFilters((FilterAndNotTerm) part, target.addAndNotTerm());
+            copyFilters((FilterAndNotTerm) part, target.addAndNotTerm(), predicate);
          }
          else if (part instanceof FilterOrTerm)
          {
-            copyDataFilters((FilterOrTerm) part, target.addOrTerm());
+            copyFilters((FilterOrTerm) part, target.addOrTerm(), predicate);
          }
          else if (part instanceof FilterOrNotTerm)
          {
-            copyDataFilters((FilterOrNotTerm) part, target.addOrNotTerm());
+            copyFilters((FilterOrNotTerm) part, target.addOrNotTerm(), predicate);
          }
-         else if (part instanceof DataFilter)
+         else if (predicate.accept(part))
          {
-            target.add((DataFilter) part);
+            target.add((FilterCriterion) part);
          }
       }
    }
@@ -897,5 +955,24 @@ public class BusinessObjectUtils
          data.setRuntimeAttribute(BUSINESS_OBJECT_RELATIONSHIPS_ATT, map);
       }
       return map;
+   }
+
+   public static String getPrimaryKeyFromBusinessObject(BusinessObject bo)
+   {
+      String primaryKey = null;
+      for(BusinessObject.Definition boDef : bo.getItems())
+      {
+         if(boDef.isPrimaryKey())
+         {
+            primaryKey = boDef.getName();
+            break;
+         }
+      }
+
+      if(primaryKey == null)
+      {
+         throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("primary key"));
+      }
+      return primaryKey;
    }
 }

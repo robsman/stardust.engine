@@ -54,4 +54,6 @@ public class ProcessInstancePersistentListener implements IPersistentListener
          criticalityListenerAction.execute(piBean);
       }      
    }
+   
+
 }

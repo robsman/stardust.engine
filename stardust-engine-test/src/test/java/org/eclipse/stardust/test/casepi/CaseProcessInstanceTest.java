@@ -14,10 +14,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
+
+import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -90,6 +93,15 @@ public class CaseProcessInstanceTest
    private static final Log LOG = LogFactory.getLog(CaseProcessInstanceTest.class);
 
    public static final String MODEL_NAME = "CaseModel";
+   private static final String CASE_PROCESS1 = new QName(MODEL_NAME, "CaseProcess1").toString();
+   private static final String CASE_PROCESS2 = new QName(MODEL_NAME, "CaseProcess2").toString();
+   private static final String PROCESS_WITH_RESULTS = new QName(MODEL_NAME, "ProcessWithResults").toString();
+
+   private static final String ORG1 = "Org1";
+   private static final String SCOPED_ORG1 = "ScopedOrg1";
+
+   private static final String ORG1_QUALIFIED_ID = new QName(MODEL_NAME, ORG1).toString();
+   private static final String SCOPED_ORG1_QUALIFIED_ID = new QName(MODEL_NAME, SCOPED_ORG1).toString();
 
    private static final String U1 = "u1";
    private static final String U2 = "u2";
@@ -115,10 +127,10 @@ public class CaseProcessInstanceTest
    {
       wfService = sf.getWorkflowService();
 
-      UserHome.create(sf, U1, "Org1");
+      UserHome.create(sf, U1, ORG1);
 
-      final Organization scopedOrg1 = getTestModel().getOrganization("ScopedOrg1");
-      final Department dept = DepartmentHome.create(sf, D1, "ScopedOrg1", null);
+      final Organization scopedOrg1 = getTestModel().getOrganization(SCOPED_ORG1);
+      final Department dept = DepartmentHome.create(sf, D1, SCOPED_ORG1, null);
       UserHome.create(sf, U2, dept.getScopedParticipant(scopedOrg1));
    }
 
@@ -128,9 +140,9 @@ public class CaseProcessInstanceTest
    @Test
    public void testCreate()
    {
-      ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null,
+      ProcessInstance caseProcess1 = wfService.startProcess(CASE_PROCESS1, null,
             true);
-      ProcessInstance caseProcess2 = wfService.startProcess("{CaseModel}CaseProcess2", null,
+      ProcessInstance caseProcess2 = wfService.startProcess(CASE_PROCESS2, null,
             true);
 
       long[] members = {caseProcess1.getOID()};
@@ -163,9 +175,9 @@ public class CaseProcessInstanceTest
    @Test
    public void testRemove() throws Exception
    {
-      ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null,
+      ProcessInstance caseProcess1 = wfService.startProcess(CASE_PROCESS1, null,
             true);
-      ProcessInstance caseProcess2 = wfService.startProcess("{CaseModel}CaseProcess2", null,
+      ProcessInstance caseProcess2 = wfService.startProcess(CASE_PROCESS2, null,
             true);
 
       long[] members = {caseProcess1.getOID(), caseProcess2.getOID()};
@@ -201,9 +213,9 @@ public class CaseProcessInstanceTest
    @Test
    public void testTermination() throws Exception
    {
-      ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null,
+      ProcessInstance caseProcess1 = wfService.startProcess(CASE_PROCESS1, null,
             true);
-      ProcessInstance caseProcess2 = wfService.startProcess("{CaseModel}CaseProcess2", null,
+      ProcessInstance caseProcess2 = wfService.startProcess(CASE_PROCESS2, null,
             true);
 
       long[] members = {caseProcess1.getOID(), caseProcess2.getOID()};
@@ -224,13 +236,42 @@ public class CaseProcessInstanceTest
       assertEquals(ProcessInstanceState.Completed, processInstance.getState());
    }
 
+   @Test
+   public void testGetResults() throws Exception
+   {
+      ProcessInstance caseProcess1 = wfService.startProcess(CASE_PROCESS1, null,
+            true);
+      ProcessInstance processWithResults = wfService.startProcess(PROCESS_WITH_RESULTS, null,
+            true);
+
+      long[] members = {caseProcess1.getOID(), processWithResults.getOID()};
+      ProcessInstance casePi = wfService.createCase("CaseWithResults", null, members);
+      assertNotNull(casePi);
+      assertHierarchy(casePi, caseProcess1, true);
+      assertHierarchy(casePi, processWithResults, true);
+
+      wfService.abortProcessInstance(caseProcess1.getOID(), AbortScope.SubHierarchy);
+      ProcessInstanceStateBarrier.instance().await(caseProcess1.getOID(), ProcessInstanceState.Aborted);
+
+      ActivityInstance ai = wfService.activateNextActivityInstanceForProcessInstance(processWithResults.getOID());
+      wfService.complete(ai.getOID(), PredefinedConstants.DEFAULT_CONTEXT, Collections.singletonMap("FirmId", 456L));
+
+      ProcessInstanceStateBarrier.instance().await(casePi.getOID(), ProcessInstanceState.Completed);
+
+      ProcessInstance processInstance = wfService.getProcessInstance(casePi.getOID());
+      assertEquals(ProcessInstanceState.Completed, processInstance.getState());
+
+      Map<String, Serializable> results = wfService.getProcessResults(processWithResults.getOID());
+      assertEquals(Collections.singletonMap("FirmID", 456L), results);
+   }
+
    /**
     * Querying for case.
     */
    @Test
    public void testQuery()
    {
-      ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null,
+      ProcessInstance caseProcess1 = wfService.startProcess(CASE_PROCESS1, null,
             true);
       long[] members = {caseProcess1.getOID()};
       ProcessInstance casePi = wfService.createCase("CaseForQuery1", null, members);
@@ -289,7 +330,7 @@ public class CaseProcessInstanceTest
    @Test
    public void testQueryMembers()
    {
-      ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null,
+      ProcessInstance caseProcess1 = wfService.startProcess(CASE_PROCESS1, null,
             true);
       long[] members = {caseProcess1.getOID()};
       ProcessInstance casePi = wfService.createCase("CaseForQuery1", null, members);
@@ -312,7 +353,7 @@ public class CaseProcessInstanceTest
    {
       QueryService queryService = sf.getQueryService();
 
-      wfService.startProcess("{CaseModel}CaseProcess1", null, true);
+      wfService.startProcess(CASE_PROCESS1, null, true);
       createCases(4);
 
       ProcessInstanceQuery query = ProcessInstanceQuery.findAll();
@@ -372,18 +413,18 @@ public class CaseProcessInstanceTest
    @Test
    public void testProcessInstanceJoin() throws Exception
    {
-      ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null,
+      ProcessInstance caseProcess1 = wfService.startProcess(CASE_PROCESS1, null,
             true);
-      ProcessInstance caseProcess2 = wfService.startProcess("{CaseModel}CaseProcess2", null,
+      ProcessInstance caseProcess2 = wfService.startProcess(CASE_PROCESS2, null,
             true);
 
       long[] members = {caseProcess1.getOID(), caseProcess2.getOID()};
       ProcessInstance casePi = wfService.createCase("Case1", null, members);
 
 
-      ProcessInstance caseProcess3 = wfService.startProcess("{CaseModel}CaseProcess1", null,
+      ProcessInstance caseProcess3 = wfService.startProcess(CASE_PROCESS1, null,
             true);
-      ProcessInstance caseProcess4 = wfService.startProcess("{CaseModel}CaseProcess2", null,
+      ProcessInstance caseProcess4 = wfService.startProcess(CASE_PROCESS2, null,
             true);
 
       long[] members2 = {caseProcess3.getOID(), caseProcess4.getOID()};
@@ -410,9 +451,9 @@ public class CaseProcessInstanceTest
       Map<String, Object > data = CollectionUtils.newHashMap();
       data.put("FirmId", 126l);
 
-      ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", data,
+      ProcessInstance caseProcess1 = wfService.startProcess(CASE_PROCESS1, data,
             true);
-      ProcessInstance caseProcess2 = wfService.startProcess("{CaseModel}CaseProcess2", data,
+      ProcessInstance caseProcess2 = wfService.startProcess(CASE_PROCESS2, data,
             true);
 
       long[] members = {caseProcess1.getOID(), caseProcess2.getOID()};
@@ -468,7 +509,7 @@ public class CaseProcessInstanceTest
       QueryService queryService = sf.getQueryService();
 
       createCases(4);
-      ProcessInstance caseProcess = wfService.startProcess("{CaseModel}CaseProcess2", null, true);
+      ProcessInstance caseProcess = wfService.startProcess(CASE_PROCESS2, null, true);
       long[] members = {caseProcess.getOID()};
       ProcessInstance casePi = wfService.createCase("Case1", "Description", members);
       assertNotNull(casePi);
@@ -495,9 +536,9 @@ public class CaseProcessInstanceTest
    @Test(expected = InvalidValueException.class)
    public void testInvalidDescriptorValue()
    {
-      ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null,
+      ProcessInstance caseProcess1 = wfService.startProcess(CASE_PROCESS1, null,
             true);
-      ProcessInstance caseProcess2 = wfService.startProcess("{CaseModel}CaseProcess2", null,
+      ProcessInstance caseProcess2 = wfService.startProcess(CASE_PROCESS2, null,
             true);
 
       long[] members = {caseProcess1.getOID(), caseProcess2.getOID()};
@@ -514,12 +555,12 @@ public class CaseProcessInstanceTest
    @Test
    public void testSpawnedProcessInstanceLeave() throws Exception
    {
-      ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null, true);
+      ProcessInstance caseProcess1 = wfService.startProcess(CASE_PROCESS1, null, true);
 
       long[] members = {caseProcess1.getOID()};
       ProcessInstance casePi = wfService.createCase("Case1", null, members);
 
-      ProcessInstance spawnedPi = wfService.spawnSubprocessInstance(caseProcess1.getOID(), "{CaseModel}CaseProcess2", true, null);
+      ProcessInstance spawnedPi = wfService.spawnSubprocessInstance(caseProcess1.getOID(), CASE_PROCESS2, true, null);
       /* make sure that spawning is completed before moving on */
       ActivityInstanceStateBarrier.instance().awaitAlive(spawnedPi.getOID());
 
@@ -534,9 +575,9 @@ public class CaseProcessInstanceTest
    public void testDataFilter()
    {
       Map<String, ? > data1 = Collections.singletonMap("Department", "West");
-      ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", data1,
+      ProcessInstance caseProcess1 = wfService.startProcess(CASE_PROCESS1, data1,
             true);
-      ProcessInstance caseProcess2 = wfService.spawnSubprocessInstance(caseProcess1.getOID(), "{CaseModel}CaseProcess2",true, data1);
+      ProcessInstance caseProcess2 = wfService.spawnSubprocessInstance(caseProcess1.getOID(), CASE_PROCESS2,true, data1);
       assertHierarchy(caseProcess1, caseProcess2, true);
 
       ProcessInstanceQuery queryRoot0 = ProcessInstanceQuery.findAll();
@@ -574,7 +615,7 @@ public class CaseProcessInstanceTest
    {
       QueryService queryService = sf.getQueryService();
 
-      ProcessInstance caseProcess = wfService.startProcess("{CaseModel}CaseProcess1", null, true);
+      ProcessInstance caseProcess = wfService.startProcess(CASE_PROCESS1, null, true);
       long[] members = {caseProcess.getOID()};
       ProcessInstance rootCaseProcess = wfService.createCase("Case1", null, members);
       assertNotNull(rootCaseProcess);
@@ -601,7 +642,7 @@ public class CaseProcessInstanceTest
    {
       QueryService queryService = sf.getQueryService();
 
-      ProcessInstance caseProcess = wfService.startProcess("{CaseModel}CaseProcess1", null, true);
+      ProcessInstance caseProcess = wfService.startProcess(CASE_PROCESS1, null, true);
       long[] members = {caseProcess.getOID()};
       ProcessInstance rootCaseProcess = wfService.createCase("Case1", null, members);
       assertNotNull(rootCaseProcess);
@@ -625,14 +666,14 @@ public class CaseProcessInstanceTest
    @Test
    public void testDelegate()
    {
-      ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null,
+      ProcessInstance caseProcess1 = wfService.startProcess(CASE_PROCESS1, null,
             true);
       long[] members = {caseProcess1.getOID()};
       ProcessInstance casePi = wfService.createCase("Case1", null, members);
       assertNotNull(casePi);
 
       // DELEAGATE to Org1
-      ParticipantInfo participantOrg1 = getTestModel().getParticipant("{CaseModel}Org1");
+      ParticipantInfo participantOrg1 = getTestModel().getParticipant(ORG1_QUALIFIED_ID);
       ProcessInstance delegatedPi = wfService.delegateCase(casePi.getOID(), participantOrg1);
       assertNotNull(delegatedPi);
 
@@ -647,7 +688,7 @@ public class CaseProcessInstanceTest
       }
       assertNotNull(caseAi);
       assertEquals("For case, it should be default case activity","Default Case Activity",caseAi.getActivity().getName());
-      assertEquals("Case activity should be delegated to org1 from Admin","Org1", caseAi.getParticipantPerformerID());
+      assertEquals("Case activity should be delegated to org1 from Admin",ORG1, caseAi.getParticipantPerformerID());
       assertEquals("Participant is changed, user of this activity is still same",0, caseAi.getUserPerformerOID());
 
       // check grants
@@ -663,7 +704,7 @@ public class CaseProcessInstanceTest
       LOG.info("permDelegated from motu to Org1 as user1 - " + permDelegatged2.getValue() + "  "  + permDelegatged2.getName());
 
       // DELEGATE to ScopedOrg1
-      Organization scopedOrg = getTestModel().getOrganization("{CaseModel}ScopedOrg1");
+      Organization scopedOrg = getTestModel().getOrganization(SCOPED_ORG1_QUALIFIED_ID);
       Department department1 = sfU1.getQueryService().findDepartment(null, D1, scopedOrg);
       ParticipantInfo participant = department1.getScopedParticipant(scopedOrg);
       ProcessInstance delegatedPi2 = sfU1.getWorkflowService().delegateCase(delegatedPi.getOID(), participant);
@@ -687,13 +728,13 @@ public class CaseProcessInstanceTest
    public void testScopedDelegate()
    {
       QueryService queryService = sf.getQueryService();
-      ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null,
+      ProcessInstance caseProcess1 = wfService.startProcess(CASE_PROCESS1, null,
             true);
       long[] members = {caseProcess1.getOID()};
       ProcessInstance casePi = wfService.createCase("Case1", null, members);
       assertNotNull(casePi);
 
-      Organization scopedOrg = getTestModel().getOrganization("{CaseModel}ScopedOrg1");
+      Organization scopedOrg = getTestModel().getOrganization(SCOPED_ORG1_QUALIFIED_ID);
 
       Department department1 = queryService.findDepartment(null, D1, scopedOrg);
 
@@ -713,7 +754,7 @@ public class CaseProcessInstanceTest
       }
 
       assertNotNull(delegatedAi);
-      assertEquals("ScopedOrg1", delegatedAi.getParticipantPerformerID());
+      assertEquals(SCOPED_ORG1, delegatedAi.getParticipantPerformerID());
       assertEquals(0, delegatedAi.getUserPerformerOID());
    }
 
@@ -723,9 +764,9 @@ public class CaseProcessInstanceTest
    @Test
    public void testMerge() throws InterruptedException, TimeoutException
    {
-      ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null,
+      ProcessInstance caseProcess1 = wfService.startProcess(CASE_PROCESS1, null,
             true);
-      ProcessInstance caseProcess2 = wfService.startProcess("{CaseModel}CaseProcess2", null,
+      ProcessInstance caseProcess2 = wfService.startProcess(CASE_PROCESS2, null,
             true);
 
       long[] members = {caseProcess1.getOID()};
@@ -758,7 +799,7 @@ public class CaseProcessInstanceTest
    {
       for (int i=0; i<count; i++)
       {
-         ProcessInstance caseProcess = wfService.startProcess("{CaseModel}CaseProcess1", null, true);
+         ProcessInstance caseProcess = wfService.startProcess(CASE_PROCESS1, null, true);
          long[] members = {caseProcess.getOID()};
          ProcessInstance rootCaseProcess = wfService.createCase("Case" + i, null, members);
          assertNotNull(rootCaseProcess);

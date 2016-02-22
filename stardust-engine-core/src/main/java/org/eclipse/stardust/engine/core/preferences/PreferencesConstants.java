@@ -29,5 +29,11 @@ public class PreferencesConstants
    
    public static final String PREFERENCE_ID_WORKFLOW_CRITICALITES = "workflow-criticalities";
    
-   public static final String PREFERENCE_ID_QUALITY_CONTROL = "quality-control";   
+   public static final String PREFERENCE_ID_BENCHMARKS = "workflow-benchmarks";
+   
+   public static final String PREFERENCE_ID_DEFAULT_BENCHMARKS = "workflow-default-benchmark-definitions";   
+
+   public static final String PREFERENCE_ID_QUALITY_CONTROL = "quality-control";
+
+
 }

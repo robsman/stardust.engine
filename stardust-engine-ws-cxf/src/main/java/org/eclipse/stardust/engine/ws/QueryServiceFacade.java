@@ -29,23 +29,14 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.engine.api.model.*;
-import org.eclipse.stardust.engine.api.query.ActivityInstances;
-import org.eclipse.stardust.engine.api.query.BusinessObjects;
-import org.eclipse.stardust.engine.api.query.LogEntries;
-import org.eclipse.stardust.engine.api.query.ProcessInstances;
-import org.eclipse.stardust.engine.api.query.UserGroups;
-import org.eclipse.stardust.engine.api.query.Users;
+import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.ws.*;
-import org.eclipse.stardust.engine.api.ws.query.BusinessObjectQueryXto;
-import org.eclipse.stardust.engine.api.ws.query.DeployedModelQueryXto;
+import org.eclipse.stardust.engine.api.ws.query.*;
 import org.eclipse.stardust.engine.api.ws.query.DocumentQueryXto;
-import org.eclipse.stardust.engine.api.ws.query.PreferenceQueryXto;
-import org.eclipse.stardust.engine.api.ws.query.ProcessDefinitionQueryXto;
-import org.eclipse.stardust.engine.api.ws.query.ProcessQueryXto;
-import org.eclipse.stardust.engine.api.ws.query.VariableDefinitionQueryXto;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
+
 import org.xml.sax.InputSource;
 
 
@@ -554,15 +545,13 @@ public class QueryServiceFacade implements IQueryService
 	public PreferencesXto getPreferences(PreferenceScopeXto scope,
 			String moduleId, String preferencesId) throws BpmFault
 	{
-		WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+	   try
+	   {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
-		QueryService qs = wsEnv.getServiceFactory()
-				.getQueryService();
-		try
-		{
-			Preferences preferences = qs.getPreferences(
-					XmlAdapterUtils.unmarshalPreferenceScope(scope), moduleId,
-					preferencesId);
+         QueryService qs = wsEnv.getServiceFactory().getQueryService();
+         Preferences preferences = qs.getPreferences(
+               XmlAdapterUtils.unmarshalPreferenceScope(scope), moduleId, preferencesId);
 
 			return XmlAdapterUtils.toWs(preferences);
 		}
@@ -577,17 +566,16 @@ public class QueryServiceFacade implements IQueryService
 	public PreferencesListXto findPreferences(PreferenceQueryXto preferenceQuery)
 			throws BpmFault
 	{
-		WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+      try
+      {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
-		QueryService qs = wsEnv.getServiceFactory().getQueryService();
+         QueryService qs = wsEnv.getServiceFactory().getQueryService();
 
-		try
-		{
-			List<Preferences> preferencesList = qs
-					.getAllPreferences(QueryAdapterUtils
-							.unmarshalPreferenceQuery(preferenceQuery));
+         List<Preferences> preferencesList = qs.getAllPreferences(QueryAdapterUtils
+               .unmarshalPreferenceQuery(preferenceQuery));
 
-			return XmlAdapterUtils.marshalPreferencesList(preferencesList);
+         return XmlAdapterUtils.marshalPreferencesList(preferencesList);
 		}
 		catch (ApplicationException e)
 		{
@@ -600,12 +588,12 @@ public class QueryServiceFacade implements IQueryService
    public ModelsQueryResultXto findModels(DeployedModelQueryXto deployedModelQuery)
          throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-
-      QueryService qs = wsEnv.getServiceFactory().getQueryService();
-
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+
+         QueryService qs = wsEnv.getServiceFactory().getQueryService();
+
          Models models = qs.getModels(QueryAdapterUtils.unmarshalDeployedModelQuery(deployedModelQuery));
 
          return XmlAdapterUtils.marshalModelsQueryResult(models);
@@ -621,15 +609,56 @@ public class QueryServiceFacade implements IQueryService
    public BusinessObjectsXto getAllBusinessObjects(
          BusinessObjectQueryXto businessObjectQuery) throws BpmFault
    {
-      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-      
-      QueryService qs = wsEnv.getServiceFactory().getQueryService();
-      
       try
       {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+
+         QueryService qs = wsEnv.getServiceFactory().getQueryService();
+
          BusinessObjects bo = qs.getAllBusinessObjects(QueryAdapterUtils.unmarshalBusinessObjectQuery(businessObjectQuery));
-         
+
          return XmlAdapterUtils.marshalBusinessObjects(bo);
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return null;
+   }
+
+
+   @Override
+   public RuntimeArtifactXto getRuntimeArtifact(long oid) throws BpmFault
+   {
+      try
+      {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+
+         QueryService qs = wsEnv.getServiceFactory().getQueryService();
+
+         return toWs(qs.getRuntimeArtifact(oid));
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return null;
+   }
+
+   @Override
+   public DeployedRuntimeArtifactQueryResultXto findRuntimeArtifacts(
+         DeployedRuntimeArtifactQueryXto deployedRuntimeArtifactQuery) throws BpmFault
+   {
+      try
+      {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+
+         QueryService qs = wsEnv.getServiceFactory().getQueryService();
+
+         DeployedRuntimeArtifacts result = qs.getRuntimeArtifacts(QueryAdapterUtils
+               .unmarshalRuntimeArtifactsQuery(deployedRuntimeArtifactQuery));
+
+         return XmlAdapterUtils.toWs(result);
       }
       catch (ApplicationException e)
       {

@@ -23,9 +23,9 @@ import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IDataType;
 import org.eclipse.stardust.engine.api.model.PluggableType;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.query.DataClusterPrefetchUtil.StructuredDataEvaluaterInfo;
 import org.eclipse.stardust.engine.core.extensions.data.AccessPathEvaluatorAdapter;
 import org.eclipse.stardust.engine.core.extensions.data.DefaultDataFilterExtension;
+import org.eclipse.stardust.engine.core.pojo.data.PrimitiveConstantAccessPathEvaluator;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -254,9 +254,13 @@ public class SpiUtils
          }
       }
       
+      if(accessPoint == null)
+      {
+         return createExtendedAccessPathEvaluator(PrimitiveConstantAccessPathEvaluator.class.getName());
+      }
+            
       return createExtendedAccessPathEvaluator(accessPoint.getType());
-   }
-   
+   }   
    
    /**
     * Instantiate an implementation of the {@link ExtendedAccessPathEvaluator} interface.
@@ -299,5 +303,4 @@ public class SpiUtils
 
       }
    }
-
 }

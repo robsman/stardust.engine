@@ -11,12 +11,7 @@
 package org.eclipse.stardust.engine.core.runtime.utils;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 
@@ -28,32 +23,18 @@ import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.IOrganization;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.runtime.ActivityScope;
-import org.eclipse.stardust.engine.api.runtime.AdministrationService;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.ModelScope;
-import org.eclipse.stardust.engine.api.runtime.Permission;
-import org.eclipse.stardust.engine.api.runtime.ProcessScope;
-import org.eclipse.stardust.engine.api.runtime.Scope;
-import org.eclipse.stardust.engine.api.runtime.Service;
-import org.eclipse.stardust.engine.api.runtime.SpawnOptions;
-import org.eclipse.stardust.engine.api.runtime.TransitionTarget;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.api.runtime.UserService;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
+import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
+import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.preferences.permissions.GlobalPermissionConstants;
+import org.eclipse.stardust.engine.core.preferences.permissions.PermissionUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -71,6 +52,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 public class Authorization2
 {
    public static final String PREFIX = "authorization:";
+   public static final String DENY_PREFIX = "authorization:deny:";
    public static final String ALL = "__carnot_internal_all_permissions__";
    public static final String OWNER = "__carnot_internal_owner_permission__";
 
@@ -100,7 +82,7 @@ public class Authorization2
             }
             else
             {
-               long aiOid = ((Long) args[0]).longValue();
+               long aiOid = getActivityInstanceOid(args[0]);
                if (ExecutionPermission.Id.abortActivityInstances == permission.id() &&
                      (args.length == 1 || AbortScope.RootHierarchy.equals(args[1])))
                {
@@ -116,11 +98,13 @@ public class Authorization2
                }
                else
                {
-                  if (method.getName().equals("performAdHocTransition") && !(Boolean) args[2])
+                  // (fh) for performAdHocTransition methods, the last argument is boolean complete
+                  // and requires additional permission check if false.
+                  if (method.getName().equals("performAdHocTransition") && !(Boolean) args[args.length - 1])
                   {
                      permission = permission.clone(ExecutionPermission.Id.abortActivityInstances);
                      context = AuthorizationContext.create(permission);
-                     TransitionTarget target = (TransitionTarget) args[1];
+                     TransitionTarget target = (TransitionTarget) args[args.length - 2];
                      if (target != null) // must not throw NPEs here, let them to come from the service implementation
                      {
                         ExecutionPlan plan = new ExecutionPlan(target);
@@ -255,8 +239,8 @@ public class Authorization2
                      }
                      else if (PreferenceScope.PARTITION.equals(scope))
                      {
-                        ClientPermission partitionPermission = ClientPermission.SAVE_OWN_PARTITION_SCOPE_PREFERENCES;
-                        AuthorizationContext partitionContext = AuthorizationContext.create(partitionPermission);
+                        AuthorizationContext partitionContext = AuthorizationContext.create(
+                              ClientPermission.SAVE_OWN_PARTITION_SCOPE_PREFERENCES);
                         partitionContext.setModels(models);
                         requiredGrant = checkPermission(partitionContext);
                         if (requiredGrant != null)
@@ -299,23 +283,31 @@ public class Authorization2
             }
             else
             {
-               IProcessInstance pi = null;
-               if (args[0] instanceof ProcessInstanceAttributes)
+               if (args[0] instanceof String)
                {
-                  ProcessInstanceAttributes pib = (ProcessInstanceAttributes) args[0];
-                  pi = ProcessInstanceBean.findByOID(pib.getProcessInstanceOid());
+                  IProcessDefinition pd = ModelUtils.getProcessDefinition((String) args[0]);
+                  context.setModelElementData(pd);
                }
                else
                {
-                  pi = ProcessInstanceBean.findByOID((Long) args[0]);
-                  if (ExecutionPermission.Id.abortProcessInstances == permission.id() &&
-                        AbortScope.RootHierarchy.equals(args[args.length - 1]))
+                  IProcessInstance pi = null;
+                  if (args[0] instanceof ProcessInstanceAttributes)
                   {
-                     // change to root process instance if you want to abort the complete process hierarchy
-                     pi = pi.getRootProcessInstance();
+                     ProcessInstanceAttributes pib = (ProcessInstanceAttributes) args[0];
+                     pi = ProcessInstanceBean.findByOID(pib.getProcessInstanceOid());
                   }
+                  else
+                  {
+                     pi = ProcessInstanceBean.findByOID((Long) args[0]);
+                     if (ExecutionPermission.Id.abortProcessInstances == permission.id() &&
+                           AbortScope.RootHierarchy.equals(args[args.length - 1]))
+                     {
+                        // change to root process instance if you want to abort the complete process hierarchy
+                        pi = pi.getRootProcessInstance();
+                     }
+                  }
+                  context.setProcessInstance(pi);
                }
-               context.setProcessInstance(pi);
                requiredGrant = checkPermission(context);
             }
             break;
@@ -330,18 +322,33 @@ public class Authorization2
             }
             break;
          }
-         if (authorizationPredicate != null)
-         {
-            BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
-            runtimeEnvironment.setAuthorizationPredicate(authorizationPredicate);
-         }
          if (requiredGrant != null)
          {
             IUser user = context.getUser();
             throw new AccessForbiddenException(BpmRuntimeError.AUTHx_AUTH_MISSING_GRANTS.raise(
                   user.getOID(), String.valueOf(permission), user.getAccount()));
          }
+         BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+         rtEnv.setSecureContext(true);
+         if (authorizationPredicate != null)
+         {
+            rtEnv.setAuthorizationPredicate(authorizationPredicate);
+         }
       }
+   }
+
+   protected static long getActivityInstanceOid(Object arg)
+   {
+      if (arg instanceof Long)
+      {
+         return ((Long) arg).longValue();
+      }
+      else if (arg instanceof ActivityInstanceContextAware)
+      {
+         return ((ActivityInstanceContextAware) arg).getActivityInstanceOid();
+      }
+      throw new ObjectNotFoundException(
+            BpmRuntimeError.ATDB_UNKNOWN_ACTIVITY_INSTANCE_OID.raise(arg));
    }
 
    public static boolean hasPermission(AuthorizationContext context)
@@ -356,6 +363,20 @@ public class Authorization2
 
    private static String checkPermission(AuthorizationContext context)
    {
+      // global override only for changeable permissions
+      if (context.getPermission().changeable())
+      {
+         if (hasAnyOf(context.getPermission().getDeniedIds(), context))
+         {
+            // globally denied
+            return PredefinedConstants.ADMINISTRATOR_ROLE;
+         }
+         if (hasAnyOf(context.getPermission().getAllowedIds(), context))
+         {
+            // globally allowed
+            return null;
+         }
+      }
       String[] grants = context.getGrants();
       boolean ownerPresent = false;
       boolean allPresent = false;
@@ -398,6 +419,38 @@ public class Authorization2
          }
       }
       return grants.length == 0 ? PredefinedConstants.ADMINISTRATOR_ROLE : grants[0];
+   }
+
+   private static boolean hasAnyOf(List<String> permissions, AuthorizationContext context)
+   {
+      for (String id : permissions)
+      {
+         if (hasPermission(id, context))
+         {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   private static boolean hasPermission(String permissionId, AuthorizationContext context)
+   {
+      IPreferenceStorageManager preferenceStore = PreferenceStorageFactory.getCurrent();
+      if (preferenceStore != null)
+      {
+         List<String> grants = PermissionUtils.getScopedGlobalPermissionValues(preferenceStore, permissionId, false);
+         if (!grants.isEmpty())
+         {
+            for (String grant : grants)
+            {
+               if (hasGrant(grant, context))
+               {
+                  return true;
+               }
+            }
+         }
+      }
+      return false;
    }
 
    private static boolean hasGrant(String grant, AuthorizationContext context)
@@ -487,16 +540,6 @@ public class Authorization2
                   }
                }
             }
-
-/*            old code
-            List<Long> subdepartments = department > 0
-               ? DepartmentHierarchyBean.findAllSubDepartments(department)
-               : Collections.singletonList(new Long(department));
-            long foundDepartment = UserParticipantLink.findFirstAssignedDepartment(context.getUser(), participant, subdepartments);
-            if (foundDepartment >= 0)
-            {
-               return true;
-            }*/
          }
       }
       return false;
@@ -877,11 +920,17 @@ public class Authorization2
       @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail)
       Permission getModifyAuditTrailPermission();
 
+      @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrailStatistics)
+      Permission getModifyAuditTrailStatisticsPermission();
+
       @ExecutionPermission(id=ExecutionPermission.Id.modifyDepartments)
       Permission getModifyDepartmentsPermission();
 
       @ExecutionPermission(id=ExecutionPermission.Id.modifyUserData)
       Permission getModifyUserDataPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.modifyDmsData)
+      Permission getModifyDmsDataPermission();
 
       @ExecutionPermission(id=ExecutionPermission.Id.readAuditTrailStatistics)
       Permission getReadAuditTrailStatisticsPermission();
@@ -921,5 +970,11 @@ public class Authorization2
 
       @ExecutionPermission(id=ExecutionPermission.Id.spawnSubProcessInstance)
       Permission getSpawnSubProcessInstancePermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.deployRuntimeArtifact)
+      Permission getDeployRuntimeArtifactPermission();
+
+      @ExecutionPermission(id=ExecutionPermission.Id.readRuntimeArtifact)
+      Permission getReadRuntimeArtifactPermission();
    }
 }

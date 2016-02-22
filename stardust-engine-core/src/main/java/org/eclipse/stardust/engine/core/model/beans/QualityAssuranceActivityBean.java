@@ -472,7 +472,7 @@ public class QualityAssuranceActivityBean implements IActivity
       return delegate.getAllInDataMappings();
    }
 
-   public ModelElementList getInDataMappings()
+   public ModelElementList<IDataMapping> getInDataMappings()
    {
       return delegate.getInDataMappings();
    }
@@ -483,7 +483,7 @@ public class QualityAssuranceActivityBean implements IActivity
       return delegate.getAllOutDataMappings();
    }
 
-   public ModelElementList getOutDataMappings()
+   public ModelElementList<IDataMapping> getOutDataMappings()
    {
       return delegate.getOutDataMappings();
    }

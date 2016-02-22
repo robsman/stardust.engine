@@ -34,6 +34,8 @@ import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.PrefetchConstants;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.javascript.ConditionEvaluator;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
+import org.eclipse.stardust.engine.core.model.beans.ProcessDefinitionBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
@@ -51,6 +53,8 @@ import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterInstance;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
+import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
+import org.eclipse.stardust.engine.core.runtime.utils.DataAuthorization2Predicate;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
@@ -107,6 +111,8 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    public static final String FIELD__SCOPE_PROCESS_INSTANCE = "scopeProcessInstance";
    public static final String FIELD__STARTING_USER = "startingUser";
    public static final String FIELD__STARTING_ACTIVITY_INSTANCE = "startingActivityInstance";
+   public static final String FIELD__BENCHMARK_OID = "benchmark";
+   public static final String FIELD__BENCHMARK_VALUE = "benchmarkValue";
    /**
     * @deprecated This attribute will not be maintained starting with version 3.2.1.
     */
@@ -125,6 +131,9 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    public static final FieldRef FR__SCOPE_PROCESS_INSTANCE = new FieldRef(ProcessInstanceBean.class, FIELD__SCOPE_PROCESS_INSTANCE);
    public static final FieldRef FR__STARTING_USER = new FieldRef(ProcessInstanceBean.class, FIELD__STARTING_USER);
    public static final FieldRef FR__STARTING_ACTIVITY_INSTANCE = new FieldRef(ProcessInstanceBean.class, FIELD__STARTING_ACTIVITY_INSTANCE);
+   public static final FieldRef FR__BENCHMARK_OID = new FieldRef(ProcessInstanceBean.class, FIELD__BENCHMARK_OID);
+   public static final FieldRef FR__BENCHMARK_VALUE = new FieldRef(ProcessInstanceBean.class, FIELD__BENCHMARK_VALUE);
+
    /**
     * @deprecated This attribute will not be maintained starting with version 3.2.1.
     */
@@ -156,10 +165,14 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    private long startTime;
    private long terminationTime;
    private int state = ProcessInstanceState.CREATED;
+   @ForeignKey (modelElement=ModelBean.class)
    private long model;
+   @ForeignKey (modelElement=ProcessDefinitionBean.class)
    private long processDefinition;
    private int priority;
    private long deployment;
+   private long benchmark;
+   private int benchmarkValue;
 
    private ProcessInstanceBean rootProcessInstance;
    private static final String rootProcessInstance_EAGER_FETCH = Boolean.FALSE.toString();
@@ -339,6 +352,9 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          processInstance.setStartingUser(user);
       }
 
+      IModel iModel = (IModel) processDefinition.getModel();
+      data = initializeDefaultData((Map<String, Object>) data, iModel, processInstance);
+
       if ((null != data) && !data.isEmpty())
       {
          for (Iterator< ? > iterator = data.entrySet().iterator(); iterator.hasNext(); )
@@ -346,7 +362,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
             Map.Entry<String, ? > entry = (Entry<String, ? >) iterator.next();
 
             String dataId = entry.getKey();
-            IData idata = ((IModel) processDefinition.getModel()).findData(dataId);
+            IData idata = iModel.findData(dataId);
             if (idata != null)
             {
                String path = "";
@@ -373,7 +389,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
 
       processInstance.setState(ProcessInstanceState.ACTIVE);
-      if(!isSubProcess)
+      if (!isSubProcess)
       {
          processInstance.doBindAutomaticlyBoundEvents();
       }
@@ -381,6 +397,33 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       MonitoringUtils.processExecutionMonitors().processStarted(processInstance);
 
       return processInstance;
+   }
+
+   private static Map<String, ? > initializeDefaultData(final Map<String, Object> data, IModel iModel, IProcessInstance processInstance)
+   {
+      Map<String, Object> dataMap = null;
+      if (data != null)
+      {
+         // Do not modify original data map.
+         dataMap = CollectionUtils.copyMap(data);
+      }
+      else
+      {
+         dataMap = CollectionUtils.newMap();
+      }
+
+      if (iModel.findData(PredefinedConstants.BUSINESS_DATE) != null
+            && !dataMap.containsKey(PredefinedConstants.BUSINESS_DATE))
+      {
+         dataMap.put(PredefinedConstants.BUSINESS_DATE,
+               processInstance.getRootProcessInstance().getStartTime().getTime());
+      }
+      if (iModel.findData(PredefinedConstants.DUE_DATE) != null
+            && !dataMap.containsKey(PredefinedConstants.DUE_DATE))
+      {
+         dataMap.put(PredefinedConstants.DUE_DATE, null);
+      }
+      return dataMap;
    }
 
    /**
@@ -955,7 +998,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
             object);
       IDataValue dataValue = getDataValue(dataID, dvProvider);
 
-      if ( !dvProvider.isUsedForInitialization())
+      if (!dvProvider.isUsedForInitialization())
       {
          dataValue.setValue(object, false);
       }
@@ -1258,16 +1301,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    public void setOutDataValue(IData data, String path, Object value)
          throws InvalidValueException
    {
-      /*BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
-      Authorization2Predicate authorizationPredicate = runtimeEnvironment.getAuthorizationPredicate();
-      if (authorizationPredicate instanceof DataAuthorization2Predicate)
-      {
-         ((DataAuthorization2Predicate) authorizationPredicate).setProcessInstance(this);
-         if (!authorizationPredicate.accept(data))
-         {
-            return;
-         }
-      }*/
+      DataAuthorization2Predicate.verify(data, ClientPermission.MODIFY_DATA_VALUE);
 
       String validatorClass = data.getType().getStringAttribute(
             PredefinedConstants.VALIDATOR_CLASS_ATT);
@@ -1312,7 +1346,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
             .createExtendedAccessPathEvaluator(data, path);
 
       IDataValue dataValue = null;
-      if(evaluator instanceof IHandleGetDataValue)
+      if (evaluator instanceof IHandleGetDataValue)
       {
          dataValue = ((IHandleGetDataValue) evaluator).getDataValue(data, dvProvider, context);
       }
@@ -1323,7 +1357,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
       Assert.isNotNull(dataValue);
 
-      if ( !dvProvider.isUsedForInitialization())
+      if (!dvProvider.isUsedForInitialization())
       {
          dvProvider.setCurrentValue(dataValue.getValue());
          AbstractInitialDataValueProvider.EvaluatedValue newRef = dvProvider
@@ -1374,29 +1408,24 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    public Object getInDataValue(IData data, String path,
          AccessPoint targetActivityAccessPoint, String targetPath, IActivity activity)
    {
-      /*BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
-      Authorization2Predicate authorizationPredicate = runtimeEnvironment.getAuthorizationPredicate();
-      if (authorizationPredicate instanceof DataAuthorization2Predicate)
-      {
-         ((DataAuthorization2Predicate) authorizationPredicate).setProcessInstance(this);
-         if (!authorizationPredicate.accept(data))
-         {
-            return null;
-         }
-      }*/
+      DataAuthorization2Predicate.verify(data, ClientPermission.READ_DATA_VALUE);
 
       ExtendedAccessPathEvaluator evaluator = SpiUtils
             .createExtendedAccessPathEvaluator(data, path);
       AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(this,
-            targetActivityAccessPoint == null && JavaDataTypeUtils.isJavaEnumeration(data)
+            targetActivityAccessPoint == null &&
+               (data != null && JavaDataTypeUtils.isJavaEnumeration(data))
                ? JAVA_ENUM_ACCESS_POINT : targetActivityAccessPoint,
             targetPath, activity);
 
-      if(!(evaluator instanceof IHandleGetDataValue))
+      if (evaluator instanceof IHandleGetDataValue)
       {
-         return evaluator.evaluate(data, getDataValue(data).getValue(), path, evaluationContext);
+         return ((IHandleGetDataValue) evaluator).evaluate(data, path, evaluationContext);
       }
-      return ((IHandleGetDataValue) evaluator).evaluate(data, path, evaluationContext);
+      else
+      {
+         return evaluator.evaluate(data, data == null ? null : getDataValue(data).getValue(), path, evaluationContext);
+      }
    }
 
    void lockDataValue(IData data) throws PhantomException
@@ -1510,7 +1539,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
    public void preloadDataValues(List dataItems)
    {
-      if(getOID() != getScopeProcessInstanceOID())
+      if (getOID() != getScopeProcessInstanceOID())
       {
          getScopeProcessInstance().preloadDataValues(dataItems);
          return;
@@ -1738,7 +1767,9 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
    public AuditTrailPersistence getAuditTrailPersistence()
    {
-      if (isGlobalAuditTrailPersistenceOverride())
+      final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+
+      if (isGlobalAuditTrailPersistenceOverride() && rtEnv.getOperationMode() == BpmRuntimeEnvironment.OperationMode.DEFAULT)
       {
          return determineGlobalOverride();
       }
@@ -2240,4 +2271,59 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    {
       return this;
    }
+
+   /**
+    * This method is called when importing a process instance from an archive. This is the
+    * only time this should be called, it initialized the ProcessInstanceScopeBean,
+    * startingActivity and startingUser
+    */
+   public void prepareForImportFromArchive()
+   {
+      if (getScopeProcessInstance() != null)
+      {
+         // we need to explicitly create the scope bean like this, it can't be
+         // imported normally. this constructor calls session.cluster which is
+         // necessary to be called only once.
+         new ProcessInstanceScopeBean(this, getScopeProcessInstance(),
+               getRootProcessInstance());
+      }
+      getStartingActivityInstance();
+      getStartingUser();
+   }
+
+   public void setBenchmark(long benchmarkOid)
+   {
+      markModified(FIELD__BENCHMARK_OID);
+      this.benchmark = benchmarkOid;
+   }
+
+   public long getBenchmark()
+   {
+      fetch();
+      return this.benchmark;
+   }
+
+   public void setBenchmarkValue(int benchmarkValue)
+   {
+      markModified(FIELD__BENCHMARK_VALUE);
+      this.benchmarkValue = benchmarkValue;
+   }
+
+   public int getBenchmarkValue()
+   {
+      fetch();
+      return this.benchmarkValue;
+   }
+
+   public boolean isIntrinsicOutAccessPoint(String id)
+   {
+      return PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT.equals(id);
+   }
+
+   public Map getIntrinsicOutAccessPointValues()
+   {
+      return Collections.singletonMap(PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT,
+            DetailsFactory.create(this));
+   }
+
 }

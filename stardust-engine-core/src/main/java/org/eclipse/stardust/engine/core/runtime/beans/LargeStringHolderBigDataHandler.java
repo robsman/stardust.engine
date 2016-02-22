@@ -336,12 +336,12 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
       else if (dataValue instanceof Float)
       {
          return new Representation(BigData.DOUBLE_VALUE, BigData.FLOAT,
-               dataValue.toString());
+               ((Float) dataValue).doubleValue());
       }
       else if (dataValue instanceof Double)
       {
          return new Representation(BigData.DOUBLE_VALUE, BigData.DOUBLE,
-               dataValue.toString());
+               ((Double) dataValue).doubleValue());
       }
       else if (dataValue instanceof Character)
       {

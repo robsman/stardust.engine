@@ -12,10 +12,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 
@@ -43,28 +40,11 @@ import org.eclipse.stardust.engine.api.model.Participant;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.query.*;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.DataQueryResult;
-import org.eclipse.stardust.engine.api.runtime.Department;
-import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
-import org.eclipse.stardust.engine.api.runtime.DeployedModel;
-import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
-import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.api.runtime.Documents;
-import org.eclipse.stardust.engine.api.runtime.LogEntry;
-import org.eclipse.stardust.engine.api.runtime.Models;
-import org.eclipse.stardust.engine.api.runtime.Permission;
-import org.eclipse.stardust.engine.api.runtime.ProcessDefinitions;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.QueryService;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.ResourceBundle;
-import org.eclipse.stardust.engine.api.runtime.RuntimeEnvironmentInfo;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.api.runtime.UserGroup;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
@@ -73,12 +53,14 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.*;
+import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManagerFactory;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryManager;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomQueryUtils;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
+
 import org.eclipse.xsd.util.XSDResourceImpl;
 
 
@@ -864,7 +846,7 @@ public class QueryServiceImpl implements QueryService, Serializable
       }
 
       IDepartment department = null;
-      if ((SecurityProperties.isInternalAuthentication()
+      if ((SecurityProperties.isInternalAuthorization()
             || Parameters.instance().getBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL, false))
             && (parent == null || parent.getOID() > 0))
       {
@@ -971,6 +953,36 @@ public class QueryServiceImpl implements QueryService, Serializable
       return resourcebundle;
    }
 
+   @Override
+   public DeployedRuntimeArtifacts getRuntimeArtifacts(DeployedRuntimeArtifactQuery query)
+   {
+
+      RawQueryResult<DeployedRuntimeArtifact> result = null;
+
+      if (query.isIncludeOnlyActive())
+      {
+         result = DeployedRuntimeArtifactQueryEvaluator
+               .<DeployedRuntimeArtifact, DeployedRuntimeArtifactDetails> evaluateActive(
+                     query, RuntimeArtifactBean.class, IRuntimeArtifact.class,
+                     DeployedRuntimeArtifactDetails.class, getDefaultEvaluationContext());
+      }
+      else
+      {
+         result = GenericQueryEvaluator
+               .<DeployedRuntimeArtifact, DeployedRuntimeArtifactDetails> evaluate(query,
+                     RuntimeArtifactBean.class, IRuntimeArtifact.class,
+                     DeployedRuntimeArtifactDetails.class, getDefaultEvaluationContext());
+      }
+
+      return QueryResultFactory.createDeployedArtifactQueryResult(query, result);
+   }
+
+   @Override
+   public RuntimeArtifact getRuntimeArtifact(long oid)
+   {
+      return ArtifactManagerFactory.getCurrent().getArtifact(oid);
+   }
+
    private Class<? extends ProcessInstance> determineProcessInstanceDetailsClass()
    {
       boolean useLazilyLoadingObjects = Parameters.instance().getBoolean(KernelTweakingProperties.USE_LAZILY_LOADING_DETAILS_OBJECTS_FOR_QUERIES, false);
@@ -990,5 +1002,17 @@ public class QueryServiceImpl implements QueryService, Serializable
          return true;
       }
       return false;
+   }
+
+   @Override
+   public ProcessInstanceLinkType getProcessInstanceLinkType(String id)
+   {
+      return DetailsFactory.create(ProcessInstanceLinkTypeBean.findById(id));
+   }
+
+   @Override
+   public List<ProcessInstanceLinkType> getAllProcessInstanceLinkTypes()
+   {
+      return DetailsFactory.createList(ProcessInstanceLinkTypeBean.findAll());
    }
 }

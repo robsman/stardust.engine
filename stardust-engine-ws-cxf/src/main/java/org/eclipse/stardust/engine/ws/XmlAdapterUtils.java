@@ -33,6 +33,8 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.Map.Entry;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
 import javax.xml.XMLConstants;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.namespace.QName;
@@ -47,6 +49,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
@@ -69,10 +72,12 @@ import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssu
 import org.eclipse.stardust.engine.api.runtime.Documents;
 import org.eclipse.stardust.engine.api.ws.*;
 import org.eclipse.stardust.engine.api.ws.ActivityDefinitionXto.InteractionContextsXto;
+import org.eclipse.stardust.engine.api.ws.DeployedRuntimeArtifactQueryResultXto.DeployedRuntimeArtifactsXto;
 import org.eclipse.stardust.engine.api.ws.DeploymentInfoXto.ErrorsXto;
 import org.eclipse.stardust.engine.api.ws.DeploymentInfoXto.WarningsXto;
 import org.eclipse.stardust.engine.api.ws.DocumentTypeResultsXto.DocumentTypeResultXto;
 import org.eclipse.stardust.engine.api.ws.DocumentXto.VersionLabelsXto;
+import org.eclipse.stardust.engine.api.ws.GetSupportedRuntimeArtifactTypesResponse.ArtifactTypesXto;
 import org.eclipse.stardust.engine.api.ws.GetUserRealmsResponse.UserRealmsXto;
 import org.eclipse.stardust.engine.api.ws.GrantsXto.GrantXto;
 import org.eclipse.stardust.engine.api.ws.ModelXto.GlobalVariablesXto;
@@ -85,6 +90,7 @@ import org.eclipse.stardust.engine.api.ws.UserQueryResultXto.UsersXto;
 import org.eclipse.stardust.engine.api.ws.WorklistXto.SharedWorklistsXto;
 import org.eclipse.stardust.engine.api.ws.WorklistXto.SharedWorklistsXto.SharedWorklistXto;
 import org.eclipse.stardust.engine.api.ws.WorklistXto.UserWorklistXto;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkResult;
 import org.eclipse.stardust.engine.core.interactions.ModelResolver;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
@@ -96,8 +102,6 @@ import org.eclipse.stardust.engine.core.preferences.configurationvariables.Confi
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.utils.ParticipantInfoUtil;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryCapabilities;
@@ -2122,6 +2126,7 @@ public class XmlAdapterUtils
          res.setProcessDefinitionId(ai.getProcessDefinitionId());
 
          res.setCriticality(ai.getCriticality());
+         res.setBenchmarkResult(marshalBenchmarkResult(ai.getBenchmarkResult()));
 
          // TODO replace with regular getter
          if (ai instanceof ActivityInstanceDetails)
@@ -2206,6 +2211,20 @@ public class XmlAdapterUtils
          }
       }
       return res;
+   }
+
+   private static BenchmarkResultXto marshalBenchmarkResult(
+         BenchmarkResult benchmarkResult)
+   {
+      BenchmarkResultXto ret = null;
+      if (benchmarkResult != null)
+      {
+         ret = new BenchmarkResultXto();
+         
+         ret.setCategory(benchmarkResult.getCategory());
+         ret.setProperties(marshalMap(benchmarkResult.getProperties()));
+      }
+      return ret;
    }
 
    private static ActivityInstanceAttributesXto marshalActivityInstanceAttributes(
@@ -5282,9 +5301,21 @@ public class XmlAdapterUtils
       {
          xto = new RuntimePermissionsXto();
 
-         RuntimePermissionsMapXto mapXto = new RuntimePermissionsMapXto();
+         xto.setRuntimePermissionsMap(marshalRuntimePermissionMap(permissions.getPermissionMap()));
+         xto.setDeniedRuntimePermissionsMap(marshalRuntimePermissionMap(permissions.getDeniedPermissionsMap()));
+      }
+      return xto;
+   }
+   
+   private static RuntimePermissionsMapXto marshalRuntimePermissionMap(
+         Map<String, List<String>> permissionMap)
+   {
+      RuntimePermissionsMapXto mapXto = null;
 
-         Map<String, List<String>> permissionMap = permissions.getPermissionMap();
+      if (permissionMap != null)
+      {
+
+         mapXto = new RuntimePermissionsMapXto();
 
          Set<String> keys = permissionMap.keySet();
 
@@ -5302,10 +5333,8 @@ public class XmlAdapterUtils
             mapEntry.setValueList(stringListXto);
             mapXto.getRuntimePermissionsEntry().add(mapEntry);
          }
-
-         xto.setRuntimePermissionsMap(mapXto);
       }
-      return xto;
+      return mapXto;
    }
 
    public static RuntimePermissions unmarshalRuntimePermissions(
@@ -5769,30 +5798,26 @@ public class XmlAdapterUtils
       if (value != null)
       {
          xto = new BusinessObjectValueXto();
+         WebServiceEnv env = currentWebServiceEnvironment();
 
-         ModelResolver env = currentWebServiceEnvironment();
-         final ModelManager modelManager = ModelManagerFactory.getCurrent();
-
-         IModel model = modelManager.findActiveModel(modelId);
-
+         Model model = env.getActiveModel(modelId);
          if (model == null)
          {
-            throw new ObjectNotFoundException(BpmRuntimeError.MDL_NO_ACTIVE_MODEL_WITH_ID.raise(modelId));
+            throw new ObjectNotFoundException(
+                  BpmRuntimeError.MDL_NO_ACTIVE_MODEL_WITH_ID.raise(modelId));
          }
-         ModelDetails modelDetails = DetailsFactory.create(model, IModel.class, ModelDetails.class);
 
-         IData data = model.findData(dataId);
+         Data data = model.getData(dataId);
          if (data == null)
          {
-            throw new ObjectNotFoundException(BpmRuntimeError.MDL_UNKNOWN_DATA_ID.raise(dataId));
+            throw new ObjectNotFoundException(
+                  BpmRuntimeError.MDL_UNKNOWN_DATA_ID.raise(dataId));
          }
-         Data dataDetails = (Data) DetailsFactory.create(data,
-               IData.class, DataDetails.class);
 
          xto.setProcessInstanceOid(value.getProcessInstanceOid());
 
-         ParameterXto paramXto = DataFlowUtils.marshalStructValue(modelDetails,
-               dataDetails, dataDetails.getId(), null, (Serializable) value.getValue(), env);
+         ParameterXto paramXto = DataFlowUtils.marshalStructValue(model, data,
+               data.getId(), null, (Serializable) value.getValue(), env);
          xto.setValue(paramXto);
       }
 
@@ -5815,7 +5840,7 @@ public class XmlAdapterUtils
       }
       return xto;
    }
-   
+
    public static QualityAssuranceState unmarshalQualityAssuranceState(QualityAssuranceStateXto xto)
    {
       QualityAssuranceState ret = null;
@@ -5836,7 +5861,7 @@ public class XmlAdapterUtils
          else if (QualityAssuranceStateXto.QUALITY_ASSURANCE_TRIGGERED.equals(xto))
          {
             ret = QualityAssuranceState.QUALITY_ASSURANCE_TRIGGERED;
-         }         
+         }
          else
          {
             throw new UnsupportedOperationException(
@@ -5844,7 +5869,105 @@ public class XmlAdapterUtils
                         + xto.name());
          }
       }
-      return ret;      
+      return ret;
    }
-  
+
+   public static RuntimeArtifactXto toWs(RuntimeArtifact runtimeArtifact)
+   {
+      RuntimeArtifactXto xto = null;
+      if (runtimeArtifact != null)
+      {
+         xto = new RuntimeArtifactXto();
+
+         xto.setArtifactTypeId(runtimeArtifact.getArtifactTypeId());
+         xto.setArtifactId(runtimeArtifact.getArtifactId());
+         xto.setArtifactName(runtimeArtifact.getArtifactName());
+         xto.setValidFrom(runtimeArtifact.getValidFrom());
+         xto.setContent(new DataHandler(wrapContentBytes(runtimeArtifact.getArtifactId(), runtimeArtifact.getContent())));
+      }
+      return xto;
+   }
+
+   public static RuntimeArtifact fromWs(RuntimeArtifactXto xto)
+   {
+      RuntimeArtifact runtimeArtifact = null;
+      if (xto != null)
+      {
+         runtimeArtifact = new RuntimeArtifact(xto.getArtifactTypeId(),
+               xto.getArtifactId(), xto.getArtifactName(),
+               DmsAdapterUtils.extractContentByteArray(xto.getContent()),
+               xto.getValidFrom());
+      }
+      return runtimeArtifact;
+   }
+
+   private static DataSource wrapContentBytes(final String name, final byte[] content)
+   {
+      return new ByteContentDataSource(name, content);
+   }
+
+   public static DeployedRuntimeArtifactXto toWs(
+         DeployedRuntimeArtifact deployedRuntimeArtifact)
+   {
+      DeployedRuntimeArtifactXto xto = null;
+      if (deployedRuntimeArtifact != null)
+      {
+         xto = new DeployedRuntimeArtifactXto();
+
+         xto.setOid(deployedRuntimeArtifact.getOid());
+         xto.setArtifactTypeId(deployedRuntimeArtifact.getArtifactTypeId());
+         xto.setArtifactId(deployedRuntimeArtifact.getArtifactId());
+         xto.setArtifactName(deployedRuntimeArtifact.getArtifactName());
+         xto.setValidFrom(deployedRuntimeArtifact.getValidFrom());
+      }
+      return xto;
+   }
+
+   public static ArtifactTypesXto marshalArtifactTypes(List<ArtifactType> artifactTypeList)
+   {
+      ArtifactTypesXto xto = null;
+      if (artifactTypeList != null)
+      {
+         xto = new ArtifactTypesXto();
+
+         for (ArtifactType artifactType : artifactTypeList)
+         {
+            xto.getArtifactType().add(toWs(artifactType));
+         }
+      }
+      return xto;
+   }
+
+   public static ArtifactTypeXto toWs(ArtifactType artifactType)
+   {
+      ArtifactTypeXto xto = null;
+
+      if (artifactType != null)
+      {
+         xto = new ArtifactTypeXto();
+         xto.setId(artifactType.getId());
+      }
+      return xto;
+   }
+
+   public static DeployedRuntimeArtifactQueryResultXto toWs(DeployedRuntimeArtifacts ra)
+   {
+      DeployedRuntimeArtifactQueryResultXto ret = new DeployedRuntimeArtifactQueryResultXto();
+
+      ret.setTotalCount(mapTotalCount(ra));
+      ret.setHasMore(ra.hasMore());
+      ret.setTotalCountThreshold(ra.getTotalCountThreshold());
+
+      DeployedRuntimeArtifactsXto deployedRuntimeArtifactsXto = new DeployedRuntimeArtifactsXto();
+
+      for (DeployedRuntimeArtifact deployedRuntimeArtifact : ra)
+      {
+         deployedRuntimeArtifactsXto.getDeployedRuntimeArtifact().add(toWs(deployedRuntimeArtifact));
+      }
+
+      ret.setDeployedRuntimeArtifacts(deployedRuntimeArtifactsXto);
+
+      return ret;
+   }
+
 }

@@ -74,8 +74,8 @@
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>rhino</groupId>
-         <artifactId>js</artifactId>
+         <groupId>org.mozilla</groupId>
+         <artifactId>rhino</artifactId>
          <scope>compile</scope>
       </dependency>
       <dependency>

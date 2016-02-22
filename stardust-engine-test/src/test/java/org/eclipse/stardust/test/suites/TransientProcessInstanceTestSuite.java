@@ -19,8 +19,10 @@ import org.eclipse.stardust.test.api.setup.ApplicationContextConfiguration;
 import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.test.transientpi.TransientProcessInstanceMonitoringTest;
+import org.eclipse.stardust.test.transientpi.TransientProcessInstanceProfilingTest;
 import org.eclipse.stardust.test.transientpi.TransientProcessInstanceTest;
 import org.eclipse.stardust.test.transientpi.TransientProcessInstanceWriteBehindTest;
+
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -39,7 +41,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
                 TransientProcessInstanceTest.class,
                 TransientProcessInstanceWriteBehindTest.class,
-                TransientProcessInstanceMonitoringTest.class
+                TransientProcessInstanceMonitoringTest.class,
+                TransientProcessInstanceProfilingTest.class
               })
 @ApplicationContextConfiguration(locations = "classpath:app-ctxs/audit-trail-queue.app-ctx.xml")
 public class TransientProcessInstanceTestSuite

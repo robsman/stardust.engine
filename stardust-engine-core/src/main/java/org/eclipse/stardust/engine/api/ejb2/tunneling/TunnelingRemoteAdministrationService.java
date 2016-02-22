@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 72686 
+ * Generated from  Revision
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling;
  * assigned to the predefined role <tt>Administrator</tt>.</p>
  *
  * @author ubirkemeyer
- * @version 72686
+ * @version $Revision
  */
 public interface TunnelingRemoteAdministrationService extends javax.ejb.EJBObject, org.eclipse.stardust.engine.api.ejb2.tunneling.TunnelingRemoteService
 {
@@ -565,10 +565,14 @@ public interface TunnelingRemoteAdministrationService extends javax.ejb.EJBObjec
      * Retrieves the specified daemon.
      * The following daemon types exist:
      * <ul>
-     * <li><code>event.daemon</code> for the event daemon</li>
-     * <li><code>mail.trigger</code> for the mail trigger daemon</li>
-     * <li><code>timer.trigger</code> for the timer trigger daemon</li>
+     * <li><code>mail.trigger</code> for the mail trigger daemon
+     * <li><code>timer.trigger</code> for the timer trigger daemon
+     * <li><code>event.daemon</code> for the event daemon
      * <li><code>system.daemon</code> for the notification daemon.</li>
+     * <li><code>criticality.daemon</code> for the prioritization daemon.</li>
+     * <li><code>benchmark.daemon</code> for the benchmark daemon.</li>
+     * <li><code>reporting.daemon</code> for the reporting daemon.</li>
+     * <li><code>business_calendar.daemon</code> for the business calendar daemon.</li>
      * </ul>
      *
      * @param daemonType the type of the daemon.
@@ -1464,6 +1468,144 @@ public interface TunnelingRemoteAdministrationService extends javax.ejb.EJBObjec
     public void
          setGlobalPermissions(
          org.eclipse.stardust.engine.api.runtime.RuntimePermissions permissions,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * Deploys a new artifact with a new oid.
+     * <p>
+     * If an artifact with the same validFrom date already exists,
+     * the newly deployed artifact takes priority when querying for active artifacts.
+     *
+     * @param runtimeArtifact The new artifact.
+     *
+     * @return The deployed artifact including an assigned oid.
+     *
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deployRuntimeArtifact(
+     *     org.eclipse.stardust.engine.api.runtime.RuntimeArtifact runtimeArtifact)
+     */
+    public org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact
+         deployRuntimeArtifact(
+         org.eclipse.stardust.engine.api.runtime.RuntimeArtifact runtimeArtifact,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * Overwrites only content of a specified already deployed artifact.
+     * Other fields cannot be changed.
+     *
+     * @param oid The oid of the artifact.
+     * @param runtimeArtifact The new artifact.
+     *
+     * @return The updated artifact.
+     *
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no runtime
+     *     artifact with the specified oid.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#overwriteRuntimeArtifact(
+     *     long oid, org.eclipse.stardust.engine.api.runtime.RuntimeArtifact runtimeArtifact)
+     */
+    public org.eclipse.stardust.engine.api.runtime.DeployedRuntimeArtifact
+         overwriteRuntimeArtifact(
+         long oid, org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         runtimeArtifact, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * Deleted a deployed artifact by oid.
+     *
+     * @param oid The oid of the artifact
+     *
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no runtime
+     *     artifact with the specified oid.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deleteRuntimeArtifact(
+     *     long oid)
+     */
+    public void deleteRuntimeArtifact(
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * Retrieves the artifact by the unique oid.
+     *
+     * @param oid The oid of the artifact.
+     *
+     * @return The artifact or <code>null<code> if it does not exist.
+     *
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getRuntimeArtifact(
+     *     long oid)
+     */
+    public org.eclipse.stardust.engine.api.runtime.RuntimeArtifact
+         getRuntimeArtifact(
+         long oid, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * Returns a list of supported artifact types.
+     * <p>
+     * 
+     * The {@link ArtifactType#getId()} is used to identify the {@link ArtifactType} for a
+     * {@link RuntimeArtifact}.
+     *
+     * @return The supported artifact types.
+     *
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getSupportedRuntimeArtifactTypes(
+     *     )
+     */
+    public java.util.List<org.eclipse.stardust.engine.api.runtime.ArtifactType>
+         getSupportedRuntimeArtifactTypes(
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * Creates a new type of link between process instances.
+     *
+     * @param id the id of the link type.
+     * @param description the description of the link type.
+     *
+     * @return the newly created process instance link type.
+     *
+     * @throws ObjectExistsException if another link type with the same id already exists.
+     *     <em>Instances of {@link ObjectExistsException} will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#createProcessInstanceLinkType(
+     *     java.lang.String id, java.lang.String description)
+     */
+    public org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType
+         createProcessInstanceLinkType(
+         java.lang.String id, java.lang.String description,
          org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.common.error.WorkflowException,
          java.rmi.RemoteException;

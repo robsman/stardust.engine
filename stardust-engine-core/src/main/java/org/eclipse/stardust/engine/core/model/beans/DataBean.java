@@ -27,6 +27,7 @@ import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailDataBean;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
+import org.eclipse.stardust.engine.core.spi.extensions.model.StructuredDataValidator;
 
 
 /**
@@ -116,6 +117,22 @@ public class DataBean extends IdentifiableElementBean implements IData
             }
             inconsistencies.add(new Inconsistency(inc.getMessage(), this,
                   inc.getSeverity()));
+         }
+         
+         if(validator instanceof StructuredDataValidator)
+         {
+            problems = ((StructuredDataValidator) validator).validate(this);
+            for (Iterator i = problems.iterator(); i.hasNext();)
+            {
+               Inconsistency inc = (Inconsistency) i.next();
+               if (inc.getError() != null)
+               {
+                  inconsistencies.add(new Inconsistency(inc.getError(), this,
+                        inc.getSeverity()));
+               }
+               inconsistencies.add(new Inconsistency(inc.getMessage(), this,
+                     inc.getSeverity()));
+            }
          }
       }
    }

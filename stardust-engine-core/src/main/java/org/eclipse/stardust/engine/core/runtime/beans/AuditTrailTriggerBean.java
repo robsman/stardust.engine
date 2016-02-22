@@ -15,12 +15,10 @@ import java.util.Iterator;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ITrigger;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
+import org.eclipse.stardust.engine.core.model.beans.ProcessDefinitionBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.PersistentModelElement;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 
@@ -50,6 +48,7 @@ public class AuditTrailTriggerBean extends IdentifiablePersistentBean implements
    public static final String[] proc_trigger_idx2_INDEX = new String[] {
          FIELD__ID, FIELD__OID, FIELD__MODEL};
 
+   @ForeignKey (modelElement=ModelBean.class)
    private long model;
    
    private static final int id_COLUMN_LENGTH = 50;
@@ -57,6 +56,7 @@ public class AuditTrailTriggerBean extends IdentifiablePersistentBean implements
    private static final int name_COLUMN_LENGTH = 100;
    private String name;
 
+   @ForeignKey (modelElement=ProcessDefinitionBean.class)
    private long processDefinition;
 
    public static Iterator findAll(short partitionOid)

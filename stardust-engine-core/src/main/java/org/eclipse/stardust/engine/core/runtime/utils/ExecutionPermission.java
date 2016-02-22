@@ -29,6 +29,7 @@ public @interface ExecutionPermission {
    public enum Default {
       ADMINISTRATOR,
       ALL,
+      AUDITOR,
       OWNER
    }
 
@@ -47,6 +48,10 @@ public @interface ExecutionPermission {
     * Class used as an identifier for the permission
     */
    public enum Id {
+      /**
+       * no permission is required
+       */
+      none,
       /**
        * permission to abort an activity
        */
@@ -76,6 +81,10 @@ public @interface ExecutionPermission {
        */
       deployProcessModel,
       /**
+       * permission to deploy and manage a runtime artifact.
+       */
+      deployRuntimeArtifact,
+      /**
        * permission to suspend an activity of another user
        */
       forceSuspend,
@@ -100,9 +109,21 @@ public @interface ExecutionPermission {
        */
       manageEventHandlers,
       /**
+       * permission to modify activity instances
+       */
+      modifyActivityInstances,
+      /**
+       * permission to modify the attributes of activity and process instances
+       */
+      modifyAttributes,
+      /**
        * permission to modify the AuditTrail database
        */
       modifyAuditTrail,
+      /**
+       * permission to modify the AuditTrail database
+       */
+      modifyAuditTrailStatistics,
       /**
        * permission to modify departments
        */
@@ -115,6 +136,10 @@ public @interface ExecutionPermission {
        * permission to modify process data values
        */
       modifyDataValues,
+      /**
+       * permission to modify any data via the document management service
+       */
+      modifyDmsData,
       /**
        * permission to modify process instances
        */
@@ -130,30 +155,42 @@ public @interface ExecutionPermission {
       /**
        * permission to access activity instances
        */
+      @ReadOnly
       readActivityInstanceData,
       /**
        * permission to query statistics on the audittrail database
        */
+      @ReadOnly
       readAuditTrailStatistics,
       /**
        * permission to read process data values
        */
+      @ReadOnly
       readDataValues,
       /**
        * permission to read department information
        */
+      @ReadOnly
       readDepartments,
       /**
        * permission to access data contained in the model
        */
+      @ReadOnly
       readModelData,
       /**
        * permission to access the process instances
        */
+      @ReadOnly
       readProcessInstanceData,
+      /**
+       * permission to read a deployed runtime artifact.
+       */
+      @ReadOnly
+      readRuntimeArtifact,
       /**
        * readUserData - permission to access user data such as email, account, etc.
        */
+      @ReadOnly
       readUserData,
       /**
        * permission to reset the password of an user
@@ -182,7 +219,11 @@ public @interface ExecutionPermission {
       /**
        * permission to spawn a sub process instance
        */
-      spawnSubProcessInstance
+      spawnSubProcessInstance,
+      /**
+       * permission to start a new process instance
+       */
+      startProcesses
    }
 
    /**
@@ -190,7 +231,7 @@ public @interface ExecutionPermission {
     *
     * @return a string containing the identifier.
     */
-   Id id();
+   Id id() default Id.none;
 
    /**
     * Specifies the scope of the permission, which can be one of:
@@ -198,7 +239,7 @@ public @interface ExecutionPermission {
     * <li>model - permission applies to the active model.</li>
     * <li>process - permission applies to the accessed process instance(s).</li>
     * <li>activity - permission applies to the accessed activity instance(s).</li>
-    * <li>activity - permission applies to the accessed data object(s).</li>
+    * <li>data - permission applies to the accessed data object(s).</li>
     * </ul>
     *
     * @return the scope of the permission.
@@ -256,4 +297,9 @@ public @interface ExecutionPermission {
     * @return the implied Id
     */
    Id[] implied() default {};
+
+   @Retention(RetentionPolicy.RUNTIME)
+   public @interface ReadOnly {
+
+   }
 }

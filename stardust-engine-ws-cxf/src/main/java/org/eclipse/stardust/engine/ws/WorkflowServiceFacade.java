@@ -65,7 +65,7 @@ public class WorkflowServiceFacade implements IWorkflowService
    private static final Logger trace = LogManager.getLogger(WorkflowServiceFacade.class);
 
    public ProcessInstanceXto startProcess(String processId, ParametersXto parameters,
-         Boolean startSynchronously, InputDocumentsXto attachments) throws BpmFault
+         Boolean startSynchronously, InputDocumentsXto attachments, String benchmarkId) throws BpmFault
    {
       try
       {
@@ -83,7 +83,7 @@ public class WorkflowServiceFacade implements IWorkflowService
          }
 
          StartProcessWithDocumentsCommand command = new StartProcessWithDocumentsCommand(processId, model.getModelOID(),
-               initialDataValues, startSynchronously, WsApiStartProcessUtils.unmarshalToSerializable(attachments, model));
+               initialDataValues, startSynchronously, WsApiStartProcessUtils.unmarshalToSerializable(attachments, model), benchmarkId);
 
          ProcessInstance pi = null;
          try
@@ -1078,23 +1078,7 @@ public class WorkflowServiceFacade implements IWorkflowService
 
          WorkflowService wfs = wsEnv.getServiceFactory().getWorkflowService();
 
-         QName qname = QName.valueOf(qualifiedBusinessObjectId);
-         String modelId = qname.getNamespaceURI();
-
-         Model model = null;
-         try
-         {
-            model = wsEnv.getActiveModel(modelId);
-         }
-         catch (Throwable e)
-         {
-            trace.warn("Could not access model information for unmarshaling. "
-                  + e.getMessage());
-         }
-
-         BusinessObject biObject = wfs.updateBusinessObjectInstance(
-               qualifiedBusinessObjectId, DataFlowUtils.unmarshalBusinessObjectDataValue(model,
-                     qualifiedBusinessObjectId, primaryKey));
+         wfs.deleteBusinessObjectInstance(qualifiedBusinessObjectId,DataFlowUtils.unmarshalSimpleTypeXsdValue(primaryKey));
 
       }
       catch (ApplicationException e)

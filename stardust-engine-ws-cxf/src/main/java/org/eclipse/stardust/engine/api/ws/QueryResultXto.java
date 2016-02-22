@@ -41,6 +41,7 @@ import javax.xml.bind.annotation.XmlType;
 })
 @XmlSeeAlso({
     UserQueryResultXto.class,
+    DeployedRuntimeArtifactQueryResultXto.class,
     ActivityQueryResultXto.class,
     ProcessInstanceQueryResultXto.class,
     UserGroupQueryResultXto.class,

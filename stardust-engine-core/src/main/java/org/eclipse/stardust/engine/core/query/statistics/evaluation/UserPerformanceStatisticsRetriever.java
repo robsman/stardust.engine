@@ -115,7 +115,8 @@ public class UserPerformanceStatisticsRetriever implements IUserQueryEvaluator
                   ActivityInstanceHistoryBean.FR__ON_BEHALF_OF_KIND,
                   ActivityInstanceHistoryBean.FR__ON_BEHALF_OF,
                   ActivityInstanceHistoryBean.FR__ON_BEHALF_OF_DEPARTMENT,
-                  ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE
+                  ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE,
+                  ProcessInstanceBean.FR__MODEL
             })
             .where(Predicates.andTerm(createDateRangeIntervalQuery(dateRangePolicy.getDateRanges()), Predicates.TRUE))
             .orderBy(
@@ -195,6 +196,7 @@ public class UserPerformanceStatisticsRetriever implements IUserQueryEvaluator
             long performerOid = rs.getLong(10);
             long department = rs.getLong(11);
             long scopePiOid = rs.getLong(12);
+            long targetProcessModelOid = rs.getLong(13);
 
             long currentPerformer = 0;
             long currentUserPerformer = 0;
@@ -219,7 +221,7 @@ public class UserPerformanceStatisticsRetriever implements IUserQueryEvaluator
             if (!guarded || Authorization2.hasPermission(ctx))
             {
                // TODO retrieve performance per process ID?
-               IProcessDefinition targetProcess = modelManager.findProcessDefinition(modelOid, targetProcessRtOid);
+               IProcessDefinition targetProcess = modelManager.findProcessDefinition(targetProcessModelOid, targetProcessRtOid);
                String qualifiedId = ModelUtils.getQualifiedId(targetProcess);
 
                tsCompleted.setTime(aiCompleteTime);

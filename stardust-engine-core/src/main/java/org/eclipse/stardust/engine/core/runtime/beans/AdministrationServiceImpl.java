@@ -24,18 +24,34 @@ import java.util.*;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Action;
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.FilteringIterator;
+import org.eclipse.stardust.common.Functor;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.dto.*;
+import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
+import org.eclipse.stardust.engine.api.dto.ContextKind;
+import org.eclipse.stardust.engine.api.dto.DepartmentDetails;
+import org.eclipse.stardust.engine.api.dto.DeploymentInfoDetails;
+import org.eclipse.stardust.engine.api.dto.RuntimePermissionsDetails;
+import org.eclipse.stardust.engine.api.dto.UserDetails;
 import org.eclipse.stardust.engine.api.model.*;
-import org.eclipse.stardust.engine.api.query.*;
+import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery.DeployedModelState;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceFilter;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceQueryEvaluator;
+import org.eclipse.stardust.engine.api.query.ProcessQueryPostprocessor;
+import org.eclipse.stardust.engine.api.query.QueryServiceUtils;
+import org.eclipse.stardust.engine.api.query.RawQueryResult;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.benchmark.BenchmarkUtils;
 import org.eclipse.stardust.engine.core.cache.CacheHelper;
 import org.eclipse.stardust.engine.core.model.beans.DefaultXMLReader;
 import org.eclipse.stardust.engine.core.model.beans.NullConfigurationVariablesProvider;
@@ -45,12 +61,25 @@ import org.eclipse.stardust.engine.core.model.parser.info.ModelInfoRetriever;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.DeleteDescriptor;
+import org.eclipse.stardust.engine.core.persistence.Functions;
+import org.eclipse.stardust.engine.core.persistence.Join;
+import org.eclipse.stardust.engine.core.persistence.PhantomException;
+import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.preferences.*;
+import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
+import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
+import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
+import org.eclipse.stardust.engine.core.preferences.PreferenceStorageManager;
+import org.eclipse.stardust.engine.core.preferences.PreferenceStoreUtils;
+import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables;
 import org.eclipse.stardust.engine.core.preferences.permissions.PermissionUtils;
@@ -66,6 +95,8 @@ import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
+import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManager;
+import org.eclipse.stardust.engine.core.spi.artifact.ArtifactManagerFactory;
 
 /**
  * This class implements <code>java.io.Serializable</code>, because it might be desirable
@@ -160,6 +191,11 @@ public class AdministrationServiceImpl
    public DeploymentInfo overwriteModel(DeploymentElement deploymentElement,
          int modelOID, DeploymentOptions options) throws DeploymentException
    {
+      if (switchToDeploy(deploymentElement, modelOID, options))
+      {
+         return deployModel(Collections.singletonList(deploymentElement), options).get(0);
+      }
+
       BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
 
       DeploymentInfo deploymentInfo;
@@ -199,6 +235,40 @@ public class AdministrationServiceImpl
       }
 
       return deploymentInfo;
+   }
+
+   private boolean switchToDeploy(DeploymentElement deploymentElement, int modelOID, DeploymentOptions options)
+   {
+      if (modelOID != PredefinedConstants.ACTIVE_MODEL)
+      {
+         return false;
+      }
+
+      if (options == null || !options.isAllowOverwriteWithoutInitialModel())
+      {
+         return false;
+      }
+
+      ModelManager modelManager = ModelManagerFactory.getCurrent();
+      if (modelManager.getModelCount() == 0)
+      {
+         return true;
+      }
+
+      try
+      {
+         ModelInfo info = ModelInfoRetriever.get(deploymentElement.getContent());
+         if (modelManager.getModelsForId(info.id).isEmpty())
+         {
+            return true;
+         }
+      }
+      catch (Exception e)
+      {
+         return false;
+      }
+
+      return false;
    }
 
    private static byte[] encode(String content)
@@ -1090,6 +1160,9 @@ public class AdministrationServiceImpl
 
          Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 
+         AdminServiceUtils.deletePartitionRuntimeArtifacts(
+               SecurityProperties.getPartitionOid(), session);
+         
          cleanupDeployments(session);
          cleanupModelReferences(session);
 
@@ -1464,6 +1537,7 @@ public class AdministrationServiceImpl
       CacheHelper.flushCaches();
       getPreferenceStore().flushCaches();
       reloadModelManagerAfterModelOperation();
+      BenchmarkUtils.removeAllBenchmarksFromCache();
    }
 
    public List<Permission> getPermissions()
@@ -1852,7 +1926,7 @@ public class AdministrationServiceImpl
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("organization"));
       }
-      
+
       return DepartmentUtils.createDepartment(id, name, description, parent, organization);
    }
 
@@ -1865,7 +1939,7 @@ public class AdministrationServiceImpl
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("name"));
       }
-      
+
       return DepartmentUtils.modifyDepartment(oid, name, description);
    }
 
@@ -1990,15 +2064,32 @@ public class AdministrationServiceImpl
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("configurationVariables"));
       }
 
-      List<ModelReconfigurationInfo> info;
+      List<ModelReconfigurationInfo> info = null;
+
+      // set default to false just for the case that
+      // ConfigurationVariableUtils.saveConfigurationVariables throws an exception
+      boolean saved = false;
       try
       {
          info = ConfigurationVariableUtils.saveConfigurationVariables(
                getPreferenceStore(), configurationVariables, force);
+
+         saved = true;
+         assert info instanceof RandomAccess;
+         for(int i = 0, listSize = info.size(); i<listSize && saved; i++)
+         {
+            if(!info.get(i).success())
+            {
+               saved = false;
+            }
+         }
       }
       finally
       {
-         reloadModelManagerAfterModelOperation();
+         if(saved)
+         {
+            reloadModelManagerAfterModelOperation();
+         }
       }
 
       return info;
@@ -2014,7 +2105,7 @@ public class AdministrationServiceImpl
 
    public void setGlobalPermissions(RuntimePermissions permissions) throws ValidationException
    {
-      if(permissions == null)
+      if (permissions == null)
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("permissions"));
       }
@@ -2022,42 +2113,23 @@ public class AdministrationServiceImpl
       try
       {
          Map<String, List<String>> permissionsMap;
+         Map<String, List<String>> deniedPermissionsMap;
          if (permissions instanceof RuntimePermissionsDetails)
          {
             permissionsMap = ((RuntimePermissionsDetails) permissions).getPermissionMap();
+            deniedPermissionsMap = ((RuntimePermissionsDetails) permissions).getDeniedPermissionsMap();
          }
          else
          {
             permissionsMap = CollectionUtils.newMap();
+            deniedPermissionsMap = CollectionUtils.newMap();
             for (String permissionId : permissions.getAllPermissionIds())
             {
-               Set<ModelParticipantInfo> grants = permissions.getGrants(permissionId);
-               if (grants != null)
-               {
-                  List<String> grantIds = new LinkedList<String>();
-
-                  for (ModelParticipantInfo modelParticipantInfo : grants)
-                  {
-                     if (modelParticipantInfo.getDepartment() != null)
-                     {
-                        throw new ValidationException(new IllegalArgumentException(
-                              Department.class.getName()).getLocalizedMessage(), false);
-                     }
-                     if (modelParticipantInfo instanceof QualifiedModelParticipantInfo)
-                     {
-                        grantIds.add(((QualifiedModelParticipantInfo) modelParticipantInfo).getQualifiedId());
-                     }
-                     else
-                     {
-                        grantIds.add(modelParticipantInfo.getId());
-                     }
-                  }
-
-                  permissionsMap.put(permissionId, grantIds);
-               }
+               collectGrants(permissionsMap, permissionId, permissions.getGrants(permissionId));
+               collectGrants(deniedPermissionsMap, permissionId, permissions.getDeniedGrants(permissionId));
             }
          }
-         PermissionUtils.setGlobalPermissions(getPreferenceStore(), permissionsMap);
+         PermissionUtils.setGlobalPermissions(getPreferenceStore(), permissionsMap, deniedPermissionsMap);
       }
       finally
       {
@@ -2065,8 +2137,80 @@ public class AdministrationServiceImpl
       }
    }
 
+   protected void collectGrants(Map<String, List<String>> permissionsMap,
+         String permissionId, Set<ModelParticipantInfo> grants)
+   {
+      if (grants != null)
+      {
+         List<String> grantIds = new LinkedList<String>();
+
+         for (ModelParticipantInfo modelParticipantInfo : grants)
+         {
+            if (modelParticipantInfo.getDepartment() != null)
+            {
+               throw new ValidationException(new IllegalArgumentException(
+                     Department.class.getName()).getLocalizedMessage(), false);
+            }
+            if (modelParticipantInfo instanceof QualifiedModelParticipantInfo)
+            {
+               grantIds.add(((QualifiedModelParticipantInfo) modelParticipantInfo).getQualifiedId());
+            }
+            else
+            {
+               grantIds.add(modelParticipantInfo.getId());
+            }
+         }
+
+         permissionsMap.put(permissionId, grantIds);
+      }
+   }
+
+   @Override
+   public List<ArtifactType> getSupportedRuntimeArtifactTypes()
+   {
+      return getArtifactManager().getSupportedArtifactTypes();
+   }
+
+   @Override
+   public DeployedRuntimeArtifact deployRuntimeArtifact(RuntimeArtifact runtimeArtifact)
+   {
+      return getArtifactManager().deployArtifact(runtimeArtifact);
+   }
+
+   @Override
+   public DeployedRuntimeArtifact overwriteRuntimeArtifact(long oid,
+         RuntimeArtifact runtimeArtifact)
+   {
+      return getArtifactManager().overwriteArtifact(oid, runtimeArtifact);
+   }
+
+   @Override
+   public RuntimeArtifact getRuntimeArtifact(long oid)
+   {
+      return getArtifactManager().getArtifact(oid);
+   }
+
+   @Override
+   public void deleteRuntimeArtifact(long oid)
+   {
+      getArtifactManager().deleteArtifact(oid);
+   }
+
    private static IPreferenceStorageManager getPreferenceStore()
    {
       return PreferenceStorageFactory.getCurrent();
+   }
+
+   private static ArtifactManager getArtifactManager()
+   {
+      return ArtifactManagerFactory.getCurrent();
+   }
+
+   @Override
+   public ProcessInstanceLinkType createProcessInstanceLinkType(String id, String description)
+   {
+      ProcessInstanceLinkTypeBean link = new ProcessInstanceLinkTypeBean(id, description);
+      trace.info("Created process instance link type '" + id + "'.");
+      return DetailsFactory.create(link);
    }
 }

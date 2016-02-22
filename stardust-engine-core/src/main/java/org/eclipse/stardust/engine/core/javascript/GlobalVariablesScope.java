@@ -19,15 +19,14 @@ import java.util.Map;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IDataType;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.ISchemaType;
 import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
 import org.eclipse.stardust.engine.api.model.IXpdlType;
-import org.eclipse.stardust.engine.api.model.ModelElement;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
@@ -139,6 +138,11 @@ public class GlobalVariablesScope extends ScriptableObject
                value = new ActivityInstanceAccessor((ActivityInstance) value);
                return value;
             }
+            if (value instanceof ProcessInstance)
+            {
+               System.out.println("Process Instance");
+            }
+            
             if (PredefinedConstants.SERIALIZABLE_DATA.equals(dataType.getId())) {
             	//If this is an Enum we'll wrap the contained values with the generic EnumAccessor
             	String className = (String) data.getAttribute(PredefinedConstants.CLASS_NAME_ATT);

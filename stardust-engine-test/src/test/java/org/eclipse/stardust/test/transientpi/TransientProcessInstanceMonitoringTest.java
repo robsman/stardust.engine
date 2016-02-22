@@ -40,10 +40,8 @@ import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.runtime.Models;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelRefBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserParticipantLink;
-import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
+import org.eclipse.stardust.engine.core.persistence.archive.ArchiveManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.spring.integration.jca.SpringAppContextHazelcastJcaConnectionFactoryProvider;
@@ -68,6 +66,11 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
  */
 public class TransientProcessInstanceMonitoringTest extends AbstractTransientProcessInstanceTest
 {
+   /**
+    * needed during service incovation to determine if there is an archivewriter active
+    */
+   private static final TableOperation SELECT_PREFERENCE = new TableOperation(SELECT, PreferencesBean.TABLE_NAME);
+
    /**
     * needed during service incovation to determine user in whose behalf the operation should be performed
     */
@@ -126,8 +129,10 @@ public class TransientProcessInstanceMonitoringTest extends AbstractTransientPro
 
       dropTransientProcessInstanceStorage();
       dropSerialActivityThreadQueues();
-
       initMonitoring(sf);
+      
+      // reset archivemanagers so that preference read count is the same whether tests are run individually are budled
+      ArchiveManagerFactory.resetArchiveManagers();
    }
 
    @After
@@ -169,7 +174,8 @@ public class TransientProcessInstanceMonitoringTest extends AbstractTransientPro
 
       DatabaseOperationMonitoring.instance().assertExactly(SELECT_WFUSER_REALM.times(1),
                                                            SELECT_WORKFLOWUSER.times(1),
-                                                           SELECT_USER_PARTICIPANT.times(1));
+                                                           SELECT_USER_PARTICIPANT.times(1),
+                                                           SELECT_PREFERENCE.times(7));
    }
 
    /**
@@ -186,7 +192,8 @@ public class TransientProcessInstanceMonitoringTest extends AbstractTransientPro
 
       DatabaseOperationMonitoring.instance().assertExactly(SELECT_WFUSER_REALM.times(1),
                                                            SELECT_WORKFLOWUSER.times(1),
-                                                           SELECT_USER_PARTICIPANT.times(1));
+                                                           SELECT_USER_PARTICIPANT.times(1),
+                                                           SELECT_PREFERENCE.times(7));
    }
 
    /**
@@ -207,7 +214,8 @@ public class TransientProcessInstanceMonitoringTest extends AbstractTransientPro
 
       DatabaseOperationMonitoring.instance().assertExactly(SELECT_WFUSER_REALM.times(1),
                                                            SELECT_WORKFLOWUSER.times(1),
-                                                           SELECT_USER_PARTICIPANT.times(1));
+                                                           SELECT_USER_PARTICIPANT.times(1),
+                                                           SELECT_PREFERENCE.times(7));
    }
 
    /**
@@ -224,7 +232,8 @@ public class TransientProcessInstanceMonitoringTest extends AbstractTransientPro
 
       DatabaseOperationMonitoring.instance().assertExactly(SELECT_WFUSER_REALM.times(1),
                                                            SELECT_WORKFLOWUSER.times(1),
-                                                           SELECT_USER_PARTICIPANT.times(1));
+                                                           SELECT_USER_PARTICIPANT.times(1),
+                                                           SELECT_PREFERENCE.times(7));
    }
 
    /**
@@ -242,7 +251,8 @@ public class TransientProcessInstanceMonitoringTest extends AbstractTransientPro
       DatabaseOperationMonitoring.instance().assertExactly(SELECT_WFUSER_REALM.times(1),
                                                            SELECT_WORKFLOWUSER.times(1),
                                                            SELECT_USER_PARTICIPANT.times(1),
-                                                           SELECT_MODEL_REF.times(1));
+                                                           SELECT_MODEL_REF.times(1),
+                                                           SELECT_PREFERENCE.times(7));
    }
 
    /**

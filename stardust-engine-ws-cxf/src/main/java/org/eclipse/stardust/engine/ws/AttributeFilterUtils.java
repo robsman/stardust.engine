@@ -26,13 +26,13 @@ public class AttributeFilterUtils
    public static final String WORKLIST_QUERY_LAST_MODIFICATION_TIME = "lastModificationTime";
 
    public static final String WORKLIST_QUERY_ACTIVITY_OID = "activityOid";
-   
+
    public static final String WORKLIST_QUERY_ACTIVITY_INSTANCE_OID = "activityInstanceOid";
 
    public static final String WORKLIST_QUERY_PROCESS_INSTANCE_OID = "processOid";
 
    public static final String WORKLIST_QUERY_PROCESS_INSTANCE_PRIORITY = "processPriority";
-   
+
    public static final String WORKLIST_QUERY_ACTIVITY_INSTANCE_CRITICALITY = "criticality";
 
    // ActivityInstanceQuery Attributes
@@ -55,8 +55,12 @@ public class AttributeFilterUtils
    public static final String ACTIVITY_INSTANCE_QUERY_PERFORMED_BY_OID = "performedByOid";
 
    public static final String ACTIVITY_INSTANCE_QUERY_STATE = "state";
-   
+
    public static final String ACTIVITY_INSTANCE_QUERY_CRITICALITY = "criticality";
+
+   public static final String ACTIVITIY_INSTANCE_QUERY_BENCHMARK_OID = "benchmark";
+   
+   public static final String ACTIVITY_INSTANCE_QUERY_BENCHMARK_VALUE = "benchmarkValue";
 
    // ProcessInstanceQuery Attributes
    public static final String PROCESS_INSTANCE_QUERY_OID = "oid";
@@ -76,6 +80,10 @@ public class AttributeFilterUtils
    public static final String PROCESS_INSTANCE_QUERY_STARTING_ACTIVITY_INSTANCE_OID = "startingActivityInstanceOid";
 
    public static final String PROCESS_INSTANCE_QUERY_PRIORITY = "priority";
+
+   public static final String PROCESS_INSTANCE_QUERY_BENCHMARK_OID = "benchmark";
+   
+   public static final String PROCESS_INSTANCE_QUERY_BENCHMARK_VALUE = "benchmarkValue";
 
    // UserQuery Attributes
    public static final String USER_QUERY_OID = "oid";
@@ -130,7 +138,7 @@ public class AttributeFilterUtils
 
    // ProcessDefinitionQuery Attributes
    public static final String PROCESS_DEFINITION_QUERY_TRIGGER_TYPE = "triggerType";
-   
+
    public static final String PROCESS_DEFINITION_QUERY_MODEL_OID = ModelAwareQueryPredicate.INTERNAL_MODEL_OID_ATTRIBUTE;
 
    public static final String PROCESS_DEFINITION_QUERY_INVOCATION_TYPE = "invocationType";
@@ -160,28 +168,50 @@ public class AttributeFilterUtils
    public static final String DATA_QUERY_DECLARED_TYPE_ID = "declaredTypeId";
 
    public static final String DATA_QUERY_MODEL_OID = "modelOid";
-   
+
    // Preferences Query
    public static final String PREFERENCES_QUERY_SCOPE = "scope";
-   
+
    public static final String PREFERENCES_QUERY_MODULE_ID = "moduleId";
-   
+
    public static final String PREFERENCES_QUERY_PREFERENCES_ID = "preferencesId";
-   
+
    public static final String PREFERENCES_QUERY_REALM_ID = "realmId";
-   
+
    public static final String PREFERENCES_QUERY_USER_ID = "userId";
-   
+
    // Deployed Model Query OID, ID, STATE, PROVIDER, CONSUMER
    public static final String DEPLOYED_MODEL_QUERY_OID = "oid";
-         
+
    public static final String DEPLOYED_MODEL_QUERY_ID =  "id";
-   
-   public static final String DEPLOYED_MODEL_QUERY_STATE = "state"; 
-   
+
+   public static final String DEPLOYED_MODEL_QUERY_STATE = "state";
+
    public static final String DEPLOYED_MODEL_QUERY_PROVIDER = "provider";
-   
+
    public static final String DEPLOYED_MODEL_QUERY_CONSUMER =  "consumer";
+
+   // Deployed Runtime Artifact Query
+   public static final String DEPLOYED_RUNTIME_ARTIFACT_QUERY_OID = "oid";
+
+   public static final String DEPLOYED_RUNTIME_ARTIFACT_QUERY_ARTIFACT_TYPE_ID =  "artifactTypeId";
+
+   public static final String DEPLOYED_RUNTIME_ARTIFACT_QUERY_ARTIFACT_ID = "artifactId";
+
+   public static final String DEPLOYED_RUNTIME_ARTIFACT_QUERY_ARTIFACT_NAME = "artifactName";
+
+   public static final String DEPLOYED_RUNTIME_ARTIFACT_QUERY_VALID_FROM =  "validFrom";
+   
+   // Business Object Query
+   public static final String BUSINESS_OBJECT_QUERY_BUSINESS_ID = "businessObjectId";
+
+   public static final String BUSINESS_OBJECT_QUERY_PRIMARY_KEY = "primaryKey";
+
+   public static final String BUSINESS_OBJECT_QUERY_MODEL_ID = "modelId";
+
+   public static final String BUSINESS_OBJECT_QUERY_MODEL_OID = "modelOid";
+
+
 
    public static FilterableAttribute unmarshalFilterableAttribute(String attribute,
          Class< ? > clazz)
@@ -263,6 +293,14 @@ public class AttributeFilterUtils
          {
             return ActivityInstanceQuery.CRITICALITY;
          }
+         else if (ACTIVITIY_INSTANCE_QUERY_BENCHMARK_OID.equals(attribute))
+         {
+            return ActivityInstanceQuery.BENCHMARK_OID;
+         }
+         else if (ACTIVITY_INSTANCE_QUERY_BENCHMARK_VALUE.equals(attribute))
+         {
+            return ActivityInstanceQuery.BENCHMARK_VALUE;
+         }
       }
       if (ProcessInstanceQuery.class.equals(clazz))
       {
@@ -301,6 +339,14 @@ public class AttributeFilterUtils
          if (PROCESS_INSTANCE_QUERY_PRIORITY.equals(attribute))
          {
             return ProcessInstanceQuery.PRIORITY;
+         }
+         if (PROCESS_INSTANCE_QUERY_BENCHMARK_OID.equals(attribute))
+         {
+            return ProcessInstanceQuery.BENCHMARK_OID;
+         }
+         if (PROCESS_INSTANCE_QUERY_BENCHMARK_VALUE.equals(attribute))
+         {
+            return ProcessInstanceQuery.BENCHMARK_VALUE;
          }
       }
       if (UserQuery.class.equals(clazz))
@@ -482,7 +528,7 @@ public class AttributeFilterUtils
          else if (DATA_QUERY_MODEL_OID.equals(attribute))
          {
             return DataQuery.MODEL_OID;
-         }         
+         }
       }
       if (PreferenceQuery.class.equals(clazz))
       {
@@ -529,7 +575,53 @@ public class AttributeFilterUtils
          {
             return DeployedModelQuery.CONSUMER;
          }
-               
+      }
+      if (DeployedRuntimeArtifactQuery.class.equals(clazz))
+      {
+         if (DEPLOYED_RUNTIME_ARTIFACT_QUERY_OID.equals(attribute))
+         {
+            return DeployedRuntimeArtifactQuery.OID;
+         }
+         else if (DEPLOYED_RUNTIME_ARTIFACT_QUERY_ARTIFACT_TYPE_ID.equals(attribute))
+         {
+            return DeployedRuntimeArtifactQuery.ARTIFACT_TYPE_ID;
+         }
+         else if (DEPLOYED_RUNTIME_ARTIFACT_QUERY_ARTIFACT_ID.equals(attribute))
+         {
+            return DeployedRuntimeArtifactQuery.ARTIFACT_ID;
+         }
+         else if (DEPLOYED_RUNTIME_ARTIFACT_QUERY_ARTIFACT_NAME.equals(attribute))
+         {
+            return DeployedRuntimeArtifactQuery.ARTIFACT_NAME;
+         }
+         else if (DEPLOYED_RUNTIME_ARTIFACT_QUERY_VALID_FROM.equals(attribute))
+         {
+            return DeployedRuntimeArtifactQuery.VALID_FROM;
+         }
+      }
+      if (BusinessObjectQuery.class.equals(clazz))
+      {
+         if (BUSINESS_OBJECT_QUERY_BUSINESS_ID.equals(attribute))
+         {
+            return (FilterableAttribute) Reflect.getStaticFieldValue(
+                  BusinessObjectQuery.class, "BUSINESS_OBJECT_ID");
+         }
+         else if (BUSINESS_OBJECT_QUERY_PRIMARY_KEY.equals(attribute))
+         {
+            return (FilterableAttribute) Reflect.getStaticFieldValue(
+                  BusinessObjectQuery.class, "PRIMARY_KEY");
+         }
+         else if (BUSINESS_OBJECT_QUERY_MODEL_ID.equals(attribute))
+         {
+            return (FilterableAttribute) Reflect.getStaticFieldValue(
+                  BusinessObjectQuery.class, "MODEL_ID");
+         }
+         else if (BUSINESS_OBJECT_QUERY_MODEL_OID.equals(attribute))
+         {
+            return (FilterableAttribute) Reflect.getStaticFieldValue(
+                  BusinessObjectQuery.class, "MODEL_OID");
+         }         
+         
       }
 
       trace.error("FilterableAttribute could not be unmarshaled: Attribute not supported ("
@@ -630,6 +722,11 @@ public class AttributeFilterUtils
             {
                return ACTIVITY_INSTANCE_QUERY_CRITICALITY;
             }
+            else if (ActivityInstanceQuery.BENCHMARK_OID.getAttributeName().equals(attribute))
+            {
+               return ACTIVITIY_INSTANCE_QUERY_BENCHMARK_OID;
+            }
+            
          }
          else if (ProcessInstanceQuery.class.equals(clazz))
          {
@@ -673,6 +770,14 @@ public class AttributeFilterUtils
             if (ProcessInstanceQuery.PRIORITY.getAttributeName().equals(attribute))
             {
                return PROCESS_INSTANCE_QUERY_PRIORITY;
+            }
+            if (ProcessInstanceQuery.BENCHMARK_OID.getAttributeName().equals(attribute))
+            {
+               return PROCESS_INSTANCE_QUERY_BENCHMARK_OID;
+            }
+            if (ProcessInstanceQuery.BENCHMARK_VALUE.getAttributeName().equals(attribute))
+            {
+               return PROCESS_INSTANCE_QUERY_BENCHMARK_VALUE;              
             }
          }
          else if (UserQuery.class.equals(clazz))
@@ -896,6 +1001,58 @@ public class AttributeFilterUtils
                return DEPLOYED_MODEL_QUERY_CONSUMER;
             }
          }
+         if (DeployedRuntimeArtifactQuery.class.equals(clazz))
+         {
+            if (DeployedRuntimeArtifactQuery.OID.getAttributeName().equals(attribute))
+            {
+               return DEPLOYED_RUNTIME_ARTIFACT_QUERY_OID;
+            }
+            else if (DeployedRuntimeArtifactQuery.ARTIFACT_TYPE_ID.getAttributeName().equals(attribute))
+            {
+               return DEPLOYED_RUNTIME_ARTIFACT_QUERY_ARTIFACT_TYPE_ID;
+            }
+            else if (DeployedRuntimeArtifactQuery.ARTIFACT_ID.getAttributeName().equals(attribute))
+            {
+               return DEPLOYED_RUNTIME_ARTIFACT_QUERY_ARTIFACT_ID;
+            }
+            else if (DeployedRuntimeArtifactQuery.ARTIFACT_NAME.getAttributeName().equals(attribute))
+            {
+               return DEPLOYED_RUNTIME_ARTIFACT_QUERY_ARTIFACT_NAME;
+            }
+            else if (DeployedRuntimeArtifactQuery.VALID_FROM.getAttributeName().equals(attribute))
+            {
+               return DEPLOYED_RUNTIME_ARTIFACT_QUERY_VALID_FROM;
+            }
+         }
+         
+         if (BusinessObjectQuery.class.equals(clazz))
+         {
+            if (((FilterableAttribute) Reflect.getStaticFieldValue(
+                  BusinessObjectQuery.class, "BUSINESS_OBJECT_ID")).getAttributeName()
+                  .equals(attribute))
+            {
+               return BUSINESS_OBJECT_QUERY_BUSINESS_ID;
+            }
+            else if (((FilterableAttribute) Reflect.getStaticFieldValue(
+                  BusinessObjectQuery.class, "PRIMARY_KEY")).getAttributeName().equals(
+                  attribute))
+            {
+               return BUSINESS_OBJECT_QUERY_PRIMARY_KEY;
+            }
+            else if (((FilterableAttribute) Reflect.getStaticFieldValue(
+                  BusinessObjectQuery.class, "MODEL_ID")).getAttributeName().equals(
+                  attribute))
+            {
+               return BUSINESS_OBJECT_QUERY_MODEL_ID;
+            }
+            else if (((FilterableAttribute) Reflect.getStaticFieldValue(
+                  BusinessObjectQuery.class, "MODEL_OID")).getAttributeName().equals(
+                  attribute))
+            {
+               return BUSINESS_OBJECT_QUERY_MODEL_OID;
+            }
+         }
+
          trace.error("FilterableAttribute could not be marshaled: Attribute not supported ("
                + attribute + ") for Class" + clazz.getName());
          throw new UnsupportedOperationException(

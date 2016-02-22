@@ -202,4 +202,11 @@ public class CriticalityDaemon implements IDaemon
    {
       return 5;
    }
+
+   @Override
+   public DaemonExecutionLog getExecutionLog()
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
 }

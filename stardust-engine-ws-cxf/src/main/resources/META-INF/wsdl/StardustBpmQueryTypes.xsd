@@ -153,6 +153,21 @@
       </restriction>
    </simpleType>
 
+  <complexType name="DeployedRuntimeArtifactQuery">
+   <annotation>
+      <documentation>
+      Query container for building complex queries for runtime artifacts.
+      </documentation>
+   </annotation>
+   <complexContent>
+      <extension base="tns:Query">
+         <sequence>
+            <element name="includeOnlyActive" type="boolean" minOccurs="0" />
+         </sequence>
+      </extension>
+   </complexContent>
+  </complexType>
+
    <complexType name="UserQuery">
     <annotation>
 	    <documentation>

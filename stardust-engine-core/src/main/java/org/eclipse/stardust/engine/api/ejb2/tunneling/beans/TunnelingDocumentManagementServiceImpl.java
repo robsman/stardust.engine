@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 72466 
+ * Generated from  Revision
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling.beans;
 
@@ -15,7 +15,7 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling.beans;
  * </ul>
  *
  * @author rsauer
- * @version 72466
+ * @version $Revision
  */
 public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust.engine.api.ejb2.tunneling.beans.AbstractTunnelingServiceImpl
 {

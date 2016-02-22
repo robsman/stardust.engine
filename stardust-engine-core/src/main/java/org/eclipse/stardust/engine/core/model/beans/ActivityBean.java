@@ -10,13 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.beans;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.error.InternalException;
@@ -24,16 +18,17 @@ import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
-import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
-import org.eclipse.stardust.engine.core.model.utils.Link;
-import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-import org.eclipse.stardust.engine.core.model.utils.ModelElementListAdapter;
-import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
-import org.eclipse.stardust.engine.core.model.utils.RootElement;
+import org.eclipse.stardust.engine.core.model.utils.*;
 import org.eclipse.stardust.engine.core.pojo.data.JavaDataTypeUtils;
+import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailActivityBean;
+import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelRefBean;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
+import org.eclipse.stardust.engine.core.struct.IXPathMap;
+import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
+import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
+import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 import org.eclipse.stardust.engine.extensions.dms.data.VfsOperationAccessPointProvider;
 
@@ -249,9 +244,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          IModel externalModel = externalPackage.getReferencedModel();
          if (externalModel != null)
          {
-            String uuid = getStringAttribute("carnot:connection:uuid");
-            IProcessDefinition referenceProcess = externalModel.findProcessDefinition(StringUtils.isEmpty(uuid)
-                  ? externalReference.getId() : externalReference.getId() + "?uuid=" + uuid);
+            IProcessDefinition referenceProcess = externalModel.findProcessDefinition(externalReference.getId());
             if (referenceProcess != null)
             {
                return getImplementation(referenceProcess);
@@ -497,7 +490,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
 
    }
 
-   public ModelElementList getOutDataMappings()
+   public ModelElementList<IDataMapping> getOutDataMappings()
    {
       return outDataMappings;
    }
@@ -647,6 +640,78 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
             {
                BpmValidationError error = BpmValidationError.ACTY_INCOMPATIBLE_SUBPROCESSMODE.raise(getId());
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
+            }
+         }
+
+         if(hasRuntimeBinding())
+         {
+            String dataId = getStringAttribute(PredefinedConstants.BINDING_DATA_ID_ATT);
+            if(StringUtils.isEmpty(dataId))
+            {
+               BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_NO_DATA_SET.raise(getId());
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+            }
+            IData dataObject = ((IModel) getModel()).findData(dataId);
+            if (dataObject == null)
+            {
+               BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_NO_DATA_SET.raise(getId());
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+            }
+            else
+            {
+               DataTypeBean dataTypeBean = (DataTypeBean) dataObject.getType();
+               String dataTypeId = dataTypeBean.getId();
+               String dataPath = getStringAttribute(PredefinedConstants.BINDING_DATA_PATH_ATT);
+
+               if(dataTypeId.equals(PredefinedConstants.STRUCTURED_DATA))
+               {
+                  IXPathMap xPathMap = StructuredTypeRtUtils.getXPathMap(dataObject);
+                  if (xPathMap != null)
+                  {
+                     String xPathWithoutIndexes = StructuredDataXPathUtils.getXPathWithoutIndexes(dataPath);
+                     TypedXPath xPath = xPathMap.getXPath(xPathWithoutIndexes);
+                     if(xPath == null)
+                     {
+                        BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING.raise(getId());
+                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                     }
+                     else if(xPath.getType() != BigData.STRING)
+                     {
+                        BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING.raise(getId());
+                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                     }
+                     else
+                     {
+                        if(xPath.isEnumeration() && !StringUtils.isEmpty(dataPath))
+                        {
+                           BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING.raise(getId());
+                           inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                        }
+                     }
+                  }
+               }
+               else if(dataTypeId.equals(PredefinedConstants.PRIMITIVE_DATA))
+               {
+                  Type type = dataObject.getAttribute(PredefinedConstants.TYPE_ATT);
+                  if(type.equals(Type.String))
+                  {
+                     if(!StringUtils.isEmpty(dataPath))
+                     {
+                        BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING.raise(getId());
+                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                     }
+                  }
+                  else
+                  {
+                     BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING.raise(getId());
+                     inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                  }
+               }
+               else
+               {
+                  BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING.raise(getId());
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+               }
             }
          }
       }
@@ -1046,6 +1111,11 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          return interfaceContext;
       }
 
+      if (contextId != null && contextId.startsWith(PredefinedConstants.EVENT_CONTEXT))
+      {
+         return new MyEventContext(contextId, getModel());
+      }
+
       IApplication app = getApplication();
       if (app != null && isInteractive())
       {
@@ -1280,6 +1350,11 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
             PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT,
                      PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT,
             "org.eclipse.stardust.engine.api.runtime.ActivityInstance", Direction.OUT, false, null));
+         accessPoints.put(PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT,
+               JavaDataTypeUtils.createIntrinsicAccessPoint(this,
+            PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT,
+                     PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT,
+            "org.eclipse.stardust.engine.api.runtime.ProcessInstance", Direction.OUT, false, null));
       }
 
       public RootElement getModel()
@@ -1344,6 +1419,32 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       public RootElement getModel()
       {
          return ActivityBean.this.getModel();
+      }
+   }
+
+   private static class MyEventContext extends ApplicationContextBean
+   {
+      private static final IApplicationContextType eventContextType = new ApplicationContextTypeBean("EventContext", "Event Context", true, false, false);
+
+      private static final long serialVersionUID = 1L;
+
+      private RootElement model;
+
+      private MyEventContext(String id, RootElement model)
+      {
+         super(id, true);
+         this.model = model;
+      }
+
+      public RootElement getModel()
+      {
+         return model;
+      }
+
+      @Override
+      public PluggableType getType()
+      {
+         return eventContextType;
       }
    }
 

@@ -42,7 +42,6 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
  */
 public class StructuredTypeDefinitionTest
 {
-
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(
          MOTU, MOTU);
 
@@ -74,7 +73,7 @@ public class StructuredTypeDefinitionTest
       }
       catch (DeploymentException e)
       {
-         assertDeploymentError("SDT01003", "NotExistingSchema.xsd", e);
+         assertDeploymentError("GEN01002", "NotExistingSchema.xsd", e);
          errorOccured = true;
       }
       Assert.assertTrue(errorOccured);
@@ -90,7 +89,7 @@ public class StructuredTypeDefinitionTest
       }
       catch (DeploymentException e)
       {
-         assertDeploymentError("SDT01003", "NotExistingImport.xsd", e);
+         assertDeploymentError("GEN01002", "NotExistingImport.xsd", e);
          errorOccured = true;
       }
       Assert.assertTrue(errorOccured);
@@ -106,7 +105,8 @@ public class StructuredTypeDefinitionTest
       }
       catch (DeploymentException e)
       {
-         assertDeploymentError("SDT01003", "NotExistingInclude.xsd", e);
+         e.printStackTrace();
+         assertDeploymentError("GEN01002", "NotExistingInclude.xsd", e);
          errorOccured = true;
       }
       Assert.assertTrue(errorOccured);
@@ -137,7 +137,7 @@ public class StructuredTypeDefinitionTest
 
    private void deploy(String modelId)
    {
-      RtEnvHome.deploy(sf.getAdministrationService(), DeploymentOptions.DEFAULT,
+      RtEnvHome.deployModel(sf.getAdministrationService(), DeploymentOptions.DEFAULT,
             new String[] {modelId});
    }
 
@@ -156,11 +156,17 @@ public class StructuredTypeDefinitionTest
                   && inconsistency.getMessage().contains(messageContains);
          }
       }
+      
+      if (!found)
+      {
+         found |= errorId.equals(e.getError().getId())
+               && e.getMessage().contains(messageContains);         
+      }
+            
       if (!found)
       {
          Assert.fail("ErrorCase '" + errorId + "' with contained String '"
                + messageContains + "' expected but not found.");
       }
    }
-
 }

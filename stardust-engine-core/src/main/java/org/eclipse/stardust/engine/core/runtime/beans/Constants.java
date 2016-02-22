@@ -34,7 +34,6 @@ public interface Constants
     */
    public static final Class<? extends Persistent>[] PERSISTENT_RUNTIME_PI_CLASSES =
          new Class[]{ActivityInstanceBean.class,
-                     ActivityInstanceLogBean.class,
                      ActivityInstanceHistoryBean.class,
                      ActivityInstanceProperty.class,
                      TransitionInstanceBean.class,
@@ -70,10 +69,13 @@ public interface Constants
                      StructuredDataBean.class,
                      DepartmentBean.class,
                      DepartmentHierarchyBean.class,
+                     SignalMessageBean.class,
+                     SignalMessageLookupBean.class,
                      ModelRefBean.class,
                      ModelDeploymentBean.class,
                      PreferencesBean.class,
-                     ProcessInstanceLinkTypeBean.class
+                     ProcessInstanceLinkTypeBean.class,
+                     RuntimeArtifactBean.class
          };
 
    /**
@@ -81,7 +83,6 @@ public interface Constants
     */
    public static final Class[] PERSISTENT_RUNTIME_CLASSES =
          new Class[]{ActivityInstanceBean.class,
-                     ActivityInstanceLogBean.class,
                      ActivityInstanceHistoryBean.class,
                      ActivityInstanceProperty.class,
                      TransitionInstanceBean.class,
@@ -113,11 +114,14 @@ public interface Constants
                      ClobDataBean.class,
                      DepartmentBean.class,
                      DepartmentHierarchyBean.class,
+                     SignalMessageBean.class,
+                     SignalMessageLookupBean.class,
                      ModelRefBean.class,
                      ModelDeploymentBean.class,
                      PreferencesBean.class,
                      ProcessInstanceLinkBean.class,
-                     ProcessInstanceLinkTypeBean.class
+                     ProcessInstanceLinkTypeBean.class,
+                     RuntimeArtifactBean.class
          };
 
    /**

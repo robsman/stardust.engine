@@ -44,6 +44,7 @@ public class ProcessInstanceLinkBean extends PersistentBean implements IProcessI
          FIELD__LINK_TYPE};
    public static final boolean TRY_DEFERRED_INSERT = true;
 
+   @ForeignKey (persistentElement=ProcessInstanceBean.class)
    private long processInstance;
    private long linkedProcessInstance;
    private long linkType;

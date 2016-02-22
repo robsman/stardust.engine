@@ -76,9 +76,11 @@ public class ActivityInstanceHistoryBean extends PersistentBean
    static final boolean state_USE_LITERALS = true;
    static final boolean performerKind_USE_LITERALS = true;
    static final boolean onBehalfOfKind_USE_LITERALS = true;
-
+   
+   @ForeignKey (persistentElement=ProcessInstanceBean.class)
    private long processInstance;
 
+   @ForeignKey (persistentElement=ActivityInstanceBean.class)
    private long activityInstance;
 
    private int state;

@@ -1,28 +1,11 @@
 package org.eclipse.stardust.engine.extensions.camel;
 
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ADDITIONAL_SPRING_BEANS_DEF_ATT;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_CONTEXT_ID_ATT;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_PRODUCER_APPLICATION_TYPE;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.DEFAULT_CAMEL_CONTEXT_ID;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.GREATER_THAN_SIGN;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.INVOCATION_TYPE_EXT_ATT;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.IPP_DIRECT_TAG;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ROUTE_EXT_ATT;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.PRODUCER_ROUTE_ATT;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING_XML_FOOTER;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING_XML_HEADER;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ACCESS_POINT_HEADERS;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ACCESS_POINT_MESSAGE;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.APPLICATION_INTEGRATION_OVERLAY_ATT;
-
-
-
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.*;
 
 import java.io.IOException;
 import java.util.*;
 
 import org.apache.camel.Exchange;
-
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
@@ -48,22 +31,25 @@ public class Util
 	   }
 	   return null;
    }
-      /**
-    * returns "direct:partitionId_modelId_applicationId"
+   
+   /** Returns the uri related to the provided Application.
+    *  "partitionId_modelId_applicationId"
+    *  
     * @return
     */
-   public static String getEndpoint(ActivityInstance activityInstance){
-	 String partitionId=activityInstance.getActivity().getApplication().getPartitionId();
-	 String modelId=extractModelIdFromFullyQualifiedName(activityInstance.getActivity().getApplication().getQualifiedId());
-	 String activityId=activityInstance.getActivity().getApplication().getId();
-	 if(StringUtils.isNotEmpty(partitionId) && StringUtils.isNotEmpty(modelId) && StringUtils.isNotEmpty(activityId))
-		return partitionId+"_"+modelId+"_"+activityId;
-	 if( StringUtils.isNotEmpty(modelId) && StringUtils.isNotEmpty(activityId))
-			return modelId+"_"+activityId;
-	 if( StringUtils.isNotEmpty(activityId))
-			return activityId;
-	 return null ;
-   }
+    public static String getEndpoint(Application application){
+       String partitionId=  application.getPartitionId();
+       String modelId=extractModelIdFromFullyQualifiedName(application.getQualifiedId());
+       String appId=application.getId();
+   
+       if(StringUtils.isNotEmpty(partitionId) && StringUtils.isNotEmpty(modelId) && StringUtils.isNotEmpty(appId))
+          return partitionId+"_"+modelId+"_"+appId;
+      if( StringUtils.isNotEmpty(modelId) && StringUtils.isNotEmpty(appId))
+           return modelId+"_"+appId;
+      if( StringUtils.isNotEmpty(appId))
+           return appId;
+      return null ;
+    }
 
    /**
     * copy the content of the IN Message to the Out Message.
@@ -168,7 +154,7 @@ public class Util
     */
    public static boolean isConsumerApplication(final IApplication application)
    {
-      Boolean isConsumer = CamelConstants.CAMEL_CONSUMER_APPLICATION_TYPE.equals(application.getType().getId());
+      Boolean isConsumer = CAMEL_CONSUMER_APPLICATION_TYPE.equals(application.getType().getId());
       // mail application should be set as consumerApp to be able to set the activity
       // instance in hibernated state
       if ((application.getAttribute(APPLICATION_INTEGRATION_OVERLAY_ATT) != null)
@@ -180,13 +166,13 @@ public class Util
       String invocationType = getInvocationType(application);
 
       if ((StringUtils.isNotEmpty(invocationPattern) && StringUtils.isNotEmpty(invocationType))
-            && (CamelConstants.InvocationPatterns.SENDRECEIVE.equals(invocationPattern) && CamelConstants.InvocationTypes.ASYNCHRONOUS
+            && (InvocationPatterns.SENDRECEIVE.equals(invocationPattern) && InvocationTypes.ASYNCHRONOUS
                   .equals(invocationType)))
       {
          isConsumer = true;
       }
       if (StringUtils.isNotEmpty(invocationPattern)
-            && CamelConstants.InvocationPatterns.RECEIVE.equals(invocationPattern))
+            && InvocationPatterns.RECEIVE.equals(invocationPattern))
       {
          isConsumer = true;
       }
@@ -241,7 +227,7 @@ public class Util
     */
    public static String getConsumerRouteConfiguration(final IApplication application)
    {
-      return (String) application.getAttribute(CamelConstants.CONSUMER_ROUTE_ATT);
+      return (String) application.getAttribute(CONSUMER_ROUTE_ATT);
 
    }
 
@@ -309,7 +295,7 @@ public class Util
    public static String getCamelContextId(final Application application)
    {
 
-      return checkNotNull((String) application.getAttribute(CamelConstants.CAMEL_CONTEXT_ID_ATT),
+      return checkNotNull((String) application.getAttribute(CAMEL_CONTEXT_ID_ATT),
             DEFAULT_CAMEL_CONTEXT_ID);
    }
 
@@ -320,7 +306,7 @@ public class Util
     */
    public static String getInvocationPattern(final IApplication application)
    {
-      return (String) application.getAttribute(CamelConstants.INVOCATION_PATTERN_EXT_ATT);
+      return (String) application.getAttribute(INVOCATION_PATTERN_EXT_ATT);
    }
 
    /**
@@ -330,7 +316,7 @@ public class Util
     */
    public static String getInvocationPattern(final Application application)
    {
-      return (String) application.getAttribute(CamelConstants.INVOCATION_PATTERN_EXT_ATT);
+      return (String) application.getAttribute(INVOCATION_PATTERN_EXT_ATT);
    }
 
    /**
@@ -359,31 +345,28 @@ public class Util
     */
    public static Object getBodyOutAccessPoint(final Application application)
    {
-      return application.getAttribute(CamelConstants.CAT_BODY_OUT_ACCESS_POINT);
+      return application.getAttribute(CAT_BODY_OUT_ACCESS_POINT);
    }
-
    /**
-    *
-    * @param application
-    * @return
-    */
+   *
+   * @param application
+   * @return
+   */
    public static Object getBodyInAccessPoint(final Application application)
    {
-      return application.getAttribute(CamelConstants.CAT_BODY_IN_ACCESS_POINT);
+      return application.getAttribute(CAT_BODY_IN_ACCESS_POINT);
    }
-
    /**
-    *
-    * @param application
-    * @return
-    */
+   *
+   * @param application
+   * @return
+   */
    public static Object getSupportMultipleAccessPointAttribute(final Application application)
    {
-      return application.getAttribute(CamelConstants.SUPPORT_MULTIPLE_ACCESS_POINTS);
+      return application.getAttribute(SUPPORT_MULTIPLE_ACCESS_POINTS);
    }
-
    /**
-    *
+   *
     * @param ai
     * @return
     */
@@ -434,17 +417,17 @@ public class Util
       String invocationType = getInvocationType(application);
 
       if ((StringUtils.isNotEmpty(invocationPattern) && StringUtils.isNotEmpty(invocationType))
-            && (CamelConstants.InvocationPatterns.SENDRECEIVE.equals(invocationPattern) && CamelConstants.InvocationTypes.SYNCHRONOUS
+            && (InvocationPatterns.SENDRECEIVE.equals(invocationPattern) && InvocationTypes.SYNCHRONOUS
                   .equals(invocationPattern)))
       {
          isProducer = true;
       }else if ((StringUtils.isNotEmpty(invocationPattern) && StringUtils.isNotEmpty(invocationType))
-            && (CamelConstants.InvocationPatterns.SENDRECEIVE.equals(invocationPattern) && CamelConstants.InvocationTypes.ASYNCHRONOUS
+            && (InvocationPatterns.SENDRECEIVE.equals(invocationPattern) && InvocationTypes.ASYNCHRONOUS
                   .equals(invocationType)))
       {
          isProducer = true;
       }
-      if (StringUtils.isNotEmpty(invocationPattern) && CamelConstants.InvocationPatterns.SEND.equals(invocationPattern))
+      if (StringUtils.isNotEmpty(invocationPattern) && InvocationPatterns.SEND.equals(invocationPattern))
       {
          isProducer = true;
       }
@@ -698,7 +681,7 @@ public class Util
     */
    public static Object getBodyOutAccessPoint(final Trigger trigger)
    {
-      return trigger.getAttribute(CamelConstants.CAT_BODY_OUT_ACCESS_POINT);
+      return trigger.getAttribute(CAT_BODY_OUT_ACCESS_POINT);
    }
 
    /**
@@ -708,7 +691,7 @@ public class Util
     */
    public static String getEventImplementation(final ITrigger trigger)
    {
-      return (String) trigger.getAttribute(CamelConstants.TRIGGER_INTEGRATION_OVERLAY_ATT);
+      return (String) trigger.getAttribute(TRIGGER_INTEGRATION_OVERLAY_ATT);
    }
    
    /**
@@ -740,4 +723,29 @@ public class Util
       }
       return msg;
    }
+   /**
+    * Return the value of the EA carnot:engine:camel::applicationIntegrationOverlay which represents the overlay being used.
+    * @param application
+    * @return
+    */
+   public static String getOverlayType(final IApplication application){
+      return application.getAttribute(APPLICATION_INTEGRATION_OVERLAY_ATT);
+   }
+   /**
+    * Return the value of the EA stardust:scriptingOverlay::language which represents the scripting language being used.
+    * @param application
+    * @return
+    */
+   public static String getScriptingLanguge(final IApplication application){
+      return application.getAttribute(SCRIPTING_LANGUAGE_EA_KEY);
+   }
+   /**
+    * Return the value of the EA stardust:scriptingOverlay::scriptCode which represents the script provided by the user.
+    * @param application
+    * @return
+    */
+   public static String getScriptCode(final IApplication application){
+      return application.getAttribute(SCRIPT_CODE_CONTENT);
+   }
+   
 }

@@ -162,7 +162,7 @@ public class TestMethodSetup extends ExternalResource
       LOG.info(LOG_EYE_CATCHER);
    }
 
-   private void logRunningActivityThreads()
+   protected void logRunningActivityThreads()
    {
       if (testClassSetup.forkingServiceMode() == ForkingServiceMode.NATIVE_THREADING)
       {
@@ -180,7 +180,7 @@ public class TestMethodSetup extends ExternalResource
 
    private void logRunningActivityThreadsForNativeThreading()
    {
-      final FiFoJobManager jobManager = testClassSetup.appCtx().getBean(NATIVE_THREADING_JOB_MANAGER_BEAN_ID, FiFoJobManager.class);
+      final FiFoJobManager jobManager = testClassSetup.getBean(NATIVE_THREADING_JOB_MANAGER_BEAN_ID, FiFoJobManager.class);
       final List<?> activeJobs = (List<?>) Reflect.getFieldValue(jobManager, "activeJobs");
       final List<?> scheduledJobs = (List<?>) Reflect.getFieldValue(jobManager, "scheduledJobs");
 

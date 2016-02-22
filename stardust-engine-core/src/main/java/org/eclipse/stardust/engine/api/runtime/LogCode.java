@@ -59,6 +59,16 @@ public class LogCode extends IntKey
     * The LogEntry was created by an external administration event.
     */
    public static final LogCode ADMINISTRATION = new LogCode(9, "Administration");
+   
+   /**
+    * The LogEntry was created by a process data operation
+    */
+   public static final LogCode DATA = new LogCode(10, "Data");
+   
+   /**
+    * The LogEntry was created during application execution
+    */
+   public static final LogCode APPLICATION = new LogCode(11, "Application");
 
    private LogCode(int code, String defaultName)
    {

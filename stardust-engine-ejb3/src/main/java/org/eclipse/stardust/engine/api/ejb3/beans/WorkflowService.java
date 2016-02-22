@@ -205,6 +205,16 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
+    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#startProcess(java.lang.String id, org.eclipse.stardust.engine.api.runtime.StartOptions options)
+    */
+    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
+         startProcess(
+         java.lang.String id, org.eclipse.stardust.engine.api.runtime.StartOptions
+         options, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+   /**
     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#spawnSubprocessInstance(long parentProcessInstanceOid, java.lang.String spawnProcessID, boolean copyData, java.util.Map data)
     */
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
@@ -561,6 +571,16 @@ public interface WorkflowService extends org.eclipse.stardust.engine.core.runtim
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          performAdHocTransition(
          long activityInstanceOid,
+         org.eclipse.stardust.engine.api.runtime.TransitionTarget target, boolean
+         complete, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#performAdHocTransition(org.eclipse.stardust.engine.api.runtime.TransitionTarget target, boolean complete)
+    */
+    public org.eclipse.stardust.engine.api.runtime.TransitionReport
+         performAdHocTransition(
          org.eclipse.stardust.engine.api.runtime.TransitionTarget target, boolean
          complete, org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
          __tunneledContext)

@@ -30,7 +30,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventActionInstan
 public class AbortProcessEventAction implements EventActionInstance
 {
    private static final Logger trace = LogManager.getLogger(AbortProcessEventAction.class);
-   
+
    public void bootstrap(Map actionAttributes, Iterator accessPoints)
    {
       // nothing to do here
@@ -42,8 +42,7 @@ public class AbortProcessEventAction implements EventActionInstance
       if ((null != processInstance) && !processInstance.isTerminated() && !processInstance.isAborting())
       {
          // Abort the complete process hierarchy (starting from the root)
-         IProcessInstance rootProcessInstance = processInstance.getRootProcessInstance();
-         ProcessInstanceUtils.abortProcessInstance(rootProcessInstance.getOID());
+         ProcessInstanceUtils.abortProcessInstance(ProcessInstanceUtils.getActualRootPI(processInstance));
          // create and return a copy of event ...
          Event alteredEvent = new Event(event.getType(), event.getObjectOID(), event
                .getHandlerOID(), event.getHandlerModelElementOID(), event.getEmitterType());
@@ -61,7 +60,7 @@ public class AbortProcessEventAction implements EventActionInstance
          trace.warn("Skipping event based abortion of terminated or an aborting process instance "
                + processInstance + ".");
       }
-      
+
       return event;
    }
 }

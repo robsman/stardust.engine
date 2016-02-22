@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,7 @@ public class Version implements Comparable<Version>, Serializable
    private int micro;
    private String build;
 
+   private String vendor = CurrentVersion.VENDOR_NAME;
 
    // This product name flags special comparison treatment on Version
    private static final String PRODUCT_NAME_STARDUST = "Eclipse Process Manager";
@@ -53,9 +54,12 @@ public class Version implements Comparable<Version>, Serializable
       mapStardust2Ipp.put(Version.createFixedVersion(2, 1, 1), Version.createFixedVersion(8, 1, 1));
       mapStardust2Ipp.put(Version.createFixedVersion(3, 0, 0), Version.createFixedVersion(8, 2, 0));
       mapStardust2Ipp.put(Version.createFixedVersion(3, 0, 1), Version.createFixedVersion(8, 2, 2));
+      // Version SD 3.0.2 never existed but is necessary to cover this intermediate step in RT upgrade
+      mapStardust2Ipp.put(Version.createFixedVersion(3, 0, 2), Version.createFixedVersion(8, 2, 3));
+      mapStardust2Ipp.put(Version.createFixedVersion(3, 1, 0), Version.createFixedVersion(9, 0, 0));
 
       // map DEV builds to latest IPP release
-      mapStardust2Ipp.put(Version.createFixedVersion(9, 9, 9), Version.createFixedVersion(8, 2, 2));
+      mapStardust2Ipp.put(Version.createFixedVersion(9, 9, 9), Version.createFixedVersion(9, 0, 0));
    }
 
    // some Versions coded in product are fixed and are not allowed to be altered during compare
@@ -91,7 +95,7 @@ public class Version implements Comparable<Version>, Serializable
       fixedVersion.setFixed(true);
       return fixedVersion;
    }
-   
+
    public static Version createVersion(String productName, String versionString)
    {
       Version version = new Version(versionString);
@@ -115,7 +119,11 @@ public class Version implements Comparable<Version>, Serializable
    public static Version createModelVersion(String versionString, String vendorString)
    {
       Version version = new Version(versionString);
-      if ( !vendorString.contains(PRODUCT_NAME_STARDUST))
+      if (vendorString.contains(PRODUCT_NAME_STARDUST))
+      {
+         version.vendor = PRODUCT_NAME_STARDUST;
+      }
+      else
       {
          // product name not EPM -> assumed to be created with IPP
          version = Version.createFixedVersion(version.getMajor(), version.getMinor(),
@@ -189,6 +197,21 @@ public class Version implements Comparable<Version>, Serializable
          {
             return mapStardust2Ipp.get(this).compareTo(otherVersion, includeMicro);
          }
+      }
+      else if (!PRODUCT_NAME_STARDUST.equals(CurrentVersion.PRODUCT_NAME)
+            && (PRODUCT_NAME_STARDUST.equals(this.vendor) || PRODUCT_NAME_STARDUST
+                  .equals(otherVersion.vendor)))
+      {
+         // comparing a Stardust tagged version with a non-Stardust version
+         Version lhs = (!this.fixed && PRODUCT_NAME_STARDUST.equals(this.vendor)) //
+               ? mapStardust2Ipp.get(this)
+               : this;
+         Version rhs = (!otherVersion.fixed && PRODUCT_NAME_STARDUST
+               .equals(otherVersion.vendor)) //
+               ? mapStardust2Ipp.get(otherVersion)
+               : otherVersion;
+
+         return lhs.compareTo(rhs, includeMicro);
       }
 
       if (major < otherVersion.major)

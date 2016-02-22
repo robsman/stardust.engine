@@ -43,7 +43,8 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-      DmsSyncDocumentTest.class, DmsSyncTypedDocumentTest.class,
+      DmsSyncDocumentTest.class, 
+      DmsSyncTypedDocumentTest.class,
       DmsSyncDocumentMultiRepositoryTest.class,
       DmsSyncTypedDocumentMultiRepositoryTest.class,
       DmsSyncTypedDocumentEmptyRepositoryTest.class})

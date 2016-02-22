@@ -17,7 +17,6 @@ import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.RoutesDefinition;
 import org.apache.commons.io.IOUtils;
-
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -27,7 +26,8 @@ import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.extensions.camel.core.ConsumerRouteContext;
 import org.eclipse.stardust.engine.extensions.camel.core.ProducerRouteContext;
-
+import org.eclipse.stardust.engine.extensions.camel.core.ProducerRouteContextFactory;
+import org.eclipse.stardust.engine.extensions.camel.core.app.ConsumerApplicationRouteContext;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.output.Format;
@@ -190,7 +190,7 @@ public class RouteHelper
    public static void createAndStartProducerRoute(IApplication application, CamelContext context, String partition)
          throws Exception
    {
-      ProducerRouteContext routeContext = new ProducerRouteContext(application, partition, context.getName());
+      ProducerRouteContext routeContext = ProducerRouteContextFactory.getContext(application,context, partition);//new ProducerRouteContext(application, partition, context.getName());
       String routeId = routeContext.getRouteId();
 
       RouteDefinition runningRoute = ((ModelCamelContext) context).getRouteDefinition(routeId);
@@ -248,7 +248,7 @@ public class RouteHelper
    public static void createAndStartConsumerRoute(IApplication application, CamelContext context, String partitionId)
          throws Exception
    {
-      ConsumerRouteContext consumerContext=new ConsumerRouteContext(application,partitionId,context.getName());
+      ConsumerRouteContext consumerContext=new ConsumerApplicationRouteContext(application,partitionId,context.getName());
       String routeId =consumerContext.getRouteId();
 
       RouteDefinition runningRoute = ((ModelCamelContext) context).getRouteDefinition(routeId);

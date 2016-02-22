@@ -58,6 +58,8 @@ public class StartProcessWithDocumentsCommand implements ServiceCommand
    private final Boolean startSynchronously;
 
    private final List<StartProcessInputDocument> attachments;
+   
+   private final String benchmarkId;
 
    private final DataUsageEvaluator dataUsageEvaluator;
 
@@ -66,13 +68,14 @@ public class StartProcessWithDocumentsCommand implements ServiceCommand
    @SuppressWarnings("unchecked")
    public StartProcessWithDocumentsCommand(String processId, int modelOid,
          Map<String, ? extends Serializable> parameters, Boolean startSynchronously,
-         List<StartProcessInputDocument> attachments)
+         List<StartProcessInputDocument> attachments, String benchmarkId)
    {
       this.processId = processId;
       this.modelOid = modelOid;
       initialDataValues = (Map<String, Serializable>) parameters;
       this.startSynchronously = startSynchronously;
       this.attachments = attachments;
+      this.benchmarkId = benchmarkId;
       this.dataUsageEvaluator = new DataUsageEvaluator();
    }
 
@@ -140,8 +143,21 @@ public class StartProcessWithDocumentsCommand implements ServiceCommand
          }
 
          // Start the process
+         
+         StartOptions startOptions;
+         
+         if (this.benchmarkId != null)
+         {
+            startOptions = new StartOptions(initialDataValues,
+                  Boolean.TRUE.equals(startSynchronously), benchmarkId);
+         }
+         else
+         {
+            startOptions = new StartOptions(initialDataValues, Boolean.TRUE.equals(startSynchronously));
+         }
+         
          ProcessInstance pi = sf.getWorkflowService().startProcess(processId,
-               initialDataValues, Boolean.TRUE.equals(startSynchronously));
+               startOptions);
 
          if (attachments != null)
          {

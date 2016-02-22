@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.annotation.PreDestroy;
+
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -30,13 +32,15 @@ public class DefaultScheduler implements DaemonScheduler
 {
    private static final Logger trace = LogManager.getLogger(DefaultScheduler.class);
 
-   private static final Map<DaemonCarrier, Timer> timers = CollectionUtils.newMap(); 
+   private static final Map<DaemonCarrier, Timer> timers = CollectionUtils.newMap();
+   
+   private volatile boolean stopScheduler = false;
    
    public void start(DaemonCarrier carrier, long period, final Runnable runnable)
    {
       synchronized (timers)
       {
-         if (!timers.containsKey(carrier))
+         if (!timers.containsKey(carrier) && !stopScheduler)
          {
             Timer timer = new Timer(carrier.getType(), true);
             TimerTask task = new TimerTask()
@@ -48,7 +52,8 @@ public class DefaultScheduler implements DaemonScheduler
                {
                   // prevent firing of batch events if the system time is changed on a running engine.
                   long now = TimestampProviderUtils.getTimeStampValue();
-                  if (lastRun == null || now - lastRun > 100 || now < lastRun)
+                  if (!stopScheduler &&
+                        (lastRun == null || now - lastRun > 100 || now < lastRun))
                   {
                      runnable.run();
                      lastRun = now;
@@ -81,6 +86,21 @@ public class DefaultScheduler implements DaemonScheduler
       synchronized (timers)
       {
          return timers.containsKey(carrier);
+      }
+   }
+   
+   @PreDestroy
+   public void shutdownScheduler()
+   {
+      stopScheduler = true;
+      synchronized (timers)
+      {
+         trace.info("Timers will be stopped now because scheduler is shutting down.");
+         for(DaemonCarrier carrier : timers.keySet())
+         {
+            stop(carrier);
+         }
+         assert timers.isEmpty();
       }
    }
 }

@@ -143,7 +143,7 @@ public class ModelInfoRetriever
    public static SAXSource getModelSource(InputSource inputSource) throws SAXException
    {
       return getModelSource(inputSource, getNameSpaceFilter());
-}
+   }
 
    /**
     * Gets a {@link SAXSource} for parsing models
@@ -160,7 +160,7 @@ public class ModelInfoRetriever
       return new SAXSource(xmlFilter, inputSource);
    }
 
-   private static XMLFilter getNameSpaceFilter() throws SAXException
+   public static XMLFilter getNameSpaceFilter() throws SAXException
    {
       NamespaceFilter nsFixer = new NamespaceFilter(XMLConstants.NS_XPDL_2_1, XMLConstants.NS_XPDL_2_0, XMLConstants.NS_XPDL_1_0);
       nsFixer.addReplacement("", XMLConstants.NS_CARNOT_WORKFLOWMODEL_31);

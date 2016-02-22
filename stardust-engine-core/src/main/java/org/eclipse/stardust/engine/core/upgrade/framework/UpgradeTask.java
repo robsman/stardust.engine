@@ -11,4 +11,9 @@ public interface UpgradeTask
     * The upgrade task will be executed.
     */
    void execute();
+
+   /**
+    * Prints information about upgrade task.
+    */
+   void printInfo();
 }

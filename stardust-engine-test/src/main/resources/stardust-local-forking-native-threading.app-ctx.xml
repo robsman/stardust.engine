@@ -18,6 +18,9 @@
    <!-- Forking Service -->
    <bean id="carnotForkingService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.api.spring.QueuedSpringForkingService">
       <property name="jobManager" ref="carnotAsyncJobManager" />
+      <property name="scheduler">
+         <bean class="org.eclipse.stardust.engine.spring.schedulers.DefaultScheduler" />
+      </property>
    </bean>
    <bean id="carnotAsyncJobManager" class="org.eclipse.stardust.engine.spring.threading.FiFoJobManager" scope="singleton">
       <property name="maxParallelJobs" value="10" />

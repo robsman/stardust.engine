@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,31 +15,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.DateUtils;
-import org.eclipse.stardust.common.Functor;
-import org.eclipse.stardust.common.Pair;
-import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.TransformingIterator;
-import org.eclipse.stardust.common.Unknown;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.config.ParametersFacade;
+import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.error.ErrorCase;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
@@ -54,84 +37,10 @@ import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.compatibility.extensions.dms.data.DocumentSetStorageBean;
 import org.eclipse.stardust.engine.core.compatibility.extensions.dms.data.DocumentStorageBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-import org.eclipse.stardust.engine.core.persistence.AndTerm;
-import org.eclipse.stardust.engine.core.persistence.Column;
-import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
-import org.eclipse.stardust.engine.core.persistence.DeleteDescriptor;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Functions;
-import org.eclipse.stardust.engine.core.persistence.InsertDescriptor;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.JoinElement;
-import org.eclipse.stardust.engine.core.persistence.Joins;
-import org.eclipse.stardust.engine.core.persistence.MultiPartPredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Operator;
-import org.eclipse.stardust.engine.core.persistence.OrTerm;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
-import org.eclipse.stardust.engine.core.persistence.jdbc.FieldDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.ITypeDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
-import org.eclipse.stardust.engine.core.persistence.jdbc.LinkDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
+import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
-import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceLogBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceProperty;
-import org.eclipse.stardust.engine.core.runtime.beans.AdminServiceUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailActivityBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailDataBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailEventHandlerBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailParticipantBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailProcessDefinitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailTransitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailTriggerBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
-import org.eclipse.stardust.engine.core.runtime.beans.Constants;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DepartmentBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DepartmentHierarchyBean;
-import org.eclipse.stardust.engine.core.runtime.beans.EventBindingBean;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstanceLink;
-import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
-import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelDeploymentBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelRefBean;
-import org.eclipse.stardust.engine.core.runtime.beans.PreferencesBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceLinkBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceLinkTypeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceProperty;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.PropertyPersistor;
-import org.eclipse.stardust.engine.core.runtime.beans.SchemaHelper;
-import org.eclipse.stardust.engine.core.runtime.beans.TransitionInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.TransitionTokenBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserDomainBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserDomainHierarchyBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserGroupBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserGroupProperty;
-import org.eclipse.stardust.engine.core.runtime.beans.UserParticipantLink;
-import org.eclipse.stardust.engine.core.runtime.beans.UserProperty;
-import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserSessionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserUserGroupLink;
-import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
@@ -151,6 +60,11 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 // todo: use everywhere qualified user schema
 public class Archiver
 {
+   private static final String ENABLE_USER_PARTICIPANT_TAB_FIX = Archiver.class.getName() + ".EnableUserPartitionTableFix";
+
+   private static final String DELETE_PI_PARTS_SCHEMA = Archiver.class.getName() + ".DeletePiParts.Schema";
+   private static final String DELETE_PI_PARTS_HANDLE_LOCK_TABLE = Archiver.class.getName() + ".DeletePiParts.HandleLockTable";
+
    private static final String FIELD_PARTITION = "partition";
    private static final String SPACE = " ";
    private static final String DOT = ".";
@@ -689,9 +603,12 @@ public class Archiver
                DataValueBean.FR__PROCESS_INSTANCE,
                ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE);
 
-         query.innerJoin(srcSchema, ProcessInstanceBean.class).on(
+         Join piJoin = query.innerJoin(srcSchema, ProcessInstanceBean.class).on(
                ProcessInstanceScopeBean.FR__ROOT_PROCESS_INSTANCE,
                ProcessInstanceBean.FIELD__OID);
+         // not allowed to be an unbound BO PI
+         piJoin.andWhere(Predicates.notEqual(
+               piJoin.fieldRef(ProcessInstanceBean.FIELD__PROCESS_DEFINITION), -1));
 
          long tsStop = (null == before) ? Long.MAX_VALUE : before.getTime();
          do
@@ -1326,6 +1243,7 @@ public class Archiver
          synchronizePreferencesTableArchive();
          synchronizeModelTables(modelOid);
          synchronizeProcessInstanceLinkTypeArchive();
+         synchronizeRuntimeArtifactsTable();
          commit();
 
          trace.info("Synchronized model and utility tables.");
@@ -1375,11 +1293,28 @@ public class Archiver
 
          if ( !stmtBatchPiClosure.isEmpty())
          {
+            // fetch all BOs from source and archive schema for current Pi batch
+            // map key:   OID in source schema
+            // map value: OID in archive schema (the same, but might be 0 if not yet archived)
+            final Map<Long, Long> boPiOids = fetchSourceAndArchiveBoPiOids(stmtBatchPiClosure);
+
             if (archive)
             {
+               // clean up all already archived BOs in batch
+               final List<Long> archivedBoPiOids = CollectionUtils.newListFromIterator(
+                     boPiOids.values().iterator(), new NotEqualPredicate<Long>(0l));
+               cleanupBoPisInArchive(archivedBoPiOids);
+
+               // archive all PIs in batch - might also contain BOs
                doCopyProcessInstances(stmtBatchPiClosure);
             }
-            doDeleteProcessInstances(stmtBatchPiClosure);
+
+            // delete all non BO PIs in batch
+            List piBatchForDeletion = CollectionUtils.newArrayList(stmtBatchPiClosure);
+            piBatchForDeletion.removeAll(boPiOids.keySet());
+            doDeleteProcessInstances(piBatchForDeletion);
+
+            ignoredRootPiOids.addAll(boPiOids.keySet());
          }
 
          nProcessInstances += stmtBatchPiClosure.size();
@@ -1397,6 +1332,109 @@ public class Archiver
          }
       }
       return nProcessInstances;
+   }
+
+   private Map<Long, Long> fetchSourceAndArchiveBoPiOids(ArrayList stmtBatchPiClosure)
+   {
+      QueryDescriptor boPiQuery = QueryDescriptor.from(srcSchema, ProcessInstanceBean.class)
+            .where(Predicates.andTerm(
+                  splitUpOidsSubList(stmtBatchPiClosure, ProcessInstanceBean.FR__OID),
+                  Predicates.isEqual(ProcessInstanceBean.FR__PROCESS_DEFINITION, -1)));
+
+      final FieldRef srcPiFieldRef = boPiQuery.fieldRef(ProcessInstanceBean.FIELD__OID);
+      Join apiJoin = new Join(archiveSchema, ProcessInstanceBean.class, "api")
+            .on(srcPiFieldRef, ProcessInstanceBean.FIELD__OID);
+      apiJoin.setRequired(false);
+      boPiQuery.getQueryExtension().addJoin(apiJoin);
+
+      List<Column> selection = CollectionUtils.newArrayList(2);
+      selection.add(srcPiFieldRef);
+      selection.add(apiJoin.fieldRef(ProcessInstanceBean.FIELD__OID));
+      boPiQuery.getQueryExtension().addSelection(selection);
+
+      ResultSet boPiResult = session.executeQuery(boPiQuery);
+      final Map<Long, Long> boPiOids = CollectionUtils.newHashMap(stmtBatchPiClosure.size());
+      try
+      {
+         while(boPiResult.next())
+         {
+            // field 1: BO PI oid from source
+            // field 2: BO PI oid from archive (the same, but might be null (returned as 0)if not yet archived)
+            boPiOids.put(boPiResult.getLong(1), boPiResult.getLong(2));
+         }
+      }
+      catch (SQLException e)
+      {
+         throw new PublicException(e);
+      }
+      finally
+      {
+         QueryUtils.closeResultSet(boPiResult);
+      }
+
+      return boPiOids;
+   }
+
+   private int cleanupBoPisInArchive(List<Long> piOids)
+   {
+      if (piOids.isEmpty())
+      {
+         return 0;
+      }
+
+      PropertyLayer layer = null;
+      try
+      {
+         // Enable special handling in deletion code for BO cleanup
+         Map<String, String> props = CollectionUtils.newHashMap();
+         props.put(DELETE_PI_PARTS_SCHEMA, archiveSchema);
+         props.put(DELETE_PI_PARTS_HANDLE_LOCK_TABLE, Boolean.FALSE.toString());
+         layer = ParametersFacade.pushLayer(props);
+
+         Set<Long> structuredDataOids = findAllStructuredDataOids();
+         if (structuredDataOids.size() != 0)
+         {
+            delete2ndLevelPiParts(piOids, LargeStringHolder.class,
+                  LargeStringHolder.FR__OBJECTID, StructuredDataValueBean.class,
+                  StructuredDataValueBean.FR__PROCESS_INSTANCE, Predicates.isEqual(
+                        LargeStringHolder.FR__DATA_TYPE,
+                        TypeDescriptor.getTableName(StructuredDataValueBean.class)));
+
+            deletePiParts(piOids, StructuredDataValueBean.class, StructuredDataValueBean.FR__PROCESS_INSTANCE);
+
+            delete2ndLevelPiParts(piOids, ClobDataBean.class,
+                  ClobDataBean.FR__OID, DataValueBean.class,
+                  DataValueBean.FIELD__NUMBER_VALUE,
+                  DataValueBean.FR__PROCESS_INSTANCE, Predicates.inList(
+                        DataValueBean.FR__DATA, structuredDataOids.iterator()), session);
+         }
+
+         // QUESTION: Also handle findAllDocumentDataOids() as in doDeleteProcessInstances(...)?
+
+         deleteDvParts(piOids, LargeStringHolder.class, LargeStringHolder.FR__OBJECTID,
+               PT_STRING_DATA_IS_DATA_VALUE_RECORD);
+
+         deletePiParts(piOids, DataValueBean.class, DataValueBean.FR__PROCESS_INSTANCE);
+
+         deletePiParts(piOids, ProcessInstanceHierarchyBean.class,
+               ProcessInstanceHierarchyBean.FR__PROCESS_INSTANCE);
+
+         deletePiParts(piOids, ProcessInstanceScopeBean.class,
+               ProcessInstanceScopeBean.FR__PROCESS_INSTANCE);
+
+         // TODO: finally deleting rows from data clusters in archive schema
+
+         return deletePiParts(piOids, ProcessInstanceBean.class,
+               ProcessInstanceBean.FR__OID, null);
+      }
+      finally
+      {
+         if (null != layer)
+         {
+            ParametersFacade.popLayer();
+         }
+      }
+
    }
 
    private void logInfo(String message, Iterator<Long> iterator)
@@ -1513,7 +1551,7 @@ public class Archiver
             PT_EVENT_BINDING_PI);
 
       // TODO (ab) SPI
-      Set /*<Long>*/ structuredDataOids = findAllStructuredDataOids();
+      Set<Long> structuredDataOids = findAllStructuredDataOids();
       if (structuredDataOids.size() != 0)
       {
          backupPiParts(piOids, StructuredDataValueBean.class, StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
@@ -1531,7 +1569,7 @@ public class Archiver
       }
 
       // TODO (sb) SPI
-      Set /*<Long>*/docDataOids = findAllDocumentDataOids();
+      Set<Long> docDataOids = findAllDocumentDataOids();
       if (docDataOids.size() != 0)
       {
          backup2ndLevelPiParts(piOids, LargeStringHolder.class,
@@ -1557,9 +1595,6 @@ public class Archiver
 
       backupAiParts(piOids, EventBindingBean.class, EventBindingBean.FIELD__OBJECT_OID,
             PT_EVENT_BINDING_AI);
-
-      backupAiParts(piOids, ActivityInstanceLogBean.class,
-            ActivityInstanceLogBean.FIELD__ACTIVITY_INSTANCE);
 
       backupAiParts(piOids, LogEntryBean.class, LogEntryBean.FIELD__ACTIVITY_INSTANCE);
 
@@ -2307,9 +2342,12 @@ public class Archiver
 
    private void synchronizeUserParticipantLinkTable(Long modelOid) throws SQLException
    {
-      Join sourceParticipantsJoin = new Join(srcSchema, AuditTrailParticipantBean.class, "p")
+      // Here source and target joins need to be on Archive Schema:
+      // * First delete all UserParticipantLinks from archive which have valid references in *archive* on model participants
+      // * After that insert UserParticipantLinks from source which have valid references in *archive* on model participants
+      Join sourceParticipantsJoin = new Join(archiveSchema, AuditTrailParticipantBean.class, "p")
          .on(UserParticipantLink.FR__PARTICIPANT, AuditTrailParticipantBean.FIELD__OID);
-      Join sourceModelsJoin = new Join(srcSchema, ModelPersistorBean.class, "m")
+      Join sourceModelsJoin = new Join(archiveSchema, ModelPersistorBean.class, "m")
          .on(sourceParticipantsJoin.fieldRef(AuditTrailParticipantBean.FIELD__MODEL), ModelPersistorBean.FIELD__OID);
       Joins sourceJoins = new Joins().add(sourceParticipantsJoin).add(sourceModelsJoin);
 
@@ -2364,9 +2402,6 @@ public class Archiver
 
       deleteAiParts(piOids, LogEntryBean.class, LogEntryBean.FR__ACTIVITY_INSTANCE);
 
-      deleteAiParts(piOids, ActivityInstanceLogBean.class,
-            ActivityInstanceLogBean.FR__ACTIVITY_INSTANCE);
-
       deleteAiParts(piOids, ActivityInstanceHistoryBean.class,
             ActivityInstanceHistoryBean.FR__ACTIVITY_INSTANCE);
 
@@ -2382,7 +2417,7 @@ public class Archiver
             ActivityInstanceBean.FR__PROCESS_INSTANCE);
 
       // TODO (ab) SPI
-      Set /*<Long>*/ structuredDataOids = findAllStructuredDataOids();
+      Set<Long> structuredDataOids = findAllStructuredDataOids();
       if (structuredDataOids.size() != 0)
       {
          delete2ndLevelPiParts(piOids, LargeStringHolder.class,
@@ -2401,7 +2436,7 @@ public class Archiver
       }
 
       // TODO (sb) SPI
-      Set /*<Long>*/docDataOids = findAllDocumentDataOids();
+      Set<Long> docDataOids = findAllDocumentDataOids();
       if (docDataOids.size() != 0)
       {
          delete2ndLevelPiParts(piOids, LargeStringHolder.class,
@@ -2682,6 +2717,11 @@ public class Archiver
    private int deletePiParts(List piOids, Class partType, FieldRef fkPiField,
          PredicateTerm restriction)
    {
+      final String deleteSchema = Parameters.instance().getString(DELETE_PI_PARTS_SCHEMA,
+            srcSchema);
+      final boolean handleLockTable = Parameters.instance().getBoolean(
+            DELETE_PI_PARTS_HANDLE_LOCK_TABLE, true);
+
       PredicateTerm piPredicate = splitUpOidsSubList(piOids, fkPiField);
 
       PredicateTerm predicate = (null != restriction)
@@ -2691,13 +2731,13 @@ public class Archiver
       // delete lock rows
 
       TypeDescriptor tdType = TypeDescriptor.get(partType);
-      if (isLockingEnabled() && tdType.isDistinctLockTableName())
+      if (handleLockTable && isLockingEnabled() && tdType.isDistinctLockTableName())
       {
          Assert.condition(1 == tdType.getPkFields().length,
                "Lock-tables are not supported for types with compound PKs.");
 
          DeleteDescriptor delete = DeleteDescriptor
-               .fromLockTable(srcSchema, partType);
+               .fromLockTable(deleteSchema, partType);
 
          String partOid = tdType.getPkFields()[PK_OID].getName();
          PredicateTerm lockRowsPredicate = Predicates
@@ -2713,7 +2753,7 @@ public class Archiver
       // delete data rows
 
       DeleteDescriptor delete = DeleteDescriptor
-            .from(srcSchema, partType)
+            .from(deleteSchema, partType)
             .where(predicate);
 
       return session.executeDelete(delete);
@@ -2748,6 +2788,10 @@ public class Archiver
    private int delete2ndLevelPiParts(List piOids, Class partType, FieldRef fkPiPartField,
          Class piPartType, String piPartPkName, FieldRef piOidField, PredicateTerm restriction, Session session)
    {
+      final String deleteSchema = Parameters.instance().getString(DELETE_PI_PARTS_SCHEMA,
+            srcSchema);
+      final boolean handleLockTable = Parameters.instance().getBoolean(
+            DELETE_PI_PARTS_HANDLE_LOCK_TABLE, true);
 
       PredicateTerm predicate = Predicates.andTerm(
             splitUpOidsSubList(piOids, piOidField), (null != restriction)
@@ -2757,7 +2801,7 @@ public class Archiver
       // delete lock rows
       TypeDescriptor tdType = TypeDescriptor.get(partType);
 
-      if (isLockingEnabled() && tdType.isDistinctLockTableName())
+      if (handleLockTable && isLockingEnabled() && tdType.isDistinctLockTableName())
       {
          Assert.condition(1 == tdType.getPkFields().length,
                "Lock-tables are not supported for types with compound PKs.");
@@ -2765,13 +2809,13 @@ public class Archiver
          String partOid = tdType.getPkFields()[PK_OID].getName();
 
          QueryDescriptor lckSubselect = QueryDescriptor
-               .from(srcSchema, partType)
+               .from(deleteSchema, partType)
                .select(partOid);
 
-         lckSubselect.innerJoin(srcSchema, piPartType)
+         lckSubselect.innerJoin(deleteSchema, piPartType)
                .on(fkPiPartField, piPartPkName);
 
-         DeleteDescriptor delete = DeleteDescriptor.fromLockTable(srcSchema, partType);
+         DeleteDescriptor delete = DeleteDescriptor.fromLockTable(deleteSchema, partType);
          delete.where(Predicates.inList(delete.fieldRef(partOid), lckSubselect.where(predicate)));
 
          session.executeDelete(delete);
@@ -2779,9 +2823,9 @@ public class Archiver
 
       // delete data rows
 
-      DeleteDescriptor delete = DeleteDescriptor.from(srcSchema, partType);
+      DeleteDescriptor delete = DeleteDescriptor.from(deleteSchema, partType);
 
-      delete.innerJoin(srcSchema, piPartType)
+      delete.innerJoin(deleteSchema, piPartType)
             .on(fkPiPartField, piPartPkName);
 
       return session.executeDelete(delete
@@ -3130,7 +3174,8 @@ public class Archiver
                   + " WHERE m." + dbDescriptor.quoteIdentifier(ModelPersistorBean.FIELD__PARTITION) + " = " + partitionOid.toString() + ")");
          }
       }
-      if(null != fieldPartition)
+
+      if (null != fieldPartition)
       {
          // TODO (kafka, rsauer) remove o.partition=bo.partition predicate, as it is implicitly satisfied by OID predicate?
          updBuf.append(" AND o." + fieldPartition + " = " + updTabRefPrefix + fieldPartition)
@@ -3208,24 +3253,20 @@ public class Archiver
       {
          stmt = session.getConnection().createStatement();
 
-         int match = 0;
          if(update)
          {
             if (trace.isDebugEnabled())
             {
                trace.debug(updBuf.toString());
             }
-            match = stmt.executeUpdate(updBuf.toString());
+            stmt.executeUpdate(updBuf.toString());
          }
 
          if (trace.isDebugEnabled())
          {
             trace.debug(insBuf.toString());
          }
-         if(match == 0)
-         {
-            stmt.executeUpdate(insBuf.toString());
-         }
+         stmt.executeUpdate(insBuf.toString());
       }
       catch (SQLException e)
       {
@@ -3860,8 +3901,16 @@ public class Archiver
 
    private void synchronizeModelTables(Long modelOid)
    {
-      synchronizePkStableTables(ModelRefBean.class, modelOid);
-      synchronizePkStableTables(ModelDeploymentBean.class, modelOid);
+      try
+      {
+         synchronizePkStableTables(ModelDeploymentBean.class, modelOid);
+         synchronizePkInstableTables(ModelRefBean.class, ModelRefBean.FIELD__MODEL_OID, modelOid, null);
+      }
+      catch (SQLException ex)
+      {
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_SYNCHRONIZING_MODEL_TABLE_ARCHIVE.raise(), ex);
+      }
    }
 
    private void synchronizeProcessInstanceLinkTypeArchive()
@@ -3869,9 +3918,14 @@ public class Archiver
       synchronizePkStableTables(ProcessInstanceLinkTypeBean.class, null);
    }
 
+   private void synchronizeRuntimeArtifactsTable()
+   {
+      synchronizePkStableTables(RuntimeArtifactBean.class, null);
+   }
+
    private void archiveModels(Long modelOid)
    {
-      if (modelOid != null)
+      if (archive && modelOid != null)
       {
          List<Long> references = getReferences(modelOid);
          for (Long oid : references)
@@ -3914,5 +3968,57 @@ public class Archiver
       }
 
       return referingModels;
+   }
+
+   /**
+    * This deletes entries from table for {@link UserParticipantLink} in archive schema which have
+    * dangling references to table for {@link AuditTrailParticipantBean}. This was caused by a bug
+    * which has been fixed with CRNT-38649.
+    *
+    * This requires flag archive to be true (i.e. option "-noBackup" to be false) in order to have
+    * access to archive schema.
+    *
+    * All entries for current partition will be deleted from {@link UserParticipantLink} in archive.
+    * In order to reduce to entries for current partition only also join to user and user realm
+    * in production (source) schema is performed. As users never will be deleted but only invalidated
+    * this should be stable.
+    *
+    */
+   public void fixUserParticipantLinkTableEntries()
+   {
+      final boolean enableFix = Parameters.instance().getBoolean(
+            ENABLE_USER_PARTICIPANT_TAB_FIX, true);
+      if ( !archive || !enableFix)
+      {
+         return;
+      }
+
+      DeleteDescriptor delete = DeleteDescriptor.from(archiveSchema,
+            UserParticipantLink.class);
+
+      // @formatter:off
+      // inner join with source users to restrict deletion to current partition
+      Join uJoin = new Join(srcSchema, UserBean.class, UserBean.DEFAULT_ALIAS)
+         .on(delete.fieldRef(UserParticipantLink.FIELD__USER), UserBean.FIELD__OID);
+      uJoin.setRequired(true);
+
+      Join urJoin = new Join(srcSchema, UserRealmBean.class, UserRealmBean.DEFAULT_ALIAS)
+            .on(uJoin.fieldRef(UserBean.FIELD__REALM), UserRealmBean.FIELD__OID);
+      urJoin.setDependency(uJoin);
+      urJoin.setRequired(true);
+
+      // outer join with archive participants to restrict deletion to dangling references
+      Join pJoin = new Join(archiveSchema, AuditTrailParticipantBean.class, AuditTrailParticipantBean.DEFAULT_ALIAS)
+         .on(delete.fieldRef(UserParticipantLink.FIELD__PARTICIPANT), AuditTrailParticipantBean.FIELD__OID);
+      pJoin.setDependency(urJoin);
+      pJoin.setRequired(false);
+
+      delete.getQueryExtension().addJoin(uJoin).addJoin(urJoin).addJoin(pJoin);
+      delete.where(Predicates.andTerm(
+            Predicates.isNull(pJoin.fieldRef(AuditTrailParticipantBean.FIELD__OID)),
+            Predicates.isEqual(urJoin.fieldRef(UserRealmBean.FIELD__PARTITION), partitionOid)));
+      // @formatter:on
+
+      session.executeDelete(delete);
    }
 }

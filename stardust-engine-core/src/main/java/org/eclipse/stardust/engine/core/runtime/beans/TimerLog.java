@@ -12,7 +12,9 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import org.eclipse.stardust.common.Unknown;
 import org.eclipse.stardust.engine.api.model.ITrigger;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.ForeignKey;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
@@ -42,6 +44,7 @@ public class TimerLog extends IdentifiablePersistentBean
    public static final String PK_SEQUENCE = "timer_log_seq";
    public static final String[] timer_log_idx1_UNIQUE_INDEX = new String[] {FIELD__OID};
 
+   @ForeignKey (modelElement=ModelBean.class)
    public long model;
    public long triggerOID;
    /**

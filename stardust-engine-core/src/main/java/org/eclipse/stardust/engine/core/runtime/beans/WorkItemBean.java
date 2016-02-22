@@ -26,7 +26,10 @@ import org.eclipse.stardust.engine.api.runtime.ActivityExecutionUtils;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
+import org.eclipse.stardust.engine.core.model.beans.ActivityBean;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.ForeignKey;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
@@ -54,6 +57,7 @@ public class WorkItemBean extends PersistentBean implements IWorkItem, IProcessI
    public static final String FIELD__PERFORMER = "performer";
    public static final String FIELD__DEPARTMENT = "department";
    public static final String FIELD__CRITICALITY = "criticality";
+   public static final String FIELD__BENCHMARK_VALUE = "benchmarkValue";
 
    public static final FieldRef FR__ACTIVITY_INSTANCE = new FieldRef(WorkItemBean.class, FIELD__ACTIVITY_INSTANCE);
    public static final FieldRef FR__PROCESS_INSTANCE = new FieldRef(WorkItemBean.class, FIELD__PROCESS_INSTANCE);
@@ -69,6 +73,7 @@ public class WorkItemBean extends PersistentBean implements IWorkItem, IProcessI
    public static final FieldRef FR__PERFORMER = new FieldRef(WorkItemBean.class, FIELD__PERFORMER);
    public static final FieldRef FR__DEPARTMENT = new FieldRef(WorkItemBean.class, FIELD__DEPARTMENT);
    public static final FieldRef FR__CRITICALITY = new FieldRef(WorkItemBean.class, FIELD__CRITICALITY);
+   public static final FieldRef FR__BENCHMARK_VALUE = new FieldRef(WorkItemBean.class, FIELD__BENCHMARK_VALUE);
 
    public static final String TABLE_NAME = "workitem";
    public static final String DEFAULT_ALIAS = "wi";
@@ -87,19 +92,25 @@ public class WorkItemBean extends PersistentBean implements IWorkItem, IProcessI
 
    static final boolean state_USE_LITERALS = true;
 
+   @ForeignKey (persistentElement=ActivityInstanceBean.class)
    private long activityInstance;
 
+   @ForeignKey (persistentElement=ProcessInstanceBean.class)
    private long processInstance;
 
+   @ForeignKey (persistentElement=ProcessInstanceBean.class)
    private long scopeProcessInstance;
 
+   @ForeignKey (persistentElement=ProcessInstanceBean.class)
    private long rootProcessInstance;
 
    /**
     * Contains the OID of the activity.
     */
+   @ForeignKey (modelElement=ModelBean.class)
    protected long model;
 
+   @ForeignKey (modelElement=ActivityBean.class)
    protected long activity;
 
    private int state;
@@ -112,6 +123,8 @@ public class WorkItemBean extends PersistentBean implements IWorkItem, IProcessI
    private long domain;
 
    private double criticality;
+   
+   private int benchmarkValue;
 
 
    /**
@@ -179,7 +192,8 @@ public class WorkItemBean extends PersistentBean implements IWorkItem, IProcessI
       this.startTime = activityInstance.getStartTime().getTime();
 
       this.criticality = activityInstance.getCriticality();
-
+      this.benchmarkValue = activityInstance.getBenchmarkValue();
+      
       update(activityInstance);
 
       // TODO performers
@@ -274,6 +288,11 @@ public class WorkItemBean extends PersistentBean implements IWorkItem, IProcessI
          markModified(FIELD__CRITICALITY);
          this.criticality = activityInstance.getCriticality();
       }
+      if (this.benchmarkValue != activityInstance.getBenchmarkValue())
+      {
+         markModified(FIELD__BENCHMARK_VALUE);
+         this.benchmarkValue = activityInstance.getBenchmarkValue();
+      }      
    }
 
    private void markModifiedPerformerFields()
@@ -455,6 +474,12 @@ public class WorkItemBean extends PersistentBean implements IWorkItem, IProcessI
       return criticality;
    }
 
+   public int getBenchmarkValue()
+   {
+      fetch();
+      return benchmarkValue;
+   }
+   
    @Override
    public IProcessInstance getProcessInstance()
    {

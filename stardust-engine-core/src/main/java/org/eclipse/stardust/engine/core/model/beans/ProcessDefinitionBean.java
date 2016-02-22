@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.core.model.beans;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -18,23 +19,53 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.collections.IteratorUtils;
-
-import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.CompareHelper;
+import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.FilteringIterator;
+import org.eclipse.stardust.common.Predicate;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IApplication;
+import org.eclipse.stardust.engine.api.model.IApplicationContext;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IDataPath;
+import org.eclipse.stardust.engine.api.model.IEventConditionType;
+import org.eclipse.stardust.engine.api.model.IEventHandler;
+import org.eclipse.stardust.engine.api.model.IFormalParameter;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.IReference;
+import org.eclipse.stardust.engine.api.model.ITransition;
+import org.eclipse.stardust.engine.api.model.ITrigger;
+import org.eclipse.stardust.engine.api.model.ITriggerType;
+import org.eclipse.stardust.engine.api.model.ImplementationType;
+import org.eclipse.stardust.engine.api.model.Inconsistency;
+import org.eclipse.stardust.engine.api.model.JoinSplitType;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.compatibility.diagram.DefaultDiagram;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
-import org.eclipse.stardust.engine.core.model.utils.*;
+import org.eclipse.stardust.engine.core.model.utils.Connections;
+import org.eclipse.stardust.engine.core.model.utils.ExclusionComputer;
+import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
+import org.eclipse.stardust.engine.core.model.utils.Link;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementBean;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
+import org.eclipse.stardust.engine.core.model.utils.RootElement;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.pojo.data.JavaDataTypeUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailProcessDefinitionBean;
 import org.eclipse.stardust.engine.core.runtime.beans.DeploymentUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 
 /**
@@ -49,27 +80,44 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
    private static final Logger trace = LogManager.getLogger(ProcessDefinitionBean.class);
 
    private static final String ACTIVITY_STRING = "Activity";
+
    private static final String TRANSITION_STRING = "Transition";
 
    private List<IFormalParameter> formalParameters = CollectionUtils.newList();
+
    private Link activities = new Link(this, "Activities");
+
    private Link triggers = new Link(this, "Triggers");
+
    private Link diagrams = new Link(this, "Diagrams");
+
    private Link dataPaths = new Link(this, "Data Paths");
+
    private Link eventHandlers = new Link(this, "Event Handlers");
 
-   private Connections transitions = new Connections(this, "Transitions", "outTransitions", "inTransitions");
-   private Connections exceptionTransitions = new Connections(this, "Exception Transitions", "exceptionTransitions", "inTransitions");
+   private Connections transitions = new Connections(this, "Transitions",
+         "outTransitions", "inTransitions");
+
+   private Connections exceptionTransitions = new Connections(this,
+         "Exception Transitions", "exceptionTransitions", "inTransitions");
 
    private int defaultActivityId = -1;
+
    private int defaultTransitionId = -1;
 
    static final String DEFAULT_PRIORITY_ATT = "defaultPriority";
+
    private int defaultPriority;
 
    private IReference externalReference;
+
    private boolean declaresInterface;
+
    private Map<String, String> formalParameterMappings;
+
+   private transient IApplicationContext engineContext = new MyEngineContext();
+
+   private transient IApplicationContext defaultContext = new MyDefaultContext();
 
    ProcessDefinitionBean()
    {
@@ -102,7 +150,8 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       final Iterator iter2 = exceptionTransitions.iterator();
       checkForDuplicateTransition(iter2, transition);
 
-      if (condition != null && TransitionBean.ON_BOUNDARY_EVENT_CONDITION.matcher(condition).matches())
+      if (condition != null
+            && TransitionBean.ON_BOUNDARY_EVENT_CONDITION.matcher(condition).matches())
       {
          exceptionTransitions.add(transition);
       }
@@ -119,16 +168,17 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       }
    }
 
-   private void checkForDuplicateTransition(final Iterator<ITransition> iter, final ITransition transition)
+   private void checkForDuplicateTransition(final Iterator<ITransition> iter,
+         final ITransition transition)
    {
       while (iter.hasNext())
       {
          ITransition t = iter.next();
-         if (CompareHelper.areEqual(t.getFromActivity(), transition.getFromActivity()) &&
-             CompareHelper.areEqual(t.getToActivity(), transition.getToActivity()))
+         if (CompareHelper.areEqual(t.getFromActivity(), transition.getFromActivity())
+               && CompareHelper.areEqual(t.getToActivity(), transition.getToActivity()))
          {
-            trace.warn("Duplicate transition: "
-                  + this + " - " + transition + " has the same source/target with " + t);
+            trace.warn("Duplicate transition: " + this + " - " + transition
+                  + " has the same source/target with " + t);
          }
       }
    }
@@ -175,8 +225,8 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
    }
 
    /**
-    * Populates the vector <code>inconsistencies</code> with all inconsistencies
-    * of the process definition.
+    * Populates the vector <code>inconsistencies</code> with all inconsistencies of the
+    * process definition.
     */
    public void checkConsistency(List<Inconsistency> inconsistencies)
    {
@@ -198,7 +248,8 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
             // check id to fit in maximum length
             if (getId().length() > AuditTrailProcessDefinitionBean.getMaxIdLength())
             {
-               BpmValidationError error = BpmValidationError.PD_ID_EXCEEDS_LENGTH.raise(getName(), AuditTrailProcessDefinitionBean.getMaxIdLength());
+               BpmValidationError error = BpmValidationError.PD_ID_EXCEEDS_LENGTH.raise(
+                     getName(), AuditTrailProcessDefinitionBean.getMaxIdLength());
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
          }
@@ -206,27 +257,29 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
          boolean isRevalidation = Parameters.instance().getBoolean(
                ModelElementBean.PRP_REVALIDATE_ELEMENTS, false);
          // Check Implementation of Interface only if it is not a revalidation
-         if (!isRevalidation) {
+         if ( !isRevalidation)
+         {
             checkImplementation(inconsistencies);
-            if(declaresInterface)
+            if (declaresInterface)
             {
                boolean externalProcessInvocation = isExternalProcessInvocation();
-               for(IFormalParameter formalParameter : formalParameters)
+               for (IFormalParameter formalParameter : formalParameters)
                {
                   IData data = formalParameter.getData();
-                  if(data == null)
+                  if (data == null)
                   {
                      BpmValidationError error = BpmValidationError.PD_FORMAL_PARAMETER_NO_DATA_SET.raise(formalParameter.getId());
-                     inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                     inconsistencies.add(new Inconsistency(error, this,
+                           Inconsistency.ERROR));
                   }
-                  // For external process invocations check restricted types, only primitive and structured data are supported.
+                  // For external process invocations check restricted types, only
+                  // primitive and structured data are supported.
                   else if (externalProcessInvocation
                         && !StructuredTypeRtUtils.isStructuredType(data)
                         && !PredefinedConstants.PRIMITIVE_DATA.equals(data.getType()
                               .getId()))
                   {
-                     BpmValidationError error = BpmValidationError.PD_FORMAL_PARAMETER_INCOMPATIBLE_DATA_FOR_EXTERNAL_INVOCATION
-                           .raise(formalParameter.getId());
+                     BpmValidationError error = BpmValidationError.PD_FORMAL_PARAMETER_INCOMPATIBLE_DATA_FOR_EXTERNAL_INVOCATION.raise(formalParameter.getId());
                      inconsistencies.add(new Inconsistency(error, this,
                            Inconsistency.WARNING));
                   }
@@ -264,19 +317,22 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
          for (ITransition transition : getTransitions())
          {
             transition.checkConsistency(inconsistencies);
-            for (int i = 0; i < v.size(); i++)
+            for (int i = 0; i < v.size(); i++ )
             {
                ITransition t = (ITransition) v.get(i);
-               if (CompareHelper.areEqual(t.getFromActivity(), transition.getFromActivity()) &&
-                   CompareHelper.areEqual(t.getToActivity(), transition.getToActivity()))
+               if (CompareHelper.areEqual(t.getFromActivity(),
+                     transition.getFromActivity())
+                     && CompareHelper.areEqual(t.getToActivity(),
+                           transition.getToActivity()))
                {
-                  BpmValidationError error = BpmValidationError.PD_DUPLICATE_TRANSITION_SAME_SOURCE_OR_TARGET.raise(transition, t);
-                  inconsistencies.add(new Inconsistency(error, transition, Inconsistency.ERROR));
+                  BpmValidationError error = BpmValidationError.PD_DUPLICATE_TRANSITION_SAME_SOURCE_OR_TARGET.raise(
+                        transition, t);
+                  inconsistencies.add(new Inconsistency(error, transition,
+                        Inconsistency.ERROR));
                }
             }
             v.add(transition);
          }
-
 
          // Rule 1: Process definitions should have precisely one root activity
 
@@ -295,8 +351,8 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
                {
                   if (otherStartActivities == null)
                   {
-                     otherStartActivities = "'" + startActivity.getId() + "', '" +
-                           activity.getId() + "'";
+                     otherStartActivities = "'" + startActivity.getId() + "', '"
+                           + activity.getId() + "'";
                   }
                   else
                   {
@@ -319,8 +375,9 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
             inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
 
-         // Rule 2: Process definitions need to have either a trigger or should be used as a subprocess activity
-         //         or is started by a notification (associated to an activity or a process)
+         // Rule 2: Process definitions need to have either a trigger or should be used as
+         // a subprocess activity
+         // or is started by a notification (associated to an activity or a process)
 
          // This was removed for 3.0.0 because with the new event handlers this rule is
          // not "computable" anymore. Functionality was questionable anyway.
@@ -337,7 +394,8 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       }
       catch (Exception e)
       {
-         throw new InternalException("Process definition '" + getId() + "' cannot be checked.", e);
+         throw new InternalException("Process definition '" + getId()
+               + "' cannot be checked.", e);
       }
    }
 
@@ -346,29 +404,42 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       String externalInvocationAttribute = (String) getAttribute(PredefinedConstants.PROCESSINTERFACE_INVOCATION_TYPE);
       return externalInvocationAttribute == null
             ? false
-            : PredefinedConstants.PROCESSINTERFACE_INVOCATION_SOAP
-                  .equals(externalInvocationAttribute)
-                  || PredefinedConstants.PROCESSINTERFACE_INVOCATION_REST
-                        .equals(externalInvocationAttribute)
-                  || PredefinedConstants.PROCESSINTERFACE_INVOCATION_BOTH
-                        .equals(externalInvocationAttribute);
+            : PredefinedConstants.PROCESSINTERFACE_INVOCATION_SOAP.equals(externalInvocationAttribute)
+                  || PredefinedConstants.PROCESSINTERFACE_INVOCATION_REST.equals(externalInvocationAttribute)
+                  || PredefinedConstants.PROCESSINTERFACE_INVOCATION_BOTH.equals(externalInvocationAttribute);
    }
 
    private void checkForDeadlocks(List<Inconsistency> inconsistencies)
    {
       ExclusionComputer<IActivity, ITransition> computer = new ExclusionComputer<IActivity, ITransition>()
       {
-         protected IActivity getFrom(ITransition transition) {return transition.getFromActivity();}
-         protected IActivity getTo(ITransition transition) {return transition.getToActivity();}
-         protected Iterable<ITransition> getIn(IActivity activity) {return activity.getInTransitions();}
-         protected boolean isInclusiveJoin(IActivity activity) {return activity.getJoinType() == JoinSplitType.And
-               || activity.getJoinType() == JoinSplitType.Or;}
+         protected IActivity getFrom(ITransition transition)
+         {
+            return transition.getFromActivity();
+         }
+
+         protected IActivity getTo(ITransition transition)
+         {
+            return transition.getToActivity();
+         }
+
+         protected Iterable<ITransition> getIn(IActivity activity)
+         {
+            return activity.getInTransitions();
+         }
+
+         protected boolean isInclusiveJoin(IActivity activity)
+         {
+            return activity.getJoinType() == JoinSplitType.And
+                  || activity.getJoinType() == JoinSplitType.Or;
+         }
       };
       for (IActivity activity : getActivities())
       {
          IActivity blockingActivity = computer.getBlockingActivity(activity);
          // we want to show the deadlock only once.
-         if (blockingActivity != null && activity.getId().compareTo(blockingActivity.getId()) < 0)
+         if (blockingActivity != null
+               && activity.getId().compareTo(blockingActivity.getId()) < 0)
          {
             BpmValidationError error = BpmValidationError.PD_POTENTIAL_DEADLOCKS.raise(
                   activity.getName(), blockingActivity.getName(), getName());
@@ -381,13 +452,15 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
    {
       if (externalReference != null)
       {
-         QName qname = new QName(externalReference.getExternalPackage().getHref(), externalReference.getId());
+         QName qname = new QName(externalReference.getExternalPackage().getHref(),
+               externalReference.getId());
          IModel refModel = externalReference.getExternalPackage().getReferencedModel();
          if (refModel != null)
          {
             String uuid = getStringAttribute("carnot:connection:uuid");
             IProcessDefinition refProcess = refModel.findProcessDefinition(StringUtils.isEmpty(uuid)
-                  ? externalReference.getId() : externalReference.getId() + "?uuid=" + uuid);
+                  ? externalReference.getId()
+                  : externalReference.getId() + "?uuid=" + uuid);
             if (refProcess == null)
             {
                BpmValidationError error = BpmValidationError.PD_PROCESS_INTERFACE_NOT_RESOLVED.raise(qname);
@@ -395,7 +468,8 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
             }
             else
             {
-               DeploymentUtils.checkCompatibleInterface(inconsistencies, refProcess, this, true);
+               DeploymentUtils.checkCompatibleInterface(inconsistencies, refProcess,
+                     this, true);
             }
          }
       }
@@ -440,8 +514,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       return diagram;
    }
 
-   public ITrigger createTrigger(String id, String name, ITriggerType type,
-         int elementOID)
+   public ITrigger createTrigger(String id, String name, ITriggerType type, int elementOID)
    {
       TriggerBean trigger = new TriggerBean(id, name);
       trigger.setType(type);
@@ -459,8 +532,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
    }
 
    public ITransition createTransition(String id, String name, String description,
-         IActivity fromActivity, IActivity toActivity,
-         int elementOID, String condition)
+         IActivity fromActivity, IActivity toActivity, int elementOID, String condition)
    {
       if (findTransition(id) != null)
       {
@@ -473,8 +545,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
          if (fromActivity != null || toActivity != null)
          {
             throw new PublicException(
-                  BpmRuntimeError.MDL_RELOCATION_TRANSITION_MUST_NOT_HAVE_ANY_SOURCE_OR_TARGET_ACTIVITY_ATTACHED
-                        .raise(getId()));
+                  BpmRuntimeError.MDL_RELOCATION_TRANSITION_MUST_NOT_HAVE_ANY_SOURCE_OR_TARGET_ACTIVITY_ATTACHED.raise(getId()));
          }
       }
       else
@@ -493,28 +564,29 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
                         fromActivity));
          }
 
-         if (toActivity.getJoinType() == JoinSplitType.None &&
-               !toActivity.getInTransitions().isEmpty())
+         if (toActivity.getJoinType() == JoinSplitType.None
+               && !toActivity.getInTransitions().isEmpty())
          {
             throw new PublicException(
-                  BpmRuntimeError.MDL_MULTIPLE_INCOMING_TRANSITIONS_ARE_ONLY_ALLOWED_FOR_AND_OR_XOR_ACTIVITY_JOINS
-                        .raise(elementOID, toActivity.getElementOID()));
+                  BpmRuntimeError.MDL_MULTIPLE_INCOMING_TRANSITIONS_ARE_ONLY_ALLOWED_FOR_AND_OR_XOR_ACTIVITY_JOINS.raise(
+                        elementOID, toActivity.getElementOID()));
          }
 
-         if (fromActivity.getSplitType() == JoinSplitType.None &&
-               !fromActivity.getOutTransitions().isEmpty() &&
-               !TransitionBean.ON_BOUNDARY_EVENT_CONDITION.matcher(condition).matches())
+         if (fromActivity.getSplitType() == JoinSplitType.None
+               && !fromActivity.getOutTransitions().isEmpty()
+               && !TransitionBean.ON_BOUNDARY_EVENT_CONDITION.matcher(condition)
+                     .matches())
          {
             throw new PublicException(
-                  BpmRuntimeError.MDL_MULTIPLE_OUTGOING_TRANSITIONS_ARE_ONLY_ALLOWED_FOR_AND_OR_XOR_ACTIVITY_SPLITS
-                        .raise(elementOID, toActivity.getElementOID()));
+                  BpmRuntimeError.MDL_MULTIPLE_OUTGOING_TRANSITIONS_ARE_ONLY_ALLOWED_FOR_AND_OR_XOR_ACTIVITY_SPLITS.raise(
+                        elementOID, toActivity.getElementOID()));
          }
       }
 
       markModified();
 
-      TransitionBean transition = new TransitionBean(id, name, description,
-            fromActivity, toActivity);
+      TransitionBean transition = new TransitionBean(id, name, description, fromActivity,
+            toActivity);
 
       addToTransitions(transition, condition);
       transition.register(elementOID);
@@ -578,7 +650,9 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
     */
    public Iterator getAllInstances()
    {
-      return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getVector(ProcessInstanceBean.class).iterator();
+      return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)
+            .getVector(ProcessInstanceBean.class)
+            .iterator();
    }
 
    /**
@@ -586,7 +660,8 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
     */
    public Iterator getAllTransitions()
    {
-      return IteratorUtils.chainedIterator(transitions.iterator(), exceptionTransitions.iterator());
+      return IteratorUtils.chainedIterator(transitions.iterator(),
+            exceptionTransitions.iterator());
    }
 
    public ModelElementList<ITransition> getTransitions()
@@ -613,7 +688,8 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
          @Override
          public Iterator<ITransition> iterator()
          {
-            return IteratorUtils.chainedIterator(transitions.iterator(), exceptionTransitions.iterator());
+            return IteratorUtils.chainedIterator(transitions.iterator(),
+                  exceptionTransitions.iterator());
          }
 
          @Override
@@ -697,13 +773,14 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
 
    public String getDefaultActivityId()
    {
-      if (-1 == defaultActivityId)
+      if ( -1 == defaultActivityId)
       {
          this.defaultActivityId = 1;
          for (int i = 0; i < getActivities().size(); i++ )
          {
             IActivity activity = (IActivity) getActivities().get(i);
-            this.defaultActivityId = nextID(ACTIVITY_STRING, defaultActivityId, activity.getId());
+            this.defaultActivityId = nextID(ACTIVITY_STRING, defaultActivityId,
+                  activity.getId());
          }
       }
 
@@ -712,13 +789,14 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
 
    public String getDefaultTransitionId()
    {
-      if (-1 == defaultTransitionId)
+      if ( -1 == defaultTransitionId)
       {
          this.defaultTransitionId = 1;
          for (int i = 0; i < getTransitions().size(); i++ )
          {
             ITransition transition = (ITransition) getTransitions().get(i);
-            this.defaultTransitionId = nextID(TRANSITION_STRING, defaultTransitionId, transition.getId());
+            this.defaultTransitionId = nextID(TRANSITION_STRING, defaultTransitionId,
+                  transition.getId());
          }
       }
 
@@ -934,5 +1012,118 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
    public void setExternalReference(IReference externalReference)
    {
       this.externalReference = externalReference;
+   }
+   
+
+   public AccessPoint getAccessPoint(String contextId, String id)
+   {
+      return getAccessPoint(contextId, id, null);
+   }
+
+   public AccessPoint getAccessPoint(String contextId, String id, Direction direction)
+   {
+      IApplicationContext context = getContext(contextId);
+      if (context != null)
+      {
+         return context.findAccessPoint(id, direction);
+      }
+      return null;
+   }   
+   
+   
+   public IApplicationContext getContext(String contextId)
+   {
+      if (PredefinedConstants.ENGINE_CONTEXT.equals(contextId))
+      {
+         return engineContext;
+      }
+
+      if (PredefinedConstants.DEFAULT_CONTEXT.equals(contextId))
+      {
+         return defaultContext;
+      }
+
+      return null;
+   }   
+
+   private class MyEngineContext extends ApplicationContextBean
+   {
+      private static final long serialVersionUID = 1L;
+
+      private transient Map accessPoints = new HashMap();
+
+      public MyEngineContext()
+      {
+         accessPoints.put(PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT,
+               JavaDataTypeUtils.createIntrinsicAccessPoint(this,
+                     PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT,
+                     PredefinedConstants.PROCESS_INSTANCE_ACCESSPOINT,
+                     "org.eclipse.stardust.engine.api.runtime.ProcessInstance",
+                     Direction.OUT, false, null));
+      }
+
+      public RootElement getModel()
+      {
+         return ProcessDefinitionBean.this.getModel();
+      }
+
+      public AccessPoint findAccessPoint(String id)
+      {
+         return (AccessPoint) accessPoints.get(id);
+      }
+
+      public AccessPoint findAccessPoint(String id, Direction direction)
+      {
+         return (AccessPoint) accessPoints.get(id);
+      }
+
+      public Iterator getAllAccessPoints()
+      {
+         return accessPoints.values().iterator();
+      }
+
+      public synchronized Iterator getAllInAccessPoints()
+      {
+         return new FilteringIterator(getAllAccessPoints(), new Predicate()
+         {
+            public boolean accept(Object point)
+            {
+               AccessPoint candidate = (AccessPoint) point;
+               return candidate.getDirection() == Direction.IN
+                     || candidate.getDirection() == Direction.IN_OUT;
+            }
+         });
+      }
+
+      public synchronized Iterator getAllOutAccessPoints()
+      {
+         return new FilteringIterator(getAllAccessPoints(), new Predicate()
+         {
+            public boolean accept(Object point)
+            {
+               AccessPoint candidate = (AccessPoint) point;
+               return candidate.getDirection() == Direction.OUT
+                     || candidate.getDirection() == Direction.IN_OUT;
+            }
+         });
+      }
+   }
+
+   private class MyDefaultContext extends ApplicationContextBean
+   {
+      /**
+       *
+       */
+      private static final long serialVersionUID = 1L;
+
+      private MyDefaultContext()
+      {
+         super(PredefinedConstants.DEFAULT_CONTEXT, true);
+      }
+
+      public RootElement getModel()
+      {
+         return ProcessDefinitionBean.this.getModel();
+      }
    }
 }

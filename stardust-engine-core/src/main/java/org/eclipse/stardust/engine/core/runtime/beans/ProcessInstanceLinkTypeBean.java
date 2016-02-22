@@ -16,8 +16,8 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.error.ObjectExistsException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.LoginUtils;
 import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
@@ -35,7 +35,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 public class ProcessInstanceLinkTypeBean extends IdentifiablePersistentBean implements IProcessInstanceLinkType
 {
    private static final long serialVersionUID = 1L;
-   
+
    public static final String FIELD__OID = IdentifiablePersistentBean.FIELD__OID;
    public static final String FIELD__ID = "id";
    public static final String FIELD__DESCRIPTION = "description";
@@ -51,7 +51,8 @@ public class ProcessInstanceLinkTypeBean extends IdentifiablePersistentBean impl
    public static final String PK_FIELD = FIELD__OID;
    public static final String PK_SEQUENCE = "link_type_seq";
    public static final String[] link_type_idx1_UNIQUE_INDEX = new String[] {FIELD__OID};
-   
+   //public static final String[] link_type_idx2_UNIQUE_INDEX = new String[] {FIELD__ID, FIELD__PARTITION};
+
    private static final int id_COLUMN_LENGTH = 50;
    private String id;
    private static final int description_COLUMN_LENGTH = 255;
@@ -65,12 +66,12 @@ public class ProcessInstanceLinkTypeBean extends IdentifiablePersistentBean impl
       Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
       return session.getIterator(ProcessInstanceLinkTypeBean.class, extension);
    }
-   
+
    private static final class Key
    {
       private String id;
       private short partition;
-      
+
       private Key(String id, short partition)
       {
          this.id = id;
@@ -92,7 +93,7 @@ public class ProcessInstanceLinkTypeBean extends IdentifiablePersistentBean impl
 
    // TODO: use global cache
    private static final Map<Key, IProcessInstanceLinkType> localCache = CollectionUtils.newMap();
-   
+
    public static IProcessInstanceLinkType findById(PredefinedProcessInstanceLinkTypes linkType)
    {
       return findById(linkType.getId());
@@ -101,7 +102,7 @@ public class ProcessInstanceLinkTypeBean extends IdentifiablePersistentBean impl
    public static IProcessInstanceLinkType findById(String id)
    {
       assert id != null && id.trim().length() > 0 : "Id must not be empty.";
-      
+
       short partition = SecurityProperties.getPartitionOid();
       Key key = new Key(id, partition);
       IProcessInstanceLinkType bean = localCache.get(key);
@@ -147,7 +148,7 @@ public class ProcessInstanceLinkTypeBean extends IdentifiablePersistentBean impl
 
    /**
     * Creates a new link type for a given partition.
-    * 
+    *
     * @param id the identifier of the link type.
     * @param description the description of the link type.
     * @param partition the partition in which the link type should be created.
@@ -158,18 +159,18 @@ public class ProcessInstanceLinkTypeBean extends IdentifiablePersistentBean impl
       assert id != null && id.trim().length() > 0 : "Id must not be empty.";
 
       partition = SecurityProperties.getPartitionOid();
-      
+
       String trimmedId = StringUtils.cutString(id, id_COLUMN_LENGTH);
-      
+
       if (SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).exists(ProcessInstanceLinkTypeBean.class,
             QueryExtension.where(Predicates.andTerm(
                   Predicates.isEqual(FR__ID, trimmedId),
                   Predicates.isEqual(FR__PARTITION, partition)))))
       {
-         throw new PublicException(
-               BpmRuntimeError.ATDB_LINK_TYPE_ID_EXISTS.raise(id), id, null);
+         throw new ObjectExistsException(
+               BpmRuntimeError.ATDB_LINK_TYPE_ID_EXISTS.raise(id));
       }
-      
+
       this.id = trimmedId;
       this.description = StringUtils.cutString(description, description_COLUMN_LENGTH);
 
@@ -194,7 +195,7 @@ public class ProcessInstanceLinkTypeBean extends IdentifiablePersistentBean impl
          this.description = description;
       }
    }
-   
+
    public IAuditTrailPartition getPartition()
    {
       return LoginUtils.findPartition(Parameters.instance(), (short) partition);
@@ -204,7 +205,7 @@ public class ProcessInstanceLinkTypeBean extends IdentifiablePersistentBean impl
    {
       return (short) partition;
    }
-   
+
    public String toString()
    {
       return "LinkType: " + id + " [partition: " + partition + "]";

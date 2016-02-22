@@ -135,7 +135,7 @@ public class UpgradeModelCommand extends ConsoleCommand
 
    String upgradeModel(String model)
    {
-      ModelItem modelItem = new ModelItem(model);
+      ModelItem modelItem = new ModelItem(null, Long.MIN_VALUE, model);
       Upgrader upgrader = new ModelUpgrader(modelItem);
       return ((ModelItem) upgrader.upgrade(false)).getModel();
    }

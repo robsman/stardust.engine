@@ -176,7 +176,7 @@ public interface IActivity extends IViewable, EventHandlerOwner
     */
    Iterator getAllOutDataMappings();
 
-   ModelElementList getOutDataMappings();
+   ModelElementList<IDataMapping> getOutDataMappings();
 
    IDataMapping findDataMappingById(String id, Direction direction, String context);
 

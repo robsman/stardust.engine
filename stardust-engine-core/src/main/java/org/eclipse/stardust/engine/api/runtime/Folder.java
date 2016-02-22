@@ -23,13 +23,19 @@ public interface Folder extends FolderInfo, Resource
    // keep in sync with jcr-vfs's IFolder
 
    /**
-    * If level of detail is set to <code>LOD_NO_MEMBERS</code>,
-    * the <code>Folder</code> object contains neither its document
-    * nor subfolder information
+    * level depth 0 - empty sub folder and no documents, just the bare folder object.<br>
+    * Use this for best performance if the folder itself is required not its contained documents or
+    * subfolders.
+    * <p>
+    * If level of detail is set to <code>LOD_NO_MEMBERS</code>, the <code>Folder</code>
+    * object contains neither its document nor subfolder information.
     */
    int LOD_NO_MEMBERS = 0;
 
    /**
+    * level depth 1 - folder with documents and bare sub folders.<br>
+    * Use this if you want to get the documents in a folder and the folder objects contained in the requested folder.
+    * <p>
     * If level of detail is set to <code>LOD_LIST_MEMBERS</code>,
     * the <code>Folder</code> object contains both its document and subfolder
     * without their document and subfolder information
@@ -37,6 +43,10 @@ public interface Folder extends FolderInfo, Resource
    int LOD_LIST_MEMBERS = 1;
 
    /**
+    * level depth 2 - folder with documents and subfolders with contents, but sub folders NOT recursively.<br>
+    * Use this if you to have the contained folders and documents of the sub folders.
+    * This is just one more depth level than {@link #LOD_LIST_MEMBERS} not the whole folder tree.
+    * <p>
     * If level of detail is set to <code>LOD_LIST_MEMBERS_OF_MEMBERS</code>,
     * the <code>Folder</code> object contains both its document and subfolder
     * with their document and subfolder information

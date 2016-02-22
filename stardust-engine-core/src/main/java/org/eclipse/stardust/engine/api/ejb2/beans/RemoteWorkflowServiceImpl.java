@@ -1235,6 +1235,34 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
     }
 
     /**
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#startProcess(
+     *     java.lang.String id, org.eclipse.stardust.engine.api.runtime.StartOptions options)
+     */
+    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
+         startProcess(
+         java.lang.String id, org.eclipse.stardust.engine.api.runtime.StartOptions
+         options)
+         throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      try
+      {
+         return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
+            service).startProcess(id, options);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+    }
+
+    /**
      * Spawns a process as subprocess of the specified process instance. The spawned
      * process executes asynchronously but has to be completed before the parent process is
      * able to complete.
@@ -3264,6 +3292,9 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *
+     * @deprecated replaced with {@link #performAdHocTransition(TransitionTarget, boolean)}
+     *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -3282,6 +3313,64 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
       {
          return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
             service).performAdHocTransition(activityInstanceOid, target, complete);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+    }
+
+    /**
+     * Performs the transition from the specified activity instance to the specified target.
+     *
+     * @param target the transition target.
+     * @param complete true if the activity instance specified should be completed, false if the
+     *     activity should be aborted.
+     *
+     * @return a pair of activity instances, where the first is the activity instance from which the
+     *     transition was performed
+     *     and the second is the activity instance that was created for the target
+     *      target activity.
+     *
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the transition
+     *     could not be performed because the specified TransitionTarget
+     *     did not originate from the specified activity instance, or the activity instance was
+     *     nce was already terminated
+     *     or the process instance containing the activity instance has more than one active
+     *      active activity instance.
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not
+     *     allowed to perform the ad-hoc transition.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified oid.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#performAdHocTransition(
+     *     org.eclipse.stardust.engine.api.runtime.TransitionTarget target, boolean complete)
+     */
+    public org.eclipse.stardust.engine.api.runtime.TransitionReport
+         performAdHocTransition(
+         org.eclipse.stardust.engine.api.runtime.TransitionTarget target, boolean
+         complete)
+         throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      try
+      {
+         return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
+            service).performAdHocTransition(target, complete);
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
@@ -3584,6 +3673,9 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *
      * @return the newly created business object instance.
      *
+     * @throws ObjectExistsException if BO already exists.
+     *     <em>Instances of {@link ObjectExistsException} will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *

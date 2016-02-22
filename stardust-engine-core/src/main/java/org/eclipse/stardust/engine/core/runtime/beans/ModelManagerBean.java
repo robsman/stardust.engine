@@ -380,7 +380,7 @@ public class ModelManagerBean implements ModelManager
       }
    }
 
-   private static Map getAllFqIds(ModelManagerPartition modelManager, IModel model)
+   public static Map getAllFqIds(ModelManagerPartition modelManager, IModel model)
    {
       Assert.isNotNull(modelManager.findModel(model.getModelOID()));
 
@@ -1933,7 +1933,7 @@ public class ModelManagerBean implements ModelManager
 
          return oid;
       }
-
+      
       public long getRuntimeOid(IData data, String xPath)
       {
          return rtOidRegistry.getRuntimeOid(IRuntimeOidRegistry.STRUCTURED_DATA_XPATH,

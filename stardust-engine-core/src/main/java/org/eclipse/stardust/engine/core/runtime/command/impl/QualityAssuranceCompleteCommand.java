@@ -19,7 +19,7 @@ import org.eclipse.stardust.common.error.ErrorCase;
 import org.eclipse.stardust.common.error.ServiceCommandException;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
 import org.eclipse.stardust.engine.api.model.ContextData;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.ActivityCompletionLog;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
@@ -63,10 +63,10 @@ public class QualityAssuranceCompleteCommand implements ServiceCommand
          final WorkflowService workflowService = sf.getWorkflowService();
 
          workflowService.setActivityInstanceAttributes(aiAttribute);
-         ActivityInstance ai = workflowService.complete(
+         ActivityCompletionLog acl = workflowService.complete(
                aiAttribute.getActivityInstanceOid(), context.getContext(),
-               context.getData());
-         return ai;
+               context.getData(), WorkflowService.FLAG_ACTIVATE_NEXT_ACTIVITY_INSTANCE);
+         return acl;
       }
       catch (Exception f)
       {

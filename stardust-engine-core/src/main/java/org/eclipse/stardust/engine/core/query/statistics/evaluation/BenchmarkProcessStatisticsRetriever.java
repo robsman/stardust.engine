@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
@@ -264,7 +265,24 @@ public class BenchmarkProcessStatisticsRetriever
       predicates.add(boDataOnly
             ? Predicates.isEqual(ProcessInstanceBean.FR__PROCESS_DEFINITION, -1)
             : Predicates.notEqual(ProcessInstanceBean.FR__PROCESS_DEFINITION, -1));
-      predicates.add(Predicates.isEqual(ProcessInstanceBean.FR__MODEL, (long) data.getModel().getModelOID()));
+      if (boDataOnly)
+      {
+         predicates.add(Predicates.isEqual(ProcessInstanceBean.FR__MODEL, (long) data.getModel().getModelOID()));
+      }
+      else
+      {
+         List<Long> modelOids = CollectionUtils.newList();
+         ModelManager modelManager = ModelManagerFactory.getCurrent();
+         for (Iterator<IModel> models = modelManager.getAllModels(); models.hasNext();)
+         {
+            IModel model = models.next();
+            if (model.findData(data.getId()) == data)
+            {
+               modelOids.add((long) model.getModelOID());
+            }
+         }
+         predicates.add(Predicates.inList(ProcessInstanceBean.FR__MODEL, modelOids));
+      }
       predicates.add(Predicates.isEqual(dvJoin.fieldRef(DataValueBean.FIELD__DATA), ModelManagerFactory.getCurrent().getRuntimeOid(data)));
 
       FieldRef pkValueField = createStructuredDataJoins(false, data.<String>getAttribute(PredefinedConstants.PRIMARY_KEY_ATT),

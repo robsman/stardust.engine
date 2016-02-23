@@ -17,7 +17,6 @@ import java.util.Set;
 
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.engine.api.model.*;
-import org.eclipse.stardust.engine.core.model.utils.Hook;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.RootElement;
@@ -124,11 +123,6 @@ public class QualityAssuranceActivityBean implements IActivity
       return delegate.getModel();
    }
 
-   public void addReference(Hook reference)
-   {
-      delegate.addReference(reference);
-   }
-
    public ModelElementList<IEventHandler> getEventHandlers()
    {
       return delegate.getEventHandlers();
@@ -152,11 +146,6 @@ public class QualityAssuranceActivityBean implements IActivity
    public void removeFromEventHandlers(IEventHandler handler)
    {
       delegate.removeFromEventHandlers(handler);
-   }
-
-   public void removeReference(Hook reference)
-   {
-      delegate.removeReference(reference);
    }
 
    public void removeAllAttributes()

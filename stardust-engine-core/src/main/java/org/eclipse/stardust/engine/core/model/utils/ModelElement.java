@@ -30,11 +30,7 @@ public interface ModelElement extends Serializable, AttributeHolder, RuntimeAttr
 
    RootElement getModel();
 
-   void addReference(Hook reference);
-
    void setParent(ModelElement parent);
-
-   void removeReference(Hook reference);
 
    ModelElement getParent();
 

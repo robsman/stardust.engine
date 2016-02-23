@@ -89,7 +89,6 @@ public class SingleRef extends SingleHook implements Reference
       if (element != null)
       {
          super.setElement(element);
-         element.addReference(this);
          setOtherRole(element);
          getOwner().markModified();
       }

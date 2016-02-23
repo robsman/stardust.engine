@@ -16,7 +16,6 @@ import org.eclipse.stardust.common.AttributeHolderImpl;
 import org.eclipse.stardust.common.AttributeManager;
 import org.eclipse.stardust.common.IAttributeManager;
 import org.eclipse.stardust.engine.core.compatibility.gui.ItemStateListener;
-import org.eclipse.stardust.engine.core.model.utils.Hook;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.RootElement;
@@ -24,6 +23,8 @@ import org.eclipse.stardust.engine.core.model.utils.RootElement;
 
 public class ModelElementTemplate extends AttributeHolderImpl implements IdentifiableElement
 {
+   private static final long serialVersionUID = -5573734929247230203L;
+
    private String id;
    private String name;
    private String description;
@@ -104,15 +105,7 @@ public class ModelElementTemplate extends AttributeHolderImpl implements Identif
       return null;
    }
 
-   public void addReference(Hook reference)
-   {
-   }
-
    public void setParent(ModelElement parent)
-   {
-   }
-
-   public void removeReference(Hook reference)
    {
    }
 

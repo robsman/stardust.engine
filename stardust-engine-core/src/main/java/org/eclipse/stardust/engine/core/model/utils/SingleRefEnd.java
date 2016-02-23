@@ -29,12 +29,10 @@ public class SingleRefEnd extends SingleHook implements RefEnd
    public void __add__(ModelElement element)
    {
       super.add(element);
-      element.addReference(this);
    }
 
    public void __remove__(ModelElement element)
    {
       super.remove(element);
-      element.removeReference(this);
    }
 }

@@ -44,7 +44,6 @@ public class MultiRef extends MultiHook implements Reference
       getOwner().markModified();
 
       super.add(element);
-      element.addReference(this);
       setOtherRole(element);
    }
 

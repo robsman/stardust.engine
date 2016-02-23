@@ -34,6 +34,8 @@ import org.eclipse.stardust.engine.core.preferences.configurationvariables.Confi
  */
 public abstract class ModelElementBean extends AttributeHolderImpl implements ModelElement
 {
+   private static final long serialVersionUID = -1652269951404186738L;
+
    private static final Logger trace = LogManager.getLogger(ModelElementBean.class);
 
    protected ModelElement parent;
@@ -214,12 +216,6 @@ public abstract class ModelElementBean extends AttributeHolderImpl implements Mo
 
       RootElement modelCopy = getModel();
 
-      /*for (Iterator i = new HashSet(references).iterator(); i.hasNext();)
-      {
-         Hook r = (Hook) i.next();
-         r.remove(this);
-      }*/
-
       parent = null;
    }
 
@@ -232,17 +228,6 @@ public abstract class ModelElementBean extends AttributeHolderImpl implements Mo
    {
       markModified();
       this.parent = parent;
-   }
-
-   public void removeReference(Hook reference)
-   {
-      //references.remove(reference);
-   }
-
-   public void addReference(Hook reference)
-   {
-      //markModified();
-      //references.add(reference);
    }
 
    public ModelElement deepCopyI(ModelElement newParent, boolean keepOIDs,

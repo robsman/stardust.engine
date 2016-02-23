@@ -33,10 +33,6 @@ public class SingleHook  extends Hook
 
    public void setElement(ModelElement element)
    {
-      if (this.element != null)
-      {
-         this.element.removeReference(this);
-      }
       this.element = element;
    }
 
@@ -50,7 +46,6 @@ public class SingleHook  extends Hook
       if (element == this.element && element != null)
       {
          this.element = null;
-         element.removeReference(this);
       }
       else
       {

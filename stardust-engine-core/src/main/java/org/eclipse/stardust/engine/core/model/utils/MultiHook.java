@@ -62,11 +62,6 @@ public class MultiHook extends Hook implements ModelElementList
 
    public void remove(ModelElement element)
    {
-      if (element != null)
-      {
-         element.removeReference(this);
-      }
-
       if ((null != idIndex) && (element instanceof Identifiable))
       {
          Assert.condition(element == idIndex.get(((Identifiable) element).getId()));

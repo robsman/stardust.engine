@@ -17,7 +17,6 @@ import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.IOrganization;
 import org.eclipse.stardust.engine.api.model.IScopedModelParticipant;
 import org.eclipse.stardust.engine.api.query.QueryUtils;
-import org.eclipse.stardust.engine.core.model.utils.Hook;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.RootElement;
 import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
@@ -59,11 +58,6 @@ public class ScopedModelParticipant implements IScopedModelParticipant
       return department;
    }
    
-   public void addReference(Hook reference)
-   {
-      modelParticipant.addReference(reference);
-   }
-
    public void checkConsistency(List inconsistencies)
    {
       modelParticipant.checkConsistency(inconsistencies);
@@ -227,11 +221,6 @@ public class ScopedModelParticipant implements IScopedModelParticipant
    public void removeAttribute(String name)
    {
       modelParticipant.removeAttribute(name);
-   }
-
-   public void removeReference(Hook reference)
-   {
-      modelParticipant.removeReference(reference);
    }
 
    public <V> void setAllAttributes(Map<String, V> attributes)

@@ -897,7 +897,7 @@
                         <carnot:DataRef Id="" Expression="http://fisglobal.com?id=%{InvoiceId}"/>
                         <carnot:Attributes>
                            <carnot:Attribute Name="type" Value="Link"/>
-                           <carnot:Attribute Name="text" Value="Invoice"/>
+                           <carnot:Attribute Name="text" Value="See invoice '%{InvoiceId}' details"/>
                         </carnot:Attributes>
                      </carnot:DataPath>
                      <carnot:DataPath Oid="10240" Id="Composite2Levels" Name="Composite2Levels" Direction="IN" IsDescriptor="true">
@@ -907,19 +907,7 @@
                         </carnot:Attributes>
                      </carnot:DataPath>
                      <carnot:DataPath Oid="10241" Id="Composite3Levels" Name="Composite3Levels" Direction="IN" IsDescriptor="true">
-                        <carnot:DataRef Id="" Expression="Composition [%{Composite2Levels}, %{CircularStart}]"/>
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="type" Value="Composite"/>
-                        </carnot:Attributes>
-                     </carnot:DataPath>
-                     <carnot:DataPath Oid="10242" Id="CircularStart" Name="CircularStart" Direction="IN" IsDescriptor="true">
-                        <carnot:DataRef Id="" Expression="+%{CircularEnd}-"/>
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="type" Value="Composite"/>
-                        </carnot:Attributes>
-                     </carnot:DataPath>
-                     <carnot:DataPath Oid="10243" Id="CircularEnd" Name="CircularEnd" Direction="IN" IsDescriptor="true">
-                        <carnot:DataRef Id="" Expression="*%{CircularStart}#"/>
+                        <carnot:DataRef Id="" Expression="Composition [%{Composite2Levels}]"/>
                         <carnot:Attributes>
                            <carnot:Attribute Name="type" Value="Composite"/>
                         </carnot:Attributes>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,8 @@ public class RuntimeJobs
          {
             jobs.add(new AT1_1_0from1_0_0RuntimeJob());
             jobs.add(new AT2_0_0from1_1_0RuntimeJob());
+            jobs.add(new AT3_0_2from2_0_0RuntimeJob());
+            jobs.add(new AT3_1_0from3_0_2RuntimeJob());
          }
          else
          {

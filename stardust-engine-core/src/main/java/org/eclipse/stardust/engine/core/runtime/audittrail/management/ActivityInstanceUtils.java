@@ -443,4 +443,14 @@ public class ActivityInstanceUtils
 
       return true;
    }
+
+   public static void assertNotHalted(IActivityInstance ai)
+   {
+      if (ai.isHalted() || ai.isHalting())
+      {
+         throw new IllegalOperationException(
+               BpmRuntimeError.BPMRT_AI_IS_HALTED.raise(ai.getOID()));
+      }
+   }
+
 }

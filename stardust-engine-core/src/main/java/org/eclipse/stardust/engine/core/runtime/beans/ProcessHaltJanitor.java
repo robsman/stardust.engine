@@ -68,6 +68,8 @@ public class ProcessHaltJanitor extends ProcessHierarchyStateChangeJanitor
                   .next();
 
             if (!activityInstance.isTerminated() && !activityInstance.isHalted())
+//                  && !ActivityInstanceState.Application
+//                        .equals(activityInstance.getState()))
             {
                activityInstance.lock();
 

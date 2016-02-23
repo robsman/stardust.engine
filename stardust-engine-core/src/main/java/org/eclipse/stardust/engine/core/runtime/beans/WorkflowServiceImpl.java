@@ -573,6 +573,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          assertNotCaseProcessInstance(member);
          assertNotTransientProcessInstance(member);
          assertActiveProcessInstance(member);
+
          IProcessInstance root = member.getRootProcessInstance();
          if (root != null && root != member)
          {
@@ -658,10 +659,21 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
    public void assertActiveProcessInstance(IProcessInstance processInstance)
    {
+      assertNotHalted(processInstance);
+
       if (ProcessInstanceState.ACTIVE != processInstance.getState().getValue())
       {
          throw new IllegalOperationException(
                BpmRuntimeError.BPMRT_PI_NOT_ACTIVE.raise(processInstance.getOID()));
+      }
+   }
+
+   private void assertNotHalted(IProcessInstance pi)
+   {
+      if (pi.isHalted() || pi.isHalting())
+      {
+         throw new IllegalOperationException(
+               BpmRuntimeError.BPMRT_PI_IS_HALTED.raise(pi.getOID()));
       }
    }
 
@@ -857,6 +869,9 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                BpmRuntimeError.BPMRT_PI_JOIN_TO_SAME_PROCESS_INSTANCE.raise(processInstanceOid));
       }
 
+      assertNotHalted(originatingProcessInstance);
+      assertNotHalted(targetProcessInstance);
+
       // illegal to join from an interrupted process instance
       if (ProcessInstanceState.ACTIVE != originatingProcessInstance.getState().getValue())
       {
@@ -928,6 +943,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    public ActivityInstance activate(long oid) throws ObjectNotFoundException
    {
       IActivityInstance activityInstance = ActivityInstanceUtils.lock(oid);
+      ActivityInstanceUtils.assertNotHalted(activityInstance);
 
       activate(activityInstance);
 
@@ -1031,6 +1047,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
    private void activate(IActivityInstance activityInstance)
    {
+      ActivityInstanceUtils.assertNotHalted(activityInstance);
       ActivityInstanceUtils.assertNotTerminated(activityInstance);
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
       ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
@@ -1063,6 +1080,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          Map<String, ? > outData, boolean synchronously) throws ObjectNotFoundException,
          InvalidValueException, AccessForbiddenException
    {
+      ActivityInstanceUtils.assertNotHalted(activityInstance);
       ActivityInstanceUtils.assertNotTerminated(activityInstance);
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
       ActivityInstanceUtils.assertNotDefaultCaseInstance(activityInstance);
@@ -1108,6 +1126,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       IActivityInstance activityInstance = ActivityInstanceUtils.lock(activityInstanceOID);
 
+      ActivityInstanceUtils.assertNotHalted(activityInstance);
       ActivityInstanceUtils.assertNotTerminated(activityInstance);
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
       ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
@@ -1196,6 +1215,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       IActivityInstance activityInstance = ActivityInstanceUtils.lock(activityInstanceOID);
 
+      ActivityInstanceUtils.assertNotHalted(activityInstance);
       ActivityInstanceUtils.assertNotTerminated(activityInstance);
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
       ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
@@ -2044,18 +2064,6 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          throw new BindingException(
                BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS.raise(activityInstanceOID));
       }
-      if (activityInstance.isHalting())
-      {
-         // TODO exception
-         throw new BindingException(
-               BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS.raise(activityInstanceOID));
-      }
-      if (activityInstance.isHalted())
-      {
-         // TODO exception
-         throw new BindingException(
-               BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS.raise(activityInstanceOID));
-      }
    }
 
    private void checkInvalidState(long processInstanceOID,
@@ -2068,18 +2076,6 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       }
       if (processInstance.isAborting())
       {
-         throw new BindingException(
-               BpmRuntimeError.ATDB_PROCESS_INSTANCE_ABORTING.raise(processInstanceOID));
-      }
-      if (processInstance.isHalting())
-      {
-         // TODO exception
-         throw new BindingException(
-               BpmRuntimeError.ATDB_PROCESS_INSTANCE_ABORTING.raise(processInstanceOID));
-      }
-      if (processInstance.isHalted())
-      {
-         // TODO exception
          throw new BindingException(
                BpmRuntimeError.ATDB_PROCESS_INSTANCE_ABORTING.raise(processInstanceOID));
       }
@@ -2136,6 +2132,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       IActivityInstance activityInstance = ActivityInstanceBean.findByOID(activityInstanceOID);
       ActivityInstanceUtils.assertNotDefaultCaseInstance(activityInstance);
+      ActivityInstanceUtils.assertNotHalted(activityInstance);
 
       activityInstance.hibernate();
 
@@ -2163,6 +2160,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          throws ObjectNotFoundException
    {
       assertNotCaseProcessInstance(processInstance);
+      assertNotHalted(processInstance);
       IActivityInstance result = findNextActivityInstance(processInstance,
             activityInstance, false);
       if (result == null)
@@ -2510,6 +2508,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       IActivityInstance activityInstance = ActivityInstanceUtils.lock(transitionTarget.getActivityInstanceOid());
       IActivityInstance targetActivityInstance = null;
 
+      ActivityInstanceUtils.assertNotHalted(activityInstance);
       ActivityInstanceUtils.assertNotTerminated(activityInstance);
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
       ActivityInstanceUtils.assertNotDefaultCaseInstance(activityInstance);

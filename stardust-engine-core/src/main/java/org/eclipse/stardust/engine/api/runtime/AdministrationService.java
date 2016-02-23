@@ -498,6 +498,13 @@ public interface AdministrationService extends Service
     * <li>Activity state after: completed</li>
     * <li>Process state after: State does not change.</li>
     * </ul>
+    * <p> If the process hierarchy is halted: </p>
+    * <ul><li>Activity state before: halted</li>
+    * <li>Process state before: halted</li>
+    * <li>Activity state after: completed</li>
+    * <li>Process state after: State does not change.</li>
+    * <li>Next activity will not be created since process hierarchy is halted.</li>
+    * </ul>
     * </p>
     *
     * @param activityInstanceOID - the OID of the non-interactive activity to be completed.
@@ -532,6 +539,13 @@ public interface AdministrationService extends Service
     * <ul><li>Activity state before: application, suspended, hibernated</li>
     * <li>Process state before: active, interrupted</li>
     * <li>Activity state after: suspended</li>
+    * <li>Process state after: State does not change.</li>
+    * </ul>
+    *
+    * <p> If the process hierarchy is halted: </p>
+    * <ul><li>Activity state before: halted, application</li>
+    * <li>Process state before: halted</li>
+    * <li>Activity state after: halted</li>
     * <li>Process state after: State does not change.</li>
     * </ul>
     * </p>

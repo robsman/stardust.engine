@@ -535,7 +535,8 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args1 BPMRT_BENCHMARK_NOT_FOUND = newArgs1("BPMRT07037", BpmRuntimeErrorMessages.getString("BPMRT07037")); //$NON-NLS-1$ //$NON-NLS-2$
 
-
+   public static final Args BPMRT_AI_IS_HALTED = newArgs("BPMRT08001");
+   public static final Args BPMRT_PI_IS_HALTED = newArgs("BPMRT08002");
 
 
    //// JMS related

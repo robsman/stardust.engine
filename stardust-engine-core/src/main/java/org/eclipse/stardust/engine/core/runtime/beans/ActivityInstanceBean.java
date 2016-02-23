@@ -2596,6 +2596,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       case ActivityInstanceState.SUSPENDED:
       case ActivityInstanceState.HIBERNATED:
       case ActivityInstanceState.APPLICATION:
+      case ActivityInstanceState.HALTED:
          // do nothing
          break;
       default:

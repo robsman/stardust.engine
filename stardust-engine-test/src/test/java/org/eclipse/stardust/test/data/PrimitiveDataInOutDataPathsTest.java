@@ -52,7 +52,7 @@ public class PrimitiveDataInOutDataPathsTest
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
 
    @ClassRule
-   public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME, "Model11");
+   public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME, "CompositeDescriptorModel");
 
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
@@ -274,7 +274,7 @@ public class PrimitiveDataInOutDataPathsTest
       Map<String, String> data = CollectionUtils.newMap();
       data.put("Ticker", "3XK");
       data.put("CompanyName", "Triple Killer Networks");
-      ProcessInstance pi = sf.getWorkflowService().startProcess("{Model11}StockQuote", data, true);
+      ProcessInstance pi = sf.getWorkflowService().startProcess("{CompositeDescriptorModel}StockQuote", data, true);
 
       ProcessInstanceQuery query = ProcessInstanceQuery.findAll();
       query.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));
@@ -333,7 +333,7 @@ public class PrimitiveDataInOutDataPathsTest
       Map<String, String> data = CollectionUtils.newMap();
       data.put("Ticker", ticker);
       data.put("CompanyName", companyName);
-      ProcessInstance pi = sf.getWorkflowService().startProcess("{Model11}StockQuote", data, true);
+      ProcessInstance pi = sf.getWorkflowService().startProcess("{CompositeDescriptorModel}StockQuote", data, true);
 
       ProcessInstanceQuery query = ProcessInstanceQuery.findAll();
       query.where(ProcessInstanceQuery.OID.isEqual(pi.getOID()));

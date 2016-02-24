@@ -175,7 +175,7 @@ public abstract class AbstractBpmTypeConverter
          {
             JsonPrimitive primitive = entry.getValue().getAsJsonPrimitive();
             String xPath = "".equals(path) ? entry.getKey() : path + "/" + entry.getKey();
-            TypedXPath typedXPath = xPathMap.getXPath(path);
+            TypedXPath typedXPath = xPathMap.getXPath(xPath);
             if(isStrict){
                if(xPathMap.containsXPath(xPath))
                {

@@ -2529,7 +2529,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
             && state == ActivityInstanceState.Application || !interactive
             && state == ActivityInstanceState.Interrupted)
       {
-         if (state == ActivityInstanceState.Hibernated
+         if (state == ActivityInstanceState.Hibernated && complete
                || state == ActivityInstanceState.Interrupted)
          {
             activityInstance.activate();

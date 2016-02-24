@@ -564,7 +564,6 @@
                   <configuration>
                      <excludes>
                         <exclude>org/eclipse/stardust/**/ejb2/tools/*.java</exclude>
-                        <exclude>org/eclipse/stardust/**/test/**/*.java</exclude>
                      </excludes>
                   </configuration>
                </execution>
@@ -588,7 +587,6 @@
                </includes>
                <excludes>
                   <exclude>org/eclipse/stardust/**/ejb2/tools/*.java</exclude>
-                  <exclude>org/eclipse/stardust/**/test/**/*.java</exclude>
                </excludes>
             </configuration>
          </plugin>
@@ -1033,9 +1031,6 @@
                         </goals>
                         <configuration>
                            <outputDirectory>${project.build.directory}/codegen-classes</outputDirectory>
-                           <excludes>
-                              <exclude>org/eclipse/stardust/**/test/**/*.java</exclude>
-                           </excludes>
                            <!-- All Java classes of stardust-engine-core are needed for CodeGen;
                                  therefore we cannot only compile the CodeGen class
                            <includes>

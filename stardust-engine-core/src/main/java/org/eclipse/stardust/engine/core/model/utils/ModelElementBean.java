@@ -10,16 +10,12 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.utils;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.regex.Matcher;
 
 import org.eclipse.stardust.common.AttributeHolderImpl;
-import org.eclipse.stardust.common.IAttributeManager;
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
@@ -51,8 +47,6 @@ public abstract class ModelElementBean extends AttributeHolderImpl implements Mo
    
    // property for property layer to define if model is revalidated after deployment
    public static final String PRP_REVALIDATE_ELEMENTS = "PRP_REVALIDATE_ELEMENTS";
-
-   private IAttributeManager runtimeAttributes;
 
    public static int nextID(String prefix, int current, String id)
    {
@@ -136,12 +130,7 @@ public abstract class ModelElementBean extends AttributeHolderImpl implements Mo
    }
 
    /**
-    * Mark the bean as modified. If the bean is an instance of ModelPart and
-    * instance of ModelElement the method fireMofelElementChanged in the model
-    * is called to propagate the changes.
-    *
-    * @see org.eclipse.stardust.engine.core.model.utils.ModelElement
-    * @see RootElement#fireModelElementChanged
+    * Mark the bean as modified.
     */
    public void markModified()
    {
@@ -214,8 +203,6 @@ public abstract class ModelElementBean extends AttributeHolderImpl implements Mo
          }
       }
 
-      RootElement modelCopy = getModel();
-
       parent = null;
    }
 
@@ -228,174 +215,6 @@ public abstract class ModelElementBean extends AttributeHolderImpl implements Mo
    {
       markModified();
       this.parent = parent;
-   }
-
-   public ModelElement deepCopyI(ModelElement newParent, boolean keepOIDs,
-         Collector collector)
-   {
-      ModelElementBean result;
-      try
-      {
-         Constructor ctor = getClass().getDeclaredConstructor(new Class[]{});
-         ctor.setAccessible(true);
-         result = (ModelElementBean) ctor.newInstance(new Object[]{});
-         result.parent = newParent;
-         if (keepOIDs)
-         {
-            int oid = getElementOID();
-            if (oid == 0 )
-            {
-               if (! (this instanceof RootElement))
-               {
-                  trace.warn("Found an Identifiable with oid 0;" + this);
-               }
-            }
-            else
-            {
-               result.register(oid);
-            }
-         }
-         else
-         {
-            result.register(0);
-         }
-         Collection fields = Reflect.getFields(getClass());
-         for (Iterator i = fields.iterator(); i.hasNext();)
-         {
-            Field field = (Field) i.next();
-            if (Modifier.isTransient(field.getModifiers()))
-            {
-               continue;
-            }
-            if (Link.class.isAssignableFrom(field.getType()))
-            {
-               Link source = (Link) field.get(this);
-               Link target = (Link) field.get(result);
-               for (Iterator j = source.iterator(); j.hasNext();)
-               {
-                  ModelElementBean child = (ModelElementBean) j.next();
-                  if (Connections.class.isAssignableFrom(field.getType()))
-                  {
-                     ((Connections) target).__add__(
-                           child.deepCopyI(result, keepOIDs, collector));
-                  }
-                  else
-                  {
-                     target.add(child.deepCopyI(result, keepOIDs, collector));
-                  }
-               }
-               continue;
-            }
-            if (Hook.class.isAssignableFrom(field.getType())
-                  || ModelElement.class.isAssignableFrom(field.getType())
-                  || Map.class.isAssignableFrom(field.getType())
-                  || Collection.class.isAssignableFrom(field.getType())
-                  || "elementOID".equals(field.getName()))
-            {
-               continue;
-            }
-            field.set(result, field.get(this));
-         }
-         result.setAllAttributes(getAllAttributes());
-      }
-      catch (Exception e)
-      {
-         throw new InternalException(toString() + ": ", e);
-      }
-      if (collector != null)
-      {
-         collector.collect(this, result);
-      }
-      return result;
-   }
-
-   public void deepCopyII(ModelElement source, Collector collector)
-   {
-      try
-      {
-         Collection fields = Reflect.getFields(getClass());
-         for (Iterator i = fields.iterator(); i.hasNext();)
-         {
-            Field field = (Field) i.next();
-            if (Modifier.isTransient(field.getModifiers()))
-            {
-               continue;
-            }
-            if (Link.class.isAssignableFrom(field.getType()))
-            {
-               Link sourceLink = (Link) field.get(source);
-               Link targetLink = (Link) field.get(this);
-               Iterator k = sourceLink.iterator();
-               for (Iterator j = targetLink.iterator(); j.hasNext();)
-               {
-                  ModelElementBean sourceChild = (ModelElementBean) k.next();
-                  ModelElementBean targetChild = (ModelElementBean) j.next();
-                  if (Connections.class.isAssignableFrom(field.getType()))
-                  {
-                     ModelElement sourceFirst = ((Connection) sourceChild).getFirst();
-                     if (sourceFirst != null)
-                     {
-                        ((Connection) targetChild).setFirst(collector.findInTarget(sourceFirst));
-                     }
-                     ModelElement sourceSecond = ((Connection) sourceChild).getSecond();
-                     if (sourceSecond != null)
-                     {
-                        ((Connection) targetChild).setSecond(collector.findInTarget(sourceSecond));
-                     }
-                  }
-                  targetChild.deepCopyII(sourceChild, collector);
-               }
-               continue;
-            }
-            if (Reference.class.isAssignableFrom(field.getType()))
-            {
-               Reference reference = (Reference) field.get(this);
-               Reference sourceRef = (Reference) field.get(source);
-               for (Iterator j = sourceRef.iterator(); j.hasNext();)
-               {
-                  ModelElement sourceElement = (ModelElement) j.next();
-                  ModelElement element = collector.findInTarget(sourceElement);
-                  if (element != null)
-                  {
-                     reference.add(element);
-                  }
-                  else
-                  {
-                     trace.debug("Couldn't set reference " + field.getName()
-                           + ". No Element with oid " + sourceElement.getElementOID());
-                  }
-               }
-               continue;
-            }
-            // @todo (france, ub): ??
-            /*            if (SingleRef.class.isAssignableFrom(field.getType()))
-                        {
-                           SingleRef reference = ((SingleRef) field.get(this));
-                           SingleRef sourceRef = ((SingleRef) field.get(source));
-                           ModelElement sourceElement = (ModelElement) sourceRef.getElement();
-                           if (sourceElement != null)
-                           {
-                              ModelElement element = collector.findInTarget(sourceElement);
-                              if (element != null)
-                              {
-                                 reference.setElement(element);
-                              }
-                              else
-                              {
-                                 trace.debug("Couldn't set reference " + field.getName()
-                                       + ". No Element with oid " + sourceElement.getElementOID());
-                              }
-                           }
-
-                        }
-                        */
-         }
-      }
-      catch (Exception e)
-      {
-         trace.info(toString());
-         throw new InternalException(e);
-      }
    }
 
    public boolean equals(Object obj)

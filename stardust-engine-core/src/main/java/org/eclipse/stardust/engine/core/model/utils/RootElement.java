@@ -32,9 +32,5 @@ public interface RootElement extends IdentifiableElement
 
    void setModelOID(int oid);
 
-   RootElement deepCopy();
-
-   void mergeDifferences(Differences diff);
-
    int createTransientElementOID();
 }

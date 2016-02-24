@@ -26,7 +26,6 @@ import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
 import org.eclipse.stardust.engine.core.compatibility.gui.GUI;
 import org.eclipse.stardust.engine.core.compatibility.gui.ToolbarButton;
 import org.eclipse.stardust.engine.core.compatibility.gui.utils.DateEntry;
-import org.eclipse.stardust.engine.core.model.repository.ModelNode;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 import com.jgoodies.forms.layout.CellConstraints;
@@ -452,51 +451,6 @@ public class DeployedModelsView extends JComponent
       initialize(selection);
    }
 
-   public void setData(List models, ModelNode deployment, boolean overwrite)
-   {
-      this.overwrite = overwrite;
-      this.deployment = new ModelTemplate(deployment)
-      {
-         public int getModelOID()
-         {
-            return ((ModelTemplate)list.getSelectedValue()).getModelOID();
-         }
-      };
-      this.models = new ArrayList();
-      ModelTemplate selection = null;
-      if (!overwrite)
-      {
-         this.models.add(this.deployment);
-         selection = this.deployment;
-      }
-      else
-      {
-         up.setEnabled(false);
-         down.setEnabled(false);
-      }
-
-      for (int i = 0; i < models.size(); i++)
-      {
-         Object model = models.get(i);
-         ModelTemplate template = new ModelTemplate(model);
-         this.models.add(template);
-         if (overwrite && template.getModelOID() == deployment.getModelOID())
-         {
-            selection = template;
-         }
-      }
-
-      if (selection == null)
-      {
-         selection = (ModelTemplate) this.models.get(0);
-      }
-
-      validFromEntry.setDate(this.deployment.getValidFrom());
-      commentEntry.setText(this.deployment.getComment());
-
-      initialize(selection);
-   }
-
    private void initialize(ModelTemplate selection)
    {
       computeSegments();
@@ -734,10 +688,6 @@ public class DeployedModelsView extends JComponent
             set((DeployedModelDescription) source);
             this.source = (DeployedModelDescription) source;
          }
-         else if (source instanceof ModelNode)
-         {
-            set((ModelNode) source);
-         }
       }
 
       private void set(DeployedModelDescription md)
@@ -745,15 +695,6 @@ public class DeployedModelsView extends JComponent
          modelOID = md.getModelOID();
          name = md.getName() + " (version: " + md.getVersion() +
                ", OID: " + md.getModelOID() + ")";
-         validFrom = md.getValidFrom();
-         comment = md.getDeploymentComment();
-      }
-
-      private void set(ModelNode md)
-      {
-         modelOID = md.getModelOID();
-         name = md.getName() + " (version: " + md.getVersion() +
-               (md.getModelOID() == 0 ? "" : ", OID: " + md.getModelOID()) + ")";
          validFrom = md.getValidFrom();
          comment = md.getDeploymentComment();
       }

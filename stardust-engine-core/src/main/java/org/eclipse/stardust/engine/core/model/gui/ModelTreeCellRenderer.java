@@ -18,8 +18,6 @@ import javax.swing.JTree;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
 import org.eclipse.stardust.engine.core.model.gui.SymbolIconProvider;
-import org.eclipse.stardust.engine.core.model.repository.ModelNode;
-import org.eclipse.stardust.engine.core.model.repository.RepositoryIconProvider;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 
@@ -28,6 +26,8 @@ import java.awt.Color;
 
 public class ModelTreeCellRenderer extends DefaultTreeCellRenderer
 {
+   private static final long serialVersionUID = -3172389627672264519L;
+
    public Component getTreeCellRendererComponent(JTree tree, Object value,
          boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus)
    {
@@ -43,10 +43,6 @@ public class ModelTreeCellRenderer extends DefaultTreeCellRenderer
       else if (userObject instanceof ModelElement)
       {
          setIcon(SymbolIconProvider.instance().getIcon(userObject));
-      }
-      else if (userObject instanceof ModelNode)
-      {
-         setIcon(RepositoryIconProvider.instance().getIcon(userObject));
       }
 
       if (!selected && userObject instanceof IAction)
@@ -69,11 +65,7 @@ public class ModelTreeCellRenderer extends DefaultTreeCellRenderer
    // todo: (fh) when only CarnotTreeNodes will be used, then make it toString method of that class
    public static final String getText(Object object)
    {
-      if (object instanceof ModelNode)
-      {
-         return ((ModelNode) object).getName();
-      }
-      else if (object instanceof IdentifiableElement)
+      if (object instanceof IdentifiableElement)
       {
          return ((IdentifiableElement) object).getName();
       }

@@ -121,19 +121,6 @@ public abstract class RootElementBean extends IdentifiableElementBean implements
       modelOID = oid;
    }
 
-   public RootElement deepCopy()
-   {
-      RootElementBean result = null;
-      result = (RootElementBean) deepCopyI(null, true, null);
-      result.deepCopyII(this, new OIDCollector(result));
-      return result;
-   }
-
-   public void mergeDifferences(Differences diff)
-   {
-      ModelOperations.merge(diff);
-   }
-
    public long getOID()
    {
       return ((long) getModelOID()) << 32;

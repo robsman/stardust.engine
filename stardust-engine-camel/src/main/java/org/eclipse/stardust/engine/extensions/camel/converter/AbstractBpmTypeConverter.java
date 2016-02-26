@@ -89,48 +89,61 @@ public abstract class AbstractBpmTypeConverter
          }
          else if (element.isJsonPrimitive())
          {
-
-            JsonPrimitive primitive = element.getAsJsonPrimitive();
-
-            TypedXPath typedXPath = xPathMap.getXPath(path);
-
-            if (typedXPath != null)
-            {
-
-               switch (typedXPath.getType())
-               {
-                  case 0:
-                     complexTypes.add(primitive.getAsBoolean());
-                     break;
-                  case 2:
-                     complexTypes.add(primitive.getAsByte());
-                     break;
-                  case 3:
-                     complexTypes.add(primitive.getAsShort());
-                     break;
-                  case 4:
-                     complexTypes.add(primitive.getAsInt());
-                     break;
-                  case 5:
-                     complexTypes.add(primitive.getAsLong());
-                     break;
-                  case 6:
-                     complexTypes.add(primitive.getAsFloat());
-                     break;
-                  case 7:
-                     complexTypes.add(primitive.getAsDouble());
-                     break;
-                  case 8:
-                     complexTypes.add(primitive.getAsString());
-                     break;
-                  case 9:
-                     complexTypes.add(primitive.getAsString());
-                     break;
-                  default:
-                     complexTypes.add(primitive.getAsString());
-                     break;
-               }
+            if(isStrict){
+                  if(xPathMap.containsXPath(path))
+                  {
+                     addPrimitiveTypeInList(xPathMap.getXPath(path), element.getAsJsonPrimitive(),complexTypes );
+                  }else{
+                     throw new IllegalOperationException(
+                           BpmRuntimeError.MDL_UNKNOWN_XPATH.raise(path));
+                  }
+            }else{
+               if(xPathMap.containsXPath(path)){
+                  addPrimitiveTypeInList(xPathMap.getXPath(path), element.getAsJsonPrimitive(),complexTypes );
+               }else{
+                  logger.info("XPath "+path+" is not defined");
+               } 
             }
+         }
+      }
+   }
+   
+   private void addPrimitiveTypeInList(TypedXPath typedXPath, JsonPrimitive primitive,List<Object> complexTypes){
+      if (typedXPath != null)
+      {
+
+         switch (typedXPath.getType())
+         {
+            case 0:
+               complexTypes.add(primitive.getAsBoolean());
+               break;
+            case 2:
+               complexTypes.add(primitive.getAsByte());
+               break;
+            case 3:
+               complexTypes.add(primitive.getAsShort());
+               break;
+            case 4:
+               complexTypes.add(primitive.getAsInt());
+               break;
+            case 5:
+               complexTypes.add(primitive.getAsLong());
+               break;
+            case 6:
+               complexTypes.add(primitive.getAsFloat());
+               break;
+            case 7:
+               complexTypes.add(primitive.getAsDouble());
+               break;
+            case 8:
+               complexTypes.add(primitive.getAsString());
+               break;
+            case 9:
+               complexTypes.add(primitive.getAsString());
+               break;
+            default:
+               complexTypes.add(primitive.getAsString());
+               break;
          }
       }
    }
@@ -175,20 +188,20 @@ public abstract class AbstractBpmTypeConverter
          {
             JsonPrimitive primitive = entry.getValue().getAsJsonPrimitive();
             String xPath = "".equals(path) ? entry.getKey() : path + "/" + entry.getKey();
-            TypedXPath typedXPath = xPathMap.getXPath(xPath);
+            TypedXPath typedXPath;
             if(isStrict){
                if(xPathMap.containsXPath(xPath))
                {
-                  setPrimitiveValue(typedXPath, primitive, entry, complexType);
+                  setPrimitiveValue(xPathMap.getXPath(xPath), primitive, entry, complexType);
                }else{
                   throw new IllegalOperationException(
                         BpmRuntimeError.MDL_UNKNOWN_XPATH.raise(xPath));
                }
             }else{//StrictEvaluation disabled
                if(xPathMap.containsXPath(xPath)){
-                  setPrimitiveValue(typedXPath, primitive, entry, complexType);
+                  setPrimitiveValue(xPathMap.getXPath(xPath), primitive, entry, complexType);
                }else{
-                  logger.warn("XPath "+xPath+" is not defined");
+                  logger.info("XPath "+xPath+" is not defined");
                }
             }
          }

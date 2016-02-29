@@ -33,15 +33,16 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author Nicolas.Werlein, Roland.Stamm
  */
 @RunWith(Suite.class)
-@SuiteClasses({ 
-   DmsSanityTest.class, 
-   DmsDocumentAnnotationsTest.class, 
-   DmsDocumentSearchTest.class, 
-   DmsSecurityTest.class, 
-   DmsMultiRepositoryTest.class, 
-   DmsFederatedDocumentSearchTest.class, 
-   DmsCrossRepositoryMoveTest.class, 
-   DmsAuditTrailMetaDataTest.class, 
+@SuiteClasses({
+   DmsSanityTest.class,
+   DmsDocumentAnnotationsTest.class,
+   DmsDocumentSearchTest.class,
+   DmsSecurityTest.class,
+   DmsSecurityScopedTest.class,
+   DmsMultiRepositoryTest.class,
+   DmsFederatedDocumentSearchTest.class,
+   DmsCrossRepositoryMoveTest.class,
+   DmsAuditTrailMetaDataTest.class,
    DmsMultiRepositoryMultiPartitionTest.class})
 public class DmsTestSuite
 {

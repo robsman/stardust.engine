@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?><Package xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="DmsModel" Name="Dms Model">
+<?xml version="1.0" encoding="UTF-8"?><Package xmlns="http://www.wfmc.org/2008/XPDL2.1" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="DmsModel" Name="Dms Model">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
-      <Vendor>Eclipse.org, Eclipse Process Manager</Vendor>       
+      <Vendor>SunGard CSA LLC, IPP</Vendor>
       <Created>Thu Aug 01 12:52:04 CEST 2013</Created>
    </PackageHeader>
    <RedefinableHeader PublicationStatus="UNDER_REVISION">
@@ -10,7 +10,7 @@
    </RedefinableHeader>
    <ConformanceClass GraphConformance="NON_BLOCKED"/>
    <xpdl:Script xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Type="text/ecmascript"/>
-   <xpdl:TypeDeclarations xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1"/>
+   <TypeDeclarations/>
    <Participants>
       <Participant Id="Administrator" Name="Administrator">
          <ParticipantType Type="ROLE"/>
@@ -30,6 +30,52 @@
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
                   </carnot:Attributes>
                </carnot:Role>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Participant>
+      <Participant Id="ScopedRole1" Name="ScopedRole1">
+         <ParticipantType Type="ROLE"/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Role Oid="62">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                  </carnot:Attributes>
+               </carnot:Role>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Participant>
+      <Participant Id="ScopedOrg1" Name="ScopedOrg1">
+         <ParticipantType Type="ORGANIZATIONAL_UNIT"/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Organization Oid="56">
+                  <carnot:Members>
+                     <carnot:Member Id="ScopedOrg2"/>
+                  </carnot:Members>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:bound" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:dataId" Value="Department1"/>
+                  </carnot:Attributes>
+               </carnot:Organization>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Participant>
+      <Participant Id="ScopedOrg2" Name="ScopedOrg2">
+         <ParticipantType Type="ORGANIZATIONAL_UNIT"/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Organization Oid="57">
+                  <carnot:Members>
+                     <carnot:Member Id="ScopedRole1"/>
+                  </carnot:Members>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:bound" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:dataId" Value="Department2"/>
+                  </carnot:Attributes>
+               </carnot:Organization>
             </ExtendedAttribute>
          </ExtendedAttributes>
       </Participant>
@@ -191,6 +237,44 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </DataField>
+      <DataField Id="Department1" Name="Department1" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <InitialValue>D1</InitialValue>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="66" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                     <carnot:Attribute Name="carnot:engine:defaultValue" Value="D1"/>
+                     <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="Department2" Name="Department2" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <InitialValue>D2</InitialValue>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="67" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                     <carnot:Attribute Name="carnot:engine:defaultValue" Value="D2"/>
+                     <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
    </DataFields>
    <WorkflowProcesses>
       <WorkflowProcess Id="_ProcessDefinition_1" Name="&lt;Process Definition&gt; 1" AccessLevel="PRIVATE">
@@ -234,8 +318,14 @@
                            <carnot:Symbol Kind="POOL" Oid="52" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
                               <carnot:Symbols>
                                  <carnot:Symbol Kind="ACTIVITY" Oid="54" X="280" Y="150" Width="140" Height="50" ModelElement="Route_Activity_1"/>
+                                 <carnot:Symbol Kind="ORGANIZATION" Oid="58" X="645" Y="170" Width="80" Height="40" ModelElement="ScopedOrg1"/>
+                                 <carnot:Symbol Kind="ORGANIZATION" Oid="59" X="585" Y="275" Width="100" Height="40" ModelElement="ScopedOrg2"/>
+                                 <carnot:Symbol Kind="ROLE" Oid="63" X="670" Y="350" Width="90" Height="40" ModelElement="ScopedRole1"/>
                               </carnot:Symbols>
-                              <carnot:Connections/>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="PART_OF" Oid="61" SourceSymbol="59" TargetSymbol="58"/>
+                                 <carnot:Connection Kind="WORKS_FOR" Oid="65" SourceSymbol="63" TargetSymbol="59"/>
+                              </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>
                         <carnot:Connections/>
@@ -248,7 +338,7 @@
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
-         <carnot:Package Oid="0" CarnotVersion="4.0.0" ModelOid="0">
+         <carnot:Package Oid="0" CarnotVersion="8.2.3" ModelOid="0">
             <carnot:MetaTypes>
                <carnot:DataTypes>
                   <carnot:DataType Oid="2" Id="primitive" Name="&lt; Primitive Data&gt;" IsPredefined="true">

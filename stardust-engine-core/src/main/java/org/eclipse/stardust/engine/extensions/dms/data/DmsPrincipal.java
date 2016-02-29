@@ -16,9 +16,11 @@ import java.io.Serializable;
 import java.security.Principal;
 
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
+import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
 import org.eclipse.stardust.engine.api.runtime.UserGroupInfo;
 import org.eclipse.stardust.engine.api.runtime.UserInfo;
+import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
 
 
 /**
@@ -65,6 +67,7 @@ public class DmsPrincipal implements Serializable, Principal
 
    /**
     * Created a DmsPrincipal which identifies a ModelParticipant.
+    * Use for unscoped participants.
     *
     * @param modelParticipantInfo
     * @param modelId
@@ -81,7 +84,87 @@ public class DmsPrincipal implements Serializable, Principal
       }
 
       this.name = getModelParticipantPrincipalName(participantId, departmentId, modelId);
+   }
 
+   /**
+    * Created a DmsPrincipal which identifies a ModelParticipant.
+    * Use to scope participant with department.
+    *
+    * @param modelParticipantInfo
+    * @param department
+    * @param modelId
+    */
+   public DmsPrincipal(ModelParticipantInfo modelParticipantInfo, Department department, String modelId)
+   {
+      String participantId = modelParticipantInfo.getId();
+
+      String departmentId = getFullDepartmentScopedId(department);
+
+      this.name = getModelParticipantPrincipalName(participantId, departmentId, modelId);
+   }
+
+   /**
+    * Created a DmsPrincipal which identifies a ModelParticipant.
+    * Use to scope participant with department.
+    *
+    * @param modelParticipantInfo
+    * @param department
+    * @param modelId
+    */
+   public DmsPrincipal(ModelParticipantInfo modelParticipantInfo, IDepartment department, String modelId)
+   {
+      String participantId = modelParticipantInfo.getId();
+
+      String departmentId = getFullDepartmentScopedId(department);
+
+      this.name = getModelParticipantPrincipalName(participantId, departmentId, modelId);
+   }
+
+
+   public static String getFullDepartmentScopedId(Department department)
+   {
+      if (department == null)
+      {
+         return null;
+      }
+
+      StringBuilder sb = new StringBuilder();
+
+      Department currentDepartment = department;
+      while (currentDepartment != null)
+      {
+         sb.insert(0, currentDepartment.getId());
+
+         currentDepartment = currentDepartment.getParentDepartment();
+         if (currentDepartment != null)
+         {
+            sb.insert(0, "/");
+         }
+      }
+      return sb.toString();
+   }
+
+   public static String getFullDepartmentScopedId(IDepartment department)
+   {
+      if (department == null)
+      {
+         return null;
+      }
+
+      StringBuilder sb = new StringBuilder();
+
+      IDepartment currentDepartment = department;
+      while (currentDepartment != null)
+      {
+         sb.insert(0, currentDepartment.getId());
+
+         currentDepartment = currentDepartment.getParentDepartment();
+         if (currentDepartment != null)
+         {
+            sb.insert(0, "/");
+         }
+      }
+      return sb.toString();
    }
 
    /**
@@ -109,7 +192,7 @@ public class DmsPrincipal implements Serializable, Principal
     * Builds a unique principal name for a ModelParticipant.
     *
     * @param participantId
-    * @param departmentId
+    * @param departmentId departmentId must be fully scoped. e.g. "d2.d1.root"
     * @param modelId
     * @return The unique name.
     */

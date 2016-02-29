@@ -494,7 +494,8 @@
             <element name="spawnProcessId" type="xsd:string" />
             <element name="copyData" type="xsd:boolean" />
             <element name="parameters" type="bat:Parameters" />
-            <element name="abortProcessInstance" type="xsd:boolean" />
+            <element name="abortProcessInstance" type="xsd:boolean" minOccurs="0"/>
+            <element name="spawnMode" type="bat:SpawnMode" minOccurs="0" />
             <element name="comment" type="xsd:string" />
          </sequence>
       </complexType>

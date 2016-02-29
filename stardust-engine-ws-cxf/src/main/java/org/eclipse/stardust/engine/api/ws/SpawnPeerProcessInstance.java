@@ -22,7 +22,8 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="spawnProcessId" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="copyData" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="parameters" type="{http://eclipse.org/stardust/ws/v2012a/api}Parameters"/>
- *         &lt;element name="abortProcessInstance" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="abortProcessInstance" type="{http://www.w3.org/2001/XMLSchema}boolean" minOccurs="0"/>
+ *         &lt;element name="spawnMode" type="{http://eclipse.org/stardust/ws/v2012a/api}SpawnMode" minOccurs="0"/>
  *         &lt;element name="comment" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
@@ -39,6 +40,7 @@ import javax.xml.bind.annotation.XmlType;
     "copyData",
     "parameters",
     "abortProcessInstance",
+    "spawnMode",
     "comment"
 })
 @XmlRootElement(name = "spawnPeerProcessInstance")
@@ -50,7 +52,8 @@ public class SpawnPeerProcessInstance {
     protected boolean copyData;
     @XmlElement(required = true)
     protected ParametersXto parameters;
-    protected boolean abortProcessInstance;
+    protected Boolean abortProcessInstance;
+    protected SpawnModeXto spawnMode;
     @XmlElement(required = true)
     protected String comment;
 
@@ -137,17 +140,49 @@ public class SpawnPeerProcessInstance {
     /**
      * Gets the value of the abortProcessInstance property.
      * 
+     * @return
+     *     possible object is
+     *     {@link Boolean }
+     *     
      */
-    public boolean isAbortProcessInstance() {
+    public Boolean isAbortProcessInstance() {
         return abortProcessInstance;
     }
 
     /**
      * Sets the value of the abortProcessInstance property.
      * 
+     * @param value
+     *     allowed object is
+     *     {@link Boolean }
+     *     
      */
-    public void setAbortProcessInstance(boolean value) {
+    public void setAbortProcessInstance(Boolean value) {
         this.abortProcessInstance = value;
+    }
+
+    /**
+     * Gets the value of the spawnMode property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link SpawnModeXto }
+     *     
+     */
+    public SpawnModeXto getSpawnMode() {
+        return spawnMode;
+    }
+
+    /**
+     * Sets the value of the spawnMode property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link SpawnModeXto }
+     *     
+     */
+    public void setSpawnMode(SpawnModeXto value) {
+        this.spawnMode = value;
     }
 
     /**

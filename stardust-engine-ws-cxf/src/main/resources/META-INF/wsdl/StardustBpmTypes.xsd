@@ -2870,5 +2870,12 @@
 		</restriction>
 	</simpleType>
 	
+	<simpleType name="SpawnMode">
+		<restriction base ="string">
+			<enumeration value="KEEP" />
+			<enumeration value="ABORT" />
+			<enumeration value="HALT" />
+		</restriction>
+	</simpleType>
 
 </schema>

@@ -34,9 +34,7 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.Direction;
-import org.eclipse.stardust.common.error.ApplicationException;
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.error.ServiceCommandException;
+import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.dto.ContextKind;
@@ -871,7 +869,7 @@ public class WorkflowServiceFacade implements IWorkflowService
 
    public ProcessInstanceXto spawnPeerProcessInstance(long processInstanceOid,
          String spawnProcessId, boolean copyData, ParametersXto parameters,
-         boolean abortProcessInstance, String comment) throws BpmFault
+         Boolean abortProcessInstance, SpawnModeXto spawnModeXto, String comment) throws BpmFault
    {
       try
       {
@@ -880,8 +878,31 @@ public class WorkflowServiceFacade implements IWorkflowService
          WorkflowService wfs = wsEnv.getServiceFactory().getWorkflowService();
 
          Map<String, ? extends Serializable> data = DataFlowUtils.unmarshalInitialDataValues(spawnProcessId, parameters, wsEnv);
-         ProcessInstance pi = wfs.spawnPeerProcessInstance(processInstanceOid, spawnProcessId, copyData, data, abortProcessInstance, comment);
+         
+         ProcessInstance pi;
+         if (spawnModeXto != null && abortProcessInstance == null)
+         {
+            DataCopyOptions dataCopyOptions = new DataCopyOptions(copyData, null, null, true);
+            SpawnOptions options = new SpawnOptions(null,XmlAdapterUtils.unmarshalSpawnMode(spawnModeXto),comment,dataCopyOptions);
+            pi = wfs.spawnPeerProcessInstance(processInstanceOid, spawnProcessId, options);
+         }
+         else if (abortProcessInstance != null && spawnModeXto == null)
+         {
+            pi = wfs.spawnPeerProcessInstance(processInstanceOid, spawnProcessId,
+                  copyData, data, abortProcessInstance, comment);
+         }
+         else
+         {
+            throw new InvalidArgumentException(new ErrorCase("Wrong Argument Exception")
+            {
+               private static final long serialVersionUID = 1L;
 
+               public String toString()
+               {
+                  return "Invalid number of arguments: either abortProcessInstance or spawnMode must not be null";
+               }
+            });
+         }
          return toWs(pi);
       }
       catch (ApplicationException e)
@@ -1123,4 +1144,5 @@ public class WorkflowServiceFacade implements IWorkflowService
       }
       return null;
    }
+
 }

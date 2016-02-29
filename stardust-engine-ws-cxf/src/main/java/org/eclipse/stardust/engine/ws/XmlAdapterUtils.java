@@ -70,6 +70,7 @@ import org.eclipse.stardust.engine.api.runtime.BusinessObject.Definition;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject.Value;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 import org.eclipse.stardust.engine.api.runtime.Documents;
+import org.eclipse.stardust.engine.api.runtime.SpawnOptions.SpawnMode;
 import org.eclipse.stardust.engine.api.ws.*;
 import org.eclipse.stardust.engine.api.ws.ActivityDefinitionXto.InteractionContextsXto;
 import org.eclipse.stardust.engine.api.ws.DeployedRuntimeArtifactQueryResultXto.DeployedRuntimeArtifactsXto;
@@ -5968,6 +5969,24 @@ public class XmlAdapterUtils
       ret.setDeployedRuntimeArtifacts(deployedRuntimeArtifactsXto);
 
       return ret;
+   }
+
+   public static SpawnMode unmarshalSpawnMode(SpawnModeXto spawnModeXto)
+   {
+      if (spawnModeXto == null)
+      {
+         return null;
+      }
+      switch (spawnModeXto)
+      {
+      case ABORT:
+         return SpawnMode.ABORT;
+      case KEEP:
+         return SpawnMode.KEEP;
+      case HALT:
+         return SpawnMode.HALT;
+      }
+      return null;
    }
 
 }

@@ -16,9 +16,9 @@ import org.eclipse.stardust.engine.api.ws.ParticipantInfoXto;
  *         Finding such participants will perform a deep search.
  *         
  * 
- * <p>Java-Klasse für PerformingParticipantFilter complex type.
+ * <p>Java class for PerformingParticipantFilter complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="PerformingParticipantFilter">
@@ -68,7 +68,7 @@ public class PerformingParticipantFilterXto
     protected PerformingParticipantFilterXto.ModelParticipantXto modelParticipant;
 
     /**
-     * Ruft den Wert der anyForUser-Eigenschaft ab.
+     * Gets the value of the anyForUser property.
      * 
      * @return
      *     possible object is
@@ -80,7 +80,7 @@ public class PerformingParticipantFilterXto
     }
 
     /**
-     * Legt den Wert der anyForUser-Eigenschaft fest.
+     * Sets the value of the anyForUser property.
      * 
      * @param value
      *     allowed object is
@@ -92,7 +92,7 @@ public class PerformingParticipantFilterXto
     }
 
     /**
-     * Ruft den Wert der modelParticipant-Eigenschaft ab.
+     * Gets the value of the modelParticipant property.
      * 
      * @return
      *     possible object is
@@ -104,7 +104,7 @@ public class PerformingParticipantFilterXto
     }
 
     /**
-     * Legt den Wert der modelParticipant-Eigenschaft fest.
+     * Sets the value of the modelParticipant property.
      * 
      * @param value
      *     allowed object is
@@ -117,9 +117,9 @@ public class PerformingParticipantFilterXto
 
 
     /**
-     * <p>Java-Klasse für anonymous complex type.
+     * <p>Java class for anonymous complex type.
      * 
-     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+     * <p>The following schema fragment specifies the expected content contained within this class.
      * 
      * <pre>
      * &lt;complexType>
@@ -141,9 +141,9 @@ public class PerformingParticipantFilterXto
 
 
     /**
-     * <p>Java-Klasse für anonymous complex type.
+     * <p>Java class for anonymous complex type.
      * 
-     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+     * <p>The following schema fragment specifies the expected content contained within this class.
      * 
      * <pre>
      * &lt;complexType>
@@ -172,7 +172,7 @@ public class PerformingParticipantFilterXto
         protected Boolean recursively;
 
         /**
-         * Ruft den Wert der participant-Eigenschaft ab.
+         * Gets the value of the participant property.
          * 
          * @return
          *     possible object is
@@ -184,7 +184,7 @@ public class PerformingParticipantFilterXto
         }
 
         /**
-         * Legt den Wert der participant-Eigenschaft fest.
+         * Sets the value of the participant property.
          * 
          * @param value
          *     allowed object is
@@ -196,7 +196,7 @@ public class PerformingParticipantFilterXto
         }
 
         /**
-         * Ruft den Wert der recursively-Eigenschaft ab.
+         * Gets the value of the recursively property.
          * 
          * @return
          *     possible object is
@@ -212,7 +212,7 @@ public class PerformingParticipantFilterXto
         }
 
         /**
-         * Legt den Wert der recursively-Eigenschaft fest.
+         * Sets the value of the recursively property.
          * 
          * @param value
          *     allowed object is

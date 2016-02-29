@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  *          Policy to exclude Activity Instances from excluded users in the result.
  *          
  * 
- * <p>Java-Klasse für ExcludeUserPolicy complex type.
+ * <p>Java class for ExcludeUserPolicy complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ExcludeUserPolicy">

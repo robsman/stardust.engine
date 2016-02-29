@@ -15,9 +15,9 @@ import javax.xml.bind.annotation.XmlType;
  * 	    The 'policy' element used to specify policies e.g. a 'subsetPolicy' to limit results to a subset.
  * 		
  * 
- * <p>Java-Klasse für Query complex type.
+ * <p>Java class for Query complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="Query">
@@ -42,18 +42,18 @@ import javax.xml.bind.annotation.XmlType;
     "policy"
 })
 @XmlSeeAlso({
-    ProcessDefinitionQueryXto.class,
-    BusinessObjectQueryXto.class,
-    DocumentQueryXto.class,
-    DeployedRuntimeArtifactQueryXto.class,
-    VariableDefinitionQueryXto.class,
-    WorklistQueryXto.class,
-    UserQueryXto.class,
     LogEntryQueryXto.class,
+    UserQueryXto.class,
     PreferenceQueryXto.class,
     UserGroupQueryXto.class,
     DeployedModelQueryXto.class,
+    ProcessDefinitionQueryXto.class,
+    BusinessObjectQueryXto.class,
+    DocumentQueryXto.class,
     ProcessQueryXto.class,
+    DeployedRuntimeArtifactQueryXto.class,
+    VariableDefinitionQueryXto.class,
+    WorklistQueryXto.class,
     ActivityQueryXto.class
 })
 public class QueryXto {
@@ -63,7 +63,7 @@ public class QueryXto {
     protected PolicyXto policy;
 
     /**
-     * Ruft den Wert der predicate-Eigenschaft ab.
+     * Gets the value of the predicate property.
      * 
      * @return
      *     possible object is
@@ -75,7 +75,7 @@ public class QueryXto {
     }
 
     /**
-     * Legt den Wert der predicate-Eigenschaft fest.
+     * Sets the value of the predicate property.
      * 
      * @param value
      *     allowed object is
@@ -87,7 +87,7 @@ public class QueryXto {
     }
 
     /**
-     * Ruft den Wert der order-Eigenschaft ab.
+     * Gets the value of the order property.
      * 
      * @return
      *     possible object is
@@ -99,7 +99,7 @@ public class QueryXto {
     }
 
     /**
-     * Legt den Wert der order-Eigenschaft fest.
+     * Sets the value of the order property.
      * 
      * @param value
      *     allowed object is
@@ -111,7 +111,7 @@ public class QueryXto {
     }
 
     /**
-     * Ruft den Wert der policy-Eigenschaft ab.
+     * Gets the value of the policy property.
      * 
      * @return
      *     possible object is
@@ -123,7 +123,7 @@ public class QueryXto {
     }
 
     /**
-     * Legt den Wert der policy-Eigenschaft fest.
+     * Sets the value of the policy property.
      * 
      * @param value
      *     allowed object is

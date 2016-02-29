@@ -14,9 +14,9 @@ import javax.xml.bind.annotation.XmlType;
  *         Filter criterion for matching process instances having links from or to other process instances.
  *         
  * 
- * <p>Java-Klasse für ProcessInstanceLinkFilter complex type.
+ * <p>Java class for ProcessInstanceLinkFilter complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ProcessInstanceLinkFilter">
@@ -61,7 +61,7 @@ public class ProcessInstanceLinkFilterXto
     protected ProcessInstanceLinkFilterXto.LinkTypesXto linkTypes;
 
     /**
-     * Ruft den Wert der processOid-Eigenschaft ab.
+     * Gets the value of the processOid property.
      * 
      */
     public long getProcessOid() {
@@ -69,7 +69,7 @@ public class ProcessInstanceLinkFilterXto
     }
 
     /**
-     * Legt den Wert der processOid-Eigenschaft fest.
+     * Sets the value of the processOid property.
      * 
      */
     public void setProcessOid(long value) {
@@ -77,7 +77,7 @@ public class ProcessInstanceLinkFilterXto
     }
 
     /**
-     * Ruft den Wert der direction-Eigenschaft ab.
+     * Gets the value of the direction property.
      * 
      * @return
      *     possible object is
@@ -89,7 +89,7 @@ public class ProcessInstanceLinkFilterXto
     }
 
     /**
-     * Legt den Wert der direction-Eigenschaft fest.
+     * Sets the value of the direction property.
      * 
      * @param value
      *     allowed object is
@@ -101,7 +101,7 @@ public class ProcessInstanceLinkFilterXto
     }
 
     /**
-     * Ruft den Wert der linkTypes-Eigenschaft ab.
+     * Gets the value of the linkTypes property.
      * 
      * @return
      *     possible object is
@@ -113,7 +113,7 @@ public class ProcessInstanceLinkFilterXto
     }
 
     /**
-     * Legt den Wert der linkTypes-Eigenschaft fest.
+     * Sets the value of the linkTypes property.
      * 
      * @param value
      *     allowed object is
@@ -126,9 +126,9 @@ public class ProcessInstanceLinkFilterXto
 
 
     /**
-     * <p>Java-Klasse für anonymous complex type.
+     * <p>Java class for anonymous complex type.
      * 
-     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+     * <p>The following schema fragment specifies the expected content contained within this class.
      * 
      * <pre>
      * &lt;complexType>

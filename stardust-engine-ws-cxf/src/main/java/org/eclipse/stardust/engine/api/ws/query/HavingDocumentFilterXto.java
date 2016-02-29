@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  *         Restricts the resulting items to the ones using the specified document.
  *         
  * 
- * <p>Java-Klasse für HavingDocumentFilter complex type.
+ * <p>Java class for HavingDocumentFilter complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="HavingDocumentFilter">
@@ -45,7 +45,7 @@ public class HavingDocumentFilterXto
     protected String modelId;
 
     /**
-     * Ruft den Wert der documentId-Eigenschaft ab.
+     * Gets the value of the documentId property.
      * 
      * @return
      *     possible object is
@@ -57,7 +57,7 @@ public class HavingDocumentFilterXto
     }
 
     /**
-     * Legt den Wert der documentId-Eigenschaft fest.
+     * Sets the value of the documentId property.
      * 
      * @param value
      *     allowed object is
@@ -69,7 +69,7 @@ public class HavingDocumentFilterXto
     }
 
     /**
-     * Ruft den Wert der modelId-Eigenschaft ab.
+     * Gets the value of the modelId property.
      * 
      * @return
      *     possible object is
@@ -81,7 +81,7 @@ public class HavingDocumentFilterXto
     }
 
     /**
-     * Legt den Wert der modelId-Eigenschaft fest.
+     * Sets the value of the modelId property.
      * 
      * @param value
      *     allowed object is

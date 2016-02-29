@@ -7,9 +7,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse für ProcessCumulationPolicy complex type.
+ * <p>Java class for ProcessCumulationPolicy complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ProcessCumulationPolicy">
@@ -39,7 +39,7 @@ public class ProcessCumulationPolicyXto
     protected boolean cumulateWithScopePi;
 
     /**
-     * Ruft den Wert der cumulateWithRootPi-Eigenschaft ab.
+     * Gets the value of the cumulateWithRootPi property.
      * 
      */
     public boolean isCumulateWithRootPi() {
@@ -47,7 +47,7 @@ public class ProcessCumulationPolicyXto
     }
 
     /**
-     * Legt den Wert der cumulateWithRootPi-Eigenschaft fest.
+     * Sets the value of the cumulateWithRootPi property.
      * 
      */
     public void setCumulateWithRootPi(boolean value) {
@@ -55,7 +55,7 @@ public class ProcessCumulationPolicyXto
     }
 
     /**
-     * Ruft den Wert der cumulateWithScopePi-Eigenschaft ab.
+     * Gets the value of the cumulateWithScopePi property.
      * 
      */
     public boolean isCumulateWithScopePi() {
@@ -63,7 +63,7 @@ public class ProcessCumulationPolicyXto
     }
 
     /**
-     * Legt den Wert der cumulateWithScopePi-Eigenschaft fest.
+     * Sets the value of the cumulateWithScopePi property.
      * 
      */
     public void setCumulateWithScopePi(boolean value) {

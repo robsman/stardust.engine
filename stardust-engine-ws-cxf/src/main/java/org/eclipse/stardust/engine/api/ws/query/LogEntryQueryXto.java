@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  *         Query for fetching log entries matching specific criteria.
  *         
  * 
- * <p>Java-Klasse für LogEntryQuery complex type.
+ * <p>Java class for LogEntryQuery complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="LogEntryQuery">

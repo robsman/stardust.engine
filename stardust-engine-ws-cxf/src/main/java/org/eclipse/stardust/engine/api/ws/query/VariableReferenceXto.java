@@ -16,9 +16,9 @@ import javax.xml.bind.annotation.XmlType;
  *         'AnyParentOrChild' scope is used for for finding activity instances belonging to the complete hierarchy of process instances containing specific workflow data.
  *         
  * 
- * <p>Java-Klasse für VariableReference complex type.
+ * <p>Java class for VariableReference complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="VariableReference">
@@ -42,7 +42,7 @@ public class VariableReferenceXto
     protected VariableReferenceScopeXto scope;
 
     /**
-     * Ruft den Wert der scope-Eigenschaft ab.
+     * Gets the value of the scope property.
      * 
      * @return
      *     possible object is
@@ -58,7 +58,7 @@ public class VariableReferenceXto
     }
 
     /**
-     * Legt den Wert der scope-Eigenschaft fest.
+     * Sets the value of the scope property.
      * 
      * @param value
      *     allowed object is

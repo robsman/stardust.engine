@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  *          Evaluation Policy for specifying details level of returned users.
  *          
  * 
- * <p>Java-Klasse für UserDetailsPolicy complex type.
+ * <p>Java class for UserDetailsPolicy complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="UserDetailsPolicy">
@@ -42,7 +42,7 @@ public class UserDetailsPolicyXto
     protected UserDetailsLevelXto level;
 
     /**
-     * Ruft den Wert der level-Eigenschaft ab.
+     * Gets the value of the level property.
      * 
      * @return
      *     possible object is
@@ -54,7 +54,7 @@ public class UserDetailsPolicyXto
     }
 
     /**
-     * Legt den Wert der level-Eigenschaft fest.
+     * Sets the value of the level property.
      * 
      * @param value
      *     allowed object is

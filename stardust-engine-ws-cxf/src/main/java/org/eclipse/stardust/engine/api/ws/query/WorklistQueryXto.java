@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  * 	    A list of 'participantContributions' limiting the result to specified participants. One 'subsetPolicy' per 'participantContribution' can be set.
  * 	    
  * 
- * <p>Java-Klasse für WorklistQuery complex type.
+ * <p>Java class for WorklistQuery complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="WorklistQuery">
@@ -45,7 +45,7 @@ public class WorklistQueryXto
     protected ParticipantContributionsXto participantContributions;
 
     /**
-     * Ruft den Wert der userContribution-Eigenschaft ab.
+     * Gets the value of the userContribution property.
      * 
      * @return
      *     possible object is
@@ -57,7 +57,7 @@ public class WorklistQueryXto
     }
 
     /**
-     * Legt den Wert der userContribution-Eigenschaft fest.
+     * Sets the value of the userContribution property.
      * 
      * @param value
      *     allowed object is
@@ -69,7 +69,7 @@ public class WorklistQueryXto
     }
 
     /**
-     * Ruft den Wert der participantContributions-Eigenschaft ab.
+     * Gets the value of the participantContributions property.
      * 
      * @return
      *     possible object is
@@ -81,7 +81,7 @@ public class WorklistQueryXto
     }
 
     /**
-     * Legt den Wert der participantContributions-Eigenschaft fest.
+     * Sets the value of the participantContributions property.
      * 
      * @param value
      *     allowed object is

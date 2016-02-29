@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  *          Policy to advise QueryService to retrieve activtiy instance from Workitems only
  *          
  * 
- * <p>Java-Klasse für EvaluateByWorkitemsPolicy complex type.
+ * <p>Java class for EvaluateByWorkitemsPolicy complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="EvaluateByWorkitemsPolicy">

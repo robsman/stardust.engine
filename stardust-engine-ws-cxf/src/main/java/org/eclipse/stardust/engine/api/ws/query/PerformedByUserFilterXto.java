@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  *         (The currently logged in user is mapped to userOid = -1 for this filter.)
  *         
  * 
- * <p>Java-Klasse für PerformedByUserFilter complex type.
+ * <p>Java class for PerformedByUserFilter complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="PerformedByUserFilter">
@@ -41,7 +41,7 @@ public class PerformedByUserFilterXto
     protected long userOid;
 
     /**
-     * Ruft den Wert der userOid-Eigenschaft ab.
+     * Gets the value of the userOid property.
      * 
      */
     public long getUserOid() {
@@ -49,7 +49,7 @@ public class PerformedByUserFilterXto
     }
 
     /**
-     * Legt den Wert der userOid-Eigenschaft fest.
+     * Sets the value of the userOid property.
      * 
      */
     public void setUserOid(long value) {

@@ -8,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse für UnaryPredicate complex type.
+ * <p>Java class for UnaryPredicate complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="UnaryPredicate">
@@ -44,7 +44,7 @@ public abstract class UnaryPredicateXto
     protected AttributeReferenceXto attribute;
 
     /**
-     * Ruft den Wert der variable-Eigenschaft ab.
+     * Gets the value of the variable property.
      * 
      * @return
      *     possible object is
@@ -56,7 +56,7 @@ public abstract class UnaryPredicateXto
     }
 
     /**
-     * Legt den Wert der variable-Eigenschaft fest.
+     * Sets the value of the variable property.
      * 
      * @param value
      *     allowed object is
@@ -68,7 +68,7 @@ public abstract class UnaryPredicateXto
     }
 
     /**
-     * Ruft den Wert der attribute-Eigenschaft ab.
+     * Gets the value of the attribute property.
      * 
      * @return
      *     possible object is
@@ -80,7 +80,7 @@ public abstract class UnaryPredicateXto
     }
 
     /**
-     * Legt den Wert der attribute-Eigenschaft fest.
+     * Sets the value of the attribute property.
      * 
      * @param value
      *     allowed object is

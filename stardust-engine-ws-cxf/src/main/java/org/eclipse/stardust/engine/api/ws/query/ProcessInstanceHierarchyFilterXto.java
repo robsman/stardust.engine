@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  *         Filter criterion for finding root or sub process instances.
  *         
  * 
- * <p>Java-Klasse für ProcessInstanceHierarchyFilter complex type.
+ * <p>Java class for ProcessInstanceHierarchyFilter complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ProcessInstanceHierarchyFilter">
@@ -42,7 +42,7 @@ public class ProcessInstanceHierarchyFilterXto
     protected HierarchyModeXto mode;
 
     /**
-     * Ruft den Wert der mode-Eigenschaft ab.
+     * Gets the value of the mode property.
      * 
      * @return
      *     possible object is
@@ -54,7 +54,7 @@ public class ProcessInstanceHierarchyFilterXto
     }
 
     /**
-     * Legt den Wert der mode-Eigenschaft fest.
+     * Sets the value of the mode property.
      * 
      * @param value
      *     allowed object is

@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  *         Configures the user's private worklist to be partially included in the result.
  *  	    
  * 
- * <p>Java-Klasse für UserContribution complex type.
+ * <p>Java class for UserContribution complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="UserContribution">
@@ -42,7 +42,7 @@ public class UserContributionXto {
     protected Boolean included;
 
     /**
-     * Ruft den Wert der subsetPolicy-Eigenschaft ab.
+     * Gets the value of the subsetPolicy property.
      * 
      * @return
      *     possible object is
@@ -54,7 +54,7 @@ public class UserContributionXto {
     }
 
     /**
-     * Legt den Wert der subsetPolicy-Eigenschaft fest.
+     * Sets the value of the subsetPolicy property.
      * 
      * @param value
      *     allowed object is
@@ -66,7 +66,7 @@ public class UserContributionXto {
     }
 
     /**
-     * Ruft den Wert der included-Eigenschaft ab.
+     * Gets the value of the included property.
      * 
      * @return
      *     possible object is
@@ -82,7 +82,7 @@ public class UserContributionXto {
     }
 
     /**
-     * Legt den Wert der included-Eigenschaft fest.
+     * Sets the value of the included property.
      * 
      * @param value
      *     allowed object is

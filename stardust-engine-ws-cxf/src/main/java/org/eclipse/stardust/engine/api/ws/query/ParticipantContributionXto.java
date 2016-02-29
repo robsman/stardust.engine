@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  *         The size of these worklist contributions can optionally be restricted by the subsetPolicy
  *  	    
  * 
- * <p>Java-Klasse für ParticipantContribution complex type.
+ * <p>Java class for ParticipantContribution complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ParticipantContribution">
@@ -42,7 +42,7 @@ public class ParticipantContributionXto {
     protected SubsetPolicyXto subsetPolicy;
 
     /**
-     * Ruft den Wert der filter-Eigenschaft ab.
+     * Gets the value of the filter property.
      * 
      * @return
      *     possible object is
@@ -54,7 +54,7 @@ public class ParticipantContributionXto {
     }
 
     /**
-     * Legt den Wert der filter-Eigenschaft fest.
+     * Sets the value of the filter property.
      * 
      * @param value
      *     allowed object is
@@ -66,7 +66,7 @@ public class ParticipantContributionXto {
     }
 
     /**
-     * Ruft den Wert der subsetPolicy-Eigenschaft ab.
+     * Gets the value of the subsetPolicy property.
      * 
      * @return
      *     possible object is
@@ -78,7 +78,7 @@ public class ParticipantContributionXto {
     }
 
     /**
-     * Legt den Wert der subsetPolicy-Eigenschaft fest.
+     * Sets the value of the subsetPolicy property.
      * 
      * @param value
      *     allowed object is

@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  *       Query container for building complex queries for runtime artifacts.
  *       
  * 
- * <p>Java-Klasse für DeployedRuntimeArtifactQuery complex type.
+ * <p>Java class for DeployedRuntimeArtifactQuery complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="DeployedRuntimeArtifactQuery">
@@ -40,7 +40,7 @@ public class DeployedRuntimeArtifactQueryXto
     protected Boolean includeOnlyActive;
 
     /**
-     * Ruft den Wert der includeOnlyActive-Eigenschaft ab.
+     * Gets the value of the includeOnlyActive property.
      * 
      * @return
      *     possible object is
@@ -52,7 +52,7 @@ public class DeployedRuntimeArtifactQueryXto
     }
 
     /**
-     * Legt den Wert der includeOnlyActive-Eigenschaft fest.
+     * Sets the value of the includeOnlyActive property.
      * 
      * @param value
      *     allowed object is

@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  *         Restricts the resulting items to the ones related to a specific process definition.
  *         
  * 
- * <p>Java-Klasse für ProcessDefinitionFilter complex type.
+ * <p>Java class for ProcessDefinitionFilter complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ProcessDefinitionFilter">
@@ -46,7 +46,7 @@ public class ProcessDefinitionFilterXto
     protected Boolean includingSubprocesses;
 
     /**
-     * Ruft den Wert der processDefinitionId-Eigenschaft ab.
+     * Gets the value of the processDefinitionId property.
      * 
      * @return
      *     possible object is
@@ -58,7 +58,7 @@ public class ProcessDefinitionFilterXto
     }
 
     /**
-     * Legt den Wert der processDefinitionId-Eigenschaft fest.
+     * Sets the value of the processDefinitionId property.
      * 
      * @param value
      *     allowed object is
@@ -70,7 +70,7 @@ public class ProcessDefinitionFilterXto
     }
 
     /**
-     * Ruft den Wert der includingSubprocesses-Eigenschaft ab.
+     * Gets the value of the includingSubprocesses property.
      * 
      * @return
      *     possible object is
@@ -86,7 +86,7 @@ public class ProcessDefinitionFilterXto
     }
 
     /**
-     * Legt den Wert der includingSubprocesses-Eigenschaft fest.
+     * Sets the value of the includingSubprocesses property.
      * 
      * @param value
      *     allowed object is

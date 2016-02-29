@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  * 		Query container for building complex queries for deployed models.
  *   		
  * 
- * <p>Java-Klasse für DeployedModelQuery complex type.
+ * <p>Java class for DeployedModelQuery complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="DeployedModelQuery">

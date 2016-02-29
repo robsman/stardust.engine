@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  *          Evaluation Policy for limiting a DocumentQuery to a specific subfolder path.
  *          
  * 
- * <p>Java-Klasse für SubFolderPolicy complex type.
+ * <p>Java class for SubFolderPolicy complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="SubFolderPolicy">
@@ -45,7 +45,7 @@ public class SubFolderPolicyXto
     protected boolean recursive;
 
     /**
-     * Ruft den Wert der limitSubFolder-Eigenschaft ab.
+     * Gets the value of the limitSubFolder property.
      * 
      * @return
      *     possible object is
@@ -57,7 +57,7 @@ public class SubFolderPolicyXto
     }
 
     /**
-     * Legt den Wert der limitSubFolder-Eigenschaft fest.
+     * Sets the value of the limitSubFolder property.
      * 
      * @param value
      *     allowed object is
@@ -69,7 +69,7 @@ public class SubFolderPolicyXto
     }
 
     /**
-     * Ruft den Wert der recursive-Eigenschaft ab.
+     * Gets the value of the recursive property.
      * 
      */
     public boolean isRecursive() {
@@ -77,7 +77,7 @@ public class SubFolderPolicyXto
     }
 
     /**
-     * Legt den Wert der recursive-Eigenschaft fest.
+     * Sets the value of the recursive property.
      * 
      */
     public void setRecursive(boolean value) {

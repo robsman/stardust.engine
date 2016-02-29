@@ -13,9 +13,9 @@ import javax.xml.bind.annotation.XmlType;
  *         either with ascending or descending values.
  *         
  * 
- * <p>Java-Klasse für DataOrder complex type.
+ * <p>Java class for DataOrder complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="DataOrder">
@@ -50,7 +50,7 @@ public class DataOrderXto
     protected boolean ascending;
 
     /**
-     * Ruft den Wert der dataId-Eigenschaft ab.
+     * Gets the value of the dataId property.
      * 
      * @return
      *     possible object is
@@ -62,7 +62,7 @@ public class DataOrderXto
     }
 
     /**
-     * Legt den Wert der dataId-Eigenschaft fest.
+     * Sets the value of the dataId property.
      * 
      * @param value
      *     allowed object is
@@ -74,7 +74,7 @@ public class DataOrderXto
     }
 
     /**
-     * Ruft den Wert der attribute-Eigenschaft ab.
+     * Gets the value of the attribute property.
      * 
      * @return
      *     possible object is
@@ -86,7 +86,7 @@ public class DataOrderXto
     }
 
     /**
-     * Legt den Wert der attribute-Eigenschaft fest.
+     * Sets the value of the attribute property.
      * 
      * @param value
      *     allowed object is
@@ -98,7 +98,7 @@ public class DataOrderXto
     }
 
     /**
-     * Ruft den Wert der ascending-Eigenschaft ab.
+     * Gets the value of the ascending property.
      * 
      */
     public boolean isAscending() {
@@ -106,7 +106,7 @@ public class DataOrderXto
     }
 
     /**
-     * Legt den Wert der ascending-Eigenschaft fest.
+     * Sets the value of the ascending property.
      * 
      */
     public void setAscending(boolean value) {

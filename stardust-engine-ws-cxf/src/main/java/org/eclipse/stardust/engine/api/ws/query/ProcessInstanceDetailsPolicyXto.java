@@ -13,9 +13,9 @@ import org.eclipse.stardust.engine.api.ws.ProcessInstanceDetailsOptionsXto;
  *          Evaluation Policy for specifying details level of processInstances.
  *          
  * 
- * <p>Java-Klasse für ProcessInstanceDetailsPolicy complex type.
+ * <p>Java class for ProcessInstanceDetailsPolicy complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ProcessInstanceDetailsPolicy">
@@ -47,7 +47,7 @@ public class ProcessInstanceDetailsPolicyXto
     protected ProcessInstanceDetailsOptionsXto detailsOptions;
 
     /**
-     * Ruft den Wert der detailsLevel-Eigenschaft ab.
+     * Gets the value of the detailsLevel property.
      * 
      * @return
      *     possible object is
@@ -59,7 +59,7 @@ public class ProcessInstanceDetailsPolicyXto
     }
 
     /**
-     * Legt den Wert der detailsLevel-Eigenschaft fest.
+     * Sets the value of the detailsLevel property.
      * 
      * @param value
      *     allowed object is
@@ -71,7 +71,7 @@ public class ProcessInstanceDetailsPolicyXto
     }
 
     /**
-     * Ruft den Wert der detailsOptions-Eigenschaft ab.
+     * Gets the value of the detailsOptions property.
      * 
      * @return
      *     possible object is
@@ -83,7 +83,7 @@ public class ProcessInstanceDetailsPolicyXto
     }
 
     /**
-     * Legt den Wert der detailsOptions-Eigenschaft fest.
+     * Sets the value of the detailsOptions property.
      * 
      * @param value
      *     allowed object is

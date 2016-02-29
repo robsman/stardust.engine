@@ -11,9 +11,9 @@ import javax.xml.bind.annotation.XmlType;
  *         Filter criterion for matching specific activity instances.
  *         
  * 
- * <p>Java-Klasse für ActivityInstanceFilter complex type.
+ * <p>Java class for ActivityInstanceFilter complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ActivityInstanceFilter">
@@ -40,7 +40,7 @@ public class ActivityInstanceFilterXto
     protected long activityOid;
 
     /**
-     * Ruft den Wert der activityOid-Eigenschaft ab.
+     * Gets the value of the activityOid property.
      * 
      */
     public long getActivityOid() {
@@ -48,7 +48,7 @@ public class ActivityInstanceFilterXto
     }
 
     /**
-     * Legt den Wert der activityOid-Eigenschaft fest.
+     * Sets the value of the activityOid property.
      * 
      */
     public void setActivityOid(long value) {

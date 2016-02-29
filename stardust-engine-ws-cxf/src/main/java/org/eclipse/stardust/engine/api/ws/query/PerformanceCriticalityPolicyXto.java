@@ -7,9 +7,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse für PerformanceCriticalityPolicy complex type.
+ * <p>Java class for PerformanceCriticalityPolicy complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="PerformanceCriticalityPolicy">
@@ -42,7 +42,7 @@ public class PerformanceCriticalityPolicyXto
     protected float highPriorityCriticalPct;
 
     /**
-     * Ruft den Wert der lowPriorityCriticalPct-Eigenschaft ab.
+     * Gets the value of the lowPriorityCriticalPct property.
      * 
      */
     public float getLowPriorityCriticalPct() {
@@ -50,7 +50,7 @@ public class PerformanceCriticalityPolicyXto
     }
 
     /**
-     * Legt den Wert der lowPriorityCriticalPct-Eigenschaft fest.
+     * Sets the value of the lowPriorityCriticalPct property.
      * 
      */
     public void setLowPriorityCriticalPct(float value) {
@@ -58,7 +58,7 @@ public class PerformanceCriticalityPolicyXto
     }
 
     /**
-     * Ruft den Wert der normalPriorityCriticalPct-Eigenschaft ab.
+     * Gets the value of the normalPriorityCriticalPct property.
      * 
      */
     public float getNormalPriorityCriticalPct() {
@@ -66,7 +66,7 @@ public class PerformanceCriticalityPolicyXto
     }
 
     /**
-     * Legt den Wert der normalPriorityCriticalPct-Eigenschaft fest.
+     * Sets the value of the normalPriorityCriticalPct property.
      * 
      */
     public void setNormalPriorityCriticalPct(float value) {
@@ -74,7 +74,7 @@ public class PerformanceCriticalityPolicyXto
     }
 
     /**
-     * Ruft den Wert der highPriorityCriticalPct-Eigenschaft ab.
+     * Gets the value of the highPriorityCriticalPct property.
      * 
      */
     public float getHighPriorityCriticalPct() {
@@ -82,7 +82,7 @@ public class PerformanceCriticalityPolicyXto
     }
 
     /**
-     * Legt den Wert der highPriorityCriticalPct-Eigenschaft fest.
+     * Sets the value of the highPriorityCriticalPct property.
      * 
      */
     public void setHighPriorityCriticalPct(float value) {

@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  *         Restricts the resulting items to users who are logged in.
  *         
  * 
- * <p>Java-Klasse für UserStateFilter complex type.
+ * <p>Java class for UserStateFilter complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="UserStateFilter">
@@ -38,7 +38,7 @@ public class UserStateFilterXto
     protected Boolean loggedInOnly;
 
     /**
-     * Ruft den Wert der loggedInOnly-Eigenschaft ab.
+     * Gets the value of the loggedInOnly property.
      * 
      * @return
      *     possible object is
@@ -54,7 +54,7 @@ public class UserStateFilterXto
     }
 
     /**
-     * Legt den Wert der loggedInOnly-Eigenschaft fest.
+     * Sets the value of the loggedInOnly property.
      * 
      * @param value
      *     allowed object is

@@ -12,9 +12,9 @@ import javax.xml.bind.annotation.XmlType;
  *          Evaluation Policy for specifying details level of processDefinitions.
  *          
  * 
- * <p>Java-Klasse für ProcessDefinitionDetailsPolicy complex type.
+ * <p>Java class for ProcessDefinitionDetailsPolicy complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ProcessDefinitionDetailsPolicy">
@@ -42,7 +42,7 @@ public class ProcessDefinitionDetailsPolicyXto
     protected ProcessDefinitionDetailsLevelXto detailsLevel;
 
     /**
-     * Ruft den Wert der detailsLevel-Eigenschaft ab.
+     * Gets the value of the detailsLevel property.
      * 
      * @return
      *     possible object is
@@ -54,7 +54,7 @@ public class ProcessDefinitionDetailsPolicyXto
     }
 
     /**
-     * Legt den Wert der detailsLevel-Eigenschaft fest.
+     * Sets the value of the detailsLevel property.
      * 
      * @param value
      *     allowed object is

@@ -17,9 +17,9 @@ import javax.xml.bind.annotation.XmlType;
  *  		and to a process definition scope by using the 'processId' element.
  *         
  * 
- * <p>Java-Klasse für ActivityDefinitionFilter complex type.
+ * <p>Java class for ActivityDefinitionFilter complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ActivityDefinitionFilter">
@@ -60,7 +60,7 @@ public class ActivityDefinitionFilterXto
     protected List<Long> modelOids;
 
     /**
-     * Ruft den Wert der activityId-Eigenschaft ab.
+     * Gets the value of the activityId property.
      * 
      * @return
      *     possible object is
@@ -72,7 +72,7 @@ public class ActivityDefinitionFilterXto
     }
 
     /**
-     * Legt den Wert der activityId-Eigenschaft fest.
+     * Sets the value of the activityId property.
      * 
      * @param value
      *     allowed object is
@@ -84,7 +84,7 @@ public class ActivityDefinitionFilterXto
     }
 
     /**
-     * Ruft den Wert der processId-Eigenschaft ab.
+     * Gets the value of the processId property.
      * 
      * @return
      *     possible object is
@@ -96,7 +96,7 @@ public class ActivityDefinitionFilterXto
     }
 
     /**
-     * Legt den Wert der processId-Eigenschaft fest.
+     * Sets the value of the processId property.
      * 
      * @param value
      *     allowed object is
@@ -108,7 +108,7 @@ public class ActivityDefinitionFilterXto
     }
 
     /**
-     * Ruft den Wert der includingSubprocesses-Eigenschaft ab.
+     * Gets the value of the includingSubprocesses property.
      * 
      * @return
      *     possible object is
@@ -124,7 +124,7 @@ public class ActivityDefinitionFilterXto
     }
 
     /**
-     * Legt den Wert der includingSubprocesses-Eigenschaft fest.
+     * Sets the value of the includingSubprocesses property.
      * 
      * @param value
      *     allowed object is

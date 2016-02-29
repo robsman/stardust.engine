@@ -17,9 +17,9 @@ import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
  *         Restricts the resulting items to the ones having or not having a specific activity state.
  *         
  * 
- * <p>Java-Klasse für ActivityStateFilter complex type.
+ * <p>Java class for ActivityStateFilter complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="ActivityStateFilter">
@@ -58,7 +58,7 @@ public class ActivityStateFilterXto
     protected ActivityStateFilterXto.StatesXto states;
 
     /**
-     * Ruft den Wert der states-Eigenschaft ab.
+     * Gets the value of the states property.
      * 
      * @return
      *     possible object is
@@ -70,7 +70,7 @@ public class ActivityStateFilterXto
     }
 
     /**
-     * Legt den Wert der states-Eigenschaft fest.
+     * Sets the value of the states property.
      * 
      * @param value
      *     allowed object is
@@ -83,9 +83,9 @@ public class ActivityStateFilterXto
 
 
     /**
-     * <p>Java-Klasse für anonymous complex type.
+     * <p>Java class for anonymous complex type.
      * 
-     * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+     * <p>The following schema fragment specifies the expected content contained within this class.
      * 
      * <pre>
      * &lt;complexType>
@@ -144,7 +144,7 @@ public class ActivityStateFilterXto
         }
 
         /**
-         * Ruft den Wert der inclusive-Eigenschaft ab.
+         * Gets the value of the inclusive property.
          * 
          * @return
          *     possible object is
@@ -160,7 +160,7 @@ public class ActivityStateFilterXto
         }
 
         /**
-         * Legt den Wert der inclusive-Eigenschaft fest.
+         * Sets the value of the inclusive property.
          * 
          * @param value
          *     allowed object is

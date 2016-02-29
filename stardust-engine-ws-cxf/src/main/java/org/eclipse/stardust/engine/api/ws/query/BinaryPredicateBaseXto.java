@@ -8,9 +8,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java-Klasse für BinaryPredicateBase complex type.
+ * <p>Java class for BinaryPredicateBase complex type.
  * 
- * <p>Das folgende Schemafragment gibt den erwarteten Content an, der in dieser Klasse enthalten ist.
+ * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
  * &lt;complexType name="BinaryPredicateBase">
@@ -44,7 +44,7 @@ public abstract class BinaryPredicateBaseXto
     protected AttributeReferenceXto lhsAttribute;
 
     /**
-     * Ruft den Wert der lhsVariable-Eigenschaft ab.
+     * Gets the value of the lhsVariable property.
      * 
      * @return
      *     possible object is
@@ -56,7 +56,7 @@ public abstract class BinaryPredicateBaseXto
     }
 
     /**
-     * Legt den Wert der lhsVariable-Eigenschaft fest.
+     * Sets the value of the lhsVariable property.
      * 
      * @param value
      *     allowed object is
@@ -68,7 +68,7 @@ public abstract class BinaryPredicateBaseXto
     }
 
     /**
-     * Ruft den Wert der lhsAttribute-Eigenschaft ab.
+     * Gets the value of the lhsAttribute property.
      * 
      * @return
      *     possible object is
@@ -80,7 +80,7 @@ public abstract class BinaryPredicateBaseXto
     }
 
     /**
-     * Legt den Wert der lhsAttribute-Eigenschaft fest.
+     * Sets the value of the lhsAttribute property.
      * 
      * @param value
      *     allowed object is

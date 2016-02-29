@@ -73,7 +73,7 @@ public class JcrSecurityUtils
 
                String modelId = participant.getModel().getId();
                String participantId = participant.getId();
-               String departmentId = (null != department) ? department.getId() : null;
+               String departmentId = DmsPrincipal.getFullDepartmentScopedId(department);
 
                String principalName = DmsPrincipal.getModelParticipantPrincipalName(
                      participantId, departmentId, modelId);
@@ -114,7 +114,7 @@ public class JcrSecurityUtils
                      if (rtOidParentOrg == parentDepartment.getRuntimeOrganizationOID())
                      {
                         // parent is scoped
-                        parentOrgDepartmentId = parentDepartment.getId();
+                        parentOrgDepartmentId = DmsPrincipal.getFullDepartmentScopedId(parentDepartment);
                      }
                   }
 

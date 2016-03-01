@@ -33,7 +33,7 @@ public class MailbasedCredentialDeliveryStrategy implements
 				"If you did not initiate a password reset please login as usual. This will abort the password reset request. \n\n";
 				if(!StringUtils.isEmpty(resetUrl))
 				{
-					message += resetUrl + "?oid=" + user.getOID() + "&partition=" +user.getRealm().getPartition().getId() + "&realm=" +user.getRealm().getId() +"&token=" + token;
+					message += resetUrl + "?account=" + user.getAccount() + "&partition=" +user.getRealm().getPartition().getId() + "&realm=" +user.getRealm().getId() +"&token=" + token;
 				}
 				MailHelper.sendSimpleMessage(new String[] {user.getEMail()}, "Password reset token has been generated", message);
 			}

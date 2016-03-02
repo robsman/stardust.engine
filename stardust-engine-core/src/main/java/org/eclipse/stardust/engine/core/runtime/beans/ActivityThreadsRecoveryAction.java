@@ -56,7 +56,9 @@ public class ActivityThreadsRecoveryAction implements Action
                 || aiState == ActivityInstanceState.Created
                 // cover case that AI is suspended but its subPI (if any) is already terminated
                 || (isSuspendedSubPiActivity(ai) && hasTermintedSubPi(ai))
-                || isAbortingAndReadyForScheduling(ai))
+                || isAbortingAndReadyForScheduling(ai)
+                // can be the case if activity was completed in halted hierarchy.
+                || aiState == ActivityInstanceState.Completed)
             {
                if (isSuspendedSubPiActivity(ai))
                {

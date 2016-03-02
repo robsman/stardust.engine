@@ -429,17 +429,25 @@ public class ActivityInstanceUtils
             && !activityInstance.isHalting() && !activityInstance.isHalted();
    }
 
-   public static boolean isHaltable(IActivityInstance activityInstanceBean)
+   public static boolean isHaltable(IActivityInstance activityInstance)
    {
-      IActivity activity = activityInstanceBean.getActivity();
+      IActivity activity = activityInstance.getActivity();
 
-      // do not halt multi instance activities
       if (activity.getLoopCharacteristics() instanceof IMultiInstanceLoopCharacteristics)
       {
+         // do not halt multi instance activities
          return false;
       }
-
-      // TODO do not halt application state for interactive and non-interactive
+      else if (ActivityInstanceState.Application.equals(activityInstance.getState()))
+      {
+         // do not halt application state for interactive and non-interactive
+         return false;
+      }
+      else if (ActivityInstanceState.Halted.equals(activityInstance.getState()))
+      {
+         // is already halted
+         return false;
+      }
 
       return true;
    }

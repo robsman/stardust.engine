@@ -559,7 +559,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          }
       }
 
-      if (ProcessInstanceUtils.isInHaltingPiHierarchy(getProcessInstance())
+      boolean inHaltingPiHierarchy = ProcessInstanceUtils.isInHaltingPiHierarchy(getProcessInstance());
+      if (inHaltingPiHierarchy
             && ActivityInstanceUtils.isHaltable(this)
             && !(state == ActivityInstanceState.HALTED || state == ActivityInstanceState.HALTING))
       {
@@ -639,6 +640,23 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          trace.info("State change for " + this + ": "
                + ActivityInstanceState.getString(oldState) + "-->"
                + ActivityInstanceState.getString(state) + ".");
+      }
+
+      if (inHaltingPiHierarchy && ActivityInstanceUtils.isHaltable(this))
+      {
+         // is haltable after state change of this ActivityInstance.
+         if (state == ActivityInstanceState.SUSPENDED)
+         {
+            // halt activity instance directly after suspend.
+            this.setState(ActivityInstanceState.HALTED, workflowUserOid);
+         }
+
+         if (piState.equals(ProcessInstanceState.Halting))
+         {
+            // reshedule halting for process
+            ProcessHaltJanitor.scheduleJanitor(new HaltJanitorCarrier(
+                  getProcessInstanceOID(), workflowUserOid));
+         }
       }
    }
 

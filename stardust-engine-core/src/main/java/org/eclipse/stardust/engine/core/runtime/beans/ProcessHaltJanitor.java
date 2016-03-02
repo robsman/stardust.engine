@@ -67,9 +67,9 @@ public class ProcessHaltJanitor extends ProcessHierarchyStateChangeJanitor
             final ActivityInstanceBean activityInstance = (ActivityInstanceBean) aiIter
                   .next();
 
-            if (!activityInstance.isTerminated() && !activityInstance.isHalted())
-//                  && !ActivityInstanceState.Application
-//                        .equals(activityInstance.getState()))
+            if (!activityInstance.isTerminated() && !activityInstance.isHalted()
+                  && !ActivityInstanceState.Application
+                        .equals(activityInstance.getState()))
             {
                activityInstance.lock();
 

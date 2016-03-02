@@ -77,13 +77,14 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
                   activityInstance.lock();
 
                   restoreStateFromHistory(activityInstance);
-
-                  // Run recovery. This also calls recovery on all events.
-                  ActivityThreadsRecoveryAction activityThreadsRecoveryAction = new ActivityThreadsRecoveryAction(
-                        pi.getOID());
-                  activityThreadsRecoveryAction.execute();
                }
             }
+
+            // Run recovery. This also calls recovery on all events.
+            ActivityThreadsRecoveryAction activityThreadsRecoveryAction = new ActivityThreadsRecoveryAction(
+                  pi.getOID());
+            activityThreadsRecoveryAction.execute();
+
             AuditTrailLogger.getInstance(LogCode.ENGINE, pi)
                   .info("Process instance resumed.");
          }

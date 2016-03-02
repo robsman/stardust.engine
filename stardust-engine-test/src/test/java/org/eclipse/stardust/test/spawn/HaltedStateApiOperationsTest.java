@@ -22,6 +22,7 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runners.MethodSorters;
 
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.dto.*;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
@@ -297,18 +298,53 @@ public class HaltedStateApiOperationsTest
       ActivityInstance ai = getHaltedAi();
 
       wfs.abortActivityInstance(ai.getOID());
+
+      ProcessInstanceStateBarrier.instance().await(ai.getProcessInstanceOID(), ProcessInstanceState.Aborted);
    }
 
    @Test
-   @Ignore
    public void testCompleteManualInApplicationStateAllowed()
          throws TimeoutException, InterruptedException
    {
       WorkflowService wfs = sf.getWorkflowService();
 
-      // ActivityInstance ai = getApplicationStateAi();
+      Pair<ActivityInstance, ActivityInstance> ais = getApplicationStateAiInHaltedHiararchy();
+      ActivityInstance ai = ais.getFirst();
+      Assert.assertEquals(ActivityInstanceState.Application, ai.getState());
 
-      // wfs.complete(ai.getOID(), null , null);
+      wfs.complete(ai.getOID(), null, null);
+
+      ActivityInstanceStateBarrier.instance().await(ai.getOID(),
+            ActivityInstanceState.Completed);
+
+      ActivityInstance spawnedAi = ais.getSecond();
+      Assert.assertEquals(ActivityInstanceState.Suspended, spawnedAi.getState());
+      wfs.activateAndComplete(spawnedAi.getOID(), null, null);
+
+      ActivityInstanceStateBarrier.instance().await(spawnedAi.getOID(),
+            ActivityInstanceState.Completed);
+
+      // inserted process completed resumes halted process
+      ProcessInstanceStateBarrier.instance().await(spawnedAi.getProcessInstanceOID(), ProcessInstanceState.Completed);
+      // main process should also be completed because last AI is already completed.
+      ProcessInstanceStateBarrier.instance().await(ai.getProcessInstanceOID(), ProcessInstanceState.Completed);
+
+   }
+
+   @Test
+   public void testSuspendManualInApplicationStateAllowed()
+         throws TimeoutException, InterruptedException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+
+      ActivityInstance ai = getApplicationStateAiInHaltedHiararchy().getFirst();
+      Assert.assertEquals(ActivityInstanceState.Application, ai.getState());
+
+       wfs.suspend(ai.getOID(), null);
+
+       ActivityInstanceStateBarrier.instance().await(ai.getOID(), ActivityInstanceState.Halted);
+       assertActivityInstanceExists(ai.getProcessInstanceOID(), "InputData1", ActivityInstanceState.HALTED);
+       ProcessInstanceStateBarrier.instance().await(ai.getProcessInstanceOID(), ProcessInstanceState.Halted);
    }
 
    // ************** UTILS ***************
@@ -345,6 +381,43 @@ public class HaltedStateApiOperationsTest
       findAlive.where(new ActivityStateFilter(ActivityInstanceState.Halted));
       ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(findAlive);
       return ai;
+   }
+
+   private Pair<ActivityInstance, ActivityInstance> getApplicationStateAiInHaltedHiararchy()
+         throws IllegalStateException, TimeoutException, InterruptedException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+
+      ProcessInstance pi = wfs.startProcess("{SpawnProcessModel}InputData1",
+            new StartOptions(null, true));
+      assertThat(pi.getState(), is(ProcessInstanceState.Active));
+
+      ActivityInstance ai = wfs.activateNextActivityInstanceForProcessInstance(pi.getOID());
+
+      // Spawn process
+      SpawnOptions options = new SpawnOptions(null, SpawnMode.HALT, null, null);
+      ProcessInstance peer = wfs.spawnPeerProcessInstance(pi.getOID(),
+            "{SpawnProcessModel}InputData1", options);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(),
+            ProcessInstanceState.Halted);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(),
+            ProcessInstanceState.Active);
+
+      assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(),
+            PredefinedProcessInstanceLinkTypes.INSERT);
+
+      assertActivityInstanceExists(pi.getOID(), "InputData1",
+            ActivityInstanceState.APPLICATION);
+      assertActivityInstanceExists(peer.getOID(), "InputData1",
+            ActivityInstanceState.SUSPENDED);
+
+      ActivityInstanceQuery findAlive = ActivityInstanceQuery
+            .findAlive("{SpawnProcessModel}InputData1");
+      findAlive.where(new ActivityStateFilter(ActivityInstanceState.Suspended));
+      ActivityInstance spawnedAi = sf.getQueryService().findFirstActivityInstance(findAlive);
+
+      return new Pair<ActivityInstance, ActivityInstance>(ai, spawnedAi);
    }
 
    private void assertProcessInstanceLinkExists(long piOid, long sourcePiOid,

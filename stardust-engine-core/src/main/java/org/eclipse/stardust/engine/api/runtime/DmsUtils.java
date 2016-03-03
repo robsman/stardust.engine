@@ -45,6 +45,7 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 public class DmsUtils
 {
    private static final String PI_OID_PREFIX = "pi-";
+   private static final String AI_OID_PREFIX = "ai-";
 
    /**
     * Creates a new <code>DocumentInfo</code> object that can be filled with additional
@@ -175,6 +176,77 @@ public class DmsUtils
       defaultPathSb.append(scopeProcessInstanceOID);
 
       return defaultPathSb.toString();
+   }
+
+   /**
+    * Initialize default path based on the activity instance OID, scope process instance OID and its start time.
+    * Example: "/process-instances/2001/02/03/04/pi-567/ai-890"
+    *
+    * @param activityInstanceOID
+    * @param scopeProcessInstanceStartTime
+    * @param scopeProcessInstanceOID
+    * @return path starting with / and ending with a process instance specific folder name
+    *         (no trailing slash).
+    */
+   public static String composeDefaultPath(long activityInstanceOID,
+         long scopeProcessInstanceOID, Date scopeProcessInstanceStartTime)
+   {
+      String piDefaultPath = composeDefaultPath(scopeProcessInstanceOID,
+            scopeProcessInstanceStartTime);
+
+      StringBuilder sb = new StringBuilder(piDefaultPath);
+      sb.append("/").append(AI_OID_PREFIX).append(activityInstanceOID);
+      return sb.toString();
+   }
+
+   /**
+    * Retrieves the activity instance oid from a {@link Resource} path.
+    *
+    * @param resource with ai-oid in path
+    * @return null if not found in path.
+    *
+    * @see #composeDefaultPath(long, long, Date)
+    */
+   public static Long getActivityInstanceOid(Resource resource)
+   {
+      return getOidAfterPrefix(resource, AI_OID_PREFIX);
+   }
+
+   /**
+    * Retrieves the process instance oid from a {@link Resource} path.
+    *
+    * @param resource with pi-oid in path
+    * @return null if not found in path.
+    *
+    * @see #composeDefaultPath(long, Date)
+    * @see #composeDefaultPath(long, long, Date)
+    */
+   public static Long getProcessInstanceOid(Resource resource)
+   {
+      return getOidAfterPrefix(resource, PI_OID_PREFIX);
+   }
+
+   private static Long getOidAfterPrefix(final Resource resource, final String prefix)
+   {
+      Long oid = null;
+      if (resource != null && !StringUtils.isEmpty(resource.getPath()))
+      {
+         String path = resource.getPath();
+         {
+            int aiIndex = path.indexOf(prefix);
+            if (aiIndex >= 0)
+            {
+               int slashIndex = path.indexOf("/", aiIndex);
+               if (slashIndex == -1)
+               {
+                  slashIndex = path.length();
+               }
+               oid = Long.valueOf(
+                     path.substring(aiIndex + prefix.length(), slashIndex));
+            }
+         }
+      }
+      return oid;
    }
 
    /**

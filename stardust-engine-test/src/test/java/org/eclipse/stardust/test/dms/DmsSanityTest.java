@@ -12,6 +12,7 @@ package org.eclipse.stardust.test.dms;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 
+import java.util.Date;
 import java.util.List;
 
 import org.eclipse.stardust.common.config.GlobalParameters;
@@ -22,6 +23,7 @@ import org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceExceptio
 import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.test.api.setup.DmsAwareTestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
@@ -327,5 +329,29 @@ public class DmsSanityTest
       {
          globals.set(Constants.CARNOT_ARCHIVE_AUDITTRAIL, false);
       }
+   }
+
+   @Test
+   public void testDmsUtilsComposeDefaultPath()
+   {
+      String path = DmsUtils.composeDefaultPath(123L, 456L, new Date());
+      Assert.assertEquals(Long.valueOf(123L), DmsUtils.getActivityInstanceOid(getMockDoc(path)));
+      Assert.assertEquals(Long.valueOf(456L), DmsUtils.getProcessInstanceOid(getMockDoc(path)));
+
+      String pathSub = path + "/activity-attachments";
+      Assert.assertEquals(Long.valueOf(123L), DmsUtils.getActivityInstanceOid(getMockDoc(pathSub)));
+      Assert.assertEquals(Long.valueOf(456L), DmsUtils.getProcessInstanceOid(getMockDoc(pathSub)));
+
+      String invalidPath = "/";
+      Assert.assertNull(DmsUtils.getActivityInstanceOid(getMockDoc(invalidPath)));
+      Assert.assertNull(DmsUtils.getProcessInstanceOid(getMockDoc(invalidPath)));
+   }
+
+   private Document getMockDoc(String path)
+   {
+      DmsDocumentBean doc = new DmsDocumentBean();
+      doc.setName("test.txt");
+      doc.setPath(path);
+      return doc;
    }
 }

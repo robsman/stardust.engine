@@ -431,6 +431,11 @@ public class ActivityInstanceUtils
 
    public static boolean isHaltable(IActivityInstance activityInstance)
    {
+      if (activityInstance == null)
+      {
+         return false;
+      }
+
       IActivity activity = activityInstance.getActivity();
 
       if (activity.getLoopCharacteristics() instanceof IMultiInstanceLoopCharacteristics)

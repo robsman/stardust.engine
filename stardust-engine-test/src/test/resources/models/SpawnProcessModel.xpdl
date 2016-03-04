@@ -1437,6 +1437,321 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </WorkflowProcess>
+      <WorkflowProcess Id="ActivityStateChangeEvent" Name="ActivityStateChangeEvent" AccessLevel="PUBLIC">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="NAtoHalted" Name="NA to Halted">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer>Administrator</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10221" Implementation="Manual" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
+                        <carnot:EventHandlers>
+                           <carnot:EventHandler Oid="10223" Id="OnActivityStateChange1" Name="On Activity State Change 1" Type="statechange">
+                              <carnot:EventActions>
+                                 <carnot:EventAction Oid="10224" Id="EventAction1" Name="Event Action 1" Type="trigger" Kind="EVENT">
+                                    <carnot:Attributes>
+                                       <carnot:Attribute Name="carnot:engine:dataId" Value="Primitive1"/>
+                                       <carnot:Attribute Name="carnot:engine:processDefinition" Value="ShowDoc"/>
+                                    </carnot:Attributes>
+                                 </carnot:EventAction>
+                              </carnot:EventActions>
+                              <carnot:Attributes>
+                                 <carnot:Attribute Name="carnot:engine:targetState" Value="10" Type="org.eclipse.stardust.engine.api.runtime.ActivityInstanceState"/>
+                              </carnot:Attributes>
+                           </carnot:EventHandler>
+                        </carnot:EventHandlers>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:relocate:source" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.modifyAttributes" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="SuspendedtoHalted" Name="Suspended to Halted">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer>Administrator</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10225" Implementation="Manual" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
+                        <carnot:EventHandlers>
+                           <carnot:EventHandler Oid="10227" Id="OnActivityStateChange1" Name="On Activity State Change 1" Type="statechange">
+                              <carnot:EventActions>
+                                 <carnot:EventAction Oid="10228" Id="EventAction1" Name="Event Action 1" Type="trigger" Kind="EVENT">
+                                    <carnot:Attributes>
+                                       <carnot:Attribute Name="carnot:engine:processDefinition" Value="ShowDoc"/>
+                                    </carnot:Attributes>
+                                 </carnot:EventAction>
+                              </carnot:EventActions>
+                              <carnot:Attributes>
+                                 <carnot:Attribute Name="carnot:engine:sourceState" Value="5" Type="org.eclipse.stardust.engine.api.runtime.ActivityInstanceState"/>
+                                 <carnot:Attribute Name="carnot:engine:targetState" Value="10" Type="org.eclipse.stardust.engine.api.runtime.ActivityInstanceState"/>
+                              </carnot:Attributes>
+                           </carnot:EventHandler>
+                        </carnot:EventHandlers>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:relocate:source" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.modifyAttributes" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="RouteActivity1" Name="Route Activity 1">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <TransitionRestrictions>
+                  <TransitionRestriction>
+                     <Split Type="AND">
+                        <TransitionRefs>
+                           <TransitionRef Id="Transition1"/>
+                           <TransitionRef Id="Transition2"/>
+                           <TransitionRef Id="Transition3"/>
+                           <TransitionRef Id="Transition4"/>
+                        </TransitionRefs>
+                     </Split>
+                  </TransitionRestriction>
+               </TransitionRestrictions>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10232">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="HaltedtoNA" Name="Halted to NA">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer>Administrator</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10241" Implementation="Manual" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
+                        <carnot:EventHandlers>
+                           <carnot:EventHandler Oid="10245" Id="OnActivityStateChange1" Name="On Activity State Change 1" Type="statechange">
+                              <carnot:EventActions>
+                                 <carnot:EventAction Oid="10246" Id="EventAction1" Name="Event Action 1" Type="trigger" Kind="EVENT">
+                                    <carnot:Attributes>
+                                       <carnot:Attribute Name="carnot:engine:processDefinition" Value="ShowDoc"/>
+                                    </carnot:Attributes>
+                                 </carnot:EventAction>
+                              </carnot:EventActions>
+                              <carnot:Attributes>
+                                 <carnot:Attribute Name="carnot:engine:sourceState" Value="10" Type="org.eclipse.stardust.engine.api.runtime.ActivityInstanceState"/>
+                              </carnot:Attributes>
+                           </carnot:EventHandler>
+                        </carnot:EventHandlers>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:relocate:source" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.modifyAttributes" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="HaltedtoSuspended" Name="Halted to Suspended">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer>Administrator</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10247" Implementation="Manual" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
+                        <carnot:EventHandlers>
+                           <carnot:EventHandler Oid="10251" Id="OnActivityStateChange1" Name="On Activity State Change 1" Type="statechange">
+                              <carnot:EventActions>
+                                 <carnot:EventAction Oid="10252" Id="EventAction1" Name="Event Action 1" Type="trigger" Kind="EVENT">
+                                    <carnot:Attributes>
+                                       <carnot:Attribute Name="carnot:engine:processDefinition" Value="ShowDoc"/>
+                                    </carnot:Attributes>
+                                 </carnot:EventAction>
+                              </carnot:EventActions>
+                              <carnot:Attributes>
+                                 <carnot:Attribute Name="carnot:engine:sourceState" Value="10" Type="org.eclipse.stardust.engine.api.runtime.ActivityInstanceState"/>
+                                 <carnot:Attribute Name="carnot:engine:targetState" Value="5" Type="org.eclipse.stardust.engine.api.runtime.ActivityInstanceState"/>
+                              </carnot:Attributes>
+                           </carnot:EventHandler>
+                        </carnot:EventHandlers>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:relocate:source" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.modifyAttributes" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions>
+            <Transition Id="Transition1" Name="Transition 1" From="RouteActivity1" To="NAtoHalted">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10235"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="Transition2" Name="Transition 2" From="RouteActivity1" To="SuspendedtoHalted">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10237"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="Transition3" Name="Transition 3" From="RouteActivity1" To="HaltedtoNA">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10243"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="Transition4" Name="Transition 4" From="RouteActivity1" To="HaltedtoSuspended">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10249"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="10220">
+                  <carnot:Triggers>
+                     <carnot:Trigger Oid="10253" Id="ManualTrigger1" Name="Manual Trigger 1" Type="manual">
+                        <carnot:AccessPoints/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:participant" Value="Administrator"/>
+                        </carnot:Attributes>
+                     </carnot:Trigger>
+                  </carnot:Triggers>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="10219" Name="Default" Orientation="Vertical" Mode="MODE_4_0_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="10218" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10222" X="235" Y="305" Width="181" Height="51" ModelElement="NAtoHalted"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10226" X="440" Y="305" Width="181" Height="51" ModelElement="SuspendedtoHalted"/>
+                                 <carnot:Symbol Kind="STARTEVENT" Oid="10231" X="340" Y="50" Width="40" Height="40"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10233" X="320" Y="140" Width="180" Height="50" ModelElement="RouteActivity1"/>
+                                 <carnot:Symbol Kind="GATEWAY" Oid="10239" X="390" Y="210" Width="42" Height="42" ModelElement="10233" FlowKind="split"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10242" X="645" Y="305" Width="181" Height="51" ModelElement="HaltedtoNA"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10248" X="840" Y="305" Width="181" Height="51" ModelElement="HaltedtoSuspended"/>
+                                 <carnot:Symbol Kind="STARTEVENT" Oid="10254" X="400" Y="45" Width="110" Height="50" ModelElement="ManualTrigger1"/>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10234" SourceSymbol="10231" TargetSymbol="10233" SourceAnchor="center" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10236" ModelElement="Transition1" SourceSymbol="10239" TargetSymbol="10222" SourceAnchor="left" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10238" ModelElement="Transition2" SourceSymbol="10239" TargetSymbol="10226" SourceAnchor="center" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10240" SourceSymbol="10233" TargetSymbol="10239" SourceAnchor="center" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10244" ModelElement="Transition3" SourceSymbol="10239" TargetSymbol="10242" SourceAnchor="center" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10250" ModelElement="Transition4" SourceSymbol="10239" TargetSymbol="10248" SourceAnchor="center" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10255" SourceSymbol="10254" TargetSymbol="10233" SourceAnchor="center" TargetAnchor="top"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">

@@ -405,6 +405,49 @@ public class SpawnPeerInsertProcessTest
       }
    }
 
+   @Test
+   public void testActivityStateChangeEvent() throws TimeoutException, InterruptedException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+
+      ProcessInstance pi = wfs.startProcess("{SpawnProcessModel}ActivityStateChangeEvent", new StartOptions(null , true));
+      assertThat(pi.getState(), is(ProcessInstanceState.Active));
+
+      doWait(2000);
+
+      // Spawn process
+      SpawnOptions options = new SpawnOptions(null, SpawnMode.HALT, null, null);
+      ProcessInstance peer = wfs.spawnPeerProcessInstance(
+            pi.getOID(), "{SpawnProcessModel}InputData1", options);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
+
+      assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(), PredefinedProcessInstanceLinkTypes.INSERT);
+
+      assertActivityInstanceExists(pi.getOID(), "NAtoHalted", ActivityInstanceState.HALTED);
+      assertActivityInstanceExists(pi.getOID(), "SuspendedtoHalted", ActivityInstanceState.HALTED);
+      assertActivityInstanceExists(pi.getOID(), "HaltedtoNA", ActivityInstanceState.HALTED);
+      assertActivityInstanceExists(pi.getOID(), "HaltedtoSuspended", ActivityInstanceState.HALTED);
+      assertActivityInstanceCount("ShowDoc", "DisplayDocData", 2, ActivityInstanceState.SUSPENDED);
+
+      assertActivityInstanceExists(peer.getOID(), "InputData1", ActivityInstanceState.SUSPENDED);
+
+      // reset registered state changes before next steps
+      ProcessInstanceStateBarrier.instance().cleanUp();
+
+      completeActivityInstances(peer.getOID(), 1);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Completed);
+
+      // check for halted -> active
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Active);
+      assertActivityInstanceExists(pi.getOID(), "NAtoHalted", ActivityInstanceState.SUSPENDED);
+      assertActivityInstanceExists(pi.getOID(), "SuspendedtoHalted", ActivityInstanceState.SUSPENDED);
+      assertActivityInstanceExists(pi.getOID(), "HaltedtoNA", ActivityInstanceState.SUSPENDED);
+      assertActivityInstanceExists(pi.getOID(), "HaltedtoSuspended", ActivityInstanceState.SUSPENDED);
+      assertActivityInstanceCount("ShowDoc", "DisplayDocData", 4, ActivityInstanceState.SUSPENDED);
+   }
+
    // ************** UTILS ***************
 
    private Object createMultiInstanceList(int count)
@@ -486,11 +529,22 @@ public class SpawnPeerInsertProcessTest
 
       QueryService qs = sf.getQueryService();
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(piOid);
+      query.where(ActivityFilter.forAnyProcess(activityId));
       query.where(ActivityInstanceQuery.STATE.isEqual(state));
       ActivityInstance ai = qs.findFirstActivityInstance(query);
       Assert.assertEquals(activityId, ai.getActivity().getId());
-//      Assert.assertEquals(ImplementationType.Manual, ai.getActivity().getImplementationType());
       return ai;
+   }
+
+
+   private void assertActivityInstanceCount(String processId, String activityId, int count, int state) throws IllegalStateException, TimeoutException, InterruptedException
+   {
+      QueryService qs = sf.getQueryService();
+      ActivityInstanceQuery query = ActivityInstanceQuery.findAll();
+      query.where(ActivityFilter.forProcess(activityId, processId));
+      query.where(ActivityInstanceQuery.STATE.isEqual(state));
+      ActivityInstances ai = qs.getAllActivityInstances(query);
+      Assert.assertEquals(count, ai.getSize());
    }
 
 }

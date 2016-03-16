@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -272,7 +272,7 @@ public class ModelManagerBean implements ModelManager
 
    public long getLastDeployment()
    {
-      return getModelManagerPartition().getLastDeployment();
+	   return getModelManagerPartition().getLastDeployment();
    }
 
    public boolean isAlive(IModel model)
@@ -931,7 +931,7 @@ public class ModelManagerBean implements ModelManager
                   trace.warn("Could not load PredefinedModel.xpdl");
                }
             }
-         } 
+         }
 
          recomputeAlivenessCache();
 
@@ -1042,7 +1042,7 @@ public class ModelManagerBean implements ModelManager
             MonitoringUtils.partitionMonitors().modelLoaded(model);
          }
       }
-      
+
       private UserBean getMotuUser(BpmRuntimeEnvironment rtEnv)
       {
          IAuditTrailPartition partition = (IAuditTrailPartition) rtEnv
@@ -1775,25 +1775,25 @@ public class ModelManagerBean implements ModelManager
          IProcessDefinition process = null;
          if (runtimeOid != -1)
          {
-            ElementByRtOidCache byRtOid = (modelOid < elementsByRtOid.length)
-                  ? elementsByRtOid[(int) modelOid]
-                  : null;
-            if ((null != byRtOid) && (null != byRtOid.processes)
-                  && (runtimeOid < byRtOid.processes.length))
-            {
-               process = byRtOid.processes[(int) runtimeOid];
-            }
+         ElementByRtOidCache byRtOid = (modelOid < elementsByRtOid.length)
+               ? elementsByRtOid[(int) modelOid]
+               : null;
+         if ((null != byRtOid) && (null != byRtOid.processes)
+               && (runtimeOid < byRtOid.processes.length))
+         {
+            process = byRtOid.processes[(int) runtimeOid];
+         }
 
-            if (null == process)
+         if (null == process)
+         {
+            IModel model = findModel(modelOid);
+            if (null != model)
             {
-               IModel model = findModel(modelOid);
-               if (null != model)
-               {
-                  String[] fqId = rtOidRegistry.getFqId(IRuntimeOidRegistry.PROCESS,
-                        runtimeOid);
-                  process = model.findProcessDefinition(fqId[fqId.length - 1]);
-               }
+               String[] fqId = rtOidRegistry.getFqId(IRuntimeOidRegistry.PROCESS,
+                     runtimeOid);
+               process = model.findProcessDefinition(fqId[fqId.length - 1]);
             }
+         }
          }
          return process;
       }
@@ -1968,7 +1968,7 @@ public class ModelManagerBean implements ModelManager
 
          return oid;
       }
-      
+
       public long getRuntimeOid(IData data, String xPath)
       {
          return rtOidRegistry.getRuntimeOid(IRuntimeOidRegistry.STRUCTURED_DATA_XPATH,
@@ -2335,12 +2335,16 @@ public class ModelManagerBean implements ModelManager
 
          long result = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getCount(
                ProcessInstanceBean.class,
-               QueryExtension.where(Predicates
-                     .andTerm(Predicates.isEqual(ProcessInstanceBean.FR__MODEL, model
-                           .getModelOID()), Predicates.notInList(
-                           ProcessInstanceBean.FR__STATE, new int[] {
-                                 ProcessInstanceState.COMPLETED,
-                                 ProcessInstanceState.ABORTED}))));
+               QueryExtension.where(Predicates.andTerm(
+                     Predicates.isEqual(ProcessInstanceBean.FR__MODEL,
+                           model.getModelOID()),
+                     // TODO: If new ProcessInstanceState will be added then this has to be adapted as well
+                     // also see CRNT-39526
+                     Predicates.inList(ProcessInstanceBean.FR__STATE, new int[] {
+                           ProcessInstanceState.CREATED,
+                           ProcessInstanceState.ACTIVE,
+                           ProcessInstanceState.INTERRUPTED,
+                           ProcessInstanceState.ABORTING }))));
 
          if (result == 0 && !isHeated(model))
          {
@@ -2387,8 +2391,8 @@ public class ModelManagerBean implements ModelManager
          // (fh) this is called whenever a new deployment is made.
          // we just reset here the lastDeployment flag because we do not want to fetch the
          // last deployment in the same transaction when a ModelDeploymentBean was created.
-         lastDeployment = ModelDeploymentBean.getLastDeployment();
-         lastDeploymentSet = true;
+    	  lastDeployment = ModelDeploymentBean.getLastDeployment();
+    	  lastDeploymentSet = true;
       }
 
       public long getLastDeployment()
@@ -2405,7 +2409,7 @@ public class ModelManagerBean implements ModelManager
                }
             }
          }
-      return lastDeployment;
+    	 return lastDeployment;
       }
    }
 

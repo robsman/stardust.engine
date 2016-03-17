@@ -68,7 +68,10 @@ public class ProcessInstanceProperty extends AbstractPropertyWithUser implements
    public ProcessInstanceProperty clone(long processInstance)
    {
       ProcessInstanceProperty property = new ProcessInstanceProperty();
+      SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).cluster(property);
+
       ProcessInstanceProperty clone = super.clone(processInstance, property);
+
       return clone;
    }
 

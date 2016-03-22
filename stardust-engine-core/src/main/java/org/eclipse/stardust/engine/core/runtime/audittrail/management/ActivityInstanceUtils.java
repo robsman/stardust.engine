@@ -37,9 +37,9 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
  */
 public class ActivityInstanceUtils
 {
-   
+
    private static final Logger trace = LogManager.getLogger(ActivityThread.class);
-   
+
    /**
     * Lock activity to guarantee, that no other session can touch this activity
     */
@@ -70,7 +70,7 @@ public class ActivityInstanceUtils
       activityInstance.removeFromWorklists();
       activityInstance.setState(ActivityInstanceState.ABORTING);
       EventUtils.detachAll(activityInstance);
-      
+
       ImplementationType implementationType = activityInstance.getActivity().getImplementationType();
       if (ImplementationType.SubProcess.equals(implementationType))
       {
@@ -83,21 +83,21 @@ public class ActivityInstanceUtils
       }
       scheduleNewActivityThread(ai);
    }
-   
+
    public static void abortActivityInstance(long aiOid, AbortScope abortScope)
    {
       ActivityInstanceBean ai = ActivityInstanceBean.findByOID(aiOid);
       abortActivityInstance(ai, abortScope);
-   }   
-   
+   }
+
    public static void abortActivityInstance(IActivityInstance ai, AbortScope abortScope)
    {
       assertNotTerminated(ai);
       assertNotInAbortingProcess(ai);
       assertNotActivatedByOther(ai);
-     
+
       IProcessInstance pi = ai.getProcessInstance();
-      
+
       if (AbortScope.RootHierarchy == abortScope)
       {
          IProcessInstance processInstance = ai.getProcessInstance();
@@ -121,13 +121,13 @@ public class ActivityInstanceUtils
          throw new InternalError(MessageFormat.format("AbortScope {0} is not expected.",
                new Object[] { abortScope }));
       }
-      
+
       // in case that process instance is already aborted but not its activity
       if (isProcessInstanceAborted(ai, pi))
       {
          ((ActivityInstanceBean) ai).setState(ActivityInstanceState.ABORTED);
       }
-      
+
    }
 
    private static boolean isProcessInstanceAborted(IActivityInstance ai,
@@ -137,20 +137,20 @@ public class ActivityInstanceUtils
             && pi.getState().equals(ProcessInstanceState.Aborted) && !ai.isAborting()
             && !ai.isTerminated();
    }
-   
+
    public static void scheduleNewActivityThread(IActivityInstance activityInstance)
          throws ConcurrencyException
    {
       String threadMode = Parameters.instance().getString(
             EngineProperties.PROCESS_TERMINATION_THREAD_MODE, EngineProperties.THREAD_MODE_ASYNCHRONOUS);
-      
+
       BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
       boolean synchronously = rtEnv.getExecutionPlan() != null || threadMode.equals(EngineProperties.THREAD_MODE_SYNCHRONOUS);
 
       ActivityThread.schedule(null, null, activityInstance, synchronously, null,
             Collections.EMPTY_MAP, false);
    }
-   
+
    public static void assertNotActivatedByOther(IActivityInstance ai)
          throws AccessForbiddenException
    {
@@ -186,7 +186,7 @@ public class ActivityInstanceUtils
          }
       }
    }
-   
+
    public static void assertNotTerminated(IActivityInstance activityInstance)
          throws AccessForbiddenException
    {
@@ -196,7 +196,7 @@ public class ActivityInstanceUtils
                .raise(activityInstance.getOID(), activityInstance.getActivity().getId()));
       }
    }
-   
+
    public static void assertNotInAbortingProcess(IActivityInstance activityInstance)
          throws AccessForbiddenException
    {
@@ -207,7 +207,7 @@ public class ActivityInstanceUtils
                      activityInstance.getOID(), activityInstance.getActivity().getId()));
       }
    }
-   
+
    public static void assertGrantedAccess(IActivityInstance activityInstance)
          throws AccessForbiddenException
    {
@@ -224,7 +224,7 @@ public class ActivityInstanceUtils
                      activityInstance.getActivity().getId(), user.getId(), user));
       }
    }
-   
+
    public static boolean isAdmin(IActivityInstance activityInstance)
    {
       IUser user = SecurityProperties.getUser();
@@ -255,13 +255,13 @@ public class ActivityInstanceUtils
 
    public static void assertNotInUserWorklist(IActivityInstance activityInstance,
          ParticipantInfo participant) throws AccessForbiddenException
-   {      
+   {
       IParticipant currentPerformer = activityInstance.getCurrentPerformer();
       if(currentPerformer instanceof IUserGroup)
       {
          if(participant instanceof UserInfo)
          {
-            long oid = ((UserInfo) participant).getOID();         
+            long oid = ((UserInfo) participant).getOID();
             for (Iterator i = ((IUserGroup) currentPerformer).findAllUsers(); i.hasNext();)
             {
                IUser user = (IUser) i.next();
@@ -272,19 +272,19 @@ public class ActivityInstanceUtils
                }
             }
          }
-                  
+
          throw new AccessForbiddenException(
                BpmRuntimeError.BPMRT_AI_CAN_NOT_BE_DELEGATED_TO_NON_USERGROUP_MEMBER
                      .raise(new Long(activityInstance.getOID()),
                            activityInstance.getActivity().getId()));
       }
-   }      
-   
+   }
+
    public static void assertNotOnOtherUserWorklist(IActivityInstance activityInstance,
          boolean allowAdmin) throws AccessForbiddenException
    {
       IUser currentUser = SecurityProperties.getUser();
-      if (isTransientSystemUser(currentUser))
+      if (isSystemUser(currentUser))
       {
          return;
       }
@@ -324,17 +324,14 @@ public class ActivityInstanceUtils
    }
 
    /**
-    * Test if the given user is a transient system user created with
-    * {@link UserBean#createTransientUser(String, String, String, UserRealmBean)}.
-    * 
+    * Test if the given user is the system user.
+    *
     * @param user
     * @return true if it the transient user, otherwise false.
     */
-   private static boolean isTransientSystemUser(IUser user)
+   private static boolean isSystemUser(IUser user)
    {
-      return 0 == user.getOID() 
-            && PredefinedConstants.SYSTEM.equals(user.getAccount())
-            && PredefinedConstants.SYSTEM_REALM.equals(user.getRealm().getId());
+      return user == UserBean.getSystemUser(SecurityProperties.getPartition());
    }
 
    private ActivityInstanceUtils()
@@ -350,7 +347,7 @@ public class ActivityInstanceUtils
       }
    }
 
-   
+
    public static void setOutDataValues(String context, Map<String, ?> values,
          IActivityInstance activityInstance, boolean ignoreMappingIfQaInstance) throws ObjectNotFoundException, InvalidValueException
    {
@@ -367,11 +364,11 @@ public class ActivityInstanceUtils
             errorMessage.append(activityInstance.getOID());
             errorMessage.append("'");
             trace.warn(errorMessage);
-            
+
             return;
          }
       }
-      
+
       if (null == context)
       {
          context = PredefinedConstants.DEFAULT_CONTEXT;
@@ -393,7 +390,7 @@ public class ActivityInstanceUtils
          }
       }
    }
-   
+
    public static void setOutDataValues(String context, Map<String, ?> values,
          IActivityInstance activityInstance) throws ObjectNotFoundException, InvalidValueException
    {
@@ -407,12 +404,12 @@ public class ActivityInstanceUtils
       {
          QualityAssuranceUtils.assertCompletingIsAllowed(activityInstance, outData);
       }
-      
+
       setOutDataValues(context, outData, activityInstance);
       ActivityThread.schedule(null, null, activityInstance, synchronously, null,
             Collections.EMPTY_MAP, false);
    }
-   
+
    public static boolean isTransientExecutionScenario(final IActivityInstance ai)
    {
       if ( !ProcessInstanceUtils.isTransientPiSupportEnabled())

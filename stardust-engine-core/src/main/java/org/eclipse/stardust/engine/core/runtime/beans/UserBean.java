@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.eclipse.stardust.common.Attribute;
 import org.eclipse.stardust.common.CollectionUtils;
@@ -168,6 +170,8 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
 
    private transient Set<Long> grantsCache = null;
 
+   private static ConcurrentMap<Short, IUser> SYSTEM_USERS = new ConcurrentHashMap<Short, IUser>();
+
    public static long countActiveUsers()
    {
       return (SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)).getCount(
@@ -178,8 +182,34 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
                         Predicates.isEqual(FR__VALID_TO, 0))));
    }
 
-   public static IUser createTransientUser(String account, String firstName,
-         String lastName, UserRealmBean realm)
+   public static IUser getSystemUser(IAuditTrailPartition partition)
+   {
+      if (partition == null)
+      {
+         return null;
+      }
+      Short partitionOid = partition.getOID();
+      IUser systemUser = SYSTEM_USERS.get(partitionOid);
+      if (systemUser == null)
+      {
+         systemUser = new UserBean();
+         ((UserBean) systemUser).oid = 0L;
+         ((UserBean) systemUser).account = PredefinedConstants.SYSTEM;
+         ((UserBean) systemUser).firstName = PredefinedConstants.SYSTEM_FIRST_NAME;
+         ((UserBean) systemUser).lastName = PredefinedConstants.SYSTEM_LAST_NAME;
+         ((UserBean) systemUser).realm = (UserRealmBean) UserRealmBean.getSystemRealm(partition);
+
+         IUser existing = SYSTEM_USERS.putIfAbsent(partitionOid, systemUser);
+         if (existing != null)
+         {
+            systemUser = existing;
+         }
+      }
+      return systemUser;
+   }
+
+   /*public static IUser createTransientUser(String account, String firstName,
+         String lastName, IUserRealm realm)
    {
       IUser user = new UserBean();
 
@@ -190,7 +220,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       user.setRealm(realm);
 
       return user;
-   }
+   }*/
 
    /**
     * @deprecated Superseded by {@link #findByOid(long)}

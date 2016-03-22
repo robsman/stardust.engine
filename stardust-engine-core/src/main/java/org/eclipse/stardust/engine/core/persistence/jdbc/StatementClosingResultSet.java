@@ -1006,4 +1006,16 @@ public class StatementClosingResultSet implements ResultSet
    {
       rs.updateNClob(columnLabel, reader);
    }
+
+   @Override
+   public <T> T getObject(int columnIndex, Class<T> type) throws SQLException
+   {
+      return rs.getObject(columnIndex, type);
+   }
+
+   @Override
+   public <T> T getObject(String columnLabel, Class<T> type) throws SQLException
+   {
+      return rs.getObject(columnLabel, type);
+   }
 }

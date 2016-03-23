@@ -660,6 +660,7 @@ public class DataValueBean extends IdentifiablePersistentBean
    public IProcessInstance getProcessInstance()
    {
       fetch();
+
       return processInstance;
    }
 

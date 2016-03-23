@@ -384,7 +384,7 @@ public class ActivityInstanceUtils
                      BpmRuntimeError.MDL_UNKNOWN_OUT_DATA_MAPPING.raise(entry.getKey(),
                            context, activityInstance.getOID()));
             }
-            processInstance.setOutDataValue(dm.getData(), dm.getDataPath(), entry.getValue());
+            ((ProcessInstanceBean)processInstance).setOutDataValue(dm.getData(), dm.getDataPath(), entry.getValue(), new DataMappingContext(activityInstance));
          }
       }
    }

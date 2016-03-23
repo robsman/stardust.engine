@@ -2136,7 +2136,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             }
          }
 
-         processInstance.setOutDataValue(data, dataPath, bridgeObject);
+         processInstance.setOutDataValue(data, dataPath, bridgeObject, new DataMappingContext(this));
       }
    }
 

@@ -873,7 +873,7 @@ public class BusinessObjectUtils
       private static final Logger trace = LogManager.getLogger(BusinessObjectsListener.class);
 
       @Override
-      public void onDataValueChanged(IDataValue dv)
+      public void onDataValueChanged(IDataValue dv, DataMappingContext mappingContext)
       {
          IProcessInstance pi = dv.getProcessInstance();
          try

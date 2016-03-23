@@ -1011,7 +1011,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
       addDataValue(dataValue);
 
-      onDataValueChanged(dataValue);
+      onDataValueChanged(dataValue, null);
    }
 
    public Iterator getAllDataValues()
@@ -1322,6 +1322,11 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    }
 
    public void setOutDataValue(IData data, String path, Object value)
+   {
+      setOutDataValue(data, path, value, null);
+   }
+   
+   public void setOutDataValue(IData data, String path, Object value, DataMappingContext mappingContext)
          throws InvalidValueException
    {
       DataAuthorization2Predicate.verify(data, ClientPermission.MODIFY_DATA_VALUE);
@@ -1400,16 +1405,16 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          addDataValue(dataValue);
       }
 
-      onDataValueChanged(dataValue);
+      onDataValueChanged(dataValue, mappingContext);
    }
 
    @SPI(status = Status.Experimental, useRestriction = UseRestriction.Internal)
    public static interface DataValueChangeListener
    {
-      void onDataValueChanged(IDataValue dataValue);
+      void onDataValueChanged(IDataValue dataValue, DataMappingContext mappingContext);
    }
 
-   private void onDataValueChanged(IDataValue dataValue)
+   private void onDataValueChanged(IDataValue dataValue, DataMappingContext changeContext)
    {
       List<DataValueChangeListener> changeListeners = ExtensionProviderUtils
             .getExtensionProviders(DataValueChangeListener.class);
@@ -1418,11 +1423,11 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          for (int i = 0; i < changeListeners.size(); i++)
          {
             DataValueChangeListener listener = changeListeners.get(i);
-            listener.onDataValueChanged(dataValue);
+            listener.onDataValueChanged(dataValue, changeContext);
          }
       }
    }
-
+   
    public Object getInDataValue(IData data, String path)
    {
       return getInDataValue(data, path, null, null, null);

@@ -2,8 +2,6 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.io.Serializable;
 
-import org.apache.derby.iapi.types.DataTypeUtilities;
-
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;

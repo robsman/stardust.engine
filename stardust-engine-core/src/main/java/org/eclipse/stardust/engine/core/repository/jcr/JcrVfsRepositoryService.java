@@ -1223,7 +1223,7 @@ public class JcrVfsRepositoryService
          // special case for jackrabbit, thrown if Document.name contains '*' or other
          // unsupported characters
          else if (tr instanceof RepositoryException
-               && tr.getMessage().startsWith("Failed to resolve path"))
+               && tr.getMessage() != null && tr.getMessage().startsWith("Failed to resolve path"))
          {
             error = BpmRuntimeError.DMS_FAILED_PATH_RESOLVE.raise(tr.getCause()
                   .getMessage());

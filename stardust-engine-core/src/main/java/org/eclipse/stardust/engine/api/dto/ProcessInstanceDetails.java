@@ -312,7 +312,10 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
 
          initHistoricalEvents(parameters, processInstance);
          
-         initHistoricalData(parameters, processInstance);
+         if (!ProcessInstanceUtils.isTransientExecutionScenario(processInstance))
+         {
+            initHistoricalData(parameters, processInstance);
+         }
       }
       finally
       {

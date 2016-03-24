@@ -14,6 +14,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean.DataValueChangeListener;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
@@ -33,7 +34,9 @@ public class DataValueHistoryListener implements DataValueChangeListener
       boolean isDataValueHistoryActive = Parameters.instance().getBoolean(
             KernelTweakingProperties.WRITE_HISTORICAL_DATA_TO_DB, false);
 
-      if (isDataValueHistoryActive)
+      if (isDataValueHistoryActive
+            && !AuditTrailPersistence.isTransientExecution(dataValue.getProcessInstance()
+                  .getAuditTrailPersistence()))
       {
 
          if (trace.isDebugEnabled())

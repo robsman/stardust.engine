@@ -1,8 +1,12 @@
 package org.eclipse.stardust.engine.extensions.camel.core;
 
 import java.util.Iterator;
+import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.model.IApplication;
+import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.core.model.beans.AccessPointBean;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 import org.eclipse.stardust.engine.extensions.camel.Util;
@@ -10,6 +14,8 @@ import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.APPLICATION_INTEGRATION_OVERLAY_ATT;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.GENERIC_ENDPOINT_OVERLAY;
+import static org.eclipse.stardust.engine.extensions.camel.Util.getConsumerRouteConfiguration;
+import static org.eclipse.stardust.engine.extensions.camel.Util.getInvocationPattern;
 
 ;
 /**
@@ -131,4 +137,41 @@ public abstract class ApplicationRouteContext extends RouteContext
    }
 
    public abstract String getUserProvidedRouteConfiguration();
+
+   public List<Inconsistency> validate()
+   {
+      List<Inconsistency> inconsistencies = CollectionUtils.newList();
+      // check for empty camel context ID.
+      if (StringUtils.isEmpty(camelContextId))
+      {
+         inconsistencies.add(new Inconsistency(
+               "No camel context ID specified for application: " + application.getId(),
+               application, Inconsistency.ERROR));
+      }
+
+      String invocationPattern = getInvocationPattern(application);
+
+      if (invocationPattern != null
+            && invocationPattern.equals(CamelConstants.InvocationPatterns.RECEIVE))
+      {
+
+         if (getConsumerRouteConfiguration(application) == null)
+         {
+            inconsistencies.add(new Inconsistency(
+                  "No route definition specified for application: " + application.getId(),
+                  application, Inconsistency.ERROR));
+         }
+      }
+
+      if (invocationPattern != null && application.getAllOutAccessPoints().hasNext()
+            && invocationPattern.equals(CamelConstants.InvocationPatterns.SEND))
+      {
+
+         inconsistencies.add(new Inconsistency("Application " + application.getName()
+               + " contains Out AccessPoint while the Endpoint Pattern is set to "
+               + invocationPattern, application, Inconsistency.ERROR));
+
+      }
+      return inconsistencies;
+   }
 }

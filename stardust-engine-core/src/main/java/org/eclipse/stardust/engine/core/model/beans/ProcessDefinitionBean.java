@@ -554,13 +554,13 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
          {
             throw new PublicException(
                   BpmRuntimeError.MDL_FROM_ACTIVITY_DOES_NOT_BELONG_TO.raise(this,
-                        fromActivity));
+                        fromActivity.getId(), fromActivity));
          }
 
          if (toActivity.getProcessDefinition() != this)
          {
             throw new PublicException(
-                  BpmRuntimeError.MDL_TO_ACTIVITY_DOES_NOT_BELONG_TO.raise(this,
+                  BpmRuntimeError.MDL_TO_ACTIVITY_DOES_NOT_BELONG_TO.raise(this, fromActivity.getId(),
                         fromActivity));
          }
 
@@ -569,7 +569,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
          {
             throw new PublicException(
                   BpmRuntimeError.MDL_MULTIPLE_INCOMING_TRANSITIONS_ARE_ONLY_ALLOWED_FOR_AND_OR_XOR_ACTIVITY_JOINS.raise(
-                        elementOID, toActivity.getElementOID()));
+                        elementOID, toActivity.getId(), toActivity.getElementOID()));
          }
 
          if (fromActivity.getSplitType() == JoinSplitType.None
@@ -579,7 +579,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
          {
             throw new PublicException(
                   BpmRuntimeError.MDL_MULTIPLE_OUTGOING_TRANSITIONS_ARE_ONLY_ALLOWED_FOR_AND_OR_XOR_ACTIVITY_SPLITS.raise(
-                        elementOID, toActivity.getElementOID()));
+                        elementOID, toActivity.getId(), toActivity.getElementOID()));
          }
       }
 

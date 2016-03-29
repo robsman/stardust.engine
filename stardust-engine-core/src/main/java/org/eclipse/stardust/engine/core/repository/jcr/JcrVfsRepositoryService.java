@@ -886,6 +886,14 @@ public class JcrVfsRepositoryService
                   AccessMode.Write))
             {
                IFolder vfsFolder = toVfs(folder, getPartitionPrefix());
+               // prevent renaming of root folder
+               if (getPartitionPrefix().equals(oldFolder.getPath()) &&
+                     !oldFolder.getName().equals(vfsFolder.getName()))
+               {
+                  throw new DocumentManagementServiceException(
+                        BpmRuntimeError.DMS_SECURITY_ERROR_ACCESS_DENIED_ON_DOCUMENT.raise(folder.getId()));
+               }
+
                return fromVfs(vfs.updateFolder(vfsFolder), getPartitionPrefix());
             }
             else

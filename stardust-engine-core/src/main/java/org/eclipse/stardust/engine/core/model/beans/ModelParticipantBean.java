@@ -18,6 +18,7 @@ import java.util.List;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
@@ -36,6 +37,8 @@ import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
 public abstract class ModelParticipantBean extends IdentifiableElementBean
       implements IModelParticipant
 {
+   private static final long serialVersionUID = -7610223755977593259L;
+
    /** Organizations this participant is part of. */
    private List organizations = null;
 
@@ -46,17 +49,6 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
 
    private List<String> allNewOrganizations = null;
    private List<String> allRemovedOrganizations = null;
-
-   private String qualifiedId = null;
-
-   public String getQualifiedId()
-   {
-      if(qualifiedId == null)
-      {
-         qualifiedId = ModelUtils.getQualifiedId(this);
-      }
-      return qualifiedId;
-   }
 
    ModelParticipantBean()
    {
@@ -282,16 +274,16 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
             allCurrentOrganizations.add(organization);
          }
 
-         // check for unique Id
-         IModelParticipant p = ((IModel) getModel()).findParticipant(getId());
-         if (p != null && p != this)
+         if (StringUtils.isNotEmpty(getId()))
          {
-            BpmValidationError error = BpmValidationError.PART_DUPLICATE_ID.raise(getName());
-            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
-         }
-
-         if (null != getId())
-         {
+            // check for unique Id
+            IModelParticipant p = ((IModel) getModel()).findParticipant(getId());
+            if (p != null && p != this)
+            {
+               BpmValidationError error = BpmValidationError.PART_DUPLICATE_ID.raise(getName());
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+            }
+            
             // check id to fit in maximum length
             if (getId().length() > AuditTrailParticipantBean.getMaxIdLength())
             {
@@ -321,42 +313,45 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
             .getStringAttribute(PredefinedConstants.BINDING_DATA_PATH_ATT);
             if (scopedOrg)
             {
-               IData data = ((IModel) getModel()).findData(dataIdOrg);
-               if(data == null)
+               if (dataIdOrg == null)
                {
-                  BpmValidationError error = BpmValidationError.PART_DATA_FOR_SCOPED_ORGANIZATION_MUST_EXIST.raise(organization.getId());
-                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                  BpmValidationError error = BpmValidationError.PART_DATA_OF_SCOPED_ORGANIZATION_MUST_NOT_BE_NULL.raise(organization.getId());
+                  inconsistencies.add(new Inconsistency(error, this,
+                        Inconsistency.ERROR));
                }
                else
                {
-                  IDataType dataType = (IDataType) data.getType();
-                  boolean isPrimitiveData = PredefinedConstants.PRIMITIVE_DATA.equals(dataType
-                        .getId());
-                  boolean isStructData = PredefinedConstants.STRUCTURED_DATA.equals(dataType
-                        .getId());
-                  if ((!isPrimitiveData) && (!isStructData))
+                  IData data = ((IModel) getModel()).findData(dataIdOrg);
+                  if(data == null)
                   {
-                     BpmValidationError error = BpmValidationError.PART_DATA_OF_SCOPED_ORGANIZATION_CAN_ONLY_BE_PRIM_OR_STRUCT.raise(organization.getId());
-                     inconsistencies.add(new Inconsistency(error, this,
-                           Inconsistency.ERROR));
+                     BpmValidationError error = BpmValidationError.PART_DATA_FOR_SCOPED_ORGANIZATION_MUST_EXIST.raise(organization.getId());
+                     inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                   }
-                  if (dataIdOrg == null)
+                  else
                   {
-                     BpmValidationError error = BpmValidationError.PART_DATA_OF_SCOPED_ORGANIZATION_MUST_NOT_BE_NULL.raise(organization.getId());
-                     inconsistencies.add(new Inconsistency(error, this,
-                           Inconsistency.ERROR));
-                  }
-
-                  BridgeObject bridgeData = BridgeObject.getBridge(data, dataPathOrg,
-                        Direction.OUT, null);
-                  final Class endClass = bridgeData.getEndClass();
-
-                  if (!String.class.equals(endClass) && !endClass.isEnum())
-                  {
-                     BpmValidationError error = BpmValidationError.PART_TYPE_OF_DATA_OF_SCOPED_ORGANIZATION_IS_NOT.raise(
-                           dataIdOrg, organization.getId(), String.class);
-                     inconsistencies.add(new Inconsistency(error, this,
-                           Inconsistency.ERROR));
+                     IDataType dataType = (IDataType) data.getType();
+                     boolean isPrimitiveData = PredefinedConstants.PRIMITIVE_DATA.equals(dataType
+                           .getId());
+                     boolean isStructData = PredefinedConstants.STRUCTURED_DATA.equals(dataType
+                           .getId());
+                     if ((!isPrimitiveData) && (!isStructData))
+                     {
+                        BpmValidationError error = BpmValidationError.PART_DATA_OF_SCOPED_ORGANIZATION_CAN_ONLY_BE_PRIM_OR_STRUCT.raise(organization.getId());
+                        inconsistencies.add(new Inconsistency(error, this,
+                              Inconsistency.ERROR));
+                     }
+   
+                     BridgeObject bridgeData = BridgeObject.getBridge(data, dataPathOrg,
+                           Direction.OUT, null);
+                     final Class endClass = bridgeData.getEndClass();
+   
+                     if (!String.class.equals(endClass) && !endClass.isEnum())
+                     {
+                        BpmValidationError error = BpmValidationError.PART_TYPE_OF_DATA_OF_SCOPED_ORGANIZATION_IS_NOT.raise(
+                              dataIdOrg, organization.getId(), String.class);
+                        inconsistencies.add(new Inconsistency(error, this,
+                              Inconsistency.ERROR));
+                     }
                   }
                }
             }
@@ -577,7 +572,7 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
             {
                if(!isTreeRemoved((IOrganization) deployedModelParticipant))
                {
-                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organization.getId());
+                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organizationID);
                   inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                   isValid = false;
                }
@@ -586,7 +581,7 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
             {
                if(containsMember(deployedModelParticipant, true))
                {
-                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organization.getId());
+                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organizationID);
                   inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                   isValid = false;
                }
@@ -629,7 +624,7 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
             {
                if(!isTreeAdded((IOrganization) modelParticipant))
                {
-                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organization.getId());
+                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organizationID);
                   inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                   isValid = false;
                }
@@ -638,7 +633,7 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
             {
                if(containsMember(modelParticipant, false))
                {
-                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organization.getId());
+                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organizationID);
                   inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                   isValid = false;
                }

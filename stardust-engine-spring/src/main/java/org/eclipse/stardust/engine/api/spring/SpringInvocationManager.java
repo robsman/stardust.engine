@@ -52,6 +52,11 @@ public class SpringInvocationManager extends InvocationManager implements Serial
          {
             return serviceBean.getCarnotProperties();
          }
+         
+         public String getPropertyDisplayValue(String key)
+         {
+            return getProperties().get(key).toString();
+         }
       }));
       interceptors.add(new SpringConfigurationInterceptor(serviceName, serviceBean));
       interceptors.add(new SpringSessionInterceptor(SessionFactory.AUDIT_TRAIL,

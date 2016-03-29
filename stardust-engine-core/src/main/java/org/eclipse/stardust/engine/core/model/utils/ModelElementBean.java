@@ -50,6 +50,11 @@ public abstract class ModelElementBean extends AttributeHolderImpl implements Mo
 
    public static int nextID(String prefix, int current, String id)
    {
+      if(prefix == null)
+      {
+         throw new IllegalArgumentException("prefix must not be null");
+      }
+      
       if (id != null && id.startsWith(prefix))
       {
          try

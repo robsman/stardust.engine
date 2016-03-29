@@ -8,12 +8,16 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.apache.camel.Exchange;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.dto.ModelDetails;
 import org.eclipse.stardust.engine.api.dto.TypeDeclarationDetails;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
-
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.beans.TypeDeclarationBean;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
@@ -22,10 +26,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.command.impl.RetrieveModelDetailsCommand;
 import org.eclipse.stardust.engine.core.struct.*;
-import org.eclipse.stardust.engine.core.struct.emfxsd.XPathFinder;
 import org.eclipse.stardust.engine.core.struct.sxml.Node;
 import org.eclipse.stardust.engine.extensions.camel.util.client.ClientEnvironment;
-import org.eclipse.xsd.XSDNamedComponent;
 import org.eclipse.xsd.XSDSchema;
 
 import com.google.gson.*;
@@ -33,7 +35,8 @@ import com.google.gson.*;
 public abstract class AbstractBpmTypeConverter
 {
    protected Exchange exchange;
-
+   private static boolean isStrict = Parameters.instance().getBoolean("XPath.StrictEvaluation", true);
+   public static final Logger logger = LogManager.getLogger(AbstractBpmTypeConverter.class);
    protected AbstractBpmTypeConverter(Exchange exchange)
    {
       this.exchange = exchange;
@@ -85,11 +88,26 @@ public abstract class AbstractBpmTypeConverter
          }
          else if (element.isJsonPrimitive())
          {
+            if(isStrict){
+                  if(xPathMap.containsXPath(path))
+                  {
+                     addPrimitiveTypeInList(xPathMap.getXPath(path), element.getAsJsonPrimitive(),complexTypes );
+                  }else{
+                     throw new IllegalOperationException(
+                           BpmRuntimeError.MDL_UNKNOWN_XPATH.raise(path));
+                  }
+            }else{
+               if(xPathMap.containsXPath(path)){
+                  addPrimitiveTypeInList(xPathMap.getXPath(path), element.getAsJsonPrimitive(),complexTypes );
+               }else{
+                  logger.info("XPath "+path+" is not defined");
+               } 
+            }
+         }
+      }
+   }
 
-            JsonPrimitive primitive = element.getAsJsonPrimitive();
-
-            TypedXPath typedXPath = xPathMap.getXPath(path);
-
+   private void addPrimitiveTypeInList(TypedXPath typedXPath, JsonPrimitive primitive,List<Object> complexTypes){
             if (typedXPath != null)
             {
 
@@ -128,8 +146,6 @@ public abstract class AbstractBpmTypeConverter
                }
             }
          }
-      }
-   }
 
    protected void processJsonObject(JsonObject jsonObject,
          Map<String, Object> complexType, String path, IXPathMap xPathMap)
@@ -169,13 +185,29 @@ public abstract class AbstractBpmTypeConverter
          }
          else if (entry.getValue().isJsonPrimitive())
          {
-
             JsonPrimitive primitive = entry.getValue().getAsJsonPrimitive();
-
             String xPath = "".equals(path) ? entry.getKey() : path + "/" + entry.getKey();
+            TypedXPath typedXPath;
+            if(isStrict){
+               if(xPathMap.containsXPath(xPath))
+               {
+                  setPrimitiveValue(xPathMap.getXPath(xPath), primitive, entry, complexType);
+               }else{
+                  throw new IllegalOperationException(
+                        BpmRuntimeError.MDL_UNKNOWN_XPATH.raise(xPath));
+               }
+            }else{//StrictEvaluation disabled
+               if(xPathMap.containsXPath(xPath)){
+                  setPrimitiveValue(xPathMap.getXPath(xPath), primitive, entry, complexType);
+               }else{
+                  logger.info("XPath "+xPath+" is not defined");
+               }
+            }
+         }
+      }
+   }
 
-            TypedXPath typedXPath = xPathMap.getXPath(xPath);
-
+   private void setPrimitiveValue(TypedXPath typedXPath, JsonPrimitive primitive, Entry<String, JsonElement> entry, Map<String, Object> complexType){
             if (typedXPath != null)
             {
 
@@ -214,9 +246,8 @@ public abstract class AbstractBpmTypeConverter
                      break;
                }
             }
+
          }
-      }
-   }
    protected IData getData(IModel model, String dataId){
       return model.findData(dataId);
    }
@@ -355,57 +386,43 @@ public abstract class AbstractBpmTypeConverter
       private StructuredDataConverter converter;
       private DataMapping dataMapping;
       private XSDSchema xsdSchema;
-
       private IXPathMap xPathMap;
 
       protected SDTConverter(DataMapping dataMapping, long modelOid)
       {
          this.dataMapping=dataMapping;
          Object obj = lookupModel(modelOid);
-
-         XSDNamedComponent component = null;
-
          if (obj instanceof IModel)
          {
-            IModel iModel = ((IModel) obj);
-            ITypeDeclaration iTypeDeclaration = (ITypeDeclaration) getTypeDeclaration(
-                  iModel, dataMapping);
-            this.xsdSchema = loadXsdSchema(iModel, iTypeDeclaration);
-            component = StructuredTypeRtUtils.findElementOrTypeDeclaration(xsdSchema,
-                  iTypeDeclaration.getId(), false);
+            engineInit(((IModel) obj), dataMapping.getDataId());
          }
          else
          {
-            Model model = ((Model) obj);
-            TypeDeclaration typeDeclaration = (TypeDeclaration) getTypeDeclaration(model,
-                  dataMapping);
-            this.xsdSchema = loadXsdSchema(model, typeDeclaration);
-            component = StructuredTypeRtUtils.findElementOrTypeDeclaration(xsdSchema,
-                  typeDeclaration.getId(), false);
-            Data data = model.getData(dataMapping.getId());
-            this.xPathMap = StructuredTypeRtUtils.getXPathMap(model, data);
+            clientInit(((Model) obj), dataMapping);
          }
-
-         Set xPathSet = XPathFinder.findAllXPaths(xsdSchema, component);
-
-         this.xPathMap = new ClientXPathMap(xPathSet);
-
-         this.converter = new StructuredDataConverter(xPathMap);
       }
 
       protected SDTConverter(IModel iModel, String dataId)
       {
-         XSDNamedComponent component = null;
+         engineInit(iModel, dataId);
+      }
+
+      private void clientInit(Model model, DataMapping dataMapping)
+      {
+         Data data = model.getData(dataMapping.getId());
+         TypeDeclaration typeDeclaration = (TypeDeclaration) getTypeDeclaration(model, dataMapping);
+         this.xsdSchema = loadXsdSchema(model, typeDeclaration);
+         this.xPathMap = StructuredTypeRtUtils.getXPathMap(model, data);
+         this.converter = new StructuredDataConverter(xPathMap);
+      }
+
+      private void engineInit(IModel iModel, String dataId)
+      {
+         IData data = getData(iModel, dataId);
          ITypeDeclaration iTypeDeclaration = (ITypeDeclaration) getTypeDeclaration(iModel,
                dataId);
          this.xsdSchema = loadXsdSchema(iModel, iTypeDeclaration);
-         component = StructuredTypeRtUtils.findElementOrTypeDeclaration(xsdSchema,
-               iTypeDeclaration.getId(), false);
-
-         Set xPathSet = XPathFinder.findAllXPaths(xsdSchema, component);
-
-         this.xPathMap = new ClientXPathMap(xPathSet);
-
+         this.xPathMap = DataXPathMap.getXPathMap(data);
          this.converter = new StructuredDataConverter(xPathMap);
       }
 
@@ -424,7 +441,7 @@ public abstract class AbstractBpmTypeConverter
             return dataMapping.getDataPath();
          return "";
       }
-      
+
       protected XSDSchema getXsdSchema()
       {
          return xsdSchema;

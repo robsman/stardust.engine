@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1094,6 +1094,28 @@ public class AdministrationServiceImpl
     * All audit trail information is lost after calling this method.
     *
     * @param keepUsers
+    * @param keepBO
+    */
+   public void cleanupRuntime(boolean keepUsers, boolean keepBO)
+   {
+      checkProductive("Cleanup Audit Trail Information");
+      checkDaemonStopState(false);
+
+      try
+      {
+         cleanupRuntime(keepUsers, true, keepBO);
+      }
+      finally
+      {
+         flushCaches();
+      }
+   }
+
+   /**
+    * Removes all CARNOT-specific tables from the audit trail database.
+    * All audit trail information is lost after calling this method.
+    *
+    * @param keepUsers
     */
    public void cleanupRuntime(boolean keepUsers)
    {
@@ -1102,7 +1124,7 @@ public class AdministrationServiceImpl
 
       try
       {
-         cleanupRuntime(keepUsers, true);
+         cleanupRuntime(keepUsers, true, false);
       }
       finally
       {
@@ -1110,7 +1132,7 @@ public class AdministrationServiceImpl
       }
    }
 
-   private void cleanupRuntime(boolean keepUsers, boolean keepLoginUser)
+   private void cleanupRuntime(boolean keepUsers, boolean keepLoginUser, boolean keepBO)
    {
       ModelManager manager = ModelManagerFactory.getCurrent();
       if (null == manager)
@@ -1122,7 +1144,7 @@ public class AdministrationServiceImpl
       short partitionOid = SecurityProperties.getPartitionOid();
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 
-      deleteAllProcessInstancesFromPartition(partitionOid, session);
+      deleteAllProcessInstancesFromPartition(partitionOid, session, keepBO);
 
       long userOID = SecurityProperties.getUserOID();
 
@@ -1164,7 +1186,7 @@ public class AdministrationServiceImpl
                   BpmRuntimeError.MDL_MODEL_MANAGER_UNAVAILABLE.raise());
          }
 
-         cleanupRuntime(false, false);
+         cleanupRuntime(false, false, false);
 
          Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 
@@ -1195,19 +1217,48 @@ public class AdministrationServiceImpl
 
          // On internal authentication motu has to be preserved
          // It is just reset to the initial state.
+         UserBean motu = null;
          if (SecurityProperties.isInternalAuthentication())
          {
             UserRealmBean carnotRealm = new UserRealmBean(
                   PredefinedConstants.DEFAULT_REALM_ID,
                   PredefinedConstants.DEFAULT_REALM_NAME,
                   (AuditTrailPartitionBean) SecurityProperties.getPartition(false));
-            IUser motu = new UserBean(PredefinedConstants.MOTU,
+            motu = new UserBean(PredefinedConstants.MOTU,
                   PredefinedConstants.MOTU_FIRST_NAME, PredefinedConstants.MOTU_LAST_NAME,
                   carnotRealm);
             motu.setPassword(motu.getId());
          }
 
          ModelManagerFactory.setDirty();
+
+         ModelManager modelManager = ModelManagerFactory.getCurrent();
+         IModel predefinedModel = modelManager
+               .findActiveModel(PredefinedConstants.PREDEFINED_MODEL_ID);
+         if (predefinedModel == null)
+         {
+            List<ParsedDeploymentUnit> predefinedModelElement = ModelUtils
+                  .getPredefinedModelElement();
+            if (predefinedModelElement != null)
+            {
+               List<DeploymentInfo> deployedModels = modelManager.deployModel(
+                     predefinedModelElement, DeploymentOptions.DEFAULT);
+
+               // only add grant to user motu if it has been recreated before
+               if (motu != null && SecurityProperties.isInternalAuthorization())
+               {
+                  IModel model = modelManager.findModel(deployedModels.get(0)
+                        .getModelOID());
+                  IRole role = (IRole) model
+                        .findParticipant(PredefinedConstants.ADMINISTRATOR_ROLE);
+                  motu.addToParticipants(role, null);
+               }
+            }
+            else
+            {
+               trace.warn("Could not load PredefinedModel.xpdl");
+            }
+         }
 
          trace.info("Entire Runtime and Modeling Environment cleaned up.");
       }
@@ -1328,7 +1379,8 @@ public class AdministrationServiceImpl
 
       if (processInstance.isCaseProcessInstance())
       {
-         throw new IllegalOperationException(BpmRuntimeError.BPMRT_PI_IS_CASE.raise(oid));
+         throw new IllegalOperationException(BpmRuntimeError.BPMRT_PI_IS_CASE.raise(oid,
+               processInstance.getProcessDefinition().getId()));
       }
 
       IProcessInstance rootProcessInstance = ProcessInstanceUtils.getActualRootPI(processInstance);
@@ -1442,7 +1494,7 @@ public class AdministrationServiceImpl
       {
          throw new IllegalOperationException(
                BpmRuntimeError.BPMRT_INTERACTIVE_AI_CAN_NOT_BE_FORCED_TO_COMPLETION
-                     .raise(activityInstanceOID));
+                     .raise(activityInstanceOID, activityInstance.getActivity().getId()));
       }
 
       if (!activityInstance.isTerminated() && !activityInstance.isAborting())
@@ -1661,20 +1713,6 @@ public class AdministrationServiceImpl
       try
       {
          ModelManager modelManager = ModelManagerFactory.getCurrent();
-
-         IModel predefinedModel = modelManager.findActiveModel(PredefinedConstants.PREDEFINED_MODEL_ID);
-         if (predefinedModel == null)
-         {
-            List<ParsedDeploymentUnit> predefinedModelElement = ModelUtils.getPredefinedModelElement();
-            if (predefinedModelElement != null)
-            {
-               modelManager.deployModel(predefinedModelElement, DeploymentOptions.DEFAULT);
-            }
-            else
-            {
-               trace.warn("Could not load PredefinedModel.xpdl");
-            }
-         }
 
          List<DeploymentInfo> infos = modelManager.deployModel(elements, options);
          boolean success = true;

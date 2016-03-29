@@ -26,4 +26,22 @@ public class TestBean
    {
       return (Map<String, Object>) person.get("address");
    }
+
+   public String throwError(String message) throws ServiceException
+   {
+      throw new ServiceException("Service Exception thrown explicitly");
+   }
+
+   final public class ServiceException extends Exception
+   {
+      public ServiceException(String message)
+      {
+         super(message);
+      }
+
+      public ServiceException(String message, Throwable throwable)
+      {
+         super(message, throwable);
+      }
+   }
 }

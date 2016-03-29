@@ -11,6 +11,10 @@
 package org.eclipse.stardust.engine.core.persistence.jdbc;
 
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.FastCachingSequenceGenerator;
+import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.SequenceGenerator;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 
 /**
  * <p>
@@ -256,14 +260,32 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
    {
       final String seqNameParameter = "seq_name";
       final StringBuffer sb = new StringBuffer(200);
+      
+      final Parameters params = Parameters.instance();
+      final SequenceGenerator generator = (SequenceGenerator) 
+            params.get(SequenceGenerator.UNIQUE_GENERATOR_PARAMETERS_KEY);
+      String sequenceGeneratorName = 
+            generator == null ? 
+                  params.getString(SessionFactory.AUDIT_TRAIL + ".SequenceGenerator") :
+                  generator.getClass().getName();
+
+      boolean fastCachingSequenceGenerator = 
+            FastCachingSequenceGenerator.class.getName().equals(sequenceGeneratorName);
+         
+      final int sequenceBatchSize = Parameters.instance().getInteger(
+            KernelTweakingProperties.SEQUENCE_BATCH_SIZE,
+            fastCachingSequenceGenerator ? 100 : 1);
 
       final String fqStoredProcedureName = schemaName != null ? (schemaName + "." + SEQUENCE_STORED_PROCEDURE_NAME) : SEQUENCE_STORED_PROCEDURE_NAME;
 
       sb.append("CREATE FUNCTION ").append(fqStoredProcedureName)
          .append("(").append(seqNameParameter).append(" char(30)) RETURNS BIGINT").append("\n");
       sb.append("BEGIN").append("\n");
-      sb.append("UPDATE ").append(GLOBAL_PK_SEQUENCE_TABLE_NAME).append(" SET ").append(GLOBAL_PK_SEQUENCE_TABLE_FIELD_VALUE_NAME)
-         .append("=last_insert_id(").append(GLOBAL_PK_SEQUENCE_TABLE_FIELD_VALUE_NAME).append("+1) WHERE ").append(GLOBAL_PK_SEQUENCE_TABLE_FIELD_NAME_NAME)
+      sb.append("UPDATE ").append(GLOBAL_PK_SEQUENCE_TABLE_NAME)
+         .append(" SET ").append(GLOBAL_PK_SEQUENCE_TABLE_FIELD_VALUE_NAME)
+            .append("=last_insert_id(").append(GLOBAL_PK_SEQUENCE_TABLE_FIELD_VALUE_NAME)
+               .append("+").append(sequenceBatchSize).append(") WHERE ")
+         .append(GLOBAL_PK_SEQUENCE_TABLE_FIELD_NAME_NAME)
          .append("=").append(seqNameParameter).append(";").append("\n");
       sb.append("RETURN last_insert_id();").append("\n");
       sb.append("END").append("\n");

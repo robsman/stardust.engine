@@ -605,6 +605,13 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       }
       this.lastModifyingUser = workflowUserOid;
       this.state = state;
+      
+      if (trace.isInfoEnabled())
+      {
+         trace.info("State change for " + this + ": "
+               + ActivityInstanceState.getString(oldState) + "-->"
+               + ActivityInstanceState.getString(state) + ".");
+      }
 
       if (getActivity().hasEventHandlers(
             PredefinedConstants.ACTIVITY_STATECHANGE_CONDITION))
@@ -633,13 +640,6 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
          EventUtils.processAutomaticEvent(getActivity(),
                PredefinedConstants.SIGNAL_CONDITION, event);
-      }
-
-      if (trace.isInfoEnabled())
-      {
-         trace.info("State change for " + this + ": "
-               + ActivityInstanceState.getString(oldState) + "-->"
-               + ActivityInstanceState.getString(state) + ".");
       }
 
       if (inHaltingPiHierarchy && ActivityInstanceUtils.isHaltable(this))
@@ -931,7 +931,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                   KernelTweakingProperties.ASSIGN_TO_INVALID_USER, false))
       {
          throw new AccessForbiddenException(
-               BpmRuntimeError.AUTHx_USER_NOT_VALID.raise(user.getOID()));
+               BpmRuntimeError.AUTHx_USER_NOT_VALID.raise(user.getId(), user.getOID()));
       }
 
       fetch();
@@ -1624,7 +1624,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       if (performer == null)
       {
          throw new PublicException(
-               BpmRuntimeError.BPMRT_NON_INTERACTIVE_AI_CAN_NOT_BE_DELEGATED.raise(getOID()));
+               BpmRuntimeError.BPMRT_NON_INTERACTIVE_AI_CAN_NOT_BE_DELEGATED
+                     .raise(getOID(), getActivity().getId()));
       }
 
       if (performer instanceof IConditionalPerformer)
@@ -1736,6 +1737,13 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             }
          }
 
+         String reponsibilityAttribute = (String) application.getAttribute(PredefinedConstants.SYNCHRONOUS_APPLICATION_RETRY_RESPONSIBILITY);
+         if(reponsibilityAttribute != null && reponsibilityAttribute.equals(PredefinedConstants.APPLICATION_CONTEXT))
+         {
+            // retry will be handled by application
+            retry = false;
+         }
+                  
          // if retry is enabled, check the other values
          if (retry)
          {
@@ -2349,7 +2357,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       if (null == performer)
       {
          throw new PublicException(
-               BpmRuntimeError.BPMRT_NON_INTERACTIVE_AI_CAN_NOT_BE_DELEGATED.raise(getOID()));
+               BpmRuntimeError.BPMRT_NON_INTERACTIVE_AI_CAN_NOT_BE_DELEGATED
+                     .raise(getOID(), getActivity().getId()));
       }
 
       // check for conditional performer of type UserGroup if user is part of the group
@@ -2374,7 +2383,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                {
                   throw new AccessForbiddenException(
                         BpmRuntimeError.BPMRT_USER_IS_NOT_AUTHORIZED_TO_PERFORM_AI.raise(
-                              user.getOID(), getOID()));
+                              user.getId(), user.getOID(), getOID(), getActivity().getId()));
                }
             }
          }
@@ -2419,7 +2428,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       {
          throw new AccessForbiddenException(
                BpmRuntimeError.BPMRT_USER_IS_NOT_AUTHORIZED_TO_PERFORM_AI.raise(
-                     user.getOID(), getOID()));
+                     user.getId(), user.getOID(), getOID(), getActivity().getId()));
       }
    }
 
@@ -2432,7 +2441,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       if (null == performer)
       {
          throw new PublicException(
-               BpmRuntimeError.BPMRT_NON_INTERACTIVE_AI_CAN_NOT_BE_DELEGATED.raise(getOID()));
+               BpmRuntimeError.BPMRT_NON_INTERACTIVE_AI_CAN_NOT_BE_DELEGATED
+                     .raise(getOID(), getActivity().getId()));
       }
 
       if (performer.isAuthorized(userGroup))
@@ -2443,7 +2453,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       {
          throw new AccessForbiddenException(
                BpmRuntimeError.BPMRT_USER_GROUP_IS_NOT_AUTHORIZED_TO_PERFORM_AI.raise(
-                     userGroup.getOID(), getOID()));
+                     userGroup.getId(), userGroup.getOID(), getOID(),
+                     getActivity().getId()));
       }
 
    }
@@ -2468,7 +2479,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       if (null == performer)
       {
          throw new PublicException(
-               BpmRuntimeError.BPMRT_NON_INTERACTIVE_AI_CAN_NOT_BE_DELEGATED.raise(getOID()));
+               BpmRuntimeError.BPMRT_NON_INTERACTIVE_AI_CAN_NOT_BE_DELEGATED
+                     .raise(getOID(), getActivity().getId()));
       }
 
       if (performer.isAuthorized(participant))
@@ -2483,7 +2495,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       {
          throw new AccessForbiddenException(
                BpmRuntimeError.BPMRT_MODEL_PARTICIPANT_IS_NOT_AUTHORIZED_TO_PERFORM_AI.raise(
-                     participant.getId(), Long.valueOf(getOID())));
+                     participant.getId(), Long.valueOf(getOID()), getActivity().getId()));
       }
    }
 
@@ -2499,7 +2511,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          {
             throw new AccessForbiddenException(
                   BpmRuntimeError.BPMRT_MODEL_PARTICIPANT_IS_NOT_AUTHORIZED_TO_PERFORM_AI.raise(
-                        participant.getId(), Long.valueOf(getOID())));
+                        participant.getId(), Long.valueOf(getOID()), getActivity().getId()));
          }
       }
 
@@ -2620,7 +2632,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       default:
          throw new AccessForbiddenException(
                BpmRuntimeError.BPMRT_AI_CAN_NOT_BE_DELEGATED_IN_CURRENT_STATE.raise(
-                     Long.valueOf(getOID()), getState()));
+                     Long.valueOf(getOID()), getActivity().getId(), getState()));
       }
    }
 

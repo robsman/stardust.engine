@@ -64,22 +64,22 @@ public class TestClassSetup extends ExternalResource
    private static final String DATA_SOURCE_FACTORY_BEAN_ID = "xaAuditTrailConnectionFactory";
    private static final String JMS_RESOURCE_PROVIDER_BEAN_ID = "jmsResourceResolver";
 
-   private static boolean locked;
+   protected static boolean locked;
 
-   private final H2Server dbms;
-   private final SpringAppContext springAppCtx;
+   protected final H2Server dbms;
+   protected final SpringAppContext springAppCtx;
 
-   private final DeploymentOptions deploymentOptions;
-   private final String[] modelNames;
-   private final UsernamePasswordPair userPwdPair;
-   private final ForkingServiceMode forkingServiceMode;
+   protected final DeploymentOptions deploymentOptions;
+   protected final String[] modelNames;
+   protected final UsernamePasswordPair userPwdPair;
+   protected final ForkingServiceMode forkingServiceMode;
 
-   private ServiceFactory sf;
+   protected ServiceFactory sf;
 
    private DataSource ds;
    private IJmsResourceProvider jmsResourceProvider;
 
-   private Class<?> testClass;
+   protected Class<?> testClass;
 
    /**
     * <p>

@@ -97,20 +97,7 @@ public class StructuredTypeRtUtils
       String typeId = data.getType().getId();
       if (StructuredDataConstants.STRUCTURED_DATA.equals(typeId))
       {
-         IReference ref = data.getExternalReference();
-         if (ref != null)
-         {
-            return new ClientXPathMap(getAllXPaths(ref));
-         }
-         String typeDeclarationId = data.getStringAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-
-         IModel model = (IModel) data.getModel();
-         ITypeDeclaration typeDeclaration = model.findTypeDeclaration(typeDeclarationId);
-         if (typeDeclaration == null)
-         {
-            return null;
-         }
-         return new ClientXPathMap(getAllXPaths(model, typeDeclaration));
+         return DataXPathMap.getXPathMap(data);
       }
       else
       {
@@ -148,7 +135,7 @@ public class StructuredTypeRtUtils
             ? (String) data.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT)
             : ref.getId();
          TypeDeclaration typeDeclaration = model.getTypeDeclaration(typeDeclarationId);
-         return new ClientXPathMap(getAllXPaths(model, typeDeclaration));
+         return new ClientXPathMap(getAllXPaths(model, typeDeclaration), model);
       }
       else
       {
@@ -207,7 +194,7 @@ public class StructuredTypeRtUtils
          }
       }
       ITypeDeclaration typeDeclaration = model.findTypeDeclaration(declaredTypeId);
-      return getAllXPaths(model, typeDeclaration);
+      return typeDeclaration == null ? null : getAllXPaths(model, typeDeclaration);
    }
 
    public static Set<TypedXPath> getAllXPaths(IReference reference)

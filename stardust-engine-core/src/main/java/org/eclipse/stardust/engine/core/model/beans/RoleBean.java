@@ -18,6 +18,7 @@ import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.IOrganization;
 import org.eclipse.stardust.engine.api.model.IRole;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 
@@ -146,5 +147,13 @@ public class RoleBean extends ModelParticipantBean implements IRole
          teams = CollectionUtils.newList();
       }
       teams.add(org);
+   }
+   
+   @Override
+   public String getQualifiedId()
+   {
+      return PredefinedConstants.ADMINISTRATOR_ROLE.equals(getId()) 
+            ? PredefinedConstants.ADMINISTRATOR_ROLE 
+            : super.getQualifiedId();
    }
 }

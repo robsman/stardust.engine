@@ -37,4 +37,6 @@ import java.util.Map;
 public interface PropertyProvider
 {
    Map<String, Object> getProperties();
+   
+   String getPropertyDisplayValue(String key);
 }

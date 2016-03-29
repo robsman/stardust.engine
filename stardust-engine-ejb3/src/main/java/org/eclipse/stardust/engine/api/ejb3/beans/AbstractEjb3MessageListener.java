@@ -15,6 +15,7 @@ import org.eclipse.stardust.common.error.WorkflowException;
 import org.eclipse.stardust.engine.core.runtime.beans.LoggedInUser;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.ejb.Ejb3ManagedService;
 import org.eclipse.stardust.engine.core.runtime.ejb.ExecutorService;
 import org.eclipse.stardust.engine.core.runtime.ejb.ForkingService;
@@ -86,12 +87,13 @@ public abstract class AbstractEjb3MessageListener implements javax.jms.MessageLi
          this.forkingService = forkingService;
       }
 
-      protected void bootstrapModelManager() throws WorkflowException
+      protected void bootstrapModelManager(final short partitionOid) throws WorkflowException
       {
          forkingService.run(new Action<Object>()
          {
             public Object execute()
             {
+               Parameters.instance().set(SecurityProperties.CURRENT_PARTITION_OID, partitionOid);
                ModelManagerFactory.getCurrent().findActiveModel();
                return null;
             }

@@ -244,7 +244,7 @@ public class ModelManagerBean implements ModelManager
    {
       return getModelManagerPartition().getRuntimeOid(data, xPath);
    }
-   
+
    public String[] getFqId(ElementType type, long rtOid)
    {
       return getModelManagerPartition().getFqId(type, rtOid);
@@ -334,9 +334,22 @@ public class ModelManagerBean implements ModelManager
          if (checkAuditTrailVersion)
          {
             List<UpgradeJob> jobs = RuntimeJobs.getRuntimeJobs();
+
+            // Create list of mandatory jobs only.
+            FilteringIterator it = new FilteringIterator(jobs.iterator(),
+                  new Predicate<UpgradeJob>()
+                  {
+                     public boolean accept(UpgradeJob job)
+                     {
+                        return job.isMandatory();
+                     }
+                  });
+            jobs = CollectionUtils.newArrayListFromIterator(it);
+
             if (!jobs.isEmpty())
             {
                Version version = null;
+               // Take job with highest version for comparison.
                UpgradeJob required = jobs.get(jobs.size() - 1);
                PropertyPersistor persistor = PropertyPersistor.findByName(Constants.CARNOT_VERSION);
                if (persistor != null)
@@ -879,9 +892,10 @@ public class ModelManagerBean implements ModelManager
             boolean archive = PropertyPersistor.findByName(Constants.CARNOT_ARCHIVE_AUDITTRAIL) != null;
             Parameters.instance().setBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL, archive);
 
-            // Load predefined model only if a model is already deployed and it does not exist.
-            // This only happens on runtime upgrade. Usually the predefined model is deployed with the first model deployment.
-            if (!archive && getModelCount() > 0
+            // Load predefined model only if it does not exist.
+            // If no other model is deployed the administrator role of predefined model
+            // will be assigned to motu user.
+            if (!archive
                   && null == findActiveModel(PredefinedConstants.PREDEFINED_MODEL_ID))
             {
                List<ParsedDeploymentUnit> predefinedModelElement = ModelUtils.getPredefinedModelElement();
@@ -897,6 +911,17 @@ public class ModelManagerBean implements ModelManager
                      IModel model = persistedModel.fetchModel();
                      if (PredefinedConstants.PREDEFINED_MODEL_ID.equals(model.getId()))
                      {
+                        if (getModelCount() == 0)
+                        {
+                           UserBean motu = getMotuUser(rtEnv);
+                           if (motu != null
+                                 && SecurityProperties.isInternalAuthorization())
+                           {
+                              IRole role = (IRole) model
+                                    .findParticipant(PredefinedConstants.ADMINISTRATOR_ROLE);
+                              motu.addToParticipants(role, null);
+                           }
+                        }
                         models.add(0, model);
                      }
                   }
@@ -906,7 +931,7 @@ public class ModelManagerBean implements ModelManager
                   trace.warn("Could not load PredefinedModel.xpdl");
                }
             }
-         }
+         } 
 
          recomputeAlivenessCache();
 
@@ -1016,6 +1041,16 @@ public class ModelManagerBean implements ModelManager
             }
             MonitoringUtils.partitionMonitors().modelLoaded(model);
          }
+      }
+      
+      private UserBean getMotuUser(BpmRuntimeEnvironment rtEnv)
+      {
+         IAuditTrailPartition partition = (IAuditTrailPartition) rtEnv
+               .get(SecurityProperties.CURRENT_PARTITION);
+         UserRealmBean userRealm = UserRealmBean.findById(
+               PredefinedConstants.DEFAULT_REALM_ID, partition.getOID());
+         UserBean user = UserBean.findByAccount(PredefinedConstants.MOTU, userRealm);
+         return user;
       }
 
       private Map<Long, IModelPersistor> getModelPersistors()
@@ -1939,7 +1974,7 @@ public class ModelManagerBean implements ModelManager
          return rtOidRegistry.getRuntimeOid(IRuntimeOidRegistry.STRUCTURED_DATA_XPATH,
                RuntimeOidUtils.getFqId(data, xPath));
       }
-      
+
       public String[] getFqId(ElementType type, long rtOid)
       {
          return rtOidRegistry.getFqId(type, rtOid);

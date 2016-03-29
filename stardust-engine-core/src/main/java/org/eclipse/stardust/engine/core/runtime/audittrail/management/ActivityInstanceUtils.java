@@ -192,8 +192,8 @@ public class ActivityInstanceUtils
    {
       if (activityInstance.isTerminated())
       {
-         throw new AccessForbiddenException(
-               BpmRuntimeError.BPMRT_AI_IS_ALREADY_TERMINATED.raise(activityInstance.getOID()));
+         throw new AccessForbiddenException(BpmRuntimeError.BPMRT_AI_IS_ALREADY_TERMINATED
+               .raise(activityInstance.getOID(), activityInstance.getActivity().getId()));
       }
    }
 
@@ -203,7 +203,8 @@ public class ActivityInstanceUtils
       if (activityInstance.isAborting())
       {
          throw new AccessForbiddenException(
-               BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS.raise(activityInstance.getOID()));
+               BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS.raise(
+                     activityInstance.getOID(), activityInstance.getActivity().getId()));
       }
    }
 
@@ -218,8 +219,9 @@ public class ActivityInstanceUtils
             && !activity.getPerformer().isAuthorized(user))
       {
          throw new AccessForbiddenException(
-               BpmRuntimeError.BPMRT_AI_IS_NOT_GRANTED_TO_USER.raise(new Long(
-                     activityInstance.getOID()), user));
+               BpmRuntimeError.BPMRT_AI_IS_NOT_GRANTED_TO_USER.raise(
+                     new Long(activityInstance.getOID()),
+                     activityInstance.getActivity().getId(), user.getId(), user));
       }
    }
 
@@ -246,8 +248,8 @@ public class ActivityInstanceUtils
             .getImplementationType()))
       {
          throw new AccessForbiddenException(
-               BpmRuntimeError.BPMRT_AI_MUST_NOT_BE_SUBPROCESS_INVOCATION
-                     .raise(activityInstance.getOID()));
+               BpmRuntimeError.BPMRT_AI_MUST_NOT_BE_SUBPROCESS_INVOCATION.raise(
+                     activityInstance.getOID(), activityInstance.getActivity().getId()));
       }
    }
 
@@ -272,8 +274,9 @@ public class ActivityInstanceUtils
          }
 
          throw new AccessForbiddenException(
-               BpmRuntimeError.BPMRT_AI_CAN_NOT_BE_DELEGATED_TO_NON_USERGROUP_MEMBER.raise(
-                     new Long(activityInstance.getOID())));
+               BpmRuntimeError.BPMRT_AI_CAN_NOT_BE_DELEGATED_TO_NON_USERGROUP_MEMBER
+                     .raise(new Long(activityInstance.getOID()),
+                           activityInstance.getActivity().getId()));
       }
    }
 
@@ -301,8 +304,9 @@ public class ActivityInstanceUtils
          {
             throw new AccessForbiddenException(
                   BpmRuntimeError.BPMRT_AI_MUST_NOT_BE_ON_OTHER_USER_WORKLIST.raise(
-                        new Long(activityInstance.getOID()), SecurityProperties.getUser()
-                              .getRealmQualifiedAccount()));
+                        new Long(activityInstance.getOID()),
+                        activityInstance.getActivity().getId(),
+                        SecurityProperties.getUser().getRealmQualifiedAccount()));
          }
       }
    }
@@ -313,8 +317,9 @@ public class ActivityInstanceUtils
       if (activityInstance.getState() == ActivityInstanceState.Application)
       {
          throw new ConcurrencyException(
-               BpmRuntimeError.BPMRT_AI_CURRENTLY_ACTIVATED_BY_SELF.raise(new Long(
-                     activityInstance.getOID())));
+               BpmRuntimeError.BPMRT_AI_CURRENTLY_ACTIVATED_BY_SELF.raise(
+                     new Long(activityInstance.getOID()),
+                     activityInstance.getActivity().getId()));
       }
    }
 
@@ -341,7 +346,7 @@ public class ActivityInstanceUtils
       if (activityInstance.isDefaultCaseActivityInstance())
       {
          throw new IllegalOperationException(BpmRuntimeError.BPMRT_USER_IS_NOT_AUTHORIZED_TO_PERFORM_AI.raise(
-               SecurityProperties.getUserOID(), activityInstance.getOID()));
+               SecurityProperties.getUser().getId(), SecurityProperties.getUserOID(), activityInstance.getOID(), activityInstance.getActivity().getId()));
       }
    }
 
@@ -382,7 +387,7 @@ public class ActivityInstanceUtils
             {
                throw new ObjectNotFoundException(
                      BpmRuntimeError.MDL_UNKNOWN_OUT_DATA_MAPPING.raise(entry.getKey(),
-                           context, activityInstance.getOID()));
+                           context, activity.getId(), activityInstance.getOID()));
             }
             ((ProcessInstanceBean)processInstance).setOutDataValue(dm.getData(), dm.getDataPath(), entry.getValue(), new DataMappingContext(activityInstance));
          }

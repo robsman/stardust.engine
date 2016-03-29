@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.extensions.jaxws.wssecurity;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -66,7 +67,7 @@ public final class WSSecurity
     */
    private WSSecurity()
    {
-      rnd = new Random();
+      rnd = new SecureRandom();
       counter = new AtomicLong(1);
    }
 

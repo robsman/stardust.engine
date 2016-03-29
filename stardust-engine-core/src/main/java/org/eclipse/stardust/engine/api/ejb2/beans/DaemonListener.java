@@ -34,6 +34,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.CallingInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.NonInteractiveSecurityContextInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.ejb.MDBInvocationManager;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
@@ -46,6 +47,8 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 public class DaemonListener implements javax.ejb.MessageDrivenBean,
       javax.jms.MessageListener
 {
+   private static final long serialVersionUID = 6049339048219101399L;
+
    public static final Logger trace = LogManager.getLogger(DaemonListener.class);
 
    private MessageDrivenContext context;
@@ -104,6 +107,17 @@ public class DaemonListener implements javax.ejb.MessageDrivenBean,
                   .DAEMON_MESSAGE_TYPE_ID)
             {
                trace.info("Start Daemon message received.");
+               
+               DaemonCarrier carrier = null;
+               
+               try
+               {
+                  carrier = DaemonCarrier.extract(mapMessage);
+               }
+               catch (JMSException e)
+               {
+                  throw new InternalException(e);
+               }
 
                // rsauer: ensure model was bootstrapped before actually running daemon,
                // as bootstrapping in daemon listener will fail because of a missing
@@ -111,12 +125,14 @@ public class DaemonListener implements javax.ejb.MessageDrivenBean,
                ForkingServiceFactory factory = (ForkingServiceFactory)
                      Parameters.instance().get(EngineProperties.FORKING_SERVICE_HOME);
                ForkingService forkingService = factory.get();
+               final short partitionOid = carrier.getPartitionOid();
                try
                {
                   forkingService.isolate(new Action()
                   {
                      public Object execute()
                      {
+                        Parameters.instance().set(SecurityProperties.CURRENT_PARTITION_OID, partitionOid);
                         ModelManagerFactory.getCurrent().findActiveModel();
                         return null;
                      }
@@ -129,7 +145,6 @@ public class DaemonListener implements javax.ejb.MessageDrivenBean,
 
                try
                {
-                  DaemonCarrier carrier = DaemonCarrier.extract(mapMessage);
                   // (fh) we need an ActionRunner for the interceptor to kick in
                   ActionRunner runner = (ActionRunner) Proxy.newProxyInstance(
                         ActionRunner.class.getClassLoader(),
@@ -146,7 +161,7 @@ public class DaemonListener implements javax.ejb.MessageDrivenBean,
                               new CallingInterceptor()})));
                   runner.execute(carrier.createAction());
                }
-               catch (JMSException e)
+               catch (Exception e)
                {
                   throw new InternalException(e);
                }

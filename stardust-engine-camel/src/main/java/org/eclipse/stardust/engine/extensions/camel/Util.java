@@ -1,5 +1,8 @@
 package org.eclipse.stardust.engine.extensions.camel;
 
+import static org.eclipse.stardust.engine.api.model.PredefinedConstants.SYNCHRONOUS_APPLICATION_RETRY_ENABLE;
+import static org.eclipse.stardust.engine.api.model.PredefinedConstants.SYNCHRONOUS_APPLICATION_RETRY_NUMBER;
+import static org.eclipse.stardust.engine.api.model.PredefinedConstants.SYNCHRONOUS_APPLICATION_RETRY_TIME;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.*;
 
 import java.io.IOException;
@@ -270,7 +273,57 @@ public class Util
    {
       return (String) application.getAttribute(ADDITIONAL_SPRING_BEANS_DEF_ATT);
    }
-
+   
+   /**
+    * Return true when retry behavior is configured in the application
+    * 
+    * @param application
+    * @return
+    */
+   public static boolean isRetryEnabled(final IApplication application){
+      Boolean enabled=false;
+      if(application.getAttribute(SYNCHRONOUS_APPLICATION_RETRY_ENABLE) != null)
+         enabled = (Boolean) application.getAttribute(SYNCHRONOUS_APPLICATION_RETRY_ENABLE);
+   
+      return enabled;
+   }
+   /**
+    * Return true for All camel Applications
+    * The engine should not activiate retry behavior for camel application
+    * 
+    * @param application
+    * @return
+    */
+   public static boolean isApplicationRetryResponsibilityEnabled(final IApplication application){
+      Boolean enabled=true;
+      if(application.getAttribute(PredefinedConstants.SYNCHRONOUS_APPLICATION_RETRY_RESPONSIBILITY) != null)
+         enabled = ((String) application.getAttribute(PredefinedConstants.SYNCHRONOUS_APPLICATION_RETRY_RESPONSIBILITY)).equalsIgnoreCase("application");
+   
+      return enabled;
+   }
+   
+   /**
+    * Rturns the No of Retries
+    * @return
+    */
+   public static int getRetryNumber(final IApplication application){
+      int retryNumber = 0;
+      if(application.getAttribute(SYNCHRONOUS_APPLICATION_RETRY_NUMBER)!=null)
+         retryNumber=Integer.parseInt((String)application.getAttribute(SYNCHRONOUS_APPLICATION_RETRY_NUMBER));
+      return (retryNumber>1)?retryNumber-1:retryNumber;
+   }
+   
+   /**
+    * Returns the Time between Retries (seconds)
+    * @return
+    */
+   public static int getRetryTime(final IApplication application){
+      int retryTime = 0;
+      if(application.getAttribute(SYNCHRONOUS_APPLICATION_RETRY_TIME)!=null)
+         retryTime=Integer.parseInt((String)application.getAttribute(SYNCHRONOUS_APPLICATION_RETRY_TIME));
+      return retryTime*1000;
+   }
+   
    /**
     * if the camelContextId is provided in carnot:engine:camel::camelContextId Returns the
     * name of camelContext to be used.

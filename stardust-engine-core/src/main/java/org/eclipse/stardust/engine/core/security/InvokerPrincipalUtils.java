@@ -14,9 +14,12 @@ import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.security.DefaultHashProvider;
 import org.eclipse.stardust.common.security.HMAC;
+import org.eclipse.stardust.common.security.HashProvider;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 /**
@@ -108,8 +111,10 @@ public class InvokerPrincipalUtils
       }
       try
       {
-         HMAC hmac = new HMAC(HMAC.MD5);
-         return hmac.hash(SECRET.getBytes(), sb.toString().getBytes());
+         HashProvider.Factory hashProvider = ExtensionProviderUtils.getFirstExtensionProvider(HashProvider.Factory.class);
+         return hashProvider.getInstance().hash(SECRET.getBytes(), sb.toString().getBytes());
+         //HMAC hmac = new HMAC(HMAC.MD5);
+         //return hmac.hash(SECRET.getBytes(), sb.toString().getBytes());
       }
       catch (Exception e)
       {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2012, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,24 +10,16 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.cli.sysconsole.patch;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailActivityBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailDataBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailEventHandlerBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailParticipantBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailProcessDefinitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailTransitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailTriggerBean;
-import org.eclipse.stardust.engine.core.runtime.beans.IRuntimeOidRegistry;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.query.QueryUtils;
+import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.IRuntimeOidRegistry.ElementType;
-import org.eclipse.stardust.engine.core.runtime.beans.RuntimeModelLoader;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 
 public class PatchAwareRuntimeModelLoader extends RuntimeModelLoader
@@ -80,16 +72,31 @@ public class PatchAwareRuntimeModelLoader extends RuntimeModelLoader
    @Override
    public void loadRuntimeOidRegistry(IRuntimeOidRegistry rtOidRegistry)
    {
+      Map<Long, String> allAvailableModels = new HashMap<Long, String>();
+      for (Iterator i = ModelPersistorBean.findAll(partitionOid); i.hasNext();)
+      {
+         ModelPersistorBean model = (ModelPersistorBean) i.next();
+         allAvailableModels.put(model.getOID(), model.getPersistedId());
+      }
+
       Map<Long, String> allAvailableData = new HashMap<Long, String>();
 
       // load data runtime OIDs
       for (Iterator i = collect(AuditTrailDataBean.findAll(partitionOid)); i.hasNext();)
       {
          AuditTrailDataBean atData = (AuditTrailDataBean) i.next();
-         allAvailableData.put(atData.getOID(), atData.getId());
 
-         registerRuntimeOid(atData.getModel(), rtOidRegistry, IRuntimeOidRegistry.DATA,
-               new String[] {atData.getId()}, atData.getOID());
+         // test on non-predefined data
+         // TODO: do predefined data need to be handled, too?
+         if (!PredefinedConstants.META_DATA_IDS.contains(atData.getId()))
+         {
+            allAvailableData.put(atData.getOID(), atData.getId());
+
+            String[] fqId = new String[] {
+                  allAvailableModels.get(atData.getModel()), atData.getId()};
+            registerRuntimeOid(atData.getModel(), rtOidRegistry,
+                  IRuntimeOidRegistry.DATA, fqId, atData.getOID());
+         }
       }
 
       // load all structured data xpath entries
@@ -98,7 +105,9 @@ public class PatchAwareRuntimeModelLoader extends RuntimeModelLoader
          StructuredDataBean atStructuredData = (StructuredDataBean) i.next();
          String dataId = allAvailableData.get(atStructuredData.getData());
 
-         String[] dataFqId = {dataId, atStructuredData.getXPath()};
+         String[] dataFqId = {
+               allAvailableModels.get(atStructuredData.getModel()), dataId,
+               atStructuredData.getXPath()};
 
          registerRuntimeOid(atStructuredData.getModel(), rtOidRegistry,
                IRuntimeOidRegistry.STRUCTURED_DATA_XPATH, dataFqId,
@@ -111,9 +120,20 @@ public class PatchAwareRuntimeModelLoader extends RuntimeModelLoader
       {
          AuditTrailParticipantBean atParticipant = (AuditTrailParticipantBean) i.next();
 
+         boolean predefinedParticipant = QueryUtils.isPredefinedParticipant(atParticipant.getId());
+
+         String[] fqId;
+         if (predefinedParticipant)
+         {
+            fqId = new String[] {atParticipant.getId()};
+         }
+         else
+         {
+            fqId = new String[] {
+                  allAvailableModels.get(atParticipant.getModel()), atParticipant.getId()};
+         }
          registerRuntimeOid(atParticipant.getModel(), rtOidRegistry,
-               IRuntimeOidRegistry.PARTICIPANT, new String[] {atParticipant.getId()},
-               atParticipant.getOID());
+               IRuntimeOidRegistry.PARTICIPANT, fqId, atParticipant.getOID());
       }
 
       // load process definition runtime OIDs
@@ -124,9 +144,10 @@ public class PatchAwareRuntimeModelLoader extends RuntimeModelLoader
          AuditTrailProcessDefinitionBean atProcess = (AuditTrailProcessDefinitionBean) i
                .next();
 
+         String[] fqId = new String[] {
+               allAvailableModels.get(atProcess.getModel()), atProcess.getId()};
          registerRuntimeOid(atProcess.getModel(), rtOidRegistry,
-               IRuntimeOidRegistry.PROCESS, new String[] {atProcess.getId()},
-               atProcess.getOID());
+               IRuntimeOidRegistry.PROCESS, fqId, atProcess.getOID());
          processIds.put(numericKey(atProcess.getModel(), atProcess.getOID()),
                atProcess.getId());
       }
@@ -140,9 +161,10 @@ public class PatchAwareRuntimeModelLoader extends RuntimeModelLoader
                atTrigger.getProcessDefinition());
          String processId = (String) processIds.get(fkProcess);
 
+         String[] fqId = new String[] {
+               allAvailableModels.get(atTrigger.getModel()), processId, atTrigger.getId()};
          registerRuntimeOid(atTrigger.getModel(), rtOidRegistry,
-               IRuntimeOidRegistry.TRIGGER, new String[] {processId, atTrigger.getId()},
-               atTrigger.getOID());
+               IRuntimeOidRegistry.TRIGGER, fqId, atTrigger.getOID());
       }
 
       // load activity runtime OIDs
@@ -156,9 +178,11 @@ public class PatchAwareRuntimeModelLoader extends RuntimeModelLoader
                atActivity.getProcessDefinition());
          String processId = (String) processIds.get(fkProcess);
 
+         String[] fqId = new String[] {
+               allAvailableModels.get(atActivity.getModel()), processId,
+               atActivity.getId()};
          registerRuntimeOid(atActivity.getModel(), rtOidRegistry,
-               IRuntimeOidRegistry.ACTIVITY,
-               new String[] {processId, atActivity.getId()}, atActivity.getOID());
+               IRuntimeOidRegistry.ACTIVITY, fqId, atActivity.getOID());
          activityIds.put(numericKey(atActivity.getModel(), atActivity.getOID()),
                atActivity.getId());
       }
@@ -173,9 +197,11 @@ public class PatchAwareRuntimeModelLoader extends RuntimeModelLoader
                atTransition.getProcessDefinition());
          String processId = (String) processIds.get(fkProcess);
 
+         String[] fqId = new String[] {
+               allAvailableModels.get(atTransition.getModel()), processId,
+               atTransition.getId()};
          registerRuntimeOid(atTransition.getModel(), rtOidRegistry,
-               IRuntimeOidRegistry.TRANSITION,
-               new String[] {processId, atTransition.getId()}, atTransition.getOID());
+               IRuntimeOidRegistry.TRANSITION, fqId, atTransition.getOID());
       }
 
       // load event handler runtime OIDs
@@ -188,37 +214,49 @@ public class PatchAwareRuntimeModelLoader extends RuntimeModelLoader
 
          String processId = (String) processIds.get(fkProcess);
 
+         String[] fqId;
          if (0 == atHandler.getActivity())
          {
+            fqId = new String[] {
+                  allAvailableModels.get(atHandler.getModel()), processId,
+                  atHandler.getId()};
             registerRuntimeOid(atHandler.getModel(), rtOidRegistry,
-                  IRuntimeOidRegistry.EVENT_HANDLER,
-                  new String[] {processId, atHandler.getId()}, atHandler.getOID());
+                  IRuntimeOidRegistry.EVENT_HANDLER, fqId, atHandler.getOID());
          }
          else
          {
             String fkActivity = numericKey(atHandler.getModel(), atHandler.getActivity());
             String activityId = (String) activityIds.get(fkActivity);
 
+            fqId = new String[] {
+                  allAvailableModels.get(atHandler.getModel()), processId, activityId,
+                  atHandler.getId()};
             registerRuntimeOid(atHandler.getModel(), rtOidRegistry,
-                  IRuntimeOidRegistry.EVENT_HANDLER, new String[] {
-                        processId, activityId, atHandler.getId()}, atHandler.getOID());
+                  IRuntimeOidRegistry.EVENT_HANDLER, fqId, atHandler.getOID());
          }
       }
    }
 
    private Iterator collect(Iterator itr)
    {
-      if (useNewOid)
+      List<IdentifiablePersistent> result = CollectionUtils.newArrayListFromIterator(itr);
+
+      Collections.sort(result, new Comparator<IdentifiablePersistent>()
       {
-         List result = new ArrayList();
-         while (itr.hasNext())
+         @Override
+         public int compare(IdentifiablePersistent o1, IdentifiablePersistent o2)
          {
-            result.add(itr.next());
+            if (useNewOid)
+            {
+               return CompareHelper.compare(o2.getOID(), o1.getOID());
+            }
+            else
+            {
+               return CompareHelper.compare(o1.getOID(), o2.getOID());
+            }
          }
-         Collections.reverse(result);
-         itr = result.iterator();
-      }
-      return itr;
+      });
+      return result.iterator();
    }
 
    public Map<ElementType, List<RuntimeOidPatch>> getRuntimeOidPatches()

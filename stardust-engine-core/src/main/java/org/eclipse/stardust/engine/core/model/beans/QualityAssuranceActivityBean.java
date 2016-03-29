@@ -19,6 +19,7 @@ import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.model.utils.RootElement;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 
@@ -568,5 +569,11 @@ public class QualityAssuranceActivityBean implements IActivity
    public void setLoopCharacteristics(ILoopCharacteristics loopCharacteristics)
    {
       delegate.setLoopCharacteristics(loopCharacteristics);
+   }
+   
+   @Override
+   public String getQualifiedId()
+   {
+      return delegate.getQualifiedId();
    }
 }

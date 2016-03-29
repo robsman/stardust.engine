@@ -58,12 +58,22 @@ public class DaemonListener extends AbstractEjb3MessageListener
                {
                   trace.info("Start Daemon message received.");
 
+                  DaemonCarrier carrier = null;
+                  try
+                  {
+                     carrier = DaemonCarrier.extract((MapMessage) message);
+                  }
+                  catch (JMSException e)
+                  {
+                     throw new InternalException(e);
+                  }
+
                   // rsauer: ensure model was bootstrapped before actually running daemon,
                   // as bootstrapping in daemon listener will fail because of a missing
                   // data source
                   try
                   {
-                     bootstrapModelManager();
+                     bootstrapModelManager(carrier.getPartitionOid());
                   }
                   catch (Exception e)
                   {
@@ -72,7 +82,6 @@ public class DaemonListener extends AbstractEjb3MessageListener
 
                   try
                   {
-                     DaemonCarrier carrier = DaemonCarrier.extract((MapMessage) message);
                      // (fh) we need an ActionRunner for the interceptor to kick in
                      ActionRunner runner = (ActionRunner) Proxy.newProxyInstance(
                            ActionRunner.class.getClassLoader(),
@@ -89,7 +98,7 @@ public class DaemonListener extends AbstractEjb3MessageListener
                               new CallingInterceptor()})));
                      runner.execute(carrier.createAction());
                   }
-                  catch (JMSException e)
+                  catch (Exception e)
                   {
                      throw new InternalException(e);
                   }

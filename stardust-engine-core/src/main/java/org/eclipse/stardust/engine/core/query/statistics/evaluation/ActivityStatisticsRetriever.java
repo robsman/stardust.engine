@@ -70,6 +70,12 @@ public class ActivityStatisticsRetriever implements IActivityInstanceQueryEvalua
 
       final Set<Long> processRtOidFilter = StatisticsQueryUtils.extractProcessFilter(asq
             .getFilter());
+      
+      final AuthorizationContext ctx = AuthorizationContext.create(ClientPermission.READ_ACTIVITY_INSTANCE_DATA);
+      final boolean guarded = Parameters.instance().getBoolean("QueryService.Guarded", true)
+            && !ctx.isAdminOverride();
+      final AbstractAuthorization2Predicate authPredicate = new AbstractAuthorization2Predicate(ctx) {};
+      
       for (Iterator<List<Long>> iterator = getSubLists(processRtOidFilter, 100)
             .iterator(); iterator.hasNext();)
       {
@@ -118,11 +124,6 @@ public class ActivityStatisticsRetriever implements IActivityInstanceQueryEvalua
 
          sqlQuery.where(predicate);
 
-         final AuthorizationContext ctx = AuthorizationContext.create(ClientPermission.READ_ACTIVITY_INSTANCE_DATA);
-         final boolean guarded = Parameters.instance().getBoolean("QueryService.Guarded", true)
-               && !ctx.isAdminOverride();
-         final AbstractAuthorization2Predicate authPredicate = new AbstractAuthorization2Predicate(ctx) {};
-
          authPredicate.addRawPrefetch(sqlQuery, piJoin.fieldRef(ProcessInstanceBean.FIELD__SCOPE_PROCESS_INSTANCE));
 
          StatisticsQueryUtils.executeQuery(sqlQuery, new IResultSetTemplate()
@@ -136,20 +137,20 @@ public class ActivityStatisticsRetriever implements IActivityInstanceQueryEvalua
             {
                authPredicate.accept(rs);
 
-               long aiOid = rs.getLong(1);
                long modelOid = rs.getLong(2);
                long activityRtOid = rs.getLong(3);
-               int priority = rs.getInt(4);
-               long startTime = rs.getLong(5);
                long scopePiOid = rs.getLong(6);
                long currentPerformer = rs.getLong(7);
                long currentUserPerformer = rs.getLong(8);
                long department = rs.getLong(9);
-               int state = rs.getInt(10);
 
                ctx.setActivityDataWithScopePi(scopePiOid, activityRtOid, modelOid, currentPerformer, currentUserPerformer, department);
                if (!guarded || Authorization2.hasPermission(ctx))
                {
+                  long aiOid = rs.getLong(1);
+                  int priority = rs.getInt(4);
+                  long startTime = rs.getLong(5);
+                  int state = rs.getInt(10);
                   tsAiStart.setTime(startTime);
                   IActivity activity = (IActivity) ctx.getModelElement();
                   boolean isCritical = criticalityPolicy.isCriticalDuration(priority,

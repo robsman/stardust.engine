@@ -825,6 +825,24 @@ public class Util
    public static String getScriptCode(final IApplication application){
       return application.getAttribute(SCRIPT_CODE_CONTENT);
    }
+   /**
+    * Return the value of the EA stardust:sqlScriptingOverlay::sqlQuery which represents the sql query to be executed.
+    * @param application
+    * @return
+    */
+   public static String getSqlQuery(final IApplication application){
+      return application.getAttribute(SQL_QUERY);
+   }
+   
+   /**
+    * Return the value of the EA stardust:sqlScriptingOverlay::outputType.
+    * @param application
+    * @return
+    */
+   public static String getOutputType(final IApplication application){
+      return application.getAttribute(SQL_OUTPUT_TYPE);
+   }
+   
    
    public static <T>T getAttributeValue(String attributeId,IApplication application){
       return application.getAttribute(attributeId);

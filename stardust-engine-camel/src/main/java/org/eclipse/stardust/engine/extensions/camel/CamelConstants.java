@@ -116,6 +116,11 @@ public final class CamelConstants
    public static final String TEMPLATING_CONVERT_TO_PDF = "CamelTemplatingConvertToPdf";
    public static final String TEMPLATING_REQUEST_METADATA= "CamelTemplatingMetaData";
    
+   public static final String SQL_OVERLAY= "sqlIntegrationOverlay";
+   public static final String SQL_QUERY="stardust:sqlScriptingOverlay::sqlQuery";
+   public static final String SQL_OUTPUT_TYPE="stardust:sqlScriptingOverlay::outputType";
+   
+   
    private CamelConstants()
    {}
    

@@ -49,7 +49,7 @@ public class ApplicationWrapper implements Serializable
       boolean value = false;
       if (application.getAllAttributes()
             .containsKey("stardust:templatingIntegrationOverlay::convertToPdf"))
-         value = getAttributeValue("stardust:templatingIntegrationOverlay::convertToPdf",
+         value = (Boolean)getAttributeValue("stardust:templatingIntegrationOverlay::convertToPdf",
                application);
       return value;
    }

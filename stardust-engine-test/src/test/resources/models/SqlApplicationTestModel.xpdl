@@ -59,32 +59,31 @@
                <carnot:Application Oid="33" Type="camelSpringProducerApplication">
                   <carnot:ApplicationContexts/>
                   <carnot:AccessPoints>
-                     <carnot:AccessPoint Oid="188" Id="CamelSqlQuery" Name="SqlQuery" Direction="IN" Type="primitive">
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
-                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
-                           <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
-                        </carnot:Attributes>
-                     </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="189" Id="CamelSqlUpdateCount" Name="SqlUpdateCount" Direction="OUT" Type="primitive">
+                     <carnot:AccessPoint Oid="548" Id="CamelSqlUpdateCount" Name="SqlUpdateCount" Direction="OUT" Type="primitive">
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                            <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
                            <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
                         </carnot:Attributes>
                      </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="190" Id="CamelSqlRowCount" Name="SqlRowCount" Direction="OUT" Type="primitive">
+                     <carnot:AccessPoint Oid="549" Id="CamelSqlRowCount" Name="SqlRowCount" Direction="OUT" Type="primitive">
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                            <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
                            <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
                         </carnot:Attributes>
                      </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="191" Id="projects" Name="projects" Direction="OUT" Type="struct">
+                     <carnot:AccessPoint Oid="551" Id="SqlApplicationTestModel:projects" Name="projects" Direction="OUT" Type="struct">
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:dataType" Value="projects"/>
                            <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
                            <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                     <carnot:AccessPoint Oid="552" Id="CamelSqlQuery" Name="SqlQuery" Direction="IN" Type="primitive">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                            <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
                            <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
                         </carnot:Attributes>
@@ -100,7 +99,6 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::connectionType" Value="direct"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::databasetype" Value="others"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:9900/mem:stardust"/>
-                     <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SqlApplicationTestModel:projects"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::outputType" Value="SelectList"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::useCVforPassowrd" Value="false" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true" Type="boolean"/>
@@ -108,6 +106,7 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::driverClassName" Value="org.h2.Driver"/>
                      <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;SelectAllQueryInvocationDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:9900/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="SA"/>
+                     <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SqlApplicationTestModel:projects"/>
                   </carnot:Attributes>
                </carnot:Application>
             </ExtendedAttribute>
@@ -119,39 +118,38 @@
                <carnot:Application Oid="124" Type="camelSpringProducerApplication">
                   <carnot:ApplicationContexts/>
                   <carnot:AccessPoints>
-                     <carnot:AccessPoint Oid="213" Id="CamelSqlQuery" Name="SqlQuery" Direction="IN" Type="primitive">
+                     <carnot:AccessPoint Oid="601" Id="CamelSqlUpdateCount" Name="SqlUpdateCount" Direction="OUT" Type="primitive">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
+                           <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                     <carnot:AccessPoint Oid="602" Id="CamelSqlRowCount" Name="SqlRowCount" Direction="OUT" Type="primitive">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
+                           <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                     <carnot:AccessPoint Oid="603" Id="SqlApplicationTestModel:projects" Name="projects" Direction="OUT" Type="struct">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:dataType" Value="projects"/>
+                           <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                           <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                     <carnot:AccessPoint Oid="604" Id="CamelSqlQuery" Name="SqlQuery" Direction="IN" Type="primitive">
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                            <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
                            <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
                         </carnot:Attributes>
                      </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="214" Id="CamelSqlUpdateCount" Name="SqlUpdateCount" Direction="OUT" Type="primitive">
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
-                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
-                           <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
-                        </carnot:Attributes>
-                     </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="215" Id="CamelSqlRowCount" Name="SqlRowCount" Direction="OUT" Type="primitive">
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
-                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
-                           <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
-                        </carnot:Attributes>
-                     </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="216" Id="project" Name="project" Direction="IN" Type="struct">
+                     <carnot:AccessPoint Oid="605" Id="SqlApplicationTestModel:project" Name="project" Direction="IN" Type="struct">
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:dataType" Value="project"/>
-                           <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
-                           <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
-                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
-                           <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
-                        </carnot:Attributes>
-                     </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="217" Id="projects" Name="projects" Direction="OUT" Type="struct">
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:engine:dataType" Value="projects"/>
                            <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
                            <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
@@ -168,9 +166,6 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::connectionType" Value="direct"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::databasetype" Value="others"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::sqlQuery" Value="SELECT * FROM projects where license= :#LICENSE"/>
-                     <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="SqlApplicationTestModel:project"/>
-                     <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SqlApplicationTestModel:projects"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::outputType" Value="SelectList"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:9900/mem:stardust"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::useCVforPassowrd" Value="false" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true" Type="boolean"/>
@@ -178,6 +173,9 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::driverClassName" Value="org.h2.Driver"/>
                      <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;SelectWithSdtParamDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:9900/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="SA"/>
+                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::outputType" Value="SelectList"/>
+                     <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="SqlApplicationTestModel:project"/>
+                     <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SqlApplicationTestModel:projects"/>
                   </carnot:Attributes>
                </carnot:Application>
             </ExtendedAttribute>
@@ -189,40 +187,39 @@
                <carnot:Application Oid="218" Type="camelSpringProducerApplication">
                   <carnot:ApplicationContexts/>
                   <carnot:AccessPoints>
-                     <carnot:AccessPoint Oid="289" Id="CamelSqlQuery" Name="SqlQuery" Direction="IN" Type="primitive">
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
-                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
-                           <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
-                        </carnot:Attributes>
-                     </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="290" Id="CamelSqlUpdateCount" Name="SqlUpdateCount" Direction="OUT" Type="primitive">
+                     <carnot:AccessPoint Oid="582" Id="CamelSqlUpdateCount" Name="SqlUpdateCount" Direction="OUT" Type="primitive">
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                            <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
                            <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
                         </carnot:Attributes>
                      </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="291" Id="CamelSqlRowCount" Name="SqlRowCount" Direction="OUT" Type="primitive">
+                     <carnot:AccessPoint Oid="583" Id="CamelSqlRowCount" Name="SqlRowCount" Direction="OUT" Type="primitive">
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                            <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
                            <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
                         </carnot:Attributes>
                      </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="292" Id="licenseParam" Name="licenseParam" Direction="IN" Type="primitive">
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
-                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
-                        </carnot:Attributes>
-                     </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="293" Id="projects" Name="projects" Direction="OUT" Type="struct">
+                     <carnot:AccessPoint Oid="585" Id="SqlApplicationTestModel:projects" Name="projects" Direction="OUT" Type="struct">
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:dataType" Value="projects"/>
                            <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
                            <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                     <carnot:AccessPoint Oid="586" Id="CamelSqlQuery" Name="SqlQuery" Direction="IN" Type="primitive">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                            <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
                            <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                     <carnot:AccessPoint Oid="587" Id="licenseParam" Name="licenseParam" Direction="IN" Type="primitive">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
                         </carnot:Attributes>
                      </carnot:AccessPoint>
                   </carnot:AccessPoints>
@@ -234,7 +231,6 @@
                      <carnot:Attribute Name="carnot:engine:camel::invocationType" Value="synchronous"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::connectionType" Value="direct"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::databasetype" Value="others"/>
-                     <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SqlApplicationTestModel:projects"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::outputType" Value="SelectList"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::sqlQuery" Value="SELECT * FROM projects where license= :#licenseParam"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:9900/mem:stardust"/>
@@ -244,6 +240,7 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::driverClassName" Value="org.h2.Driver"/>
                      <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;SelectWithPrimitiveParamDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:9900/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="SA"/>
+                     <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SqlApplicationTestModel:projects"/>
                   </carnot:Attributes>
                </carnot:Application>
             </ExtendedAttribute>
@@ -255,38 +252,37 @@
                <carnot:Application Oid="285" Type="camelSpringProducerApplication">
                   <carnot:ApplicationContexts/>
                   <carnot:AccessPoints>
-                     <carnot:AccessPoint Oid="404" Id="CamelSqlQuery" Name="SqlQuery" Direction="IN" Type="primitive">
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
-                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
-                           <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
-                        </carnot:Attributes>
-                     </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="405" Id="CamelSqlUpdateCount" Name="SqlUpdateCount" Direction="OUT" Type="primitive">
+                     <carnot:AccessPoint Oid="558" Id="CamelSqlUpdateCount" Name="SqlUpdateCount" Direction="OUT" Type="primitive">
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                            <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
                            <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
                         </carnot:Attributes>
                      </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="406" Id="CamelSqlRowCount" Name="SqlRowCount" Direction="OUT" Type="primitive">
+                     <carnot:AccessPoint Oid="559" Id="CamelSqlRowCount" Name="SqlRowCount" Direction="OUT" Type="primitive">
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                            <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
                            <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
                         </carnot:Attributes>
                      </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="407" Id="idParam" Name="idParam" Direction="IN" Type="primitive">
+                     <carnot:AccessPoint Oid="561" Id="SqlApplicationTestModel:license" Name="license" Direction="OUT" Type="primitive">
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
-                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
+                           <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
                         </carnot:Attributes>
                      </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="408" Id="license" Name="license" Direction="OUT" Type="primitive">
+                     <carnot:AccessPoint Oid="562" Id="CamelSqlQuery" Name="SqlQuery" Direction="IN" Type="primitive">
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                            <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
                            <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                     <carnot:AccessPoint Oid="563" Id="idParam" Name="idParam" Direction="IN" Type="primitive">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
                         </carnot:Attributes>
                      </carnot:AccessPoint>
                   </carnot:AccessPoints>
@@ -299,7 +295,6 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::sqlQuery" Value="SELECT license FROM projects where id= :#idParam"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::connectionType" Value="direct"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::databasetype" Value="others"/>
-                     <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SqlApplicationTestModel:license"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::outputType" Value="SelectOne"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:9900/mem:stardust"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::useCVforPassowrd" Value="false" Type="boolean"/>
@@ -308,6 +303,7 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::driverClassName" Value="org.h2.Driver"/>
                      <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;SelectAndReturnPrimitiveDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:9900/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="SA"/>
+                     <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SqlApplicationTestModel:license"/>
                   </carnot:Attributes>
                </carnot:Application>
             </ExtendedAttribute>
@@ -319,34 +315,21 @@
                <carnot:Application Oid="400" Type="camelSpringProducerApplication">
                   <carnot:ApplicationContexts/>
                   <carnot:AccessPoints>
-                     <carnot:AccessPoint Oid="444" Id="CamelSqlQuery" Name="SqlQuery" Direction="IN" Type="primitive">
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
-                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
-                           <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
-                        </carnot:Attributes>
-                     </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="445" Id="CamelSqlUpdateCount" Name="SqlUpdateCount" Direction="OUT" Type="primitive">
+                     <carnot:AccessPoint Oid="570" Id="CamelSqlUpdateCount" Name="SqlUpdateCount" Direction="OUT" Type="primitive">
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                            <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
                            <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
                         </carnot:Attributes>
                      </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="446" Id="CamelSqlRowCount" Name="SqlRowCount" Direction="OUT" Type="primitive">
+                     <carnot:AccessPoint Oid="571" Id="CamelSqlRowCount" Name="SqlRowCount" Direction="OUT" Type="primitive">
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:type" Value="int" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                            <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
                            <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
                         </carnot:Attributes>
                      </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="447" Id="idParam" Name="idParam" Direction="IN" Type="primitive">
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
-                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
-                        </carnot:Attributes>
-                     </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="448" Id="projectparam" Name="projectParam" Direction="OUT" Type="struct">
+                     <carnot:AccessPoint Oid="572" Id="projectparam" Name="projectParam" Direction="OUT" Type="struct">
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:dataType" Value="project"/>
                            <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
@@ -355,10 +338,25 @@
                            <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
                         </carnot:Attributes>
                      </carnot:AccessPoint>
-                     <carnot:AccessPoint Oid="449" Id="project" Name="project" Direction="OUT" Type="struct">
+                     <carnot:AccessPoint Oid="574" Id="SqlApplicationTestModel:project" Name="project" Direction="OUT" Type="struct">
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:engine:dataType" Value="project"/>
+                           <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                           <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
                            <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                     <carnot:AccessPoint Oid="575" Id="CamelSqlQuery" Name="SqlQuery" Direction="IN" Type="primitive">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
+                           <carnot:Attribute Name="stardust:predefined" Value="true" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                     <carnot:AccessPoint Oid="576" Id="idParam" Name="idParam" Direction="IN" Type="primitive">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                           <carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
                         </carnot:Attributes>
                      </carnot:AccessPoint>
                   </carnot:AccessPoints>
@@ -371,7 +369,6 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::sqlQuery" Value="SELECT * FROM projects where id= :#idParam"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::connectionType" Value="direct"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::databasetype" Value="others"/>
-                     <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SqlApplicationTestModel:project"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::outputType" Value="SelectOne"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:9900/mem:stardust"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::useCVforPassowrd" Value="false" Type="boolean"/>
@@ -380,6 +377,7 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::driverClassName" Value="org.h2.Driver"/>
                      <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;SelectAndReturnSdtDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:9900/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="SA"/>
+                     <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SqlApplicationTestModel:project"/>
                   </carnot:Attributes>
                </carnot:Application>
             </ExtendedAttribute>
@@ -465,7 +463,7 @@
                      <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
                      <carnot:Attribute Name="carnot:engine:camel::invocationPattern" Value="sendReceive"/>
                      <carnot:Attribute Name="carnot:engine:camel::invocationType" Value="synchronous"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::sqlQuery" Value="Update projects set license='Ipp' where id='3'"/>
+                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::sqlQuery" Value="update projects set license='Ipp' where id='3'"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::connectionType" Value="direct"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::databasetype" Value="others"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:9900/mem:stardust"/>
@@ -668,7 +666,7 @@
                         <carnot:DataFlows>
                            <carnot:DataFlow Oid="88" Id="projects" Name="projects" Direction="OUT" Context="application">
                               <carnot:DataRef Id="projects"/>
-                              <carnot:AccessPointRef Id="projects"/>
+                              <carnot:AccessPointRef Id="SqlApplicationTestModel:projects"/>
                            </carnot:DataFlow>
                         </carnot:DataFlows>
                      </carnot:Activity>
@@ -788,11 +786,11 @@
                         <carnot:DataFlows>
                            <carnot:DataFlow Oid="158" Id="projectParam" Name="projectParam" Direction="IN" Context="application">
                               <carnot:DataRef Id="projectParam"/>
-                              <carnot:AccessPointRef Id="project"/>
+                              <carnot:AccessPointRef Id="SqlApplicationTestModel:project"/>
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="159" Id="projects" Name="projects" Direction="OUT" Context="application">
                               <carnot:DataRef Id="projects"/>
-                              <carnot:AccessPointRef Id="projects"/>
+                              <carnot:AccessPointRef Id="SqlApplicationTestModel:projects"/>
                            </carnot:DataFlow>
                         </carnot:DataFlows>
                      </carnot:Activity>
@@ -911,7 +909,7 @@
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="256" Id="projects" Name="projects" Direction="OUT" Context="application">
                               <carnot:DataRef Id="projects"/>
-                              <carnot:AccessPointRef Id="projects"/>
+                              <carnot:AccessPointRef Id="SqlApplicationTestModel:projects"/>
                            </carnot:DataFlow>
                         </carnot:DataFlows>
                      </carnot:Activity>
@@ -1027,7 +1025,7 @@
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="335" Id="license" Name="license" Direction="OUT" Context="application">
                               <carnot:DataRef Id="license"/>
-                              <carnot:AccessPointRef Id="license"/>
+                              <carnot:AccessPointRef Id="SqlApplicationTestModel:license"/>
                            </carnot:DataFlow>
                         </carnot:DataFlows>
                      </carnot:Activity>
@@ -1143,7 +1141,7 @@
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="450" Id="project" Name="project" Direction="OUT" Context="application">
                               <carnot:DataRef Id="project"/>
-                              <carnot:AccessPointRef Id="project"/>
+                              <carnot:AccessPointRef Id="SqlApplicationTestModel:project"/>
                            </carnot:DataFlow>
                         </carnot:DataFlows>
                      </carnot:Activity>
@@ -1513,7 +1511,7 @@
             <carnot:Diagrams/>
             <carnot:Views/>
             <carnot:Attributes>
-               <carnot:Attribute Name="ipp:model:modified" Value="Tue Mar 29 17:54:39 GMT+01:00 2016"/>
+               <carnot:Attribute Name="ipp:model:modified" Value="Wed Mar 30 10:27:30 GMT+01:00 2016"/>
             </carnot:Attributes>
          </carnot:Package>
       </ExtendedAttribute>

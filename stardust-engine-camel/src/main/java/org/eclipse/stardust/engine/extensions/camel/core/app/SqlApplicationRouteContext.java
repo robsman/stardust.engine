@@ -85,7 +85,7 @@ public class SqlApplicationRouteContext extends ProducerRouteContext
    private String getQuery(IApplication application){
       String sqlQuery= Util.getSqlQuery(application);
       if(StringUtils.isNotEmpty(sqlQuery))
-         sqlQuery=StringEscapeUtils.escapeSql(StringEscapeUtils.escapeXml(sqlQuery));
+         sqlQuery=StringEscapeUtils.escapeXml(sqlQuery);//StringEscapeUtils.escapeSql(StringEscapeUtils.escapeXml(sqlQuery));
       return sqlQuery;
    }
 }

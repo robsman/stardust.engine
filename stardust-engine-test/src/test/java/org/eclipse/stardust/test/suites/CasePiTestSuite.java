@@ -15,6 +15,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import org.eclipse.stardust.test.casepi.CaseProcessAbortTest;
+import org.eclipse.stardust.test.casepi.CaseProcessAbortedTest;
 import org.eclipse.stardust.test.casepi.CaseProcessInstanceTest;
 
 /**
@@ -26,6 +27,7 @@ import org.eclipse.stardust.test.casepi.CaseProcessInstanceTest;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
+   CaseProcessAbortedTest.class,   
    CaseProcessAbortTest.class,
    CaseProcessInstanceTest.class
              })

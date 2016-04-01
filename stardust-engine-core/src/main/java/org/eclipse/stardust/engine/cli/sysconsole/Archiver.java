@@ -1832,110 +1832,13 @@ public class Archiver
    private void archiveData(String modelId, List<String> ids, String[] fqIds, long tsBefore)
    {
       final int nData;
+      final int nDataHistory;
 
       try
       {
-         // building common subselect, qualifying records to be deleted
-         QueryDescriptor subSel = QueryDescriptor
-               .from(srcSchema, DataValueBean.class)
-               .select(DataValueBean.FR__OID);
-
-         subSel.innerJoin(srcSchema, AuditTrailDataBean.class)
-               .on(DataValueBean.FR__DATA, AuditTrailDataBean.FIELD__OID)
-               .andOn(DataValueBean.FR__MODEL, AuditTrailDataBean.FIELD__MODEL);
-
-         if(modelId != null)
-         {
-            subSel.innerJoin(srcSchema, ModelPersistorBean.class, "m")
-            .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
-            .where(Predicates.andTerm(
-                  Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()),
-                  Predicates.isEqual(ModelPersistorBean.FR__ID, modelId)));
-         }
-         else
-         {
-            subSel.innerJoin(srcSchema, ModelPersistorBean.class, "m")
-            .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
-            .where(Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()));
-         }
-
-         subSel.innerJoin(srcSchema, ProcessInstanceScopeBean.class)
-               .on(DataValueBean.FR__PROCESS_INSTANCE, ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE);
-
-         subSel.innerJoin(srcSchema, ProcessInstanceBean.class)
-               .on(ProcessInstanceScopeBean.FR__ROOT_PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID);
-
-         subSel.setPredicateTerm(Predicates.andTerm(
-               Predicates.inList(AuditTrailDataBean.FR__ID, ids),
-               PT_TERMINATED_PI,
-               Predicates.lessOrEqual(ProcessInstanceBean.FR__TERMINATION_TIME, tsBefore)));
-
-         // deleting overflow records for data values
-         if (trace.isDebugEnabled())
-         {
-            trace.debug("Deleting overflow records for data " + stringLiteralList(ids) + ".");
-         }
-
-         session.executeDelete(DeleteDescriptor
-               .from(srcSchema, LargeStringHolder.class)
-               .where(Predicates.andTerm(
-                     PT_STRING_DATA_IS_DATA_VALUE_RECORD,
-                     Predicates.inList(LargeStringHolder.FR__OBJECTID, subSel))));
-
-         // TODO: Delete "overflow" records for struct data and document/document sets.
-
-         // deleting data values
-         if (trace.isDebugEnabled())
-         {
-            trace.debug("Deleting data values for data " + stringLiteralList(ids) + ".");
-         }
-
-         DeleteDescriptor dvDelete = DeleteDescriptor
-               .from(srcSchema, DataValueBean.class);
-
-         dvDelete.innerJoin(srcSchema, AuditTrailDataBean.class)
-               .on(DataValueBean.FR__DATA, AuditTrailDataBean.FIELD__OID)
-               .andOn(DataValueBean.FR__MODEL, AuditTrailDataBean.FIELD__MODEL);
-
-         if(modelId != null)
-         {
-            dvDelete.innerJoin(srcSchema, ModelPersistorBean.class, "m")
-            .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
-            .where(Predicates.andTerm(
-                  Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()),
-                  Predicates.isEqual(ModelPersistorBean.FR__ID, modelId)));
-         }
-         else
-         {
-            dvDelete.innerJoin(srcSchema, ModelPersistorBean.class, "m")
-            .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
-            .where(Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()));
-
-         }
-
-         dvDelete.innerJoin(srcSchema, ProcessInstanceScopeBean.class)
-               .on(DataValueBean.FR__PROCESS_INSTANCE, ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE);
-
-         dvDelete.innerJoin(srcSchema, ProcessInstanceBean.class)
-               .on(ProcessInstanceScopeBean.FR__ROOT_PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID);
-
-         nData = session.executeDelete(dvDelete
-               .where(Predicates.andTerm(
-                     Predicates.inList(AuditTrailDataBean.FR__ID, ids),
-                     PT_TERMINATED_PI,
-                     Predicates.lessOrEqual(ProcessInstanceBean.FR__TERMINATION_TIME, tsBefore))));
-
-
-// ????
-         // deleting appropriate slots in data cluster tables
-         final DataCluster[] dClusters = getDataClusterSetup(false);
-         for (int idx = 0; idx < dClusters.length; ++idx)
-         {
-            synchronizeDataCluster(dClusters[idx], Arrays.asList(fqIds));
-         }
-// ###
-// ???? call to referencing models
-
+         nData = archiveDataValue(modelId, ids, fqIds, tsBefore);
+         
+         nDataHistory = archiveDataValueHistory(modelId, ids, fqIds, tsBefore);
 
          commit();
 
@@ -1957,6 +1860,210 @@ public class Archiver
                      .raise(stringLiteralList(ids)),
                e);
       }
+   }
+
+   private int archiveDataValue(String modelId, List<String> ids, String[] fqIds,
+         long tsBefore)
+   {
+      final int nData;
+      // building common subselect, qualifying records to be deleted
+      QueryDescriptor subSel = QueryDescriptor
+            .from(srcSchema, DataValueBean.class)
+            .select(DataValueBean.FR__OID);
+
+      subSel.innerJoin(srcSchema, AuditTrailDataBean.class)
+            .on(DataValueBean.FR__DATA, AuditTrailDataBean.FIELD__OID)
+            .andOn(DataValueBean.FR__MODEL, AuditTrailDataBean.FIELD__MODEL);
+
+      if(modelId != null)
+      {
+         subSel.innerJoin(srcSchema, ModelPersistorBean.class, "m")
+         .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
+         .where(Predicates.andTerm(
+               Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()),
+               Predicates.isEqual(ModelPersistorBean.FR__ID, modelId)));
+      }
+      else
+      {
+         subSel.innerJoin(srcSchema, ModelPersistorBean.class, "m")
+         .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
+         .where(Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()));
+      }
+
+      subSel.innerJoin(srcSchema, ProcessInstanceScopeBean.class)
+            .on(DataValueBean.FR__PROCESS_INSTANCE, ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE);
+
+      subSel.innerJoin(srcSchema, ProcessInstanceBean.class)
+            .on(ProcessInstanceScopeBean.FR__ROOT_PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID);
+
+      subSel.setPredicateTerm(Predicates.andTerm(
+            Predicates.inList(AuditTrailDataBean.FR__ID, ids),
+            PT_TERMINATED_PI,
+            Predicates.lessOrEqual(ProcessInstanceBean.FR__TERMINATION_TIME, tsBefore)));
+
+      // deleting overflow records for data values
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("Deleting overflow records for data " + stringLiteralList(ids) + ".");
+      }
+
+      session.executeDelete(DeleteDescriptor
+            .from(srcSchema, LargeStringHolder.class)
+            .where(Predicates.andTerm(
+                  PT_STRING_DATA_IS_DATA_VALUE_RECORD,
+                  Predicates.inList(LargeStringHolder.FR__OBJECTID, subSel))));
+
+      // TODO: Delete "overflow" records for struct data and document/document sets.
+
+      // deleting data values
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("Deleting data values for data " + stringLiteralList(ids) + ".");
+      }
+
+      DeleteDescriptor dvDelete = DeleteDescriptor
+            .from(srcSchema, DataValueBean.class);
+
+      dvDelete.innerJoin(srcSchema, AuditTrailDataBean.class)
+            .on(DataValueBean.FR__DATA, AuditTrailDataBean.FIELD__OID)
+            .andOn(DataValueBean.FR__MODEL, AuditTrailDataBean.FIELD__MODEL);
+
+      if(modelId != null)
+      {
+         dvDelete.innerJoin(srcSchema, ModelPersistorBean.class, "m")
+         .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
+         .where(Predicates.andTerm(
+               Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()),
+               Predicates.isEqual(ModelPersistorBean.FR__ID, modelId)));
+      }
+      else
+      {
+         dvDelete.innerJoin(srcSchema, ModelPersistorBean.class, "m")
+         .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
+         .where(Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()));
+
+      }
+
+      dvDelete.innerJoin(srcSchema, ProcessInstanceScopeBean.class)
+            .on(DataValueBean.FR__PROCESS_INSTANCE, ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE);
+
+      dvDelete.innerJoin(srcSchema, ProcessInstanceBean.class)
+            .on(ProcessInstanceScopeBean.FR__ROOT_PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID);
+
+      nData = session.executeDelete(dvDelete
+            .where(Predicates.andTerm(
+                  Predicates.inList(AuditTrailDataBean.FR__ID, ids),
+                  PT_TERMINATED_PI,
+                  Predicates.lessOrEqual(ProcessInstanceBean.FR__TERMINATION_TIME, tsBefore))));
+
+
+// ????
+      // deleting appropriate slots in data cluster tables
+      final DataCluster[] dClusters = getDataClusterSetup(false);
+      for (int idx = 0; idx < dClusters.length; ++idx)
+      {
+         synchronizeDataCluster(dClusters[idx], Arrays.asList(fqIds));
+      }
+// ###
+// ???? call to referencing models
+      return nData;
+   }
+   
+   private int archiveDataValueHistory(String modelId, List<String> ids, String[] fqIds,
+         long tsBefore)
+   {
+      final int nData;
+      // building common subselect, qualifying records to be deleted
+      QueryDescriptor subSel = QueryDescriptor
+            .from(srcSchema, DataValueHistoryBean.class)
+            .select(DataValueHistoryBean.FR__OID);
+
+      subSel.innerJoin(srcSchema, AuditTrailDataBean.class)
+            .on(DataValueHistoryBean.FR__DATA, AuditTrailDataBean.FIELD__OID)
+            .andOn(DataValueHistoryBean.FR__MODEL, AuditTrailDataBean.FIELD__MODEL);
+
+      if(modelId != null)
+      {
+         subSel.innerJoin(srcSchema, ModelPersistorBean.class, "m")
+         .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
+         .where(Predicates.andTerm(
+               Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()),
+               Predicates.isEqual(ModelPersistorBean.FR__ID, modelId)));
+      }
+      else
+      {
+         subSel.innerJoin(srcSchema, ModelPersistorBean.class, "m")
+         .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
+         .where(Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()));
+      }
+
+      subSel.innerJoin(srcSchema, ProcessInstanceScopeBean.class)
+            .on(DataValueHistoryBean.FR__PROCESS_INSTANCE, ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE);
+
+      subSel.innerJoin(srcSchema, ProcessInstanceBean.class)
+            .on(ProcessInstanceScopeBean.FR__ROOT_PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID);
+
+      subSel.setPredicateTerm(Predicates.andTerm(
+            Predicates.inList(AuditTrailDataBean.FR__ID, ids),
+            PT_TERMINATED_PI,
+            Predicates.lessOrEqual(ProcessInstanceBean.FR__TERMINATION_TIME, tsBefore)));
+
+      // deleting overflow records for data values
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("Deleting overflow records for data " + stringLiteralList(ids) + ".");
+      }
+
+      session.executeDelete(DeleteDescriptor
+            .from(srcSchema, LargeStringHolder.class)
+            .where(Predicates.andTerm(
+                  PT_STRING_DATA_IS_DATA_VALUE_HISTORY_RECORD,
+                  Predicates.inList(LargeStringHolder.FR__OBJECTID, subSel))));
+
+      // TODO: Delete "overflow" records for struct data and document/document sets.
+
+      // deleting data values
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("Deleting data values for data " + stringLiteralList(ids) + ".");
+      }
+
+      DeleteDescriptor dvDelete = DeleteDescriptor
+            .from(srcSchema, DataValueHistoryBean.class);
+
+      dvDelete.innerJoin(srcSchema, AuditTrailDataBean.class)
+            .on(DataValueHistoryBean.FR__DATA, AuditTrailDataBean.FIELD__OID)
+            .andOn(DataValueHistoryBean.FR__MODEL, AuditTrailDataBean.FIELD__MODEL);
+
+      if(modelId != null)
+      {
+         dvDelete.innerJoin(srcSchema, ModelPersistorBean.class, "m")
+         .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
+         .where(Predicates.andTerm(
+               Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()),
+               Predicates.isEqual(ModelPersistorBean.FR__ID, modelId)));
+      }
+      else
+      {
+         dvDelete.innerJoin(srcSchema, ModelPersistorBean.class, "m")
+         .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
+         .where(Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()));
+
+      }
+
+      dvDelete.innerJoin(srcSchema, ProcessInstanceScopeBean.class)
+            .on(DataValueHistoryBean.FR__PROCESS_INSTANCE, ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE);
+
+      dvDelete.innerJoin(srcSchema, ProcessInstanceBean.class)
+            .on(ProcessInstanceScopeBean.FR__ROOT_PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID);
+
+      nData = session.executeDelete(dvDelete
+            .where(Predicates.andTerm(
+                  Predicates.inList(AuditTrailDataBean.FR__ID, ids),
+                  PT_TERMINATED_PI,
+                  Predicates.lessOrEqual(ProcessInstanceBean.FR__TERMINATION_TIME, tsBefore))));
+
+      return nData;
    }
 
    private void deleteLogEntries(long tsBefore, PredicateTerm restriction)

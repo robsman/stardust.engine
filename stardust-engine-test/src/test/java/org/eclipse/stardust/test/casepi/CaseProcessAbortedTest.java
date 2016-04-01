@@ -68,6 +68,9 @@ public class CaseProcessAbortedTest
       queryService = sf.getQueryService();
    }
 
+   /**
+    * Tests one case aborted, case PI is completed
+    */
    @Test
    public void testCaseActive1() throws Exception
    {
@@ -83,6 +86,9 @@ public class CaseProcessAbortedTest
       ProcessInstanceStateBarrier.instance().await(rootCaseProcess.getOID(), ProcessInstanceState.Completed);
    }
 
+   /**
+    * Tests one case completed, case PI is completed
+    */
    @Test
    public void testCaseActive2() throws Exception
    {
@@ -98,6 +104,9 @@ public class CaseProcessAbortedTest
       ProcessInstanceStateBarrier.instance().await(rootCaseProcess.getOID(), ProcessInstanceState.Completed);
    }
 
+   /**
+    * Tests two case, first aborted, second completed, case PI is completed
+    */
    @Test   
    public void testCaseActive3() throws Exception
    {
@@ -116,6 +125,9 @@ public class CaseProcessAbortedTest
       ProcessInstanceStateBarrier.instance().await(rootCaseProcess.getOID(), ProcessInstanceState.Completed);
    }
 
+   /**
+    * Tests two case, first completed, second aborted, case PI is completed
+    */   
    @Test   
    public void testCaseActive4() throws Exception
    {
@@ -133,7 +145,10 @@ public class CaseProcessAbortedTest
       ProcessInstanceStateBarrier.instance().await(caseProcess2.getOID(), ProcessInstanceState.Aborted);
       ProcessInstanceStateBarrier.instance().await(rootCaseProcess.getOID(), ProcessInstanceState.Completed);
    }
-    
+
+   /**
+    * Tests one case aborted, case PI is completed
+    */
    @Test
    public void testCaseActive5() throws Exception
    {
@@ -149,6 +164,9 @@ public class CaseProcessAbortedTest
       ProcessInstanceStateBarrier.instance().await(rootCaseProcess.getOID(), ProcessInstanceState.Completed);
    }
    
+   /**
+    * Tests two case, first aborted, second aborted, case PI is completed
+    */      
    @Test   
    public void testCaseActive6() throws Exception
    {
@@ -167,6 +185,9 @@ public class CaseProcessAbortedTest
       ProcessInstanceStateBarrier.instance().await(rootCaseProcess.getOID(), ProcessInstanceState.Completed);
    }
    
+   /**
+    * Tests two case, first aborted, case PI is active
+    */         
    @Test   
    public void testCaseActive7() throws Exception
    {
@@ -183,6 +204,9 @@ public class CaseProcessAbortedTest
       ProcessInstanceStateBarrier.instance().await(rootCaseProcess.getOID(), ProcessInstanceState.Active);
    }
 
+   /**
+    * Tests one case, case AI is suspended, then case completed, case AI is completed
+    */   
    @Test
    public void testCaseActive8() throws Exception
    {

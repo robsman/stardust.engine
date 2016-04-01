@@ -1844,6 +1844,8 @@ public class Archiver
 
          trace.info(MessageFormat.format("Deleted {0} values for data {1}.",
                new Object[] {new Long(nData), stringLiteralList(ids)}));
+         trace.info(MessageFormat.format("Deleted {0} history values for data {1}.",
+               new Object[] {new Long(nDataHistory), stringLiteralList(ids)}));
       }
       catch (Exception e)
       {
@@ -2022,10 +2024,10 @@ public class Archiver
 
       // TODO: Delete "overflow" records for struct data and document/document sets.
 
-      // deleting data values
+      // deleting data values history
       if (trace.isDebugEnabled())
       {
-         trace.debug("Deleting data values for data " + stringLiteralList(ids) + ".");
+         trace.debug("Deleting data values history for data " + stringLiteralList(ids) + ".");
       }
 
       DeleteDescriptor dvDelete = DeleteDescriptor

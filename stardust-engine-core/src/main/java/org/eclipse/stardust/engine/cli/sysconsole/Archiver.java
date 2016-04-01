@@ -97,6 +97,9 @@ public class Archiver
 
    private static final ComparisonTerm PT_STRING_DATA_IS_DATA_VALUE_RECORD = Predicates.isEqual(
          LargeStringHolder.FR__DATA_TYPE, TypeDescriptor.getTableName(DataValueBean.class));
+   
+   private static final ComparisonTerm PT_STRING_DATA_IS_DATA_VALUE_HISTORY_RECORD = Predicates.isEqual(
+         LargeStringHolder.FR__DATA_TYPE, TypeDescriptor.getTableName(DataValueHistoryBean.class));
 
    private static final ComparisonTerm PT_STRING_DATA_IS_DMS_DOC_VALUE_RECORD = Predicates
          .inList(LargeStringHolder.FR__DATA_TYPE, new String[] {
@@ -1442,8 +1445,13 @@ public class Archiver
 
          deleteDvParts(piOids, LargeStringHolder.class, LargeStringHolder.FR__OBJECTID,
                PT_STRING_DATA_IS_DATA_VALUE_RECORD);
+         
+         deleteDvHistoryParts(piOids, LargeStringHolder.class, LargeStringHolder.FR__OBJECTID,
+               PT_STRING_DATA_IS_DATA_VALUE_HISTORY_RECORD);
 
          deletePiParts(piOids, DataValueBean.class, DataValueBean.FR__PROCESS_INSTANCE);
+         
+         deletePiParts(piOids, DataValueHistoryBean.class, DataValueHistoryBean.FR__PROCESS_INSTANCE);
 
          deletePiParts(piOids, ProcessInstanceHierarchyBean.class,
                ProcessInstanceHierarchyBean.FR__PROCESS_INSTANCE);
@@ -1612,6 +1620,11 @@ public class Archiver
 
       backupDvParts(piOids, LargeStringHolder.class, LargeStringHolder.FIELD__OBJECTID,
             PT_STRING_DATA_IS_DATA_VALUE_RECORD);
+      
+      backupPiParts(piOids, DataValueHistoryBean.class, DataValueHistoryBean.FIELD__PROCESS_INSTANCE);
+      
+      backupDvHistoryParts(piOids, LargeStringHolder.class, LargeStringHolder.FIELD__OBJECTID,
+            PT_STRING_DATA_IS_DATA_VALUE_HISTORY_RECORD);
 
       backupPiParts(piOids, ActivityInstanceBean.class,
             ActivityInstanceBean.FIELD__PROCESS_INSTANCE);
@@ -2549,8 +2562,13 @@ public class Archiver
 
       deleteDvParts(piOids, LargeStringHolder.class, LargeStringHolder.FR__OBJECTID,
             PT_STRING_DATA_IS_DATA_VALUE_RECORD);
+      
+      deleteDvHistoryParts(piOids, LargeStringHolder.class, LargeStringHolder.FR__OBJECTID,
+            PT_STRING_DATA_IS_DATA_VALUE_HISTORY_RECORD);
 
       deletePiParts(piOids, DataValueBean.class, DataValueBean.FR__PROCESS_INSTANCE);
+      
+      deletePiParts(piOids, DataValueHistoryBean.class, DataValueHistoryBean.FR__PROCESS_INSTANCE);
 
       deletePiParts(piOids, LogEntryBean.class, LogEntryBean.FR__PROCESS_INSTANCE);
 
@@ -2897,6 +2915,13 @@ public class Archiver
       delete2ndLevelPiParts(piOids, partType, fkDvField, DataValueBean.class,
             DataValueBean.FR__PROCESS_INSTANCE, restriction);
    }
+   
+   private void deleteDvHistoryParts(List piOids, Class partType, FieldRef fkDvField,
+         PredicateTerm restriction)
+   {
+      delete2ndLevelPiParts(piOids, partType, fkDvField, DataValueHistoryBean.class,
+            DataValueHistoryBean.FR__PROCESS_INSTANCE, restriction);
+   }
 
    private int delete2ndLevelPiParts(List piOids, Class partType, FieldRef fkPiPartField,
          Class piPartType, FieldRef piOidField, PredicateTerm restriction)
@@ -3061,6 +3086,13 @@ public class Archiver
    {
       backup2ndLevelPiParts(piOids, targetType, fkPiPartFieldName, DataValueBean.class,
             ActivityInstanceBean.FIELD__PROCESS_INSTANCE, restriction);
+   }
+   
+   private void backupDvHistoryParts(List piOids, Class targetType, String fkPiPartFieldName,
+         PredicateTerm restriction)
+   {
+      backup2ndLevelPiParts(piOids, targetType, fkPiPartFieldName, DataValueHistoryBean.class,
+            DataValueHistoryBean.FIELD__PROCESS_INSTANCE, restriction);
    }
 
    private void backupDataCluster(List piOids)

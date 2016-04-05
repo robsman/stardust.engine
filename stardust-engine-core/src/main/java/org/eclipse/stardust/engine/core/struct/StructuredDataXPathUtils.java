@@ -1187,18 +1187,14 @@ public class StructuredDataXPathUtils
          Map<String,Object> values, boolean namespaceAware, boolean ignoreUnknownXPaths)
          throws XPathException, ParserConfigurationException, FactoryConfigurationError
    {
-      for (String xPath : values.keySet())
-      {
-         createTree(xPathMap, document, xPath, namespaceAware);
-      }
-
-      // now put the value to the prepared tree
       StructuredDataConverter converter = new StructuredDataConverter(xPathMap);
 
       for (Map.Entry<String,Object> e : values.entrySet())
       {
          String xPath = e.getKey();
          Object value = e.getValue();
+
+         boolean created = createTree(xPathMap, document, xPath, namespaceAware);
 
          Node[] newNodes = converter.toDom(value, xPath, namespaceAware, ignoreUnknownXPaths);
 
@@ -1228,12 +1224,18 @@ public class StructuredDataXPathUtils
          }
          else
          {
-            Object result;
+            Object result = null;
+            TypedXPath typedXPath = null;
+            if (xPathMap.containsXPath(xPath))
+            {
+               typedXPath = xPathMap.getXPath(xPath);
+            }
             if (isSimpleElementAccess(xPath))
             {
                // avoid full XPath overhead for plain sub-element access
                List<Element> childs = document.getRootElement().getChildElements(xPath,
-                     xPathMap.getXPath(xPath).getXsdElementNs());
+                     typedXPath.getXsdElementNs());
+
                if (0 == childs.size())
                {
                   result = Collections.EMPTY_LIST;
@@ -1259,10 +1261,10 @@ public class StructuredDataXPathUtils
             else
             {
                XPathEvaluator xPathEvaluator;
-               if (xPathMap.containsXPath(xPath))
+               if (typedXPath != null)
                {
                   // reuse cached xPath
-                  xPathEvaluator = xPathMap.getXPath(xPath).getCompiledXPath(namespaceAware);
+                  xPathEvaluator = typedXPath.getCompiledXPath(namespaceAware);
                }
                else
                {
@@ -1270,6 +1272,8 @@ public class StructuredDataXPathUtils
                }
                result = xPathEvaluator.selectNodes(document.getRootElement());
             }
+
+            boolean remove = created || typedXPath != null && typedXPath.isList() && value instanceof Collection;
 
             if (result instanceof List)
             {
@@ -1287,10 +1291,20 @@ public class StructuredDataXPathUtils
                      for (int i = 0; i < newNodes.length; i++ )
                      {
                         newNodes[i].detach();
-                        parentNode.insertChild(newNodes[i], parentNode.indexOf(contextElement));
+                        if (remove)
+                        {
+                           parentNode.insertChild(newNodes[i], parentNode.indexOf(contextElement));
+                        }
+                        else
+                        {
+                           parentNode.appendChild(newNodes[i]);
+                        }
                      }
 
-                     parentNode.removeChild(contextElement);
+                     if (remove)
+                     {
+                        parentNode.removeChild(contextElement);
+                     }
                   }
                   else if (contextElement instanceof Text)
                   {
@@ -1322,7 +1336,7 @@ public class StructuredDataXPathUtils
                else
                {
                   // multiple nodes as a target
-                  if ( !isSameOrigin(nodelist, xPathMap))
+                  if (!isSameOrigin(nodelist, xPathMap))
                   {
                      // they are NOT from the same XPath
                      throw new PublicException(
@@ -1336,13 +1350,22 @@ public class StructuredDataXPathUtils
                   for (int i = 0; i < newNodes.length; i++ )
                   {
                      newNodes[i].detach();
-                     parentNode.insertChild(newNodes[i], i);
+                     if (remove)
+                     {
+                        parentNode.insertChild(newNodes[i], i);
+                     }
+                     else
+                     {
+                        parentNode.appendChild(newNodes[i]);
+                     }
                   }
 
-                  // remove all that must be replaced
-                  for (int i = 0; i < nodelist.size(); i++ )
+                  if (remove)
                   {
-                     parentNode.removeChild((Node) nodelist.get(i));
+                     for (int i = 0; i < nodelist.size(); i++ )
+                     {
+                        parentNode.removeChild((Node) nodelist.get(i));
+                     }
                   }
                }
             }
@@ -1356,16 +1379,17 @@ public class StructuredDataXPathUtils
       }
    }
 
-   private static void createTree(IXPathMap xPathMap, Document document, String xPath,
+   private static boolean createTree(IXPathMap xPathMap, Document document, String xPath,
          boolean namespaceAware) throws XPathException, ParserConfigurationException, FactoryConfigurationError
    {
       if (isRootXPath(xPath))
       {
          // nothing to create/check if the whole value will be replaced
-         return;
+         return false;
       }
 
-      if ( !hasMultipleSteps(xPath))
+      boolean created = false;
+      if (!hasMultipleSteps(xPath))
       {
          if (-1 == getLastXPathPart(xPath).indexOf('@'))
          {
@@ -1376,6 +1400,7 @@ public class StructuredDataXPathUtils
                // element must be created
                TypedXPath elementXPath = xPathMap.getXPath(getXPathWithoutIndexes(xPath));
                element = createNeededElements(elementXPath, xPath, document.getRootElement(), namespaceAware);
+               created = true;
             }
          }
          else
@@ -1383,6 +1408,7 @@ public class StructuredDataXPathUtils
             if (document.getRootElement().getAttribute(getAttributeName(xPath)) == null)
             {
                document.getRootElement().addAttribute(createAttribute(xPathMap.getXPath(xPath), ""));
+               created = true;
             }
          }
       }
@@ -1409,6 +1435,7 @@ public class StructuredDataXPathUtils
                   // element must be created
                   TypedXPath elementXPath = xPathMap.getXPath(getXPathWithoutIndexes(currentXPath.toString()));
                   element = createNeededElements(elementXPath, xPathPart, parentElement, namespaceAware);
+                  created = true;
                }
                parentElement = element;
             }
@@ -1418,11 +1445,13 @@ public class StructuredDataXPathUtils
                {
                   String xPathWithoutPrefixes = getXPathWithoutIndexes(currentXPath.toString());
                   parentElement.addAttribute(createAttribute(xPathMap.getXPath(xPathWithoutPrefixes), ""));
+                  created = true;
                }
                // not setting parentElement, since attributes are always last part of the xpath
             }
          }
       }
+      return created;
    }
 
    private static Element createNeededElements(TypedXPath elementXPath, String xPathPart, Element parentElement, boolean namespaceAware)

@@ -17,6 +17,7 @@ import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.engine.api.dto.HistoricalData;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetails;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
+import org.eclipse.stardust.engine.api.query.HistoricalDataPolicy;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstances;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
@@ -83,10 +84,47 @@ public class DataHistoryTest
    }
 
    @Test
+   public void testHistoricalDataRetrievalNoHistoricalData()
+   {
+      
+      ProcessInstanceQuery piQuery = ProcessInstanceQuery.findAll();
+      
+      piQuery.setPolicy(HistoricalDataPolicy.NO_HISTORICAL_DATA);
+      
+      ProcessInstances pis = sf.getQueryService().getAllProcessInstances(piQuery);
+      
+      List<Serializable> historicValues = CollectionUtils.newList();
+
+      for (ProcessInstance pi : pis)
+      {
+         if (pi.getOID() == this.piOid)
+         {
+            List<HistoricalData> histDataList = ((ProcessInstanceDetails) pi).getHistoricalData();
+                        
+            
+            for (HistoricalData histData : histDataList)
+            {
+               historicValues.add(histData.getHistoricalDataValue());
+            }
+         }
+                  
+      }
+      Assert.assertFalse(historicValues.contains(1));
+      Assert.assertFalse(historicValues.contains(2));
+      Assert.assertFalse(historicValues.contains("initial Value"));
+      Assert.assertFalse(historicValues.contains("final Value"));
+
+   }
+
+   @Test
    public void testHistoricalDataExists()
    {
-      ProcessInstances pis = sf.getQueryService().getAllProcessInstances(
-            ProcessInstanceQuery.findAll());
+      
+      ProcessInstanceQuery piQuery = ProcessInstanceQuery.findAll();
+      
+      piQuery.setPolicy(HistoricalDataPolicy.INCLUDE_HISTORICAL_DATA);
+      
+      ProcessInstances pis = sf.getQueryService().getAllProcessInstances(piQuery);
       
       List<Serializable> historicValues = CollectionUtils.newList();
 
@@ -109,8 +147,9 @@ public class DataHistoryTest
       Assert.assertTrue(historicValues.contains("initial Value"));
       Assert.assertTrue(historicValues.contains("final Value"));
 
-   }
-
+   }   
+   
+   
    private long startProcess()
    {
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_ID_1, null,

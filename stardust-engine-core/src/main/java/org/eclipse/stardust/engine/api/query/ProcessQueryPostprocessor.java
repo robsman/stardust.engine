@@ -83,26 +83,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SqlUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TableAliasDecorator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.AbstractProperty;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.BigData;
-import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
-import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
-import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler;
-import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceProperty;
-import org.eclipse.stardust.engine.core.runtime.beans.TransientBigDataHandler;
-import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
@@ -224,6 +205,13 @@ public class ProcessQueryPostprocessor
       HistoricalEventPolicy eventPolicy = (HistoricalEventPolicy) query
          .getPolicy(HistoricalEventPolicy.class);
 
+      HistoricalDataPolicy historicalDataPolicy = (HistoricalDataPolicy) query.getPolicy(HistoricalDataPolicy.class);
+      
+      if (historicalDataPolicy == null)
+      {
+         historicalDataPolicy = HistoricalDataPolicy.NO_HISTORICAL_DATA;
+      }
+      
       PropertyLayer props = ParametersFacade.pushLayer(null);
       try
       {
@@ -253,6 +241,12 @@ public class ProcessQueryPostprocessor
                   QueryUtils.getTimeOut(query));
          }
 
+         // prefecth of historical data
+         if (historicalDataPolicy.isIncludeHistoricalData())
+         {
+            prefetchHistoricalData(new OneElementIterator(process), QueryUtils.getTimeOut(query));
+         }
+         
          if (descriptorPolicy.includeDescriptors())
          {
             // prefetching of scopePI done during descriptor value prefetch
@@ -304,7 +298,14 @@ public class ProcessQueryPostprocessor
       {
          descriptorPolicy = DescriptorPolicy.NO_DESCRIPTORS;
       }
+      
+      HistoricalDataPolicy historicalDataPolicy = (HistoricalDataPolicy) query.getPolicy(HistoricalDataPolicy.class);
 
+      if (historicalDataPolicy == null)
+      {
+         historicalDataPolicy = HistoricalDataPolicy.NO_HISTORICAL_DATA;
+      }      
+      
       ProcessInstanceDetailsLevel level = ProcessInstanceDetailsLevel.Default;
       EnumSet<ProcessInstanceDetailsOptions> detailsOptions = EnumSet
             .noneOf(ProcessInstanceDetailsOptions.class);
@@ -349,6 +350,13 @@ public class ProcessQueryPostprocessor
          {
             prefetchStartingActivityInstances(queryResult.iterator(),
                   QueryUtils.getTimeOut(query));
+         }
+         
+         
+         // prefecth of historical data
+         if (historicalDataPolicy.isIncludeHistoricalData())
+         {
+            prefetchHistoricalData(queryResult.iterator(), QueryUtils.getTimeOut(query));
          }
 
          prefetchNotes(queryResult.iterator(), QueryUtils.getTimeOut(query));
@@ -690,6 +698,7 @@ public class ProcessQueryPostprocessor
             : null, rawResult.getTotalCountThreshold());
    }
 
+      
    private static void prefetchStartingUsers(Iterator piItr, int timeout)
    {
       Set<Long> startingUserOids = new HashSet<Long>();
@@ -701,6 +710,28 @@ public class ProcessQueryPostprocessor
       prefetchUsers(startingUserOids, timeout);
    }
 
+   private static void prefetchHistoricalData(Iterator<IProcessInstance> piIter, int timeout)
+   {
+      Set piSet = CollectionUtils.newSet();
+      
+      while (piIter.hasNext())
+      {
+         piSet.add(new Long(piIter.next().getOID()));
+      }
+      
+      // This term reference will be used for later modification of its value expression
+      ComparisonTerm termTemplate = Predicates.inList(DataValueHistoryBean.FR__PROCESS_INSTANCE,
+            Collections.EMPTY_LIST.iterator());
+
+      QueryExtension queryExtension = QueryExtension.where(termTemplate);
+      
+      int instancesBatchSize = PREFETCH_BATCH_SIZE;
+      
+      performPrefetch(DataValueHistoryBean.class, queryExtension, termTemplate, piSet,
+            true, timeout, instancesBatchSize);      
+
+   }
+   
    private static void prefetchUsers(Set<Long> userOids, int timeout)
    {
       if ( !CollectionUtils.isEmpty(userOids))

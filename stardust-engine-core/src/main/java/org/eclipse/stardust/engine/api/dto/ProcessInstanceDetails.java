@@ -649,11 +649,16 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       Iterator lIter = null;
       if (session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
       {
-         lIter = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getIterator(
-               DataValueHistoryBean.class);
+         
+         
+         /**lIter = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getIterator(
+               DataValueHistoryBean.class);*/
+         lIter = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getCache(
+               DataValueHistoryBean.class)
+               .iterator();
 
       }
-      while (lIter != null && lIter.hasNext())
+      /**while (lIter != null && lIter.hasNext())
       {
          DataValueHistoryBean historyBean = (DataValueHistoryBean) lIter.next();
          if (historyBean.getProcessInstance().getOID() == getOID())
@@ -661,7 +666,17 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             historicalData.add(new HistoricalDataDetails(historyBean));
          }
 
-      }
+      }*/
+      
+      while (lIter != null && lIter.hasNext())
+      {
+         PersistenceController pc = (PersistenceController) lIter.next();
+         DataValueHistoryBean historyBean = (DataValueHistoryBean) pc.getPersistent();
+
+         historicalData.add(new HistoricalDataDetails(historyBean));
+         
+      }      
+      
    }
    
    private void initHistoricalEvents(Parameters parameters,

@@ -82,11 +82,6 @@ public class EnumDataInOutDataMappingsTest
       Map<String, String> dataMap = new HashMap<String, String>();
       dataMap.put(dataMapping, (String) value);
       
-      //final ContextData data = new ContextData(null, Collections.singletonMap(outDataMapping, value));
-      //sf.getWorkflowService().activateAndComplete(aiOid, null, dataMap);
-      //sf.getWorkflowService().suspendToUser(aiOid, null, dataMap);
-      //sf.getWorkflowService().suspend(aiOid, data);
-      
       sf.getWorkflowService().suspendToUser(aiOid, null, dataMap);
       final Map<String, Serializable> mapValue = sf.getWorkflowService().getInDataValues(aiOid, null, null);
       final Object retrievedValue = mapValue.get(dataMapping);
@@ -98,13 +93,13 @@ public class EnumDataInOutDataMappingsTest
       
    private long startProcess()
    {
-      final ProcessInstance pi = sf.getWorkflowService().startProcess("ProcessDefinition1", null, true);
+      final ProcessInstance pi = sf.getWorkflowService().startProcess("{EnumDataModel}ProcessDefinition1", null, true);
       return pi.getOID();
    }
    
    private long findFirstAliveActivityInstanceFor()
    {
-      final ActivityInstanceQuery aiQuery = ActivityInstanceQuery.findAlive("ProcessDefinition1");
+      final ActivityInstanceQuery aiQuery = ActivityInstanceQuery.findAlive("{EnumDataModel}ProcessDefinition1");
       final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(aiQuery);
       return ai.getOID();
    }

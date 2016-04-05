@@ -111,6 +111,9 @@ public final class KernelTweakingProperties
    public static final String DESCRIPTOR_PREFETCH_BATCH_SIZE =
       "Carnot.Engine.Tuning.Query.DescriptorPrefetchBatchSize";
 
+   public static final String HISTORICAL_DATA_PREFETCH_BATCH_SIZE = 
+      "Carnot.Engine.Tuning.Query.HistoricalDataPrefetchBatchSize"; 
+   
    public static final String DESCRIPTOR_PREFETCH_STRUCT_XML =
       "Carnot.Engine.Tuning.Query.DescriptorPrefetchStructXml";
    public static final String DESCRIPTOR_PREFETCH_STRUCT_INDEX =

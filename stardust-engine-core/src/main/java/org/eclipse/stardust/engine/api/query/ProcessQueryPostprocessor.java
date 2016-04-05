@@ -725,7 +725,8 @@ public class ProcessQueryPostprocessor
 
       QueryExtension queryExtension = QueryExtension.where(termTemplate);
       
-      int instancesBatchSize = PREFETCH_BATCH_SIZE;
+      int instancesBatchSize = Parameters.instance().getInteger(
+            KernelTweakingProperties.HISTORICAL_DATA_PREFETCH_BATCH_SIZE, PREFETCH_BATCH_SIZE);
       
       performPrefetch(DataValueHistoryBean.class, queryExtension, termTemplate, piSet,
             true, timeout, instancesBatchSize);      

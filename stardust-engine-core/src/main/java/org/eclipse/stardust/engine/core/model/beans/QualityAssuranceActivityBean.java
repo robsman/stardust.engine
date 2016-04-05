@@ -19,7 +19,6 @@ import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.model.utils.RootElement;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 
@@ -223,11 +222,6 @@ public class QualityAssuranceActivityBean implements IActivity
    public Set<IQualityAssuranceCode> getQualityAssuranceCodes()
    {
       return delegate.getQualityAssuranceCodes();
-   }
-
-   public void setElementOID(int elementOID)
-   {
-      delegate.setElementOID(elementOID);
    }
 
    public IEventHandler findHandlerById(String id)

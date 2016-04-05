@@ -385,21 +385,6 @@ public class ModelElementBeanTest
    }
 
    @Test
-   public void testSetElementOID()
-   {
-      // Arrange
-      final int elementOID = 563;
-      TestModelElementBean bean = new TestModelElementBean();
-      
-      // Act
-      bean.setElementOID(elementOID);
-      
-      // Assert
-      assertThat(bean.getElementOID(), is(equalTo(elementOID)));
-      assertThat(bean.isModified(), is(equalTo(true)));
-   }
-
-   @Test
    public void testSetTransient()
    {
       // Arrange

@@ -117,12 +117,6 @@ public abstract class ModelElementBean extends AttributeHolderImpl implements Mo
       return ((long) getModel().getModelOID() << 32) + elementOID;
    }
 
-   public void setElementOID(int elementOID)
-   {
-      markModified();
-      this.elementOID = elementOID;
-   }
-
    public void setTransient(boolean aTransient)
    {
       markModified();

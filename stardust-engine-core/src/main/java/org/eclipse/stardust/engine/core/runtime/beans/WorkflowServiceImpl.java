@@ -1366,15 +1366,15 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       ForkingServiceFactory factory = (ForkingServiceFactory)
             Parameters.instance().get(EngineProperties.FORKING_SERVICE_HOME);
       ForkingService forkingService = factory.get();
-      
+
       return (Worklist) forkingService.isolate(new Action()
             {
                public Object execute()
                {
                   return new WorklistQueryEvaluator(query, new EvaluationContext(
-                        ModelManagerFactory.getCurrent(), SecurityProperties.getUser())).buildWorklist();                  
-               }         
-            });      
+                        ModelManagerFactory.getCurrent(), SecurityProperties.getUser())).buildWorklist();
+               }
+            });
    }
 
    public ActivityInstance activateNextActivityInstance(WorklistQuery query)
@@ -1384,10 +1384,10 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       boolean loop = false;
 
       ActivityInstance result = null;
-      
+
       EmbeddedServiceFactory sf = new EmbeddedServiceFactory();
       WorkflowService embeddedWorkflowService = sf.getService(WorkflowService.class);
-      
+
       Worklist wl = embeddedWorkflowService.getWorklist(query);
       int cumulatedSize = wl.getCumulatedSize();
 
@@ -1857,9 +1857,16 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          }
 
          // stop the process.
-         if (!pi.isTerminated() && !pi.isAborting() && !pi.isHalting() && !pi.isHalted())
+         if (!pi.isTerminated() && !pi.isAborting() && !pi.isHalting()
+               && !(pi.isHalted() && StopMode.HALT.equals(stopMode)))
          {
+            // stopping is only allowed if pi is alive or halted to be aborted.
             ProcessInstanceUtils.stopProcessInstance(pi, stopMode);
+         }
+         else if (pi.isHalting() && StopMode.ABORT.equals(stopMode))
+         {
+            throw new IllegalOperationException(
+                  BpmRuntimeError.BPMRT_PI_IS_STILL_HALTING.raise(pi.getOID()));
          }
          else
          {

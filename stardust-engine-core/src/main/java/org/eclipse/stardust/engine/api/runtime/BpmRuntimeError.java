@@ -537,6 +537,7 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args BPMRT_AI_IS_HALTED = newArgs("BPMRT08001");
    public static final Args BPMRT_PI_IS_HALTED = newArgs("BPMRT08002");
+   public static final Args BPMRT_PI_IS_STILL_HALTING = newArgs("BPMRT08003");
 
 
    //// JMS related

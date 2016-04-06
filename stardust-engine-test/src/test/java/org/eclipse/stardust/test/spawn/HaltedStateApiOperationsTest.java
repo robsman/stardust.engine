@@ -61,7 +61,7 @@ public class HaltedStateApiOperationsTest
 
    @ClassRule
    public static final TestClassSetup testClassSetup = new TestClassSetup(
-         ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
+         ADMIN_USER_PWD_PAIR, ForkingServiceMode.JMS, MODEL_NAME);
 
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(sf);
@@ -328,6 +328,7 @@ public class HaltedStateApiOperationsTest
       ProcessInstanceStateBarrier.instance().await(spawnedAi.getProcessInstanceOID(), ProcessInstanceState.Completed);
       // main process should also be completed because last AI is already completed.
       ProcessInstanceStateBarrier.instance().await(ai.getProcessInstanceOID(), ProcessInstanceState.Completed);
+
 
    }
 

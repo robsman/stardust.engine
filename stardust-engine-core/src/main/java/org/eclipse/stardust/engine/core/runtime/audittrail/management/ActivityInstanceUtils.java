@@ -436,7 +436,7 @@ public class ActivityInstanceUtils
 
    public static boolean isHaltable(IActivityInstance activityInstance)
    {
-      if (activityInstance == null)
+      if (activityInstance == null || activityInstance.isTerminated())
       {
          return false;
       }

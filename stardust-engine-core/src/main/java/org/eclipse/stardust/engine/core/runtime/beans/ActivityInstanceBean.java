@@ -564,6 +564,19 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             && ActivityInstanceUtils.isHaltable(this)
             && !(state == ActivityInstanceState.HALTED || state == ActivityInstanceState.HALTING))
       {
+         // Acquire lock on root to avoid conflict with halt or resume.
+         try
+         {
+            this.processInstance.getRootProcessInstance().lock();
+         }
+         catch (ConcurrencyException e)
+         {
+            trace.warn("Could not optain lock on root process instance (oid '"
+                  + this.processInstance.getRootProcessInstanceOID()
+                  + "'). This might be due to currently running Halt or Resume action.");
+            throw e;
+         }
+
          if (piState.equals(ProcessInstanceState.Halted))
          {
             StringBuilder msg = new StringBuilder();
@@ -577,20 +590,29 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          }
          else if (piState.equals(ProcessInstanceState.Halting))
          {
+            StringBuilder msg = new StringBuilder();
+            msg.append("The process of activity instance (oid '")
+                  .append(oid)
+                  .append(
+                        "') is in state 'Halting'. Hence the state of the activity had to be changed to 'Halted'.");
+
+            trace.warn(msg.toString());
+            state = ActivityInstanceState.HALTED;
+
             // reshedule halting
-            ProcessHaltJanitor.scheduleJanitor(new HaltJanitorCarrier(
-                  getProcessInstanceOID(), workflowUserOid));
-
-            ActivityInstanceState newState = ActivityInstanceState.getState(state);
-            StringBuffer msg = new StringBuffer("Invalid state change from ");
-            msg.append(ActivityInstanceState.getState(this.state)).append(" to ")
-                  .append(newState);
-            msg.append(" because the process instance is ");
-            msg.append("in process of halting.");
-
-            trace.error(msg.toString());
-            throw new IllegalStateChangeException(this.toString(),
-                  ActivityInstanceState.getState(state), this.getState(), piState);
+//            ProcessHaltJanitor.scheduleJanitor(new HaltJanitorCarrier(
+//                  getProcessInstanceOID(), workflowUserOid));
+//
+//            ActivityInstanceState newState = ActivityInstanceState.getState(state);
+//            StringBuffer msg = new StringBuffer("Invalid state change from ");
+//            msg.append(ActivityInstanceState.getState(this.state)).append(" to ")
+//                  .append(newState);
+//            msg.append(" because the process instance is ");
+//            msg.append("in process of halting.");
+//
+//            trace.error(msg.toString());
+//            throw new IllegalStateChangeException(this.toString(),
+//                  ActivityInstanceState.getState(state), this.getState(), piState);
          }
       }
 

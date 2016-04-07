@@ -18,7 +18,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityInstanceUtils;
 
 public class ProcessHaltJanitor extends ProcessHierarchyStateChangeJanitor
 {
@@ -67,9 +67,7 @@ public class ProcessHaltJanitor extends ProcessHierarchyStateChangeJanitor
             final ActivityInstanceBean activityInstance = (ActivityInstanceBean) aiIter
                   .next();
 
-            if (!activityInstance.isTerminated() && !activityInstance.isHalted()
-                  && !ActivityInstanceState.Application
-                        .equals(activityInstance.getState()))
+            if (ActivityInstanceUtils.isHaltable(activityInstance))
             {
                activityInstance.lock();
 

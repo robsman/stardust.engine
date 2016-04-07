@@ -1094,35 +1094,39 @@ public class StructuredDataXPathUtils
       {
          if (isSimpleElementAccess(xPath)
                && ((null == value)
-                     || ( !(value instanceof Collection) && !(value instanceof Map))))
+                     || (!(value instanceof Collection) && !(value instanceof Map))))
          {
             // optimization for replacing child element values
 
-            Element child = findElement(document, xPath, xPathMap, namespaceAware);
             if (null != value)
             {
                TypedXPath typedXPath = xPathMap.getXPath(xPath);
-               String valueString = StructuredDataValueFactory.convertToString(
-                     typedXPath.getType(), typedXPath.getXsdTypeName(), value);
+               if (!typedXPath.isList())
+               {
+                  Element child = findElement(document, xPath, xPathMap, namespaceAware);
+                  String valueString = StructuredDataValueFactory.convertToString(
+                        typedXPath.getType(), typedXPath.getXsdTypeName(), value);
 
-               if (null == child)
-               {
-                  TypedXPath elementXPath = xPathMap.getXPath(xPath);
-                  child = createElement(elementXPath, namespaceAware);
-                  child.appendChild(new Text(valueString));
-                  appendChild(document.getRootElement(), child, elementXPath);
-                  return;
-               }
-               else if ((1 == child.getChildCount())
-                     && (child.getChild(0) instanceof Text))
-               {
-                  Text childValue = (Text) child.getChild(0);
-                  childValue.setValue(valueString);
-                  return;
+                  if (null == child)
+                  {
+                     TypedXPath elementXPath = xPathMap.getXPath(xPath);
+                     child = createElement(elementXPath, namespaceAware);
+                     child.appendChild(new Text(valueString));
+                     appendChild(document.getRootElement(), child, elementXPath);
+                     return;
+                  }
+                  else if ((1 == child.getChildCount())
+                        && (child.getChild(0) instanceof Text))
+                  {
+                     Text childValue = (Text) child.getChild(0);
+                     childValue.setValue(valueString);
+                     return;
+                  }
                }
             }
             else
             {
+               Element child = findElement(document, xPath, xPathMap, namespaceAware);
                if (null != child)
                {
                   document.getRootElement().removeChild(child);

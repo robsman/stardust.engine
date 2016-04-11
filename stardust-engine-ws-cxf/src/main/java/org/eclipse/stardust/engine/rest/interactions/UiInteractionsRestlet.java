@@ -36,10 +36,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
-
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
@@ -50,7 +50,6 @@ import org.eclipse.stardust.engine.api.ws.ParameterXto;
 import org.eclipse.stardust.engine.core.interactions.Interaction;
 import org.eclipse.stardust.engine.core.interactions.InteractionRegistry;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
-
 
 
 /**
@@ -65,19 +64,20 @@ public class UiInteractionsRestlet extends AbstractUiInteractionsRestlet
    @Context
    protected ServletContext servletContext;
 
+   @Autowired(required = false)
+   InteractionRegistry infinityBpmInteractionsRegistry;
+   
    @Override
    protected InteractionRegistry getInteractionRegistry()
    {
-      InteractionRegistry registry = (InteractionRegistry) servletContext.getAttribute(InteractionRegistry.BEAN_ID);
-
-      if (null == registry)
+      if (null == infinityBpmInteractionsRegistry)
       {
          trace.warn("There is no interactions registry defined.");
 
          throw new WebApplicationException(Status.NOT_FOUND);
       }
 
-      return registry;
+      return infinityBpmInteractionsRegistry;
    }
 
    @GET

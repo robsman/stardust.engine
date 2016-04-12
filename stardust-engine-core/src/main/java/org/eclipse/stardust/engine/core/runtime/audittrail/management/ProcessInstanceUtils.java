@@ -534,6 +534,8 @@ public class ProcessInstanceUtils
          return;
       }
 
+      final int batchSize = getStatementBatchSize();
+
       // finally deleting rows from data clusters
       final DataCluster[] dClusters = RuntimeSetup.instance().getDataClusterSetup();
 
@@ -541,29 +543,34 @@ public class ProcessInstanceUtils
       {
          final DataCluster dCluster = dClusters[idx];
 
-         Statement stmt = null;
-         try
+         for (Iterator<List<Long>> iterator = getChunkIterator(piOids, batchSize); iterator.hasNext();)
          {
-            stmt = session.getConnection().createStatement();
-            StringBuffer buffer = new StringBuffer(100 + piOids.size() * 10);
-            buffer.append("DELETE FROM ").append(dCluster.getQualifiedTableName())
-                  .append(" WHERE ").append(dCluster.getProcessInstanceColumn())
-                  .append(" IN (").append(StringUtils.join(piOids.iterator(), ", ")).append(")");
-            if (trace.isDebugEnabled())
+            List piOidsBatch = iterator.next();
+
+            Statement stmt = null;
+            try
             {
-               trace.debug(buffer);
+               stmt = session.getConnection().createStatement();
+               StringBuffer buffer = new StringBuffer(100 + piOidsBatch.size() * 10);
+               buffer.append("DELETE FROM ").append(dCluster.getQualifiedTableName())
+                     .append(" WHERE ").append(dCluster.getProcessInstanceColumn())
+                     .append(" IN (").append(StringUtils.join(piOidsBatch.iterator(), ", ")).append(")");
+               if (trace.isDebugEnabled())
+               {
+                  trace.debug(buffer);
+               }
+               stmt.executeUpdate(buffer.toString());
             }
-            stmt.executeUpdate(buffer.toString());
-         }
-         catch (SQLException e)
-         {
-            throw new PublicException(
-                  BpmRuntimeError.JDBC_FAILED_DELETING_ENRIES_FROM_DATA_CLUSTER_TABLE
-                        .raise(dCluster.getTableName()), e);
-         }
-         finally
-         {
-            QueryUtils.closeStatement(stmt);
+            catch (SQLException e)
+            {
+               throw new PublicException(
+                     BpmRuntimeError.JDBC_FAILED_DELETING_ENRIES_FROM_DATA_CLUSTER_TABLE
+                           .raise(dCluster.getTableName()), e);
+            }
+            finally
+            {
+               QueryUtils.closeStatement(stmt);
+            }
          }
       }
    }

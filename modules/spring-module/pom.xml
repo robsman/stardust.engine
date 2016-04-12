@@ -27,6 +27,11 @@
    <dependencies>
       <dependency>
          <groupId>org.springframework</groupId>
+         <artifactId>spring-aop</artifactId>
+         <scope>compile</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.springframework</groupId>
          <artifactId>spring-beans</artifactId>
          <scope>compile</scope>
       </dependency>
@@ -34,6 +39,12 @@
          <groupId>org.springframework</groupId>
          <artifactId>spring-core</artifactId>
          <scope>compile</scope>
+         <exclusions>
+            <exclusion>
+               <groupId>commons-logging</groupId>
+               <artifactId>commons-logging</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.springframework</groupId>
@@ -68,6 +79,14 @@
       <dependency>
          <groupId>org.springframework</groupId>
          <artifactId>spring-webmvc</artifactId>
+         <scope>runtime</scope>
+      </dependency>
+      <dependency>
+         <!-- If we wouldn't define commons-logging explicitly then the archetype projects
+              could retrieve the version which is used in spring-core instead of the version
+              which is defined in product-parent -->
+         <groupId>commons-logging</groupId>
+         <artifactId>commons-logging</artifactId>
          <scope>runtime</scope>
       </dependency>
    </dependencies>

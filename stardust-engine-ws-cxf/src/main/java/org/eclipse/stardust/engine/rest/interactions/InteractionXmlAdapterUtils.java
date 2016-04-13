@@ -41,7 +41,9 @@ public class InteractionXmlAdapterUtils
    {
       xto.setId(ac.getId());
       xto.setName(ac.getName());
-
+      xto.setModelOid(ac.getModelOID());
+      xto.setPartitionOid(ac.getPartitionOID());
+      
       List<AccessPoint> accessPoints;
       try
       {
@@ -116,6 +118,8 @@ public class InteractionXmlAdapterUtils
 
       res.setId(accessPoint.getId());
       res.setName(accessPoint.getName());
+      res.setModelOid(model.getModelOID());
+      res.setPartitionOid(model.getPartitionOID());
 
       if (null != model)
       {

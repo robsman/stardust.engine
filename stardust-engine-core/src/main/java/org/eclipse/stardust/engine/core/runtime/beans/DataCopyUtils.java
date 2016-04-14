@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
@@ -900,5 +901,107 @@ public class DataCopyUtils
             }
          }
       }
+   }
+
+   /**
+    * Transformations:
+    * <ul>
+    * <li>from attribute to element or from element to attribute</li>
+    * <li>from list to single item or from single item to list</li>
+    * <li>empty collections are removed</li>
+    * <li>namespace change is accepted</li>
+    * <li>values for removed attributes or elements are dropped</li>
+    * <li>values for attributes or elements with a different type are dropped (no type conversion)</li>
+    * </ul>
+    */
+   public static void repair(TypedXPath tgtPath, TypedXPath srcPath, Map<String, Object> map)
+   {
+      if (compatible(tgtPath, srcPath))
+      {
+         Object o = map.get(srcPath.getId());
+         if (tgtPath.isList())
+         {
+            if (!srcPath.isList())
+            {
+               ArrayList<Object> list = new ArrayList<Object>();
+               list.add(o);
+               o = list;
+               map.put(tgtPath.getId(), o);
+            }
+         }
+         else if (srcPath.isList())
+         {
+            if (((List) o).isEmpty())
+            {
+               map.remove(srcPath.getId());
+               return;
+            }
+            else
+            {
+               o = ((List<Object>) o).get(0);
+               map.put(tgtPath.getId(), o);
+            }
+         }
+         if (tgtPath.getType() == -1)
+         {
+            if (tgtPath.isList())
+            {
+               for (Object item : (List<Object>) o)
+               {
+                  repairChildren(tgtPath, srcPath, item);
+               }
+            }
+            else
+            {
+               repairChildren(tgtPath, srcPath, o);
+            }
+         }
+         if (o instanceof Collection)
+         {
+            if (((Collection) o).isEmpty())
+            {
+               map.remove(srcPath.getId());
+            }
+         }
+      }
+      else
+      {
+         map.remove(srcPath.getId());
+      }
+   }
+
+   private static void repairChildren(TypedXPath tgtPath, TypedXPath srcPath, Object o)
+   {
+      if (o instanceof Map)
+      {
+         Map<String, Object> m = (Map) o;
+         Set<String> keys = CollectionUtils.newSet();
+         keys.addAll(m.keySet());
+         for (String key : keys)
+         {
+            TypedXPath tgtChild = tgtPath.getChildXPath(key);
+            if (tgtChild == null)
+            {
+               m.remove(key);
+            }
+            else
+            {
+               TypedXPath srcChild = srcPath.getChildXPath(key);
+               DataCopyUtils.repair(tgtChild, srcChild, m);
+            }
+         }
+      }
+   }
+
+   private static boolean compatible(TypedXPath tgtPath, TypedXPath srcPath)
+   {
+      // accepted assignment of child xpath to root xpath if they have the same type.
+      if (srcPath.getParentXPath() != null &&
+          tgtPath.getParentXPath() != null &&
+          !CompareHelper.areEqual(tgtPath.getId(), srcPath.getId()))
+      {
+         return false;
+      }
+      return tgtPath.getType() == srcPath.getType();
    }
 }

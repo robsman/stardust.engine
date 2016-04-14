@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 SunGard CSA LLC and others.
+ * Copyright (c) 2014, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.audittrail.management;
 
+import java.io.Reader;
 import java.io.Serializable;
-import java.sql.Clob;
 import java.sql.ResultSet;
 import java.util.*;
 
@@ -32,14 +32,17 @@ import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQueryEvaluator.ParsedQueryProcessor;
-import org.eclipse.stardust.engine.api.query.QueryUtils;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.BusinessObject;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject.Definition;
 import org.eclipse.stardust.engine.api.runtime.BusinessObject.Value;
+import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.core.persistence.*;
-import org.eclipse.stardust.engine.core.persistence.jdbc.*;
+import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean.DataValueChangeListener;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -309,9 +312,9 @@ public class BusinessObjectUtils
                {
                   count++;
                   long piOid = resultSet.getLong(1);
-                  Clob clob = resultSet.getClob(2);
+                  Reader clobCharacterStream = resultSet.getCharacterStream(2);
 
-                  Document document = DocumentBuilder.buildDocument(clob.getCharacterStream());
+                  Document document = DocumentBuilder.buildDocument(clobCharacterStream);
                   boolean namespaceAware = StructuredDataXPathUtils.isNamespaceAware(document);
                   final IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
                   StructuredDataConverter converter = new StructuredDataConverter(xPathMap);

@@ -618,7 +618,10 @@ public final class PredefinedConstants
 
    // volatile data attribute
    public static final String VOLATILE_DATA = ENGINE_SCOPE + "volatile";
-
+   
+   // only on first activation the value will be null instead of the default (engine will not create an database entry)
+   public static final String SKIP_INITIAL_DEFAULT_VALUE = ENGINE_SCOPE + "skipInitialDefaultValue";
+   
    private PredefinedConstants() {
       //disallow instance creation
    }

@@ -451,18 +451,41 @@ public class SpawnPeerInsertProcessTest
       assertActivityInstanceCount("ShowDoc", "DisplayDocData", 4, ActivityInstanceState.SUSPENDED);
    }
 
-   // ************** UTILS ***************
-
-   private Object createMultiInstanceList(int count)
+   @Test
+   public void testSlowPOJOAppCanComplete() throws TimeoutException, InterruptedException
    {
-      List<String> list = CollectionUtils.newList();
+      WorkflowService wfs = sf.getWorkflowService();
 
-      for (int i = 0; i < count; i++)
-      {
-         list.add(""+i);
-      }
-      return list;
+      ProcessInstance pi = wfs.startProcess("{SpawnProcessModel}Wait", new StartOptions(null , false));
+      assertThat(pi.getState(), is(ProcessInstanceState.Active));
+
+      // wait for application state, POJO waits for 5 sec.
+      doWait(2000);
+
+      // Spawn process
+      SpawnOptions options = new SpawnOptions(null, SpawnMode.HALT, null, null);
+      ProcessInstance peer = wfs.spawnPeerProcessInstance(
+            pi.getOID(), "{SpawnProcessModel}InputData1", options);
+
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
+      assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(), PredefinedProcessInstanceLinkTypes.INSERT);
+
+
+      // reset registered state changes before next steps
+      ProcessInstanceStateBarrier.instance().cleanUp();
+
+      completeActivityInstances(peer.getOID(), 1);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Completed);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Active);
+
+      assertActivityInstanceExists(pi.getOID(), "done", ActivityInstanceState.SUSPENDED);
+
    }
+
+   // ************** UTILS ***************
 
    private void doWait(int i)
    {

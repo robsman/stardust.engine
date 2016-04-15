@@ -76,7 +76,7 @@ public class HaltingConcurrencyTest
    }
 
    @Test
-   public void testInsertMultiInstance() throws TimeoutException, InterruptedException
+   public void testInsertMultiInstanceAsyncSeperate() throws TimeoutException, InterruptedException
    {
       for (int i = 0; i < 10; i++)
       {
@@ -151,7 +151,81 @@ public class HaltingConcurrencyTest
       assertActivityInstanceCount(pi, "Manual", 0, ActivityInstanceState.HALTED);
    }
 
+   @Test
+   public void testInsertMultiInstanceSyncSeperate() throws TimeoutException, InterruptedException
+   {
+      for (int i = 0; i < 10; i++)
+      {
+         System.out.println("************* Run "+i+" ***********");
+         doTest3();
 
+         // allow async jms messages to be processed before next run.
+         doWait(2000);
+      }
+   }
+
+   public void doTest3() throws TimeoutException, InterruptedException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+
+      Map<String, Object> multi = CollectionUtils.newMap();
+      //
+      multi.put("List", createMultiInstanceList(5));
+
+      Map<String, Object> inputData = CollectionUtils.newMap();
+      inputData.put("Multi", multi);
+
+      ProcessInstance pi = wfs.startProcess("{MultiInstance}Main2",
+            new StartOptions(inputData, true));
+      assertThat(pi.getState(), is(ProcessInstanceState.Active));
+
+      // Spawn process
+      SpawnOptions options = new SpawnOptions(null, SpawnMode.HALT, null, null);
+      ProcessInstance peer = wfs.spawnPeerProcessInstance(pi.getOID(),
+            "{MultiInstance}Sub2", options);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(),
+            ProcessInstanceState.Halted);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(),
+            ProcessInstanceState.Active);
+
+      assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(),
+            PredefinedProcessInstanceLinkTypes.INSERT);
+
+      ProcessInstanceStateBarrier.instance().cleanUp();
+      completeActivityInstances(peer.getOID(), 1);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(),
+            ProcessInstanceState.Completed);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(),
+            ProcessInstanceState.Active);
+
+      // wait for manual activity after completed multi-instance activity.
+      int tryCount = 10;
+      while (tryCount-- > 0)
+      {
+         try
+         {
+            wfs.activateNextActivityInstanceForProcessInstance(pi.getOID());
+            assertActivityInstanceExists(pi.getOID(), "Manual",
+                  ActivityInstanceState.APPLICATION);
+            tryCount = 0;
+         }
+         catch (ObjectNotFoundException e)
+         {
+            doWait(1000);
+            if (tryCount == 0)
+            {
+               Assert.fail("Expected AI 'Manual' not found");
+            }
+         }
+      }
+      // ensure there is no additional Manual activities
+      doWait(2000);
+      assertActivityInstanceCount(pi, "Manual", 1, ActivityInstanceState.APPLICATION);
+      assertActivityInstanceCount(pi, "Manual", 0, ActivityInstanceState.SUSPENDED);
+      assertActivityInstanceCount(pi, "Manual", 0, ActivityInstanceState.HALTED);
+   }
 
    @Test
    public void testAndSplit() throws TimeoutException, InterruptedException

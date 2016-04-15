@@ -54,12 +54,14 @@ public class ProcessHaltJanitor extends ProcessHierarchyStateChangeJanitor
    @Override
    protected void processPi(ProcessInstanceBean pi)
    {
-      if (!pi.isTerminated() && !pi.isHalted())
+      if (!pi.isTerminated())
       {
-         pi.lock();
-
-         pi.setState(ProcessInstanceState.HALTED);
-         pi.addHaltingUserOid(executingUserOid);
+         if (!pi.isHalted())
+         {
+            pi.lock();
+            pi.setState(ProcessInstanceState.HALTED);
+            pi.addHaltingUserOid(executingUserOid);
+         }
 
          for (Iterator aiIter = ActivityInstanceBean.getAllForProcessInstance(pi); aiIter
                .hasNext();)
@@ -69,9 +71,10 @@ public class ProcessHaltJanitor extends ProcessHierarchyStateChangeJanitor
 
             if (ActivityInstanceUtils.isHaltable(activityInstance))
             {
-               activityInstance.lock();
+                  activityInstance.lock();
 
-               activityInstance.setState(ActivityInstanceState.HALTED, executingUserOid);
+                  activityInstance.setState(ActivityInstanceState.HALTED,
+                        executingUserOid);
 
                // Do not remove from worklist.
                // activityInstance.removeFromWorklists();
@@ -91,14 +94,6 @@ public class ProcessHaltJanitor extends ProcessHierarchyStateChangeJanitor
    @Override
    protected void postProcessPi(ProcessInstanceBean pi)
    {
-      removePiFromHaltingList(pi);
-   }
-
-   private void removePiFromHaltingList(ProcessInstanceBean pi)
-   {
-      IProcessInstance rootPi = pi.getRootProcessInstance();
-      rootPi.lock();
-      rootPi.removeHaltingPiOid(processInstanceOid);
    }
 
    public String toString()

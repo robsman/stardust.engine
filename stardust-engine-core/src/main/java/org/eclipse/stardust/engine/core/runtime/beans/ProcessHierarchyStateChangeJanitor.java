@@ -53,6 +53,11 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
 
    public static void scheduleJanitor(HierarchyStateChangeJanitorCarrier carrier)
    {
+      scheduleJanitor(carrier, true);
+   }
+
+   public static void scheduleJanitor(HierarchyStateChangeJanitorCarrier carrier, boolean transacted)
+   {
       ProcessStopJanitorMonitor monitor = ProcessStopJanitorMonitor.getInstance();
       // only one abortion thread allowed per process instance
       if (monitor.register(carrier.getProcessInstanceOid()))
@@ -63,7 +68,7 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
          try
          {
             service = factory.get();
-            service.fork(carrier, true);
+            service.fork(carrier, transacted);
          }
          finally
          {

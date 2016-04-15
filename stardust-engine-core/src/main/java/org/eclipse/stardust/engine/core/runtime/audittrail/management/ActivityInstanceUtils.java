@@ -15,6 +15,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.jms.JMSException;
+import javax.jms.Message;
+
+import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
@@ -468,6 +472,18 @@ public class ActivityInstanceUtils
       {
          throw new IllegalOperationException(
                BpmRuntimeError.BPMRT_AI_IS_HALTED.raise(ai.getOID()));
+      }
+      if (isHaltable(ai)
+            && ProcessInstanceUtils.isInHaltingPiHierarchy(ai.getProcessInstance()))
+      {
+         // found an AI which is in halted hierarchy but not in halted state.
+
+         // reschedule halt janitor.
+         ProcessHaltJanitor.scheduleJanitor(new HaltJanitorCarrier(ai.getProcessInstanceOID(), 0), false);
+
+         // cancel current service call.
+         throw new IllegalOperationException(
+               BpmRuntimeError.BPMRT_PI_IS_HALTED.raise(ai.getProcessInstanceOID()));
       }
    }
 

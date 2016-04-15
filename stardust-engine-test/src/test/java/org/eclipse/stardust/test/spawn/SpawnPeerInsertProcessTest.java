@@ -407,59 +407,6 @@ public class SpawnPeerInsertProcessTest
    }
 
    @Test
-   public void testInsertMultiInstance() throws TimeoutException, InterruptedException
-   {
-      WorkflowService wfs = sf.getWorkflowService();
-
-      Map<String, Object> multi = CollectionUtils.newMap();
-      //
-      multi.put("List", createMultiInstanceList(5));
-
-      Map<String, Object> inputData = CollectionUtils.newMap();
-      inputData.put("Multi", multi);
-
-      ProcessInstance pi = wfs.startProcess("{MultiInstance}Main", new StartOptions(inputData , true));
-      assertThat(pi.getState(), is(ProcessInstanceState.Active));
-
-      // Spawn process
-      SpawnOptions options = new SpawnOptions(null, SpawnMode.HALT, null, null);
-      ProcessInstance peer = wfs.spawnPeerProcessInstance(
-            pi.getOID(), "{MultiInstance}Sub2", options);
-
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
-      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
-
-      assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(), PredefinedProcessInstanceLinkTypes.INSERT);
-
-      ProcessInstanceStateBarrier.instance().cleanUp();
-      completeActivityInstances(peer.getOID(), 1);
-      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Completed);
-
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Active);
-
-      // wait for manual activity after completed multi-instance activity.
-      int tryCount = 10;
-      while (tryCount-- > 0)
-      {
-         try
-         {
-            wfs.activateNextActivityInstanceForProcessInstance(pi.getOID());
-            assertActivityInstanceExists(pi.getOID(), "Manual",
-                  ActivityInstanceState.APPLICATION);
-            tryCount = 0;
-         }
-         catch (ObjectNotFoundException e)
-         {
-            doWait(1000);
-            if (tryCount == 0)
-            {
-               Assert.fail("Expected AI 'Manual' not found");
-            }
-         }
-      }
-   }
-
-   @Test
    public void testActivityStateChangeEvent() throws TimeoutException, InterruptedException
    {
       WorkflowService wfs = sf.getWorkflowService();
@@ -603,7 +550,25 @@ public class SpawnPeerInsertProcessTest
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(piOid);
       query.where(ActivityFilter.forAnyProcess(activityId));
       query.where(ActivityInstanceQuery.STATE.isEqual(state));
-      ActivityInstance ai = qs.findFirstActivityInstance(query);
+
+      int patientCounter = 5;
+      ActivityInstances ais = null;
+      while (patientCounter-- > 0)
+      {
+         ais = qs.getAllActivityInstances(query);
+
+         if (ais.size() == 1)
+         {
+            patientCounter = 0;
+         }
+         else
+         {
+            doWait(1000);
+         }
+      }
+      Assert.assertTrue(0 < ais.size());
+      ActivityInstance ai = ais.get(0);
+
       Assert.assertEquals(activityId, ai.getActivity().getId());
       return ai;
    }
@@ -614,6 +579,19 @@ public class SpawnPeerInsertProcessTest
       QueryService qs = sf.getQueryService();
       ActivityInstanceQuery query = ActivityInstanceQuery.findAll();
       query.where(ActivityFilter.forProcess(activityId, processId));
+      query.where(ActivityInstanceQuery.STATE.isEqual(state));
+      ActivityInstances ai = qs.getAllActivityInstances(query);
+      Assert.assertEquals(count, ai.getSize());
+   }
+
+   private void assertActivityInstanceCount(ProcessInstance pi, String activityId,
+         int count, int state)
+               throws IllegalStateException, TimeoutException, InterruptedException
+   {
+      QueryService qs = sf.getQueryService();
+      ActivityInstanceQuery query = ActivityInstanceQuery.findAll();
+      query.where(ActivityFilter.forProcess(activityId, pi.getProcessID()));
+      query.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
       query.where(ActivityInstanceQuery.STATE.isEqual(state));
       ActivityInstances ai = qs.getAllActivityInstances(query);
       Assert.assertEquals(count, ai.getSize());

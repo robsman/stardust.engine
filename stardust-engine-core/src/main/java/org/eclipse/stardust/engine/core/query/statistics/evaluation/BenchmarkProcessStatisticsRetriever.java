@@ -134,7 +134,7 @@ public class BenchmarkProcessStatisticsRetriever
       }
 
       BusinessObjectQueryPredicate boqEvaluator = new BusinessObjectQueryPredicate(boq);
-      Set<IData> allData = BusinessObjectUtils.collectData(ModelManagerFactory.getCurrent(), boqEvaluator);
+      List<IData> allData = BusinessObjectUtils.collectData(ModelManagerFactory.getCurrent(), boqEvaluator);
       if (allData.isEmpty())
       {
          return result;
@@ -216,7 +216,7 @@ public class BenchmarkProcessStatisticsRetriever
             : BusinessObjectQuery.findWithPrimaryKey(boName.toString(), boData.getPrimaryKeyValues());
 
       BusinessObjectQueryPredicate boqEvaluator = new BusinessObjectQueryPredicate(boq);
-      Set<IData> allData = BusinessObjectUtils.collectData(ModelManagerFactory.getCurrent(), boqEvaluator);
+      List<IData> allData = BusinessObjectUtils.collectData(ModelManagerFactory.getCurrent(), boqEvaluator);
       if (allData.isEmpty())
       {
          return Collections.emptyMap();

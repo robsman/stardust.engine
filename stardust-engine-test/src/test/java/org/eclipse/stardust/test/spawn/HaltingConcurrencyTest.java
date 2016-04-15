@@ -42,9 +42,7 @@ import org.eclipse.stardust.vfs.impl.utils.CollectionUtils;
 
 /**
  * <p>
- * This class contains tests for the <i>Spawn Process</i> functionality, which allows for
- * ad hoc spawning of process instances (refer to the Stardust documentation for details
- * about <i>Spawn Process</i>).
+ * This class contains tests for the process halt feature for concurrency issues.
  * </p>
  *
  * @author Roland.Stamm

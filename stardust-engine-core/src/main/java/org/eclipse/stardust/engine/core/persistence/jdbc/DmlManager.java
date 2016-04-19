@@ -961,6 +961,10 @@ public class DmlManager
       {
          op = Operator.IS_EQUAL;
          valueExpr = ((Collection) valueExpr).iterator().next();
+         if (valueExpr == null)
+         {
+            op = Operator.IS_NULL;
+         }
       }
 
       if (valueExpr instanceof FieldRef)

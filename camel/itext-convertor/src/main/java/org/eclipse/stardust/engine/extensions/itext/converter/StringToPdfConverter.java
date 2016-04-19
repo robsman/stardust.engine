@@ -1,15 +1,17 @@
-package com.sungard.infinity.integration.itext.converter;
+package org.eclipse.stardust.engine.extensions.itext.converter;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import org.eclipse.stardust.engine.extensions.itext.imageprovider.Base64ImageProvider;
+
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.html.simpleparser.HTMLWorker;
 import com.lowagie.text.html.simpleparser.StyleSheet;
 import com.lowagie.text.pdf.PdfWriter;
-import com.sungard.infinity.integration.itext.imageprovider.Base64ImageProvider;
 import com.lowagie.text.Element;
 
 public class StringToPdfConverter

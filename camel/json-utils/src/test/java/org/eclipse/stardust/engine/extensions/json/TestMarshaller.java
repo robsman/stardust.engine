@@ -1,11 +1,11 @@
-package org.eclipse.stardust.integration;
+package org.eclipse.stardust.engine.extensions.json;
 
 import static org.junit.Assert.assertEquals;
 
 import java.util.*;
 
 import org.junit.Test;
-
+import org.eclipse.stardust.engine.extensions.json.GsonHandler;
 import org.eclipse.stardust.engine.extensions.templating.core.Request;
 
 public class TestMarshaller

@@ -1,4 +1,4 @@
-package org.eclipse.stardust.integration;
+package org.eclipse.stardust.engine.extensions.json;
 
 import java.io.Reader;
 import java.lang.reflect.*;

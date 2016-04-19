@@ -1,10 +1,11 @@
-package org.eclipse.stardust.integration;
+package org.eclipse.stardust.engine.extensions.json;
 
 import static org.junit.Assert.*;
 
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.stardust.engine.extensions.json.GsonHandler;
 import org.junit.Test;
 
 public class TestUnMarshaller

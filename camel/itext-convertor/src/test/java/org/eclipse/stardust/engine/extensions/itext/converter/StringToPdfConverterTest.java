@@ -1,9 +1,12 @@
-package com.sungard.infinity.integration.itext.converter;
+package org.eclipse.stardust.engine.extensions.itext.converter;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import com.lowagie.text.DocumentException;
+
+import org.eclipse.stardust.engine.extensions.itext.converter.InvalidFormatException;
+import org.eclipse.stardust.engine.extensions.itext.converter.StringToPdfConverter;
 import org.junit.Test;
 
 public class StringToPdfConverterTest

@@ -1,4 +1,4 @@
-package com.sungard.infinity.integration.itext.imageprovider;
+package org.eclipse.stardust.engine.extensions.itext.imageprovider;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;

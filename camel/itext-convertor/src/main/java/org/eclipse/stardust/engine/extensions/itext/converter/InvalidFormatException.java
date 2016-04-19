@@ -1,4 +1,4 @@
-package com.sungard.infinity.integration.itext.converter;
+package org.eclipse.stardust.engine.extensions.itext.converter;
 
 public class InvalidFormatException extends Exception
 {

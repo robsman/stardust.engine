@@ -105,7 +105,7 @@ public class DocumentHandler
          {
             exchange.getIn()
                   .addAttachment(checkFileNameHavingExtension(outputName,
-           				"docx"),
+                     "docx"),
                   new DataHandler(exchange.getIn().getBody(), "application/msword"));
          }
          else
@@ -283,23 +283,29 @@ public class DocumentHandler
             document = (Document) exchange.getIn()
                   .getHeader(inputDocumentTemplateAccessPointId);
          }
+         byte[] content=null;
+         String camelTemplatingTemplate= exchange.getIn().getHeader("CamelTemplatingTemplate", String.class);
+         
          if (document != null)
          {
-            byte[] content = dms.retrieveDocumentContent(document.getId());
+            content = dms.retrieveDocumentContent(document.getId());
             exchange.getIn().setHeader(DOCUMENT_CONTENT, content);
-            exchange.getIn().removeHeader(TARGET_PATH);
-            exchange.getIn().removeHeader(inputDocumentTemplateAccessPointId);
-         }else if ((document == null)&& exchange.getIn().getHeader("CamelTemplatingTemplate")!=null && exchange.getIn().getHeader("CamelTemplatingTemplate").toString().contains("{urn:repositoryId:System}"))
+         }else if (StringUtils.isNotEmpty(camelTemplatingTemplate) && camelTemplatingTemplate.contains("{urn:repositoryId:System}"))
          {
-        	document = dms.getDocument((String) exchange.getIn().getHeader("CamelTemplatingTemplate"));
-            byte[] content = dms.retrieveDocumentContent((String) exchange.getIn().getHeader("CamelTemplatingTemplate"));
-            exchange.getIn().setHeader(DOCUMENT_CONTENT, content);
-            exchange.getIn().removeHeader(TARGET_PATH);
-            exchange.getIn().removeHeader(inputDocumentTemplateAccessPointId);
-            if (document.getName().endsWith("docx")){
-            	exchange.getIn().setHeader("CamelTemplatingFormat","docx");
+            document = dms.getDocument(camelTemplatingTemplate);
+            if(document!=null){
+               content = dms.retrieveDocumentContent(document.getId());
+               exchange.getIn().setHeader(DOCUMENT_CONTENT, content);
+               if (document.getName().endsWith("docx")){
+                  exchange.getIn().setHeader("CamelTemplatingFormat","docx");
+             }else{
+                if(logger.isDebugEnabled())
+                   logger.debug("Document not found using header parameter < {"+camelTemplatingTemplate+"} >.");
+             }
             }
          }
+         exchange.getIn().removeHeader(TARGET_PATH);
+         exchange.getIn().removeHeader(inputDocumentTemplateAccessPointId);
       }
    }
 
@@ -579,13 +585,13 @@ public class DocumentHandler
                      byte[] content = dms.retrieveDocumentContent(document.getId());
                      String attachmentFileName=(StringUtils.isNotEmpty(getName(requestItem)))?getName(requestItem):document.getName();
                      if (document.getName().endsWith(".pdf")){
-                    	 addDocumentToExchangeAttachment(exchange, content,checkFileNameHavingExtension(attachmentFileName, "pdf") ,
+                      addDocumentToExchangeAttachment(exchange, content,checkFileNameHavingExtension(attachmentFileName, "pdf") ,
                                  document.getContentType());
                      }else{
-                    	 addDocumentToExchangeAttachment(exchange, content,attachmentFileName ,
+                      addDocumentToExchangeAttachment(exchange, content,attachmentFileName ,
                                  document.getContentType());
                      }
-                    	 
+                      
                   }
                }
             }else{
@@ -629,13 +635,13 @@ public class DocumentHandler
       }
       else
       {
-    	  if(getOutgoingDocumentId(requestItem).contains("{urn:repositoryId:System}")){
-    		 String documentPath = dms.getDocument(getOutgoingDocumentId(requestItem)).getPath();
-    		 document = dms.getDocument(documentPath);
-    	  }else{
-    		  document = dms.getDocument(getOutgoingDocumentId(requestItem));
-    	  }
-    	  
+        if(getOutgoingDocumentId(requestItem).contains("{urn:repositoryId:System}")){
+          String documentPath = dms.getDocument(getOutgoingDocumentId(requestItem)).getPath();
+          document = dms.getDocument(documentPath);
+        }else{
+           document = dms.getDocument(getOutgoingDocumentId(requestItem));
+        }
+        
          
       }
       return document;
@@ -679,15 +685,13 @@ public class DocumentHandler
       }
       
       if (documentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")||documentType.equals("application/msword")){
-    	  exchange.getIn().addAttachment(checkFileNameHavingExtension(documentName, "docx"),
-    	            new DataHandler(new ByteArrayDataSource(content, documentType)));
+        exchange.getIn().addAttachment(checkFileNameHavingExtension(documentName, "docx"),
+                  new DataHandler(new ByteArrayDataSource(content, documentType)));
       }
       else{
-    	  exchange.getIn().addAttachment(documentName,
-    	            new DataHandler(new ByteArrayDataSource(content, documentType)));
+        exchange.getIn().addAttachment(documentName,
+                  new DataHandler(new ByteArrayDataSource(content, documentType)));
       }
-      
-
       if (logger.isDebugEnabled())
       {
          logger.debug("Attachment " + documentName + " added.");

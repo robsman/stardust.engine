@@ -283,23 +283,29 @@ public class DocumentHandler
             document = (Document) exchange.getIn()
                   .getHeader(inputDocumentTemplateAccessPointId);
          }
+         byte[] content=null;
+         String camelTemplatingTemplate= exchange.getIn().getHeader("CamelTemplatingTemplate", String.class);
+         
          if (document != null)
          {
-            byte[] content = dms.retrieveDocumentContent(document.getId());
+            content = dms.retrieveDocumentContent(document.getId());
             exchange.getIn().setHeader(DOCUMENT_CONTENT, content);
-            exchange.getIn().removeHeader(TARGET_PATH);
-            exchange.getIn().removeHeader(inputDocumentTemplateAccessPointId);
-         }else if ((document == null)&& exchange.getIn().getHeader("CamelTemplatingTemplate")!=null && exchange.getIn().getHeader("CamelTemplatingTemplate").toString().contains("{urn:repositoryId:System}"))
+         }else if (StringUtils.isNotEmpty(camelTemplatingTemplate) && camelTemplatingTemplate.contains("{urn:repositoryId:System}"))
          {
-        	document = dms.getDocument((String) exchange.getIn().getHeader("CamelTemplatingTemplate"));
-            byte[] content = dms.retrieveDocumentContent((String) exchange.getIn().getHeader("CamelTemplatingTemplate"));
-            exchange.getIn().setHeader(DOCUMENT_CONTENT, content);
-            exchange.getIn().removeHeader(TARGET_PATH);
-            exchange.getIn().removeHeader(inputDocumentTemplateAccessPointId);
-            if (document.getName().endsWith("docx")){
-            	exchange.getIn().setHeader("CamelTemplatingFormat","docx");
+            document = dms.getDocument(camelTemplatingTemplate);
+            if(document!=null){
+               content = dms.retrieveDocumentContent(document.getId());
+               exchange.getIn().setHeader(DOCUMENT_CONTENT, content);
+               if (document.getName().endsWith("docx")){
+               	exchange.getIn().setHeader("CamelTemplatingFormat","docx");
+             }else{
+                if(logger.isDebugEnabled())
+                   logger.debug("Document not found using header parameter < {"+camelTemplatingTemplate+"} >.");
+             }
             }
          }
+         exchange.getIn().removeHeader(TARGET_PATH);
+         exchange.getIn().removeHeader(inputDocumentTemplateAccessPointId);
       }
    }
 
@@ -686,8 +692,6 @@ public class DocumentHandler
     	  exchange.getIn().addAttachment(documentName,
     	            new DataHandler(new ByteArrayDataSource(content, documentType)));
       }
-      
-
       if (logger.isDebugEnabled())
       {
          logger.debug("Attachment " + documentName + " added.");

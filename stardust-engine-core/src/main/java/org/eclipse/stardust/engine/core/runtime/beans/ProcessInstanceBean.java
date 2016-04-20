@@ -799,7 +799,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return getDataValue(data, dataValueProvider);
    }
 
-   private IDataValue findDataValue(IData data)
+   public IDataValue findDataValue(IData data)
    {
       long dataOid = ModelManagerFactory.getCurrent().getRuntimeOid(data);
 

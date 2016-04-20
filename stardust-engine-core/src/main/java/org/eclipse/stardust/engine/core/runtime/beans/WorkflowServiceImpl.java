@@ -1540,7 +1540,24 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
             if ((null == ids) || ids.contains(dataMapping.getId()))
             {
                Serializable inDataValue = null;
-               if(!ActivityInstanceUtils.isMandatoryDatamapping(dataMapping, activityInstanceOID))
+               if(ActivityInstanceUtils.isMandatoryDatamapping(dataMapping, activityInstanceOID))
+               {
+                  if(dataMapping.getData() != null)
+                  {
+                     ProcessInstanceBean processInstance = ProcessInstanceBean.findByOID(ai.getProcessInstanceOID());                                       
+                     IDataValue cachedDataValue = processInstance.getCachedDataValue(dataMapping.getData().getId());                  
+                     if(cachedDataValue == null)
+                     {
+                        cachedDataValue = processInstance.findDataValue(dataMapping.getData());
+                     }
+                     
+                     if(cachedDataValue != null)
+                     {
+                        inDataValue = cachedDataValue.getSerializedValue();
+                     }
+                  }
+               }
+               else
                {
                   inDataValue = getInDataValue(dataMapping, ai.getProcessInstanceOID());                  
                }

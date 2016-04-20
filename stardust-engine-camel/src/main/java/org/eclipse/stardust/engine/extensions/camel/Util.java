@@ -779,9 +779,13 @@ public class Util
     */
    private static String getThrowableDetailMessage(Throwable throwable)
    {
-      return throwable.getMessage() != null
-            ? throwable.getMessage()
-            : getThrowableDetailMessage(throwable.getCause());
+      if(throwable!=null ){
+         if(throwable.getMessage() != null )
+            return throwable.getMessage();
+         else
+            getThrowableDetailMessage(throwable.getCause());
+      }
+      return "";
    }
    
    /**

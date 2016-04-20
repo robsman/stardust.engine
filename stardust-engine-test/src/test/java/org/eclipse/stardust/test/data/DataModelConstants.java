@@ -56,6 +56,7 @@ public class DataModelConstants
    public static final String SIMPLE_MODEL_NAME = "SimpleModeler";
    public static final String COMPOSITE_DESCRIPTOR_MODEL_NAME = "CompositeDescriptorModel";
    public static final String ENUM_MODEL_NAME = "EnumDataModel";
+   public static final String MANDATORY_MODEL_NAME = "TestDM";
 
 
    /**

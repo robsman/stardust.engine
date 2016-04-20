@@ -43,10 +43,11 @@ import org.junit.runners.Suite.SuiteClasses;
                ConstantsDataMappingsTest.class,
                DataDescriptorInjectionModelExtenderTest.class,
                DataHistoryTest.class,
-               EnumDataInOutDataMappingsTest.class
+               EnumDataInOutDataMappingsTest.class,
+               MandatoryDataMappingTest.class
              })
 public class DataTestSuite
 {
    @ClassRule
-   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, true, MODEL_NAME, VOLATILE_MODEL_NAME, CONSTANT_MODEL_NAME, SIMPLE_MODEL_NAME, COMPOSITE_DESCRIPTOR_MODEL_NAME, ENUM_MODEL_NAME);
+   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, true, MODEL_NAME, VOLATILE_MODEL_NAME, CONSTANT_MODEL_NAME, SIMPLE_MODEL_NAME, COMPOSITE_DESCRIPTOR_MODEL_NAME, ENUM_MODEL_NAME, MANDATORY_MODEL_NAME);
 }

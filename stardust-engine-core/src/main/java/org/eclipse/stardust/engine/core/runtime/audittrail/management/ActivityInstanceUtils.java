@@ -15,10 +15,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-
-import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
@@ -30,6 +26,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -487,4 +484,52 @@ public class ActivityInstanceUtils
       }
    }
 
+   public static boolean isMandatoryDatamapping(IDataMapping dataMapping, long activityInstanceOID)
+   {      
+      IData data = dataMapping.getData();      
+      if(data == null)    
+      {      	 
+         return false;
+      }         
+		  	  
+      IDataType dataType = (IDataType) data.getType();
+      if(PredefinedConstants.PRIMITIVE_DATA.equals(dataType.getId()))
+      {
+         Type type = data.getAttribute(PredefinedConstants.TYPE_ATT);
+         if (Type.Boolean == type
+               || Type.String == type
+               || Type.Enumeration == type)
+         {
+            return false;
+         }         
+      }
+      else
+      {
+         return false;         
+      }
+            
+      if(dataMapping.getBooleanAttribute(PredefinedConstants.MANDATORY_DATA_MAPPING))
+      {
+         if(data.getAttribute(PredefinedConstants.DEFAULT_VALUE_ATT) == null)
+         {            
+            int cnt = 0;                  
+            Iterator<ActivityInstanceHistoryBean> history = ActivityInstanceHistoryBean.getAllForActivityInstance(
+            ActivityInstanceBean.findByOID(activityInstanceOID));            
+            while (history.hasNext())
+            {   
+               ActivityInstanceHistoryBean aih = history.next();
+               if (ActivityInstanceState.Application == aih.getState())
+               {
+                  cnt++;
+               }
+            }
+            if(cnt == 1)
+            {
+               return true;
+            }            
+         }         
+      }
+      
+      return false;
+   }   
 }

@@ -60,6 +60,7 @@ public class MandatoryDataMappingTest
    private long startProcess1;
    private long startProcess2;
 
+   private String dataMapping3 = "PrimitiveData3";   
    private String dataMapping2 = "PrimitiveData2";
    private String dataMapping1 = "PrimitiveData1";
       
@@ -102,6 +103,22 @@ public class MandatoryDataMappingTest
       assertEquals(retrievedValue1, 0);
       assertThat(retrievedValue2, notNullValue());
       assertEquals(retrievedValue2, 5000);      
+
+      data = new HashMap();
+      data.put(dataMapping3, 5000);            
+      sf.getWorkflowService().complete(nextAI.getOID(), null, data);
+      
+      nextAI = sf.getWorkflowService().activateNextActivityInstance(aiOid1);
+      mapValue = sf.getWorkflowService().getInDataValues(nextAI.getOID(), null, null);
+      retrievedValue1 = mapValue.get(dataMapping1);
+      retrievedValue2 = mapValue.get(dataMapping2);
+      Object retrievedValue3 = mapValue.get(dataMapping3);      
+      assertThat(retrievedValue1, notNullValue());
+      assertEquals(retrievedValue1, 0);
+      assertThat(retrievedValue2, notNullValue());
+      assertEquals(retrievedValue2, 5000);      
+      assertThat(retrievedValue3, notNullValue());
+      assertEquals(retrievedValue3, 5000);            
    }
 
    /**

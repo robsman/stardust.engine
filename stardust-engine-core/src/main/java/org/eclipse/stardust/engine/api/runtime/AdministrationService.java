@@ -874,7 +874,7 @@ public interface AdministrationService extends Service
     * @param oid The oid of the artifact.
     * @return The artifact or <code>null<code> if it does not exist.
     */
-   @ExecutionPermission(id = ExecutionPermission.Id.readRuntimeArtifact)
+   @ExecutionPermission(id = ExecutionPermission.Id.readRuntimeArtifact, defaults={ExecutionPermission.Default.ALL})
    public RuntimeArtifact getRuntimeArtifact(long oid);
 
    /**

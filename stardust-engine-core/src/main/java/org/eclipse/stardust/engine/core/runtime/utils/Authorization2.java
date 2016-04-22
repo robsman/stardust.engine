@@ -974,7 +974,7 @@ public class Authorization2
       @ExecutionPermission(id=ExecutionPermission.Id.deployRuntimeArtifact)
       Permission getDeployRuntimeArtifactPermission();
 
-      @ExecutionPermission(id=ExecutionPermission.Id.readRuntimeArtifact)
+      @ExecutionPermission(id = ExecutionPermission.Id.readRuntimeArtifact, defaults={ExecutionPermission.Default.ALL})
       Permission getReadRuntimeArtifactPermission();
    }
 }

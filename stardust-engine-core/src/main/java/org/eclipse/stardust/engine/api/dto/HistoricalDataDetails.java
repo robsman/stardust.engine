@@ -19,7 +19,7 @@ public class HistoricalDataDetails implements HistoricalData
 
    private Serializable dataValue;
 
-   private long data;
+   private DataDetails data;
 
    private long modificationTimestamp;
 
@@ -31,7 +31,8 @@ public class HistoricalDataDetails implements HistoricalData
    {
       this.dataValue = valueHistoryBean.getSerializedValue();
 
-      this.data = valueHistoryBean.getData().getOID();
+      this.data = new DataDetails(valueHistoryBean.getData());
+
       this.modificatingActivityInstance = valueHistoryBean.getModificatingActivityInstance();
       this.modificatingUser = valueHistoryBean.getModificatingUser();
       this.modificationTimestamp = valueHistoryBean.getModificationTimestamp();
@@ -63,7 +64,7 @@ public class HistoricalDataDetails implements HistoricalData
    }
 
    @Override
-   public long getDataType()
+   public DataDetails getData()
    {
       return data;
    }

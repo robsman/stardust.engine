@@ -17,11 +17,13 @@ public interface HistoricalData extends Serializable
    Serializable getHistoricalDataValue();
    
    /**
-    * Gets the OID of the process data
+    * Gets the element OID of the process data
     * 
     * @return
     */
-   long getDataType();
+   DataDetails getData();
+   
+   
    
    /**
     * Gets the timestamp of when the data was modified

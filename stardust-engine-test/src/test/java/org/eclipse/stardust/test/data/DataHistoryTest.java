@@ -16,11 +16,10 @@ import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.engine.api.dto.HistoricalData;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetails;
-import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
-import org.eclipse.stardust.engine.api.query.HistoricalDataPolicy;
-import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
-import org.eclipse.stardust.engine.api.query.ProcessInstances;
+import org.eclipse.stardust.engine.api.model.Data;
+import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.DataQueryResult;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
@@ -130,13 +129,17 @@ public class DataHistoryTest
 
       for (ProcessInstance pi : pis)
       {
+         
          if (pi.getOID() == this.piOid)
          {
+            
             List<HistoricalData> histDataList = ((ProcessInstanceDetails) pi).getHistoricalData();
                         
             
             for (HistoricalData histData : histDataList)
             {
+               System.out.println("#### Type " + histData.getData().getModelOID());
+               System.out.println("#### Type " + histData.getData().getId());
                historicValues.add(histData.getHistoricalDataValue());
             }
          }

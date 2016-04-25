@@ -2,6 +2,7 @@ package org.eclipse.stardust.engine.api.dto;
 
 import java.io.Serializable;
 
+import org.eclipse.stardust.engine.api.model.Data;
 import org.eclipse.stardust.engine.core.runtime.beans.DataValueHistoryBean;
 
 /**
@@ -64,7 +65,7 @@ public class HistoricalDataDetails implements HistoricalData
    }
 
    @Override
-   public DataDetails getData()
+   public Data getData()
    {
       return data;
    }

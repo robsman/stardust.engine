@@ -2,6 +2,8 @@ package org.eclipse.stardust.engine.api.dto;
 
 import java.io.Serializable;
 
+import org.eclipse.stardust.engine.api.model.Data;
+
 /**
  * 
  * @author Thomas.Wolfram
@@ -21,7 +23,7 @@ public interface HistoricalData extends Serializable
     * 
     * @return
     */
-   DataDetails getData();
+   Data getData();
    
    
    

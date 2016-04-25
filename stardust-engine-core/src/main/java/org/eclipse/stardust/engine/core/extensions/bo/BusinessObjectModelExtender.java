@@ -44,14 +44,18 @@ public class BusinessObjectModelExtender extends AbstractPartitionMonitor
    public void modelLoaded(IModel model)
    {
       ModelElementList<IData> dataList = model.getData();
+      boolean isSimpleModeler = model.getBooleanAttribute("stardust:model:simpleModel");
 
-      for (IData data : dataList)
+      if (isSimpleModeler)
       {
-         // find all Data that are Business Objects
-         if (((String) data.getAttribute(PRIMARY_KEY_ATT)) != null
-               && StructuredTypeRtUtils.isStructuredType(data.getType().getId()))
+         for (IData data : dataList)
          {
-            findDescriptorsForBusinessObject(data, model);
+            // find all Data that are Business Objects
+            if (((String) data.getAttribute(PRIMARY_KEY_ATT)) != null
+                  && StructuredTypeRtUtils.isStructuredType(data.getType().getId()))
+            {
+               findDescriptorsForBusinessObject(data, model);
+            }
          }
       }
    }
@@ -89,14 +93,10 @@ public class BusinessObjectModelExtender extends AbstractPartitionMonitor
                // Add descriptor to all process definitions referencing the BO
                for (IProcessDefinition pd : pds)
                {
-                  if (pd.getAttribute(BUSINESS_OBJECTS_DATAREF) != null
-                        && pd.getAttribute(BUSINESS_OBJECTS_DATAREF).equals(
-                              data.getId()))
-                  {
-                     addDescriptorsToProcessDefinition(pd, data, xpath.getXPath(),
-                           descriptorLabelValue);
-                  }
+                  addDescriptorsToProcessDefinition(pd, data, xpath.getXPath(),
+                        descriptorLabelValue);
                }
+
             }
          }
       }

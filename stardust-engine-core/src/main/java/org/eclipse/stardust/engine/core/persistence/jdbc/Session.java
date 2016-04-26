@@ -464,7 +464,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          boolean useBatchStatement = true;
          DBMSKey dbmsKey = dbDescriptor.getDbmsKey();
-         if (DBMSKey.MSSQL8.equals(dbmsKey) || DBMSKey.MSSQL.equals(dbmsKey))
+         if (DBMSKey.MSSQL8.equals(dbmsKey) || DBMSKey.MSSQL.equals(dbmsKey) || DBMSKey.SYBASE.equals(dbmsKey))
          {
             // MSSQL needs to use getGeneratedKeys() method,
             // since SELECT SCOPE_IDENTITY() has scope problems in Prepared Statements

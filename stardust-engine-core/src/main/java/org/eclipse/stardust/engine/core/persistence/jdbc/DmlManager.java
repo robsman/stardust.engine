@@ -1457,7 +1457,10 @@ public class DmlManager
                ++slot;
             }
 
-            stmt.addBatch();
+            if (useBatchStatement)
+            {
+               stmt.addBatch();
+            }
          }
 
          return insertStatement;

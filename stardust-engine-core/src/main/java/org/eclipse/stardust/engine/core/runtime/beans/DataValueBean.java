@@ -505,22 +505,25 @@ public class DataValueBean extends IdentifiablePersistentBean
                org.eclipse.stardust.engine.core.persistence.jdbc.Session jdbcSession = (org.eclipse.stardust.engine.core.persistence.jdbc.Session) session;
                if (jdbcSession.isUsingDataClusters())
                {
-                  Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, DataSlot>>> piToDv = CollectionUtils
-                        .newHashMap();
-                  DataClusterHelper.prepareDataValueUpdate(getPersistenceController(),
-                        piToDv, null, true);
-                  try
+                  if (!jdbcSession.getDBDescriptor().supportsSequences())
                   {
-                     if ( !piToDv.isEmpty())
+                     Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, DataSlot>>> piToDv = CollectionUtils
+                           .newHashMap();
+                     DataClusterHelper.prepareDataValueUpdate(getPersistenceController(),
+                           piToDv, null, true);
+                     try
                      {
-                        DataClusterHelper.completeDataValueUpdate(piToDv, jdbcSession);
+                        if (!piToDv.isEmpty())
+                        {
+                           DataClusterHelper.completeDataValueUpdate(piToDv, jdbcSession);
+                        }
                      }
-                  }
-                  catch (InternalException e)
-                  {
-                     throw new InternalException(MessageFormat.format(
-                           "Update of cluster tables for {0} and {1} failed.",
-                           new Object[] { data, processInstance }), e);
+                     catch (InternalException e)
+                     {
+                        throw new InternalException(MessageFormat.format(
+                              "Update of cluster tables for {0} and {1} failed.",
+                              new Object[] {data, processInstance}), e);
+                     }
                   }
                }
             }

@@ -551,9 +551,9 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       FieldRef piProcDefFieldRef = ProcessInstanceBean.FR__PROCESS_DEFINITION;
       int joinCount = context.getPredicateJoins().size() + 1;
 
-      final boolean isAiQuery = ActivityInstanceBean.class.equals(context.getType());
+      final boolean isPiQuery = ProcessInstanceBean.class.equals(context.getType());
       final boolean isAiQueryOnWorkItem = WorkItemBean.class.equals(context.getType());
-
+      
       ++appliedRootProcDefFilterJoinCounter;
       if (appliedRootProcDefFilterJoinCounter > 1)
       {
@@ -562,31 +562,29 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       
       RootProcessInstanceFilterJoinKey piJoinKey = new RootProcessInstanceFilterJoinKey(filter, ProcessInstanceBean.class);
 
-      if (isAiQuery || isAiQueryOnWorkItem)
+      Join piJoin;
+      FieldRef frProcessInstance = ActivityInstanceBean.FR__PROCESS_INSTANCE;
+      if (isAiQueryOnWorkItem)
       {
-         Join piJoin;
-
-         FieldRef frProcessInstance = ActivityInstanceBean.FR__PROCESS_INSTANCE;
-         if (isAiQueryOnWorkItem)
-         {
-            frProcessInstance = WorkItemBean.FR__ROOT_PROCESS_INSTANCE;
-         }
-
-         piJoin = (Join) context.getPredicateJoins().get(piJoinKey);
-         if (null == piJoin)
-         {
-            piJoin = new Join(ProcessInstanceBean.class, "RPIF_PI" + joinCount) //
-                  .on(frProcessInstance, ProcessInstanceBean.FIELD__OID);
-            context.getPredicateJoins().put(piJoinKey, piJoin);
-            if (!isAiQueryOnWorkItem)
-            {
-               piJoin.andOn(ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID);
-            }
-
-         }
-
-         piProcDefFieldRef = piJoin.fieldRef(ProcessInstanceBean.FIELD__PROCESS_DEFINITION);
+         frProcessInstance = WorkItemBean.FR__ROOT_PROCESS_INSTANCE;
       }
+      else if(isPiQuery)
+      {
+         frProcessInstance = ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE;         
+      }
+
+      piJoin = (Join) context.getPredicateJoins().get(piJoinKey);
+      if (null == piJoin)
+      {
+         piJoin = new Join(ProcessInstanceBean.class, "RPIF_PI" + joinCount) //
+               .on(frProcessInstance, ProcessInstanceBean.FIELD__OID);
+         context.getPredicateJoins().put(piJoinKey, piJoin);
+         if (!isAiQueryOnWorkItem)
+         {
+            piJoin.andOn(ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID);
+         }
+      }
+      piProcDefFieldRef = piJoin.fieldRef(ProcessInstanceBean.FIELD__PROCESS_DEFINITION);
       
       ModelManager modelManager = context.getEvaluationContext().getModelManager();
 
@@ -639,7 +637,6 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
             }            
          }
       }
-
       
       ComparisonTerm predicate;
       if (processRtOids.isEmpty())
@@ -1836,7 +1833,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          for (Iterator itr = order.getCriteria().iterator(); itr.hasNext();)
          {
             OrderCriterion part = (OrderCriterion) itr.next();
-
+            
             org.eclipse.stardust.engine.core.persistence.OrderCriteria innerResult = (org.eclipse.stardust.engine.core.persistence.OrderCriteria) part
                   .accept(this, context);
             if (null != innerResult)
@@ -1875,6 +1872,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
 
       FieldRef fieldRef;
 
+      
       FilterableAttribute filterableAttribute = criterion.getFilterableAttribute();
       if (filterableAttribute instanceof IAttributeJoinDescriptor)
       {
@@ -2324,7 +2322,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
 
       return resultTerm;
    }
-
+   
    protected static boolean isAndTerm(VisitationContext context)
    {
       return FilterTerm.AND.equals(context.peekLastFilterKind());
@@ -2680,19 +2678,16 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          return SqlBuilderBase.this;
       }
    }
-
    
    private class RootProcessInstanceFilterJoinKey
    {
       private Class<? extends PersistentBean> persistentBeanClass;
-
 
       public RootProcessInstanceFilterJoinKey(RootProcessInstanceFilter filter,
             Class<? extends PersistentBean> persistentBeanClass)
       {
          this.persistentBeanClass = persistentBeanClass;
       }
-
 
       @Override
       public int hashCode()

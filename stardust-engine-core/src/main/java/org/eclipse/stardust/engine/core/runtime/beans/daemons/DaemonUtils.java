@@ -23,8 +23,6 @@ import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.Daemon;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.core.monitoring.DaemonExecutionMonitorMediator;
-import org.eclipse.stardust.engine.core.persistence.jdbc.extension.ISessionLifecycleExtension;
-import org.eclipse.stardust.engine.core.persistence.jdbc.extension.SessionLifecycleExtensionMediator;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.runtime.beans.DaemonFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
@@ -35,8 +33,6 @@ import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.spi.monitoring.IDaemonExecutionMonitor;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
-
-
 
 /**
  * @author ubirkemeyer

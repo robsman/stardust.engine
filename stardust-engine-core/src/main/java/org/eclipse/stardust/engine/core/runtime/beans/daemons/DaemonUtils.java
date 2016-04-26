@@ -208,7 +208,7 @@ public class DaemonUtils
 
    private static AcknowledgementState acknowledge(ForkingService service, String type)
    {
-      int retries = Parameters.instance().getInteger(type + ".AckRetries", 10);
+      int retries = Parameters.instance().getInteger(type + ".AckRetries", 5);
       int wait = Parameters.instance().getInteger(type + ".AckWait", 2);
       for (int i = 0; i < retries; i++)
       {

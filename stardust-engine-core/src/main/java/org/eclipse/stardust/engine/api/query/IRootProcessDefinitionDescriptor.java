@@ -18,7 +18,13 @@ package org.eclipse.stardust.engine.api.query;
  */
 interface IRootProcessDefinitionDescriptor
 {   
+   /**
+    * Set ascending filtering.
+    */
    IRootProcessDefinitionDescriptor ascendig(boolean ascending);
    
+   /**
+    * Is ascending filtering.
+    */
    public boolean isAscending();   
 }

@@ -1325,7 +1325,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    {
       setOutDataValue(data, path, value, null);
    }
-   
+
    public void setOutDataValue(IData data, String path, Object value, DataMappingContext mappingContext)
          throws InvalidValueException
    {
@@ -1427,7 +1427,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          }
       }
    }
-   
+
    public Object getInDataValue(IData data, String path)
    {
       return getInDataValue(data, path, null, null, null);
@@ -1755,9 +1755,15 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       removeProperty(HALTING_PI_OID, new Long(oid));
    }
 
-   public List/*<Attribute>*/ getHaltingPiOids()
+   public List/*<Attribute> or <Long>*/ getHaltingPiOids()
    {
-      List attributes = (List) getPropertyValue(HALTING_PI_OID);
+      Serializable propertyValue = getPropertyValue(HALTING_PI_OID);
+
+      if (propertyValue instanceof Long)
+      {
+         return Collections.singletonList(propertyValue);
+      }
+      List attributes = (List) propertyValue;
       if(null == attributes)
       {
          return Collections.EMPTY_LIST;

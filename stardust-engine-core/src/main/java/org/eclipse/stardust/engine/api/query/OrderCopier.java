@@ -55,4 +55,9 @@ public final class OrderCopier implements OrderEvaluationVisitor
    {
       return order;
    }
+
+   public Object visit(RootProcessDefinitionDescriptor rootProcessDefinitionDescriptor, Object context)
+   {
+      return null;
+   }
 }

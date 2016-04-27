@@ -303,10 +303,9 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          {
             joins.add((Join)join.getValue());
          }
-         else if (rawKey instanceof RootProcessInstanceFilterJoinKey) {
+         else if (rawKey instanceof RootProcessInstanceJoinKey) {
             joins.add((Join)join.getValue());
-         }
-         
+         }         
          else if (rawKey instanceof ProcessDefinitionFilterJoinKey) {
             joins.add((Join)join.getValue());
          }
@@ -543,7 +542,40 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       FieldRef fieldRef = processAttributedScopedFilter(filter, context);
       return new ComparisonTerm(fieldRef, filter.getOperator(), filter.getValue());
    }
+   
+   public Object visit(RootProcessDefinitionDescriptor multiDescriptor, Object rawContext)
+   {
+      VisitationContext context = (VisitationContext) rawContext;
+      TypeDescriptor typeDescriptor = TypeDescriptor.get(context.getType());
 
+      RootProcessInstanceJoinKey piJoinKey = new RootProcessInstanceJoinKey(ProcessInstanceBean.class);
+      int joinCount = context.getPredicateJoins().size() + 1;
+            
+      Class joinRhsType = ProcessInstanceBean.class;         
+      String lhsField = ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE;
+      String rhsField = ProcessInstanceBean.FIELD__OID;
+      Join join = (Join) context.getPredicateJoins().get(piJoinKey);               
+      if (null == join)
+      {
+         join = new Join(joinRhsType, "RPIF_PI" + joinCount);
+         join.andOn(typeDescriptor.fieldRef(lhsField), rhsField);
+         context.getPredicateJoins().put(piJoinKey, join);         
+      }      
+
+      Class joinRhsType2 = AuditTrailProcessDefinitionBean.class;         
+      String lhsField2 = ProcessInstanceBean.FIELD__PROCESS_DEFINITION;
+      String rhsField2 = AuditTrailProcessDefinitionBean.FIELD__OID;      
+      Join join2 = (Join) context.getCustomOrderJoins().get(joinRhsType2);               
+      if (null == join2)
+      {
+         join2 = new Join(joinRhsType2).on(join.fieldRef(lhsField2), rhsField2);                  
+         context.getCustomOrderJoins().put(joinRhsType2, join2);         
+      }               
+      FieldRef fieldRef = join2.fieldRef(multiDescriptor.getAttributeName());
+      
+      return new org.eclipse.stardust.engine.core.persistence.OrderCriteria(fieldRef, multiDescriptor.isAscending());
+   }
+   
    public Object visit(RootProcessInstanceFilter filter, Object rawContext)
    {
       VisitationContext context = (VisitationContext) rawContext;
@@ -560,7 +592,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          context.useDistinct(true);
       }
       
-      RootProcessInstanceFilterJoinKey piJoinKey = new RootProcessInstanceFilterJoinKey(filter, ProcessInstanceBean.class);
+      RootProcessInstanceJoinKey piJoinKey = new RootProcessInstanceJoinKey(ProcessInstanceBean.class);
 
       Join piJoin;
       FieldRef frProcessInstance = ActivityInstanceBean.FR__PROCESS_INSTANCE;
@@ -2679,12 +2711,11 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       }
    }
    
-   private class RootProcessInstanceFilterJoinKey
+   private class RootProcessInstanceJoinKey
    {
       private Class<? extends PersistentBean> persistentBeanClass;
 
-      public RootProcessInstanceFilterJoinKey(RootProcessInstanceFilter filter,
-            Class<? extends PersistentBean> persistentBeanClass)
+      public RootProcessInstanceJoinKey(Class<? extends PersistentBean> persistentBeanClass)
       {
          this.persistentBeanClass = persistentBeanClass;
       }
@@ -2709,7 +2740,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
             return false;
          if (getClass() != obj.getClass())
             return false;
-         RootProcessInstanceFilterJoinKey other = (RootProcessInstanceFilterJoinKey) obj;
+         RootProcessInstanceJoinKey other = (RootProcessInstanceJoinKey) obj;
          if (!getOuterType().equals(other.getOuterType()))
             return false;
          if (persistentBeanClass == null)
@@ -2727,8 +2758,6 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          return SqlBuilderBase.this;
       }
    }
-   
-   
    
    private static class WorkitemKeyMap 
    {

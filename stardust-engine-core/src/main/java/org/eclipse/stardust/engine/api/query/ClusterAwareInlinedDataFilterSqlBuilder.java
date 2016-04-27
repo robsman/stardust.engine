@@ -917,6 +917,11 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
       {
          return null;
       }
+
+      public Object visit(RootProcessDefinitionDescriptor rootProcessDefinitionDescriptor, Object context)
+      {
+         return null;
+      }
    }
 
    /**

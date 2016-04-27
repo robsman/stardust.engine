@@ -31,6 +31,7 @@ import org.eclipse.stardust.engine.api.query.ProcessInstanceDetailsPolicy;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.SpawnOptions.SpawnMode;
+import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
@@ -291,15 +292,29 @@ public class HaltedStateApiOperationsTest
    }
 
    @Test
-   public void testAbortHaltedAllowed() throws TimeoutException, InterruptedException
+   public void testAbortHaltedAIRootHierarchyAllowed() throws TimeoutException, InterruptedException
    {
       WorkflowService wfs = sf.getWorkflowService();
 
       ActivityInstance ai = getHaltedAi();
 
-      wfs.abortActivityInstance(ai.getOID());
+      wfs.abortActivityInstance(ai.getOID(), AbortScope.RootHierarchy);
 
       ProcessInstanceStateBarrier.instance().await(ai.getProcessInstanceOID(), ProcessInstanceState.Aborted);
+      assertActivityInstanceExists(ai.getProcessInstanceOID(), "InputData1", ActivityInstanceState.ABORTED);
+   }
+
+   @Test
+   public void testAbortHaltedAISubHierarchyAllowed() throws TimeoutException, InterruptedException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+
+      ActivityInstance ai = getHaltedAi();
+
+      wfs.abortActivityInstance(ai.getOID(), AbortScope.SubHierarchy);
+
+      ProcessInstanceStateBarrier.instance().await(ai.getProcessInstanceOID(), ProcessInstanceState.Completed);
+      assertActivityInstanceExists(ai.getProcessInstanceOID(), "InputData1", ActivityInstanceState.ABORTED);
    }
 
    @Test

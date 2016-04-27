@@ -459,6 +459,11 @@ public class ActivityInstanceUtils
          // is already halted
          return false;
       }
+      else if (ActivityInstanceState.Aborting.equals(activityInstance.getState()))
+      {
+         // is in process of aborting, do not halt.
+         return false;
+      }
 
       return true;
    }
@@ -485,13 +490,13 @@ public class ActivityInstanceUtils
    }
 
    public static boolean isMandatoryDatamapping(IDataMapping dataMapping, long activityInstanceOID)
-   {      
-      IData data = dataMapping.getData();      
-      if(data == null)    
-      {      	 
+   {
+      IData data = dataMapping.getData();
+      if(data == null)
+      {
          return false;
-      }         
-		  	  
+      }
+
       IDataType dataType = (IDataType) data.getType();
       if(PredefinedConstants.PRIMITIVE_DATA.equals(dataType.getId()))
       {
@@ -501,22 +506,22 @@ public class ActivityInstanceUtils
                || Type.Enumeration == type)
          {
             return false;
-         }         
+         }
       }
       else
       {
-         return false;         
+         return false;
       }
-            
+
       if(dataMapping.getBooleanAttribute(PredefinedConstants.MANDATORY_DATA_MAPPING))
       {
          if(data.getAttribute(PredefinedConstants.DEFAULT_VALUE_ATT) == null)
-         {            
-            int cnt = 0;                  
+         {
+            int cnt = 0;
             Iterator<ActivityInstanceHistoryBean> history = ActivityInstanceHistoryBean.getAllForActivityInstance(
-            ActivityInstanceBean.findByOID(activityInstanceOID));            
+            ActivityInstanceBean.findByOID(activityInstanceOID));
             while (history.hasNext())
-            {   
+            {
                ActivityInstanceHistoryBean aih = history.next();
                if (ActivityInstanceState.Application == aih.getState())
                {
@@ -526,10 +531,10 @@ public class ActivityInstanceUtils
             if(cnt == 1)
             {
                return true;
-            }            
-         }         
+            }
+         }
       }
-      
+
       return false;
-   }   
+   }
 }

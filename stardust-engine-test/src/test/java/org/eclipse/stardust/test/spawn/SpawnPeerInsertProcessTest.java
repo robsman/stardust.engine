@@ -16,7 +16,6 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.*;
@@ -24,7 +23,6 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runners.MethodSorters;
 
-import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
@@ -39,7 +37,6 @@ import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-import org.eclipse.stardust.vfs.impl.utils.CollectionUtils;
 
 /**
  * <p>
@@ -452,6 +449,45 @@ public class SpawnPeerInsertProcessTest
    }
 
    @Test
+   public void testActivityStateChangeEventScheduleActivityAction() throws TimeoutException, InterruptedException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+
+      ProcessInstance pi = wfs.startProcess("{SpawnProcessModel}ActivityStateChangeEvent2", new StartOptions(null , true));
+      assertThat(pi.getState(), is(ProcessInstanceState.Active));
+
+      doWait(3000);
+
+      // Spawn process
+      SpawnOptions options = new SpawnOptions(null, SpawnMode.HALT, null, null);
+      ProcessInstance peer = wfs.spawnPeerProcessInstance(
+            pi.getOID(), "{SpawnProcessModel}InputData1", options);
+
+      doWait(2000);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
+
+      assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(), PredefinedProcessInstanceLinkTypes.INSERT);
+
+      assertActivityInstanceExists(pi.getOID(), "EventOnHaltedToHibernated", ActivityInstanceState.HALTED);
+      assertActivityInstanceExists(pi.getOID(), "EventOnHaltedToSuspended", ActivityInstanceState.HALTED);
+
+      assertActivityInstanceExists(peer.getOID(), "InputData1", ActivityInstanceState.SUSPENDED);
+
+      // reset registered state changes before next steps
+      ProcessInstanceStateBarrier.instance().cleanUp();
+
+      completeActivityInstances(peer.getOID(), 1);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Completed);
+
+      // check for halted -> active
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Active);
+      assertActivityInstanceExists(pi.getOID(), "EventOnHaltedToHibernated", ActivityInstanceState.SUSPENDED);
+      assertActivityInstanceExists(pi.getOID(), "EventOnHaltedToSuspended", ActivityInstanceState.SUSPENDED);
+   }
+
+   @Test
    public void testSlowPOJOAppCanComplete() throws TimeoutException, InterruptedException
    {
       WorkflowService wfs = sf.getWorkflowService();
@@ -602,19 +638,6 @@ public class SpawnPeerInsertProcessTest
       QueryService qs = sf.getQueryService();
       ActivityInstanceQuery query = ActivityInstanceQuery.findAll();
       query.where(ActivityFilter.forProcess(activityId, processId));
-      query.where(ActivityInstanceQuery.STATE.isEqual(state));
-      ActivityInstances ai = qs.getAllActivityInstances(query);
-      Assert.assertEquals(count, ai.getSize());
-   }
-
-   private void assertActivityInstanceCount(ProcessInstance pi, String activityId,
-         int count, int state)
-               throws IllegalStateException, TimeoutException, InterruptedException
-   {
-      QueryService qs = sf.getQueryService();
-      ActivityInstanceQuery query = ActivityInstanceQuery.findAll();
-      query.where(ActivityFilter.forProcess(activityId, pi.getProcessID()));
-      query.where(ActivityInstanceQuery.PROCESS_INSTANCE_OID.isEqual(pi.getOID()));
       query.where(ActivityInstanceQuery.STATE.isEqual(state));
       ActivityInstances ai = qs.getAllActivityInstances(query);
       Assert.assertEquals(count, ai.getSize());

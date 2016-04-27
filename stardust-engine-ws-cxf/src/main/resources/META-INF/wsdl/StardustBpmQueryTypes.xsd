@@ -9,13 +9,13 @@
 
    <complexType name="Query">
     <annotation>
-	    <documentation>
-	    A query contains three optional elements:
-	    The 'predicate' element used for filtering contains an and-conjunction of predicates.
-	    The 'order' element used to specify a custom order.
-	    The 'policy' element used to specify policies e.g. a 'subsetPolicy' to limit results to a subset.
-		</documentation>
-	</annotation>
+       <documentation>
+       A query contains three optional elements:
+       The 'predicate' element used for filtering contains an and-conjunction of predicates.
+       The 'order' element used to specify a custom order.
+       The 'policy' element used to specify policies e.g. a 'subsetPolicy' to limit results to a subset.
+      </documentation>
+   </annotation>
       <sequence>
          <element name="predicate" type="tns:AndTerm" minOccurs="0" />
          <element name="order" type="tns:OrderCriteria" minOccurs="0" />
@@ -25,12 +25,12 @@
 
    <complexType name="WorklistQuery">
     <annotation>
-	    <documentation>
-	    Additionally supports optional elements:
-	    A 'userContribution' which enables or disables the retrieval of the user's private worklist with an optional 'subsetPolicy'.
-	    A list of 'participantContributions' limiting the result to specified participants. One 'subsetPolicy' per 'participantContribution' can be set.
-	    </documentation>
-	</annotation>
+       <documentation>
+       Additionally supports optional elements:
+       A 'userContribution' which enables or disables the retrieval of the user's private worklist with an optional 'subsetPolicy'.
+       A list of 'participantContributions' limiting the result to specified participants. One 'subsetPolicy' per 'participantContribution' can be set.
+       </documentation>
+   </annotation>
     <complexContent>
      <extension base="tns:Query">
       <sequence>
@@ -43,10 +43,10 @@
 
    <complexType name="UserContribution">
       <annotation>
-	    <documentation>
+       <documentation>
         Configures the user's private worklist to be partially included in the result.
- 	    </documentation>
-	  </annotation>
+        </documentation>
+     </annotation>
       <sequence>
          <element name="subsetPolicy" type="tns:SubsetPolicy" minOccurs="0" />
       </sequence>
@@ -55,11 +55,11 @@
 
    <complexType name="ParticipantContribution">
       <annotation>
-	    <documentation>
+       <documentation>
         Configures the worklist(s) resulting from the given participant filter to be included in the result.
         The size of these worklist contributions can optionally be restricted by the subsetPolicy
- 	    </documentation>
-	  </annotation>
+        </documentation>
+     </annotation>
       <sequence>
          <element name="filter" type="tns:PerformingParticipantFilter" minOccurs="0" />
          <element name="subsetPolicy" type="tns:SubsetPolicy" minOccurs="0"/>
@@ -74,10 +74,10 @@
 
    <complexType name="ActivityQuery">
     <annotation>
-	    <documentation>
+       <documentation>
         Query container for building complex queries for activity instances.
         </documentation>
-	</annotation>
+   </annotation>
     <complexContent>
      <extension base="tns:Query">
       <sequence>
@@ -88,7 +88,7 @@
 
    <complexType name='ProcessQuery'>
       <annotation>
-	    <documentation>
+       <documentation>
         Query container for building complex queries for process instances.
         </documentation>
       </annotation>
@@ -102,7 +102,7 @@
 
    <complexType name='ProcessDefinitionQuery'>
       <annotation>
-	    <documentation>
+       <documentation>
         Query container for building complex queries for process definitions.
         </documentation>
       </annotation>
@@ -116,7 +116,7 @@
 
    <complexType name="PreferenceQuery">
     <annotation>
-	    <documentation>
+       <documentation>
 
         </documentation>
     </annotation>
@@ -130,17 +130,17 @@
 
 
   <complexType name="DeployedModelQuery">
-  	<annotation>
-  		<documentation>
-		Query container for building complex queries for deployed models.
-  		</documentation>
-  	</annotation>
-  	<complexContent>
-  		<extension base="tns:Query">
-  			<sequence>
-  			</sequence>
-  		</extension>
-  	</complexContent>
+     <annotation>
+        <documentation>
+      Query container for building complex queries for deployed models.
+        </documentation>
+     </annotation>
+     <complexContent>
+        <extension base="tns:Query">
+           <sequence>
+           </sequence>
+        </extension>
+     </complexContent>
   </complexType>
 
    <simpleType name="DeployedModelState">
@@ -170,7 +170,7 @@
 
    <complexType name="UserQuery">
     <annotation>
-	    <documentation>
+       <documentation>
         Query for fetching workflow users matching specific criteria. Most common filter criteria will be the user's attributes.
         A more advanced use case is retrieving users having a specific role or organization
         membership by using 'participantAssociation' predicate.
@@ -186,7 +186,7 @@
 
    <complexType name="UserGroupQuery">
     <annotation>
-	    <documentation>
+       <documentation>
         Query for fetching workflow user groups matching specific criteria.
         Most common filter criteria will be the user group's attributes.
         </documentation>
@@ -201,7 +201,7 @@
 
    <complexType name="LogEntryQuery">
     <annotation>
-	    <documentation>
+       <documentation>
         Query for fetching log entries matching specific criteria.
         </documentation>
     </annotation>
@@ -215,7 +215,7 @@
 
    <complexType name="DocumentQuery">
     <annotation>
-	    <documentation>
+       <documentation>
         Query for finding documents matching specific criteria.
         </documentation>
     </annotation>
@@ -229,7 +229,7 @@
 
    <complexType name="VariableDefinitionQuery">
     <annotation>
-	    <documentation>
+       <documentation>
         Query for finding variable definitions matching specific criteria.
         </documentation>
     </annotation>
@@ -242,17 +242,17 @@
    </complexType>
 
    <complexType name="BusinessObjectQuery">
-   	<annotation>
-   		<documentation>
-   		TODO: Documentation needed
-   		</documentation>
-   	</annotation>
-   	<complexContent>
-   		<extension base="tns:Query">
-   			<sequence>
-   			</sequence>
-   		</extension>
-   	</complexContent>
+      <annotation>
+         <documentation>
+         Query container for building complex queries for business object instances.
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:Query">
+            <sequence>
+            </sequence>
+         </extension>
+      </complexContent>
    </complexType>
 
    <complexType name="Operand" abstract="true">
@@ -263,7 +263,7 @@
 
    <complexType name="VariableReference">
       <annotation>
-	    <documentation>
+       <documentation>
         Used to reference workflow data by assigning an dataId to the 'operand' element.
         Different scopes are available:
         'Local' (default) scope is used for finding activity instances belonging to process instances with same scope process instance containing specific workflow data.
@@ -288,7 +288,7 @@
 
    <complexType name="AttributeReference">
       <annotation>
-	    <documentation>
+       <documentation>
         Used to reference attributes which are specific to every query type.
         </documentation>
       </annotation>
@@ -301,7 +301,7 @@
 
    <complexType name="ValueLiteral">
       <annotation>
-	    <documentation>
+       <documentation>
         Used to convey values in binary predicates.
         </documentation>
       </annotation>
@@ -328,11 +328,11 @@
    <!-- filter terms -->
    <complexType name="PredicateTerm" abstract="true">
       <annotation>
-		    <documentation>
-		    Contains various elements which work as filters for a query.
-		    The elements 'and' and 'or' can contain a nested PredicateTerm for more complex filtering.
-		    </documentation>
-	  </annotation>
+          <documentation>
+          Contains various elements which work as filters for a query.
+          The elements 'and' and 'or' can contain a nested PredicateTerm for more complex filtering.
+          </documentation>
+     </annotation>
       <complexContent>
          <extension base="tns:PredicateBase">
             <sequence>
@@ -387,7 +387,7 @@
 
    <complexType name="AndTerm">
       <annotation>
-	    <documentation>
+       <documentation>
         Identifies an 'and' conjunction for the nested predicate term.
         </documentation>
       </annotation>
@@ -398,7 +398,7 @@
 
    <complexType name="OrTerm">
       <annotation>
-	    <documentation>
+       <documentation>
         Identifies an 'or' conjunction for the nested predicate term.
         </documentation>
       </annotation>
@@ -673,8 +673,8 @@
       <annotation>
         <documentation>
         Restricts the resulting items to the ones related to a specific activity.
- 		The search can be further restricted to certain models by passing in a collection of model oids
- 		and to a process definition scope by using the 'processId' element.
+       The search can be further restricted to certain models by passing in a collection of model oids
+       and to a process definition scope by using the 'processId' element.
         </documentation>
       </annotation>
       <complexContent>
@@ -750,13 +750,13 @@
      </annotation>
      <complexContent>
          <extension base="tns:PredicateBase">
-       		<sequence>
-			<!--   userOID=-1 maps to CURRENT_USER    -->
-    		<element name="userOid" type="long" />
-   	   		</sequence>
-			<!--<attribute name="userOid" type="long" />-->
-   	   	 </extension>
-   	 </complexContent>
+             <sequence>
+         <!--   userOID=-1 maps to CURRENT_USER    -->
+          <element name="userOid" type="long" />
+               </sequence>
+         <!--<attribute name="userOid" type="long" />-->
+             </extension>
+       </complexContent>
    </complexType>
 
    <element name="performingUser" type="tns:PerformingUserFilter" substitutionGroup="tns:filterCriterion" />
@@ -770,13 +770,13 @@
      </annotation>
      <complexContent>
          <extension base="tns:PredicateBase">
-       		<sequence>
-			<!--   userOID=-1 maps to CURRENT_USER    -->
-    		<element name="userOid" type="long"/>
-   	   		</sequence>
-   	   		<!--<attribute name="userOid" type="long" />-->
-   	   	 </extension>
-   	 </complexContent>
+             <sequence>
+         <!--   userOID=-1 maps to CURRENT_USER    -->
+          <element name="userOid" type="long"/>
+               </sequence>
+               <!--<attribute name="userOid" type="long" />-->
+             </extension>
+       </complexContent>
    </complexType>
 
    <element name="performedByUser" type="tns:PerformedByUserFilter" substitutionGroup="tns:filterCriterion" />
@@ -799,17 +799,17 @@
 
           <!-- 5.2.0.35 only UserGroupInfo or ModelParticipantInfo supported-->
           <element name="modelParticipant">
-	         <complexType>
-	          <sequence>
-	    	     <element name="participant" type="bat:ParticipantInfo" />
-	    	  </sequence>
-		      <attribute name="recursively" type="boolean" default="true" />
+            <complexType>
+             <sequence>
+               <element name="participant" type="bat:ParticipantInfo" />
+            </sequence>
+            <attribute name="recursively" type="boolean" default="true" />
              </complexType>
           </element>
-   	    </choice>
-   	   </sequence>
-   	  </extension>
-   	 </complexContent>
+          </choice>
+         </sequence>
+        </extension>
+       </complexContent>
    </complexType>
 
    <element name="performingParticipant" type="tns:PerformingParticipantFilter" substitutionGroup="tns:filterCriterion" />
@@ -824,35 +824,35 @@
       <extension base="tns:PredicateBase">
        <sequence>
          <choice>
-        	<!-- 5.2.0.35 only UserGroupInfo or ModelParticipantInfo supported-->
+           <!-- 5.2.0.35 only UserGroupInfo or ModelParticipantInfo supported-->
             <element name="modelParticipant">
-	    	 <complexType>
-	    	  <sequence>
-	    	     <element name="participant" type="bat:ParticipantInfo" />
-	    	  </sequence>
-		      <attribute name="recursively" type="boolean" default="true" />
+           <complexType>
+            <sequence>
+               <element name="participant" type="bat:ParticipantInfo" />
+            </sequence>
+            <attribute name="recursively" type="boolean" default="true" />
              </complexType>
             </element>
 
             <element name="modelParticipants">
-	    	 <complexType>
-	    	  <sequence>
-	    	   <element name="participants" minOccurs="0">
-	            <complexType>
-	               <sequence>
-	               		<!-- 5.2.0.19 only UserGroupInfo or ModelParticipantInfo supported-->
-	                	<element name="participant" type="bat:ParticipantInfo" minOccurs="0" maxOccurs="unbounded"/>
-	               </sequence>
-	            </complexType>
-	           </element>
-	    	 </sequence>
+           <complexType>
+            <sequence>
+             <element name="participants" minOccurs="0">
+               <complexType>
+                  <sequence>
+                        <!-- 5.2.0.19 only UserGroupInfo or ModelParticipantInfo supported-->
+                      <element name="participant" type="bat:ParticipantInfo" minOccurs="0" maxOccurs="unbounded"/>
+                  </sequence>
+               </complexType>
+              </element>
+           </sequence>
              </complexType>
             </element>
 
-	     </choice>
-   	   </sequence>
-	  </extension>
-	 </complexContent>
+        </choice>
+         </sequence>
+     </extension>
+    </complexContent>
    </complexType>
 
    <element name="performingOnBehalfOf" type="tns:PerformingOnBehalfOfFilter" substitutionGroup="tns:filterCriterion" />
@@ -866,12 +866,12 @@
      </annotation>
      <complexContent>
          <extension base="tns:PredicateBase">
-       		<sequence>
-      			<!--   userOID=-1 maps to CURRENT_USER    -->
-          		<element name="userOid" type="long"/>
-   	   	</sequence>
-   	   </extension>
-   	</complexContent>
+             <sequence>
+               <!--   userOID=-1 maps to CURRENT_USER    -->
+                <element name="userOid" type="long"/>
+            </sequence>
+         </extension>
+      </complexContent>
    </complexType>
 
    <element name="startingUser" type="tns:StartingUserFilter" substitutionGroup="tns:filterCriterion" />
@@ -885,8 +885,8 @@
      <complexContent>
          <extension base="tns:PredicateBase">
             <attribute name="loggedInOnly" type="boolean" default="true" />
-   	   	 </extension>
-   	 </complexContent>
+             </extension>
+       </complexContent>
    </complexType>
 
    <element name="userState" type="tns:UserStateFilter" substitutionGroup="tns:filterCriterion" />
@@ -895,8 +895,8 @@
      <annotation>
         <documentation>
         Filter criterion for restricting results of UserQuery to users having granted
- 		specific roles/organizations or being members of specific user groups.
- 		A usage examples is to retrieve all users being administrators.
+       specific roles/organizations or being members of specific user groups.
+       A usage examples is to retrieve all users being administrators.
         </documentation>
      </annotation>
      <complexContent>
@@ -908,17 +908,17 @@
             <element name="teamLeader" type="bat:RoleInfo" />
 
             <element name="modelParticipant">
-	    	 <complexType>
-	    	  <sequence>
-	    	   <element name="participant" type="bat:ParticipantInfo"/>
-	    	  </sequence>
-		      <attribute name="recursively" type="boolean" default="false" />
+           <complexType>
+            <sequence>
+             <element name="participant" type="bat:ParticipantInfo"/>
+            </sequence>
+            <attribute name="recursively" type="boolean" default="false" />
              </complexType>
             </element>
-	     </choice>
-   	   </sequence>
-	  </extension>
-	 </complexContent>
+        </choice>
+         </sequence>
+     </extension>
+    </complexContent>
    </complexType>
 
    <element name="participantAssociation" type="tns:ParticipantAssociationFilter" substitutionGroup="tns:filterCriterion" />
@@ -949,7 +949,7 @@
    <complexType name="OrderCriteria">
       <annotation>
         <documentation>
-		OrderCriteria are used to sort the result of a query.
+      OrderCriteria are used to sort the result of a query.
         </documentation>
       </annotation>
       <sequence>
@@ -965,8 +965,8 @@
    <complexType name="AttributeOrder">
     <annotation>
         <documentation>
-		Criterion for ordering elements resulting from a query according to a given attribute,
-		either with ascending or descending values.
+      Criterion for ordering elements resulting from a query according to a given attribute,
+      either with ascending or descending values.
         </documentation>
     </annotation>
     <complexContent>
@@ -984,7 +984,7 @@
    <complexType name="DataOrder">
     <annotation>
         <documentation>
-		Criterion for ordering elements resulting from a query according to workflow data,
+      Criterion for ordering elements resulting from a query according to workflow data,
         either with ascending or descending values.
         </documentation>
     </annotation>
@@ -1030,7 +1030,7 @@
             <element name="userDetailsPolicy" type="tns:UserDetailsPolicy" minOccurs="0" />
             <element name="casePolicy" type="tns:CasePolicy" minOccurs="0" />
             <element name="evaluateByWorkitemsPolicy" type="tns:EvaluateByWorkitemsPolicy" />
-			<element name="excludeUserPolicy" type="tns:ExcludeUserPolicy" />
+         <element name="excludeUserPolicy" type="tns:ExcludeUserPolicy" />
          </choice>
       </sequence>
     </complexType>
@@ -1157,15 +1157,15 @@
 
    <element name="processInstanceDetailsLevel" type="tns:ProcessInstanceDetailsLevel" />
 
-	<simpleType name="ProcessInstanceDetailsLevel">
-		<restriction base="string">
-			<enumeration value="Core" />
-			<enumeration value="WithProperties" />
-			<enumeration value="WithResolvedProperties" />
-			<enumeration value="Full" />
-			<enumeration value="Default" />
-		</restriction>
-	</simpleType>
+   <simpleType name="ProcessInstanceDetailsLevel">
+      <restriction base="string">
+         <enumeration value="Core" />
+         <enumeration value="WithProperties" />
+         <enumeration value="WithResolvedProperties" />
+         <enumeration value="Full" />
+         <enumeration value="Default" />
+      </restriction>
+   </simpleType>
 
    <complexType name="HistoricalStatesPolicy">
       <annotation>

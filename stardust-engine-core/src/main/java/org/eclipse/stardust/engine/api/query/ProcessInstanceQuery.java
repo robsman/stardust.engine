@@ -105,7 +105,23 @@ public class ProcessInstanceQuery extends Query
     */
    public static final CustomOrderCriterion USER_LAST_NAME = new CustomOrderCriterion(
          UserBean.class, UserBean.FIELD__LAST_NAME);
-
+   
+   /**
+    * Orders the resulting process instances by their root process definition id.
+    * <br/><br/>
+    * For internal use only!
+    */
+   public static final RootProcessDefinitionDescriptor ROOT_PROC_DEF_ID = new RootProcessDefinitionDescriptor(
+         new Attribute(AuditTrailProcessDefinitionBean.FIELD__ID));
+      
+   /**
+    * Orders the resulting process instances by their root process definition name.
+    * <br/><br/>
+    * For internal use only!
+    */
+   public static final RootProcessDefinitionDescriptor ROOT_PROC_DEF_NAME = new RootProcessDefinitionDescriptor(
+         new Attribute(AuditTrailProcessDefinitionBean.FIELD__NAME));
+           
    protected static final FilterVerifier FILTER_VERIFYER = new FilterScopeVerifier(
          new WhitelistFilterVerifyer(new Class[]
          {

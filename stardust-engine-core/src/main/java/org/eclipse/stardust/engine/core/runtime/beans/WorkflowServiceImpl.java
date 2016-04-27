@@ -1544,13 +1544,13 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                {
                   if(dataMapping.getData() != null)
                   {
-                     ProcessInstanceBean processInstance = ProcessInstanceBean.findByOID(ai.getProcessInstanceOID());                                       
-                     IDataValue cachedDataValue = processInstance.getCachedDataValue(dataMapping.getData().getId());                  
+                     ProcessInstanceBean processInstance = ProcessInstanceBean.findByOID(ai.getProcessInstanceOID());
+                     IDataValue cachedDataValue = processInstance.getCachedDataValue(dataMapping.getData().getId());
                      if(cachedDataValue == null)
                      {
                         cachedDataValue = processInstance.findDataValue(dataMapping.getData());
                      }
-                     
+
                      if(cachedDataValue != null)
                      {
                         inDataValue = cachedDataValue.getSerializedValue();
@@ -1559,7 +1559,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                }
                else
                {
-                  inDataValue = getInDataValue(dataMapping, ai.getProcessInstanceOID());                  
+                  inDataValue = getInDataValue(dataMapping, ai.getProcessInstanceOID());
                }
                dataValues.put(dataMapping.getId(), inDataValue);
             }
@@ -2215,7 +2215,6 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          throws ObjectNotFoundException
    {
       assertNotCaseProcessInstance(processInstance);
-      assertNotHalted(processInstance);
       IActivityInstance result = findNextActivityInstance(processInstance,
             activityInstance, false);
       if (result == null)

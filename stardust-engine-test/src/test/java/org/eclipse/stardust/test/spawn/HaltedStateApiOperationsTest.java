@@ -91,6 +91,16 @@ public class HaltedStateApiOperationsTest
       }
    }
 
+   @Test
+   public void testActivateNext() throws TimeoutException, InterruptedException
+   {
+         WorkflowService wfs = sf.getWorkflowService();
+
+         ActivityInstance ai = getHaltedAi();
+
+         Assert.assertNull(wfs.activateNextActivityInstance(ai.getOID()));
+   }
+
    @Test(expected = IllegalOperationException.class)
    public void testComplete() throws TimeoutException, InterruptedException
    {

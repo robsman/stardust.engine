@@ -29,6 +29,7 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.SpawnOptions.SpawnMode;
+import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.core.runtime.beans.EventDaemon;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
@@ -191,6 +192,25 @@ public class SpawnPeerInsertProcessTest
 
       // check if still aborted.
       assertActivityInstanceExists(pi.getOID(), "InputData1", ActivityInstanceState.ABORTED);
+   }
+
+   @Test(expected=IllegalOperationException.class)
+   public void testInsertOnAbortedProcess() throws TimeoutException, InterruptedException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+
+      ProcessInstance pi = wfs.startProcess("{SpawnProcessModel}InputData1", new StartOptions(null , true));
+      assertThat(pi.getState(), is(ProcessInstanceState.Active));
+
+      wfs.abortProcessInstance(pi.getOID(), AbortScope.RootHierarchy);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Aborted);
+      assertActivityInstanceExists(pi.getOID(), "InputData1", ActivityInstanceState.ABORTED);
+
+      // Spawn process, should throw exception
+      wfs.spawnPeerProcessInstance(pi.getOID(),
+            "{SpawnProcessModel}InputData1",
+            new SpawnOptions(null, SpawnMode.HALT, null, null));
    }
 
    @Test

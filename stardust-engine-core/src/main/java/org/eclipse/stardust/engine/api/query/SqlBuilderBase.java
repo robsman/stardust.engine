@@ -584,7 +584,8 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       int joinCount = context.getPredicateJoins().size() + 1;
 
       final boolean isPiQuery = ProcessInstanceBean.class.equals(context.getType());
-      final boolean isAiQueryOnWorkItem = WorkItemBean.class.equals(context.getType());
+      final boolean isAiQuery = ActivityInstanceBean.class.equals(context.getType());      
+      final boolean isAiQueryOnWorkItem = WorkItemBean.class.equals(context.getType());      
       
       ++appliedRootProcDefFilterJoinCounter;
       if (appliedRootProcDefFilterJoinCounter > 1)
@@ -611,7 +612,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          piJoin = new Join(ProcessInstanceBean.class, "RPIF_PI" + joinCount) //
                .on(frProcessInstance, ProcessInstanceBean.FIELD__OID);
          context.getPredicateJoins().put(piJoinKey, piJoin);
-         if (!isAiQueryOnWorkItem)
+         if (isAiQuery)
          {
             piJoin.andOn(ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID);
          }

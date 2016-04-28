@@ -199,7 +199,8 @@ public class DefaultSecurityProvider
                + format.getNumberFormat());
       }
    }
-
+   
+   /* Not used as long as Xerces is required on ESAPI side
    @Override
    public String getValidSafeHTML(String context, String input, int maxLength,
          boolean allowNull)
@@ -221,6 +222,7 @@ public class DefaultSecurityProvider
       
       return input;
    }
+   */
 
    @Override
    public Double getValidNumber(String context, String input, long minValue,

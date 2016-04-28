@@ -15,6 +15,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import org.eclipse.stardust.test.query.filter.QueryFilterTest;
+import org.eclipse.stardust.test.query.order.QueryOrderTest;
 
 /**
  * <p>
@@ -25,7 +26,8 @@ import org.eclipse.stardust.test.query.filter.QueryFilterTest;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-   QueryFilterTest.class
+   QueryFilterTest.class,
+   QueryOrderTest.class
              })
 public class QueryFilterTestSuite
 {

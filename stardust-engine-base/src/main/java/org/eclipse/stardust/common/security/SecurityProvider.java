@@ -208,25 +208,6 @@ public interface SecurityProvider
 
    /**
     * 
-    * Returns valid safe html. Invalid input will generate a {@link SecurityException}
-    * </br> <b>The processinng of the input depends on the configured security
-    * provider</b>
-    * 
-    * @param context
-    *           - A descriptive name of the parameter that you are validating
-    * @param input
-    *           - The actual user input data to validate
-    * @param maxLength
-    *           - The maximum String length allowed
-    * @param allowNull
-    *           - If allowNull is true then an input that is NULL or an empty string will
-    *           be legal
-    * @return a valid and safe HTML String
-    */
-   String getValidSafeHTML(String context, String input, int maxLength, boolean allowNull);
-
-   /**
-    * 
     * Returns a valid number. Invalid input will generate a {@link SecurityException}
     * 
     * @param context

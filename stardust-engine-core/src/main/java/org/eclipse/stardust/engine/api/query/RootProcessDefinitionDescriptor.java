@@ -22,16 +22,27 @@ public class RootProcessDefinitionDescriptor
    private boolean ascending = false;   
    
    private FilterableAttribute attribute;
-   
+
    public RootProcessDefinitionDescriptor(FilterableAttribute attribute)
    {
       super();
       this.attribute = attribute;
    }
+      
+   public RootProcessDefinitionDescriptor(FilterableAttribute attribute, boolean ascending)
+   {
+      super();
+      this.ascending = ascending;
+      this.attribute = attribute;
+   }
    
    public RootProcessDefinitionDescriptor ascendig(boolean ascending)
    {
-      this.ascending = ascending;
+      if (ascending != this.isAscending())
+      {
+         return new RootProcessDefinitionDescriptor(attribute, ascending);
+      }
+      
       return this;
    }
    

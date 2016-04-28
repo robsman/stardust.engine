@@ -21,7 +21,7 @@ interface IRootProcessDefinitionDescriptor
    /**
     * Set ascending filtering.
     */
-   IRootProcessDefinitionDescriptor ascendig(boolean ascending);
+   public IRootProcessDefinitionDescriptor ascendig(boolean ascending);
    
    /**
     * Is ascending filtering.

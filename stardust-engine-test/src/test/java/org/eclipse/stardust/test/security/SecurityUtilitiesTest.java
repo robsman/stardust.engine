@@ -122,10 +122,6 @@ public class SecurityUtilitiesTest
       Double validNumber = provider.getValidNumber("A_Number", "48.5", 0, 100, false);
       assertTrue(validNumber == 48.5);
 
-      String validHtml = provider.getValidSafeHTML("A_Html",
-            "<a href=\"foo.cgi?chapter=1&section=2&copy=3&lang=en\">Link</a>", 500, false);
-      assertNotNull(validHtml);
-
       List<String> extensions = CollectionUtils.newList();
       extensions.add("txt");
       extensions.add("log");

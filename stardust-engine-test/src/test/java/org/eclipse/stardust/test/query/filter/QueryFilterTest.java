@@ -170,5 +170,12 @@ public class QueryFilterTest
          .or(new RootProcessInstanceFilter(null, "Sub"));
       allProcessInstances = adminSf.getQueryService().getAllProcessInstances(piQuery);
       assertThat(allProcessInstances.size(), is(2));                        
+      
+      piQuery = ProcessInstanceQuery.findAll();      
+      piQuery.getFilter().addAndTerm()
+         .and(new RootProcessInstanceFilter(null, "Process"))
+         .and(new RootProcessInstanceFilter(null, "ABC"));
+      allProcessInstances = adminSf.getQueryService().getAllProcessInstances(piQuery);
+      assertThat(allProcessInstances.size(), is(0));                              
   }    
 }

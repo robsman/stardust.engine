@@ -278,10 +278,12 @@ public final class GenericQueryEvaluator implements FilterEvaluationVisitor
 
       return resultTerm;
    }
-
+   
    private FieldRef processAttributeJoinDescriptor(IAttributeJoinDescriptor joinDescriptor,
          Map joinCollector)
    {
+      System.err.println("generic query");
+      
       final Class joinRhsType = joinDescriptor.getJoinRhsType();
 
       Join join = (Join) joinCollector.get(joinRhsType);

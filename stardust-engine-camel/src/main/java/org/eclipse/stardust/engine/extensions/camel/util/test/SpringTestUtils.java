@@ -491,6 +491,7 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
    public void setModelFilename(String... filenames)
    {
       this.modelFilenames = filenames;
+      this.modelFiles = null;
    }
 
    public void setModelFile(Resource... modelFiles)

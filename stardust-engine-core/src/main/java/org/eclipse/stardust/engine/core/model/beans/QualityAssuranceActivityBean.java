@@ -224,11 +224,6 @@ public class QualityAssuranceActivityBean implements IActivity
       return delegate.getQualityAssuranceCodes();
    }
 
-   public void setElementOID(int elementOID)
-   {
-      delegate.setElementOID(elementOID);
-   }
-
    public IEventHandler findHandlerById(String id)
    {
       return delegate.findHandlerById(id);
@@ -568,5 +563,11 @@ public class QualityAssuranceActivityBean implements IActivity
    public void setLoopCharacteristics(ILoopCharacteristics loopCharacteristics)
    {
       delegate.setLoopCharacteristics(loopCharacteristics);
+   }
+   
+   @Override
+   public String getQualifiedId()
+   {
+      return delegate.getQualifiedId();
    }
 }

@@ -43,8 +43,6 @@ public interface ModelElement extends Serializable, AttributeHolder, RuntimeAttr
     */
    public long getOID();
 
-   void setElementOID(int elementOID);
-
    boolean isTransient();
 
    boolean isPredefined();

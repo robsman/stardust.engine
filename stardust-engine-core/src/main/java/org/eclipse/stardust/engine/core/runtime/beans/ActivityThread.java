@@ -294,7 +294,7 @@ public class ActivityThread implements Runnable
                   .raise(activityInstance.getOID(), processInstance.getOID());
          }
          ProcessHaltJanitor.scheduleJanitor(
-               new HaltJanitorCarrier(this.processInstance.getOID(), oid));
+               new HaltJanitorCarrier(this.processInstance.getOID(), oid), false);
          throw new IllegalOperationException(error);
       }
 

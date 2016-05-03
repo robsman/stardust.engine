@@ -67,7 +67,9 @@ public class ExcludeUserAction implements EventActionInstance
                      {
                         throw new AccessForbiddenException(
                               BpmRuntimeError.BPMRT_USER_IS_EXLUDED_TO_PERFORM_AI.raise(
-                                    currentUserPerformer.getOID(), ai.getOID()));
+                                    currentUserPerformer.getId(),
+                                    currentUserPerformer.getOID(),
+                                    ai.getActivity().getId(), ai.getOID()));
                      }
                   }
                   else if (dataValue instanceof Long)
@@ -76,7 +78,9 @@ public class ExcludeUserAction implements EventActionInstance
                      {
                         throw new AccessForbiddenException(
                               BpmRuntimeError.BPMRT_USER_IS_EXLUDED_TO_PERFORM_AI.raise(
-                                    currentUserPerformer.getOID(), ai.getOID()));
+                                    currentUserPerformer.getId(),
+                                    currentUserPerformer.getOID(),
+                                    ai.getActivity().getId(), ai.getOID()));
                      }
                   }
                }

@@ -1,183 +1,184 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-    Copyright (c) 2011, 2013 SunGard CSA LLC and others.
-    All rights reserved. This program and the accompanying materials
-    are made available under the terms of the Eclipse Public License v1.0
-    which accompanies this distribution, and is available at
-    http://www.eclipse.org/legal/epl-v10.html
+<!-- Copyright (c) 2011, 2013 SunGard CSA LLC and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	SunGard CSA LLC - initial API and implementation and/or initial documentation -->
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
 
-    Contributors:
-       SunGard CSA LLC - initial API and implementation and/or initial documentation
- -->
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-   <modelVersion>4.0.0</modelVersion>
+	<groupId>org.eclipse.stardust.engine</groupId>
+	<artifactId>carnot-base</artifactId>
+	<packaging>jar</packaging>
 
-   <groupId>org.eclipse.stardust.engine</groupId>
-   <artifactId>carnot-base</artifactId>
-   <packaging>jar</packaging>
+	<name>Base Packages</name>
 
-   <name>Base Packages</name>
+	<parent>
+		<groupId>org.eclipse.stardust</groupId>
+		<artifactId>product-parent</artifactId>
+		<version>9.9.9-SNAPSHOT</version>
+		<relativePath>../../product/product-parent/pom.xml</relativePath>
+	</parent>
 
-   <parent>
-      <groupId>org.eclipse.stardust</groupId>
-      <artifactId>product-parent</artifactId>
-      <version>9.9.9-SNAPSHOT</version>
-      <relativePath>../../product/product-parent/pom.xml</relativePath>
-   </parent>
+	<properties>
+		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+		<build.timestamp>${maven.build.timestamp}</build.timestamp>
+	</properties>
 
-   <properties>
-      <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-      <build.timestamp>${maven.build.timestamp}</build.timestamp>
-   </properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.eclipse.stardust.engine</groupId>
+			<artifactId>logging-log4j-module</artifactId>
+			<version>${project.version}</version>
+			<type>pom</type>
+			<scope>compile</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.geronimo.specs</groupId>
+			<artifactId>geronimo-jms_1.1_spec</artifactId>
+			<scope>compile</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-jxpath</groupId>
+			<artifactId>commons-jxpath</artifactId>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xerces</groupId>
+					<artifactId>xercesImpl</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>jdom</groupId>
+					<artifactId>jdom</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>servlet-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>jsp-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-beanutils</groupId>
+					<artifactId>commons-beanutils</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>junit</groupId>
+					<artifactId>junit</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.mockrunner</groupId>
+					<artifactId>mockrunner-jdk1.3-j2ee1.3</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.stardust.engine</groupId>
+			<artifactId>mockito-module</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+			<type>pom</type>
+		</dependency>
+	</dependencies>
 
-   <dependencies>
-      <dependency>
-         <groupId>org.eclipse.stardust.engine</groupId>
-         <artifactId>logging-log4j-module</artifactId>
-         <version>${project.version}</version>
-         <type>pom</type>
-         <scope>compile</scope>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>commons-collections</groupId>
-         <artifactId>commons-collections</artifactId>
-         <scope>compile</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.geronimo.specs</groupId>
-         <artifactId>geronimo-jms_1.1_spec</artifactId>
-         <scope>compile</scope>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>commons-jxpath</groupId>
-         <artifactId>commons-jxpath</artifactId>
-         <scope>compile</scope>
-         <exclusions>
-            <exclusion>
-               <groupId>xml-apis</groupId>
-               <artifactId>xml-apis</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>xerces</groupId>
-               <artifactId>xercesImpl</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>jdom</groupId>
-               <artifactId>jdom</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>javax.servlet</groupId>
-               <artifactId>servlet-api</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>javax.servlet</groupId>
-               <artifactId>jsp-api</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>commons-beanutils</groupId>
-               <artifactId>commons-beanutils</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>junit</groupId>
-               <artifactId>junit</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>com.mockrunner</groupId>
-               <artifactId>mockrunner-jdk1.3-j2ee1.3</artifactId>
-            </exclusion>
-         </exclusions>
-      </dependency>
-      <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.eclipse.stardust.engine</groupId>
-         <artifactId>mockito-module</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-         <type>pom</type>
-      </dependency>
-   </dependencies>
-   
-   <build>
-      <resources>
-         <resource>
-            <directory>src/main/resources</directory>
-            <filtering>true</filtering>
-            <includes>
-               <include>org/eclipse/stardust/**/*.properties</include>
-            </includes>
-         </resource>
-         <resource>
-            <directory>src/main/resources</directory>
-            <filtering>false</filtering>
-            <excludes>
-               <exclude>org/eclipse/stardust/**/*.properties</exclude>
-            </excludes>
-         </resource>
-      </resources>
-      <plugins>
-         <plugin>
-            <artifactId>maven-source-plugin</artifactId>
-            <configuration>
-               <includes>
-                  <include>**/*.java</include>
-               </includes>
-               <excludeResources>true</excludeResources>
-            </configuration>
-         </plugin>
-         <plugin>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-               <sourcepath>
-                  ${basedir}/src/main/java/org/eclipse/stardust/common
-               </sourcepath>
-               <sourceFileIncludes>
-                  <include>DateUtils.java</include>
-                  <include>Direction.java</include>
-                  <include>Flushable.java</include>
-                  <include>IntKey.java</include>
-                  <!-- todo: rework that class before including again to javadoc -->
-                  <!--<include>base/Money.java"/ -->
-                  <include>Pair.java</include>
-                  <include>Period.java</include>
-                  <include>StringKey.java</include>
-                  <!-- to be clarified: <include>log/Category.java</include> -->
-                  <include>config/GlobalParametersProviderFactory.java</include>
-                  <include>config/PropertyProvider.java</include>
-                  <include>log/LogManager.java</include>
-                  <include>log/Logger.java</include>
-                  <include>error/AccessForbiddenException.java</include>
-                  <include>error/ApplicationException.java</include>
-                  <include>error/ConcurrencyException.java</include>
-                  <include>error/ErrorCase.java</include>
-                  <include>error/ExpectedFailureException.java</include>
-                  <include>error/InternalException.java</include>
-                  <include>error/InvalidArgumentException.java</include>
-                  <include>error/InvalidValueException.java</include>
-                  <include>error/LoginFailedException.java</include>
-                  <include>error/ObjectNotFoundException.java</include>
-                  <include>error/PublicException.java</include>
-                  <include>error/ServiceCommandException.java</include>
-                  <include>error/ValidationException.java</include>
-                  <include>error/WorkflowException.java</include>
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>org/eclipse/stardust/**/*.properties</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>org/eclipse/stardust/**/*.properties</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/*.java</include>
+					</includes>
+					<excludeResources>true</excludeResources>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<sourcepath>
+						${basedir}/src/main/java/org/eclipse/stardust/common
+					</sourcepath>
+					<sourceFileIncludes>
+						<include>DateUtils.java</include>
+						<include>Direction.java</include>
+						<include>Flushable.java</include>
+						<include>IntKey.java</include>
+						<!-- todo: rework that class before including again to javadoc -->
+						<!--<include>base/Money.java"/ -->
+						<include>Pair.java</include>
+						<include>Period.java</include>
+						<include>StringKey.java</include>
+						<!-- to be clarified: <include>log/Category.java</include> -->
+						<include>config/GlobalParametersProviderFactory.java</include>
+						<include>config/PropertyProvider.java</include>
+						<include>log/LogManager.java</include>
+						<include>log/Logger.java</include>
+						<include>error/AccessForbiddenException.java</include>
+						<include>error/ApplicationException.java</include>
+						<include>error/ConcurrencyException.java</include>
+						<include>error/ErrorCase.java</include>
+						<include>error/ExpectedFailureException.java</include>
+						<include>error/InternalException.java</include>
+						<include>error/InvalidArgumentException.java</include>
+						<include>error/InvalidValueException.java</include>
+						<include>error/LoginFailedException.java</include>
+						<include>error/ObjectNotFoundException.java</include>
+						<include>error/PublicException.java</include>
+						<include>error/ServiceCommandException.java</include>
+						<include>error/ValidationException.java</include>
+						<include>error/WorkflowException.java</include>
 
-                  <include>config/Parameters.java</include>
+						<include>config/Parameters.java</include>
 
-                  <include>security/InvalidPasswordException.java</include>
-                  <include>security/authentication/DefaultCallbackHandler.java</include>
-                  <include>security/authentication/LoginFailedException.java</include>
-               </sourceFileIncludes>
-            </configuration>
-         </plugin>
-         <plugin>
-            <artifactId>maven-surefire-plugin</artifactId>
-         </plugin>
-      </plugins>
-   </build>
+						<include>security/InvalidPasswordException.java</include>
+						<include>security/authentication/DefaultCallbackHandler.java</include>
+						<include>security/authentication/LoginFailedException.java</include>
+					</sourceFileIncludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 </project>

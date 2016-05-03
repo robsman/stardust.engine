@@ -411,8 +411,18 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
                .getDocumentManagementService();
 
          Folder folder = null;
+
+         Model model = null;
+         
+         // if folderMetaDataType is set, a model is required, otherwise it can be null
+         if (folderMetaDataType != null || documentMetaDataType != null)
+         {
+            // TODO make Surge safe
+            model = wsEnv.getActiveModel();
+         }
+         
          folder = dms.getFolder(folderId, umarshalFolderLOD(folderLOD));
-         return (null != folder) ? toWs(folder, wsEnv.getActiveModel(),
+         return (null != folder) ? toWs(folder, model,
                documentMetaDataType, folderMetaDataType) : null;
       }
       catch (ApplicationException e)
@@ -432,6 +442,15 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
          DocumentManagementService dms = wsEnv.getServiceFactory()
                .getDocumentManagementService();
 
+         Model model = null;
+         
+         // if folderMetaDataType is set, a model is required, otherwise it can be null
+         if (folderMetaDataType != null || documentMetaDataType != null)
+         {
+            // TODO make Surge safe
+            model = wsEnv.getActiveModel();
+         }         
+         
          if (folderIds != null)
          {
             List<Folder> folders = dms.getFolders(folderIds.getFolderId(),
@@ -439,7 +458,7 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
 
             if (folders != null && !folders.isEmpty())
             {
-               return toWs(folders, wsEnv.getActiveModel(), documentMetaDataType,
+               return toWs(folders, model, documentMetaDataType,
                      folderMetaDataType);
             }
          }
@@ -460,6 +479,17 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
                .getDocumentManagementService();
          if (null != folderQuery)
          {
+            Model model = null;
+            
+            // if folderMetaDataType is set, a model is required, otherwise it can be null
+            if (folderQuery.getFolderMetaDataType() != null
+                  || folderQuery.getDocumentMetaDataType() != null)
+            {
+               // TODO make Surge safe
+               model = wsEnv.getActiveModel();
+            }
+            
+            
             List<Folder> folders = null;
             if ( !StringUtils.isEmpty(folderQuery.getNamePattern()))
             {
@@ -473,7 +503,7 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
             }
             if (folders != null && !folders.isEmpty())
             {
-               return toWs(folders, wsEnv.getActiveModel(),
+               return toWs(folders, model,
                      folderQuery.getDocumentMetaDataType(),
                      folderQuery.getFolderMetaDataType());
             }
@@ -497,7 +527,7 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
          Folder folder = null;
          folder = dms.createFolder(parentFolderId, unmarshalFolderInfo(folderInfo));
 
-         return toWs(folder, wsEnv.getActiveModel(), (QName) null, (QName) null);
+         return toWs(folder, null, (QName) null, (QName) null);
       }
       catch (ApplicationException e)
       {
@@ -514,7 +544,15 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
          DocumentManagementService dms = wsEnv.getServiceFactory()
                .getDocumentManagementService();
          Folder folder = null;
-         Model model = wsEnv.getActiveModel();
+         Model model = null;
+         
+         // if folderMetaDataType is set, a model is required, otherwise it can be null
+         if (updateFolder.getMetaDataType() != null)
+         {
+            // TODO make Surge safe
+            model = wsEnv.getActiveModel();
+         }
+         
          folder = dms.updateFolder(unmarshalFolder(updateFolder, model, wsEnv));
 
          return toWs(folder, model, null, updateFolder.getMetaDataType());

@@ -32,7 +32,8 @@ import org.junit.runners.Suite.SuiteClasses;
                RollbackOnErrorTest.class,
                TransientUsersWorkflowTest.class,
                AbortActivityTest.class,
-               ResubmissionTest.class
+               ResubmissionTest.class,
+               CreateMultiThreadedDescriptorDataValueTest.class
              })
 public class BasicWorkflowTestSuite
 {

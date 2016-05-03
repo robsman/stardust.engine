@@ -1,12 +1,18 @@
 package org.eclipse.stardust.engine.extensions.camel.core;
 
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.PRODUCER_ROUTE_ATT;
+
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IApplication;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 import org.eclipse.stardust.engine.extensions.camel.Util;
 
 public abstract class ProducerRouteContext extends ApplicationRouteContext
 {
+   public static final Logger logger = LogManager.getLogger(ProducerRouteContext.class);
+   
    public ProducerRouteContext(IApplication application, String partitionId,
          String camelContextId)
    {
@@ -15,8 +21,21 @@ public abstract class ProducerRouteContext extends ApplicationRouteContext
       this.camelContextId = camelContextId;
    }
 
-   public abstract String getUserProvidedRouteConfiguration();
+   public String getUserProvidedRouteConfiguration(){
+         String providedRoute = Util.getProducerRouteConfiguration(this.application);
+         if (StringUtils.isEmpty(providedRoute))
+         {
+            logger.debug("The extended attribute " + PRODUCER_ROUTE_ATT
+                  + " is not found. The new route generation strategy will be used.");
+            return generateRoute(this.application);
+         }
+         logger.debug("The extended attribute " + PRODUCER_ROUTE_ATT
+               + " is found. The route generation strategy will not be used. ");
+         return providedRoute;
+   }
 
+   protected abstract String generateRoute(IApplication application);
+   
    public String getRouteId()
    {
       return Util.getRouteId(partitionId, getModelId(), null, getId(), true);

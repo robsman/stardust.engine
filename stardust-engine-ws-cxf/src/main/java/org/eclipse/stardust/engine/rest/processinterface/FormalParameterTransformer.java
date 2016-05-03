@@ -27,6 +27,7 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 
 import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.utils.xml.SecureEntityResolver;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.core.interactions.ModelResolver;
@@ -154,6 +155,7 @@ public class FormalParameterTransformer
    private Document createParametersDocument(final InputStream in)
    {
       final DocumentBuilder builder = XmlUtils.newDomBuilder();
+      builder.setEntityResolver(SecureEntityResolver.INSTANCE);
 
       final Document doc;
       try

@@ -2,11 +2,13 @@ package org.eclipse.stardust.test.bo;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.engine.api.dto.DataDetails;
 import org.eclipse.stardust.engine.api.model.DataPath;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.query.ProcessDefinitionQuery;
@@ -17,6 +19,7 @@ import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -64,6 +67,26 @@ public class BusinessObjectsModelExtenderTest
       this.processData.put("BOStructured", businessObject);
    }
 
+   @Test
+   public void testDescriptorPresence()
+   {
+      
+      
+      ProcessDefinitions definitions = serviceFactory.getQueryService().getProcessDefinitions(ProcessDefinitionQuery.findAll());
+      
+      for (ProcessDefinition pd : definitions)
+      {
+         List<DataPath> paths = pd.getAllDataPaths();
+         
+         System.out.println("--> Data Paths for definition " + pd.getId());
+         
+         for (DataPath path : paths)
+         {
+            assertTrue(path.isDescriptor());
+         }
+      }
+   }
+   
    @Test
    public void testExtendDescriptors()
    {

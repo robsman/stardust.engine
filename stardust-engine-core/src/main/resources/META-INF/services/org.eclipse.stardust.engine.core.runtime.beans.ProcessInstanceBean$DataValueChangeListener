@@ -1,1 +1,2 @@
 org.eclipse.stardust.engine.core.runtime.audittrail.management.BusinessObjectUtils$BusinessObjectsListener
+org.eclipse.stardust.engine.core.runtime.beans.DataValueHistoryListener

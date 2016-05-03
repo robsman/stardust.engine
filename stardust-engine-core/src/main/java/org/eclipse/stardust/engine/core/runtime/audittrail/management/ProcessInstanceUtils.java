@@ -399,8 +399,16 @@ public class ProcessInstanceUtils
                List haltingOids = new ArrayList();
                for (Iterator iter = rootPi.getHaltingPiOids().iterator(); iter.hasNext();)
                {
-                  Attribute attribute = (Attribute) iter.next();
-                  haltingOids.add(attribute.getValue());
+                  Object next = iter.next();
+                  if (next instanceof Long)
+                  {
+                     haltingOids.add(next);
+                  }
+                  else
+                  {
+                     Attribute attribute = (Attribute) iter.next();
+                     haltingOids.add(attribute.getValue());
+                  }
                }
 
                IProcessInstance currentPi = processInstance;

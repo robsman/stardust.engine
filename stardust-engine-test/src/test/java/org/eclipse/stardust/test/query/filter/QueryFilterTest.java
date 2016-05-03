@@ -1,13 +1,14 @@
-/**********************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    SunGard CSA LLC - initial API and implementation and/or initial documentation
- **********************************************************************************/
+/*******************************************************************************
+* Copyright (c) 2016 SunGard CSA LLC and others.
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*    Barry.Grotjahn (SunGard CSA LLC) - initial API and implementation and/or initial documentation
+*******************************************************************************/
+
 package org.eclipse.stardust.test.query.filter;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
@@ -115,5 +116,66 @@ public class QueryFilterTest
       aiQuery.where(new RootProcessInstanceFilter(null, "Process"));
       allActivityInstances = adminSf.getQueryService().getAllActivityInstances(aiQuery);
       assertThat(allActivityInstances.size(), is(2));            
-   }   
+   } 
+   
+   @Test
+   public void testProcessInstanceQueryRootProcessInstanceFilter()
+   {
+      ProcessInstance startProcess = adminSf.getWorkflowService().startProcess("ProcessDefinition2", null, true);    
+      
+      startProcess = adminSf.getWorkflowService().startProcess("Process1", null, true);    
+      ActivityInstance activateNextActivityInstanceForProcessInstance = adminSf.getWorkflowService().activateNextActivityInstanceForProcessInstance(startProcess.getOID());
+      adminSf.getWorkflowService().complete(activateNextActivityInstanceForProcessInstance.getOID(), null, null);
+      adminSf.getWorkflowService().activateNextActivityInstanceForProcessInstance(startProcess.getOID());
+      
+      ProcessInstanceQuery piQuery = ProcessInstanceQuery.findAll();      
+      piQuery.where(new RootProcessInstanceFilter(null, null));      
+      ProcessInstances allProcessInstances = adminSf.getQueryService().getAllProcessInstances(piQuery);
+      assertThat(allProcessInstances.size(), is(3));            
+      
+      piQuery = ProcessInstanceQuery.findAll();      
+      piQuery.where(new RootProcessInstanceFilter("{QueryFilterModel}Process1", "Process"));
+      allProcessInstances = adminSf.getQueryService().getAllProcessInstances(piQuery);
+      assertThat(allProcessInstances.size(), is(2));            
+      
+      piQuery = ProcessInstanceQuery.findAll();      
+      piQuery.where(new RootProcessInstanceFilter("{QueryFilterModel}Process1", null));      
+      allProcessInstances = adminSf.getQueryService().getAllProcessInstances(piQuery);
+      assertThat(allProcessInstances.size(), is(2));            
+
+      piQuery = ProcessInstanceQuery.findAll();      
+      piQuery.where(new RootProcessInstanceFilter(null, "Sub"));      
+      allProcessInstances = adminSf.getQueryService().getAllProcessInstances(piQuery);
+      assertThat(allProcessInstances.size(), is(0));            
+            
+      piQuery = ProcessInstanceQuery.findAll();      
+      piQuery.where(new RootProcessInstanceFilter(null, "Process"));
+      allProcessInstances = adminSf.getQueryService().getAllProcessInstances(piQuery);
+      assertThat(allProcessInstances.size(), is(2));                  
+            
+      // and + or
+      piQuery = ProcessInstanceQuery.findAll();      
+      piQuery.where(new RootProcessInstanceFilter(null, "Process")).and(new RootProcessInstanceFilter("{QueryFilterModel}Process1", null));
+      allProcessInstances = adminSf.getQueryService().getAllProcessInstances(piQuery);
+      assertThat(allProcessInstances.size(), is(2));                  
+      
+      piQuery = ProcessInstanceQuery.findAll();      
+      piQuery.where(new RootProcessInstanceFilter(null, "Process")).and(new RootProcessInstanceFilter(null, "Sub"));
+      allProcessInstances = adminSf.getQueryService().getAllProcessInstances(piQuery);
+      assertThat(allProcessInstances.size(), is(0));                  
+      
+      piQuery = ProcessInstanceQuery.findAll();      
+      piQuery.getFilter().addOrTerm()
+         .or(new RootProcessInstanceFilter(null, "Process"))
+         .or(new RootProcessInstanceFilter(null, "Sub"));
+      allProcessInstances = adminSf.getQueryService().getAllProcessInstances(piQuery);
+      assertThat(allProcessInstances.size(), is(2));                        
+      
+      piQuery = ProcessInstanceQuery.findAll();      
+      piQuery.getFilter().addAndTerm()
+         .and(new RootProcessInstanceFilter(null, "Process"))
+         .and(new RootProcessInstanceFilter(null, "ABC"));
+      allProcessInstances = adminSf.getQueryService().getAllProcessInstances(piQuery);
+      assertThat(allProcessInstances.size(), is(0));                              
+  }    
 }

@@ -43,7 +43,8 @@ public final class PredefinedConstants
    public static final String SYNCHRONOUS_APPLICATION_RETRY_ENABLE = "synchronous:retry:enable";
    public static final String SYNCHRONOUS_APPLICATION_RETRY_NUMBER = "synchronous:retry:number";
    public static final String SYNCHRONOUS_APPLICATION_RETRY_TIME = "synchronous:retry:time";
-
+   public static final String SYNCHRONOUS_APPLICATION_RETRY_RESPONSIBILITY = "synchronous:retry:responsibility";
+   
    // predefined invocation types for process interface usage
    public static final String PROCESSINTERFACE_INVOCATION_SOAP = "SOAP";
    public static final String PROCESSINTERFACE_INVOCATION_REST = "REST";
@@ -617,7 +618,10 @@ public final class PredefinedConstants
 
    // volatile data attribute
    public static final String VOLATILE_DATA = ENGINE_SCOPE + "volatile";
-
+   
+   // values for data mapping must be not null
+   public static final String MANDATORY_DATA_MAPPING = ENGINE_SCOPE + "mandatoryDataMapping";
+   
    private PredefinedConstants() {
       //disallow instance creation
    }

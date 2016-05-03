@@ -147,4 +147,8 @@ public class DocumentXPathQueryOrderEvaluator implements OrderEvaluationVisitor
       return NS_PREFIX_VFS + ":" + string;
    }
 
+   public Object visit(RootProcessDefinitionDescriptor rootProcessDefinitionDescriptor, Object context)
+   {
+      throw new UnsupportedOperationException();
+   }
 }

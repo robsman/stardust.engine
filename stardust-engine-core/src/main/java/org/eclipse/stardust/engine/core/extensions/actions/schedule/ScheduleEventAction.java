@@ -48,7 +48,7 @@ public class ScheduleEventAction implements EventActionInstance
          IActivityInstance ai = (IActivityInstance) EventUtils
                .getEventSourceInstance(event);
 
-         if ((null != ai) && !ai.isTerminated() && !ai.isAborting())
+         if ((null != ai) && !ai.isTerminated() && !ai.isAborting() && !ai.isHalted() && !ai.isHalting())
          {
             Object targetState = attributes.get(PredefinedConstants.TARGET_STATE_ATT);
             if (ActivityInstanceState.Suspended.equals(targetState))
@@ -88,10 +88,13 @@ public class ScheduleEventAction implements EventActionInstance
             {
                trace.info("Skipping schedule action for terminated activity " + ai);
             }
-            else
+            else if (ai.isAborting())
             {
                trace.info("Skipping schedule action for an aborting activity " + ai);
-               
+            }
+            else
+            {
+               trace.info("Skipping schedule action for halting/halted activity " + ai);
             }
          }
       }

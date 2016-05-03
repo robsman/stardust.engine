@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.audittrail.management;
 
+import static org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils.closeResultSet;
+
 import java.io.Serializable;
 import java.sql.Clob;
 import java.sql.ResultSet;
@@ -91,9 +93,10 @@ public class BusinessObjectUtils
 
       final boolean withDescription = policy == null ? false : policy.hasOption(BusinessObjectQuery.Option.WITH_DESCRIPTION);
       final boolean withValues = policy == null ? false : policy.hasOption(BusinessObjectQuery.Option.WITH_VALUES);
+      final boolean upgrade = policy == null ? false : policy.hasOption(BusinessObjectQuery.Option.UPGRADE);
 
       BusinessObjectQueryPredicate queryEvaluator = new BusinessObjectQueryPredicate(query);
-      Set<IData> allData = collectData(modelManager, queryEvaluator);
+      List<IData> allData = collectData(modelManager, queryEvaluator);
       if (allData.isEmpty())
       {
          return new BusinessObjects(query, Collections.<BusinessObject>emptyList());
@@ -105,16 +108,30 @@ public class BusinessObjectUtils
       }
 
       final Map<IData, List<BusinessObject.Value>> values = withValues
-            ? fetchValues(allData, queryEvaluator.getPkValue(), query.getFilter(), query) : null;
+            ? fetchValues(allData, queryEvaluator.getPkValue(), query, upgrade) : null;
       if (values != null)
       {
-         allData = values.keySet();
+         allData.retainAll(values.keySet());
       }
 
       Functor<IData, BusinessObject> transformer = new Functor<IData, BusinessObject>()
       {
          public BusinessObject execute(IData source)
          {
+            List<Value> boValues = values == null ? null : values.get(source);
+            if (upgrade)
+            {
+               IModel model = (IModel) source.getModel();
+               IModel activeModel = modelManager.findActiveModel(model.getId());
+               if (activeModel != model)
+               {
+                  IData target = activeModel.findData(source.getId());
+                  if (hasBusinessObject(target))
+                  {
+                     source = target;
+                  }
+               }
+            }
             List<Definition> items = null;
             if (withDescription)
             {
@@ -126,8 +143,7 @@ public class BusinessObjectUtils
                items = bo.getItems();
             }
             return new BusinessObjectDetails(source.getModel().getModelOID(), source.getModel().getId(),
-                  source.getId(), source.getName(), items,
-                  values == null ? null : values.get(source));
+                  source.getId(), source.getName(), items, boValues);
          }
       };
 
@@ -135,7 +151,7 @@ public class BusinessObjectUtils
             new TransformingIterator<IData, BusinessObject>(allData.iterator(), transformer)));
    }
 
-   public static boolean isUniqueBusinessObject(Set<IData> allData)
+   public static boolean isUniqueBusinessObject(List<IData> allData)
    {
       String modelId = null;
       String dataId = null;
@@ -157,12 +173,13 @@ public class BusinessObjectUtils
       return true;
    }
 
-   public static Set<IData> collectData(final ModelManager modelManager, BusinessObjectQueryPredicate queryEvaluator)
+   public static List<IData> collectData(final ModelManager modelManager, BusinessObjectQueryPredicate queryEvaluator)
    {
       BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
       Authorization2Predicate auth = runtimeEnvironment == null ? null : runtimeEnvironment.getAuthorizationPredicate();
 
       Set<IData> allData = CollectionUtils.newSet();
+      List<IData> result = CollectionUtils.newList();
 
       Long modelOID = queryEvaluator.getModelOid();
       if (modelOID == null)
@@ -174,7 +191,7 @@ public class BusinessObjectUtils
          IModel model = modelManager.findModel(modelOID);
          if (model != null)
          {
-            addModelData(allData, model, queryEvaluator, auth);
+            addModelData(allData, result, model, queryEvaluator, auth);
          }
       }
       else
@@ -195,17 +212,17 @@ public class BusinessObjectUtils
          }
          for (Iterator<IModel> models = allModels; models.hasNext();)
          {
-            addModelData(allData, models.next(), queryEvaluator, auth);
-            if (modelOID == PredefinedConstants.ANY_MODEL && !allData.isEmpty())
+            addModelData(allData, result, models.next(), queryEvaluator, auth);
+            /*if (modelOID == PredefinedConstants.ANY_MODEL && !allData.isEmpty())
             {
                break;
-            }
+            }*/
          }
       }
-      return allData;
+      return result;
    }
 
-   private static void addModelData(Set<IData> allData, IModel model, BusinessObjectQueryPredicate queryEvaluator, Authorization2Predicate auth)
+   private static void addModelData(Set<IData> allData, List<IData> result, IModel model, BusinessObjectQueryPredicate queryEvaluator, Authorization2Predicate auth)
    {
       if (!PredefinedConstants.PREDEFINED_MODEL_ID.equals(model.getId()))
       {
@@ -216,14 +233,18 @@ public class BusinessObjectUtils
                   && (auth == null || auth.accept(item) || BusinessObjectSecurityUtils
                         .isUnscopedPropagatedAccessAllowed(item, auth)))
             {
-               allData.add(item);
+               if (allData.add(item))
+               {
+                  result.add(item);
+               }
             }
          }
       }
    }
 
-   private static Map<IData, List<Value>> fetchValues(Set<IData> allData, Object pkValue, FilterAndTerm term, Query query)
+   private static Map<IData, List<Value>> fetchValues(List<IData> allData, Object pkValue, Query query, boolean upgrade)
    {
+      FilterAndTerm term = query.getFilter();
       Map<IData, List<BusinessObject.Value>> values = CollectionUtils.newMap();
       for (IData data : allData)
       {
@@ -240,7 +261,7 @@ public class BusinessObjectUtils
          PredicateTerm parsedTerm = filter(parsedQuery.getPredicateTerm());
 
          QueryDescriptor queryDescriptor = createFetchQuery(data, pkValue, predicateJoins, parsedTerm);
-         fetchValues(values, data, queryDescriptor, query);
+         fetchValues(values, data, queryDescriptor, query, upgrade);
       }
       return values;
    }
@@ -291,11 +312,31 @@ public class BusinessObjectUtils
    }
 
    protected static int fetchValues(Map<IData, List<BusinessObject.Value>> values,
-         IData data, QueryDescriptor queryDescriptor, Query query)
+         IData data, QueryDescriptor queryDescriptor, Query query, boolean upgrade)
    {
+      TypedXPath srcPath = null;
+      TypedXPath tgtPath = null;
+
+      if (upgrade)
+      {
+         upgrade = false;
+         final ModelManager modelManager = ModelManagerFactory.getCurrent();
+         IModel model = (IModel) data.getModel();
+         IModel activeModel = modelManager.findActiveModel(model.getId());
+         if (activeModel != model)
+         {
+            IData target = activeModel.findData(data.getId());
+            if (hasBusinessObject(target))
+            {
+               srcPath = StructuredTypeRtUtils.getXPathMap(data).getRootXPath();
+               tgtPath = StructuredTypeRtUtils.getXPathMap(target).getRootXPath();
+               upgrade = true;
+            }
+         }
+      }
+
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-      ResultSet resultSet = session.executeQuery(queryDescriptor,
-            QueryUtils.getTimeOut(query));
+      ResultSet resultSet = session.executeQuery(queryDescriptor, QueryUtils.getTimeOut(query));
       SubsetPolicy subsetPolicy = QueryUtils.getSubset(query);
       try
       {
@@ -309,10 +350,7 @@ public class BusinessObjectUtils
                long piOid = resultSet.getLong(1);
                Clob clob = resultSet.getClob(2);
 
-               Document document = DocumentBuilder
-                     .buildDocument(clob.getCharacterStream());
-               boolean namespaceAware = StructuredDataXPathUtils
-                     .isNamespaceAware(document);
+               Document document = DocumentBuilder.buildDocument(clob.getCharacterStream());
                final IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
                StructuredDataConverter converter = new StructuredDataConverter(xPathMap);
 
@@ -323,7 +361,7 @@ public class BusinessObjectUtils
                   values.put(data, list);
                }
                Object value = converter.toCollection(document.getRootElement(), "",
-                     namespaceAware);
+                     StructuredDataXPathUtils.isNamespaceAware(document));
                if (BusinessObjectSecurityUtils.isDepartmentReadAllowed(data, value))
                {
                   total++;
@@ -333,6 +371,13 @@ public class BusinessObjectUtils
                   }
                   else
                   {
+                     if (upgrade)
+                     {
+                        Map<String, Object> map = CollectionUtils.newMap();
+                        map.put(srcPath.getId(), value);
+                        DataCopyUtils.repair(tgtPath, srcPath, map);
+                        value = map.get(srcPath.getId());
+                     }
                      list.add(new BusinessObjectDetails.ValueDetails(piOid, value));
                      count++;
                   }
@@ -355,8 +400,7 @@ public class BusinessObjectUtils
       }
       finally
       {
-         org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils
-               .closeResultSet(resultSet);
+         closeResultSet(resultSet);
       }
    }
 
@@ -873,7 +917,7 @@ public class BusinessObjectUtils
       private static final Logger trace = LogManager.getLogger(BusinessObjectsListener.class);
 
       @Override
-      public void onDataValueChanged(IDataValue dv)
+      public void onDataValueChanged(IDataValue dv, DataMappingContext mappingContext)
       {
          IProcessInstance pi = dv.getProcessInstance();
          try

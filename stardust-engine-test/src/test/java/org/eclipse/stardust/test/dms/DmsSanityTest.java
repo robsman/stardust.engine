@@ -98,6 +98,20 @@ public class DmsSanityTest
       Assert.assertNotNull(getDms().getFolder("/test/"));
    }
 
+   @Test(expected=DocumentManagementServiceException.class)
+   public void testRenameRootForbidden()
+   {
+      Folder root = getDms().getFolder("/");
+
+      Assert.assertNotNull(root);
+      Assert.assertEquals("default", root.getName());
+      Assert.assertEquals("/", root.getPath());
+
+      root.setName("partition123");
+      // update should fail
+      getDms().updateFolder(root);
+   }
+
    @Test
    public void testHierarchy()
    {

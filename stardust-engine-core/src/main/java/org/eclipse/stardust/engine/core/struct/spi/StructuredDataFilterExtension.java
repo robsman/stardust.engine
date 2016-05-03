@@ -148,7 +148,9 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
                dataFilterExtensionContext.useDistinct(true);
             }
 
-            if (!extensionContext.contains(filter))
+            if (!extensionContext.contains(filter)
+                  && !dataFilterExtensionContext.isClusteredFilter(filter,
+                        findAllDatas(filter.getDataID(), modelManager)))
             {
                StructuredDataFilterContext filterContext = getContextForDataFilter(
                      joinFactory, dataFilterExtensionContext, filter, isAndTerm, cnt);

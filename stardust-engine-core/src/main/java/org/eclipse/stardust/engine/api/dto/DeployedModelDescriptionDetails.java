@@ -105,7 +105,7 @@ public class DeployedModelDescriptionDetails extends ModelElementDetails
          // Retrieving Provider Models
          for (IModel usedModel : usedModels)
          {
-            if (usedModel.getModelOID() != model.getModelOID())
+            if (usedModel != null && usedModel.getModelOID() != model.getModelOID())
             {
                providerModels.add(new Integer(usedModel.getModelOID()).longValue());
             }

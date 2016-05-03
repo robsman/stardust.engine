@@ -86,35 +86,6 @@ public class DeleteScriptGenerator
    @Mock
    private PreparedStatement selStmt;
    
-   public static void main(String[] args)
-   {
-      DeleteScriptGenerator generator = new DeleteScriptGenerator();
-      generator.generateDeleteScripts();
-
-      Writer writer = null;
-      try
-      {
-         writer = new CharArrayWriter();
-         generator.writeDeleteScript(writer);
-   
-         System.out.println();
-         System.out.println("Generated DELETE scripts:");
-         System.out.println();
-         System.out.println(writer.toString());
-      }
-      finally
-      {
-         try
-         {
-            writer.close();
-         }
-         catch (IOException e)
-         {
-            e.printStackTrace();
-         }
-      }
-   }
-   
    public void writeDeleteScript(Writer writer)
    {
       List<String> deleteScripts = getDeleteScripts();

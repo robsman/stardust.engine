@@ -17,15 +17,8 @@ import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
-import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper;
-import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeUpgradeTaskExecutor;
-import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeUpgrader;
-import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeException;
-import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeTask;
+import org.eclipse.stardust.engine.core.persistence.jdbc.*;
+import org.eclipse.stardust.engine.core.upgrade.framework.*;
 
 public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
@@ -33,6 +26,8 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          .getLogger(R9_2_0from9_0_0RuntimeJob.class);
 
    private RuntimeUpgradeTaskExecutor upgradeTaskExecutor;
+   
+   private static final String AI_LCK_TABLE_NAME = "activity_instance_lck";
 
    private static final String AUDIT_TRAIL_PARTITION_TABLE_NAME = "partition";
 
@@ -52,7 +47,40 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private static final String PROCESS_INSTANCE_LINK_TYPE_FIELD_PARTITION = "partition";
 
-   private static final Version VERSION = Version.createFixedVersion(8, 2, 3);
+   private static final Version VERSION = Version.createFixedVersion(9, 2, 0);
+
+   private static final String DATA_VALUE_HISTORY_TABLE_NAME = "data_value_history";
+
+   private static final String DATA_VALUE_HISTORY_FIELD_OID = "oid";
+   
+   private static final String DATA_VALUE_HISTORY_FIELD_MODEL = "model";
+
+   private static final String DATA_VALUE_HISTORY_FIELD_DATA = "data";
+
+   private static final String DATA_VALUE_HISTORY_FIELD_PROCESS_INSTANCE = "processInstance";
+
+   private static final String DATA_VALUE_HISTORY_FIELD_TYPE_KEY = "type_key";
+
+   private static final String DATA_VALUE_HISTORY_FIELD_STRING_VALUE = "string_value";
+
+   private static final String DATA_VALUE_HISTORY_FIELD_NUMBER_VALUE = "number_value";
+
+   private static final String DATA_VALUE_HISTORY_FIELD_DOUBLE_VALUE = "double_value";
+
+   private static final String DATA_VALUE_HISTORY_FIELD_MOD_TIMESTAMP = "mod_timestamp";
+
+   private static final String DATA_VALUE_HISTORY_FIELD_MOD_USER = "mod_user";
+
+   private static final String DATA_VALUE_HISTORY_FIELD_MOD_ACTIVITY_INSTANCE = "mod_activity_instance";
+   
+   private static final String DATA_VALUE_HISTORY_SEQ = "data_value_history_seq";
+   
+   private static final String DATA_VALUE_HISTORY_LCK_TABLE_NAME = "data_value_history_lck";
+   
+   private static final String DATA_VALUE_HISTORY_LCK_IDX = "data_value_history_lck_idx";
+
+
+   private R9_2_0from9_0_0RuntimeJob runtimeJob;
 
    R9_2_0from9_0_0RuntimeJob()
    {
@@ -60,6 +88,7 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
             DBMSKey.ORACLE, DBMSKey.ORACLE9i, DBMSKey.DB2_UDB, DBMSKey.MYSQL,
             DBMSKey.DERBY, DBMSKey.POSTGRESQL, DBMSKey.SYBASE, DBMSKey.MSSQL8,
             DBMSKey.MYSQL_SEQ});
+      runtimeJob = this;
       initUpgradeTasks();
    }
 
@@ -88,6 +117,53 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          public void printInfo()
          {
          }
+      });
+      
+      upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
+      {
+         @Override
+         public void execute()
+         {
+            insertDataValueHistoryTable();
+         }
+         
+         @Override
+         public void printInfo()
+         {
+            info("A new table 'data_value_history' with the columns 'oid', 'model', "
+                  + "'data', 'string_value', 'number_value', 'double_value', "
+                  + "'mod_timestamp', 'mod_user', 'mod_activity_instance', "
+                  + "'processInstance' and 'type_key' will be created.");
+         }
+         
+      });
+      
+      upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
+      {
+         @Override
+         public void execute()
+         {
+            // Lock table will only be created if any other lock table already exists,
+            // e.g. the
+            // one for AIBean
+            if (!item.isArchiveAuditTrail() && containsTable(AI_LCK_TABLE_NAME))
+            {
+               insertDataValueHistoryLckTable();
+            }
+         }
+
+         @Override
+         public void printInfo()
+         {// Lock table will only be created if any other lock table already exists, e.g.
+          // the
+          // one for AIBean
+            if (!item.isArchiveAuditTrail() && containsTable(AI_LCK_TABLE_NAME))
+            {
+               info("A new table 'data_value_history_lck' with column 'oid' and "
+                     + "index 'data_value_history_lck_idx'  will be created.");
+            }
+         }
+
       });
    }
 
@@ -240,6 +316,100 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
       return partitionInfo;
    }
+   
+   private void insertDataValueHistoryTable()
+   {
+      DatabaseHelper.createTable(item, new CreateTableInfo(
+           DATA_VALUE_HISTORY_TABLE_NAME)
+      {
+         private final FieldInfo oid = new FieldInfo(
+               DATA_VALUE_HISTORY_FIELD_OID, Long.TYPE, 0, true);
+         
+         private final FieldInfo model = new FieldInfo(
+               DATA_VALUE_HISTORY_FIELD_MODEL, Long.TYPE, 0, false);
+
+         private final FieldInfo data = new FieldInfo(
+               DATA_VALUE_HISTORY_FIELD_DATA, Long.TYPE, 0, false);
+         
+         private final FieldInfo string_value = new FieldInfo(
+               DATA_VALUE_HISTORY_FIELD_STRING_VALUE, String.class, 255, false);
+         
+         private final FieldInfo number_value = new FieldInfo(
+               DATA_VALUE_HISTORY_FIELD_NUMBER_VALUE, Long.TYPE, 0, false);
+         
+         private final FieldInfo double_value = new FieldInfo(
+               DATA_VALUE_HISTORY_FIELD_DOUBLE_VALUE, Double.TYPE, 0, false);
+         
+         private final FieldInfo mod_timestamp = new FieldInfo(
+               DATA_VALUE_HISTORY_FIELD_MOD_TIMESTAMP, Long.TYPE, 0, false);
+
+         private final FieldInfo mod_user = new FieldInfo(
+               DATA_VALUE_HISTORY_FIELD_MOD_USER, Long.TYPE, 0, false);
+         
+         private final FieldInfo mod_activity_instance = new FieldInfo(
+               DATA_VALUE_HISTORY_FIELD_MOD_ACTIVITY_INSTANCE, Long.TYPE, 0, false);
+         
+         private final FieldInfo type_key = new FieldInfo(
+               DATA_VALUE_HISTORY_FIELD_TYPE_KEY, Integer.TYPE, 0, false);
+         
+         private final FieldInfo processInstance = new FieldInfo(
+               DATA_VALUE_HISTORY_FIELD_PROCESS_INSTANCE, Long.TYPE, 0, false);
+
+         @Override
+         public FieldInfo[] getFields()
+         {
+            return new FieldInfo[] {
+                  oid, model, data, string_value, number_value, double_value,
+                  mod_timestamp, mod_user, mod_activity_instance, type_key,
+                  processInstance};
+         }
+
+         @Override
+         public IndexInfo[] getIndexes()
+         {
+            return null;
+         }
+
+         @Override
+         public String getSequenceName()
+         {
+            return DATA_VALUE_HISTORY_SEQ;
+         }
+
+      }, runtimeJob);
+         
+   }
+
+   protected void insertDataValueHistoryLckTable()
+   {
+      DatabaseHelper.createTable(item, new CreateTableInfo(DATA_VALUE_HISTORY_LCK_TABLE_NAME)
+      {
+         private final FieldInfo oid = new FieldInfo(DATA_VALUE_HISTORY_FIELD_OID,
+               Long.TYPE, 0, true);
+
+         private final IndexInfo idx = new IndexInfo(DATA_VALUE_HISTORY_LCK_IDX, true,
+               new FieldInfo[] {oid});
+
+         @Override
+         public FieldInfo[] getFields()
+         {
+            return new FieldInfo[] {oid};
+         }
+
+         @Override
+         public IndexInfo[] getIndexes()
+         {
+            return new IndexInfo[] {idx};
+         }
+
+         @Override
+         public String getSequenceName()
+         {
+            return null;
+         }
+
+      }, runtimeJob);
+   }
 
    @Override
    protected Logger getLogger()
@@ -270,8 +440,7 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    @Override
    protected void printUpgradeSchemaInfo()
    {
-      // TODO Auto-generated method stub
-
+     upgradeTaskExecutor.printUpgradeSchemaInfo();
    }
 
    @Override
@@ -293,4 +462,20 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       return VERSION;
    }
 
+   private boolean containsTable(String tableName)
+   {
+      boolean result = false;
+      DDLManager ddlManager = new DDLManager(item.getDbDescriptor());
+      try
+      {
+         result = ddlManager.containsTable(DatabaseHelper.getSchemaName(),
+               tableName, item.getConnection());
+      }
+      catch (SQLException e)
+      {
+         error("", e);
+      }
+
+      return result;
+   }
 }

@@ -18,7 +18,7 @@ import org.eclipse.stardust.common.utils.console.DefaultConsoleProcessor;
 import org.eclipse.stardust.common.utils.console.Options;
 import org.eclipse.stardust.engine.cli.common.VersionCommand;
 import org.eclipse.stardust.engine.cli.console.EncryptCommand;
-// import org.eclipse.stardust.engine.cli.sysconsole.patch.FixRuntimeOidCommand;
+import org.eclipse.stardust.engine.cli.sysconsole.patch.FixRuntimeOidCommand;
 
 /**
  * @author kberberich, ubirkemeyer
@@ -56,7 +56,7 @@ public class Main
       commands.put("auditTrail", AlterAuditTrailCommand.class.getName());
       commands.put("property", RuntimePropertyCommand.class.getName());
       commands.put("encrypt", EncryptCommand.class.getName());
-      // commands.put(FixRuntimeOidCommand.COMMAND_NAME, FixRuntimeOidCommand.class.getName());
+      commands.put(FixRuntimeOidCommand.COMMAND_NAME, FixRuntimeOidCommand.class.getName());
    }
 
    public static void main(String[] args)

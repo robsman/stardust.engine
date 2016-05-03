@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.stardust.common.config;
 
+import java.util.List;
+
+import org.eclipse.stardust.common.CollectionUtils;
+
 /**
  * @author rsauer
  * @version $Revision$
@@ -17,10 +21,18 @@ package org.eclipse.stardust.common.config;
 public class DefaultPropertiesProvider extends AbstractPropertiesBundleProvider
       implements PropertyProvider
 {
-
+   private static final String HIDDEN_VALUE_REPLACER = "***";
+   
+   private List<String> propertyKeyDisplayBlackList;
+   
    public DefaultPropertiesProvider()
    {
       super(Parameters.getDefaultProperties());
+      
+      this.propertyKeyDisplayBlackList = CollectionUtils.newList();
+      
+      this.propertyKeyDisplayBlackList.add("AuditTrail.Password");
+      this.propertyKeyDisplayBlackList.add("Security.Principal.Secret");
    }
 
    public static class Factory implements GlobalParametersProviderFactory
@@ -35,6 +47,16 @@ public class DefaultPropertiesProvider extends AbstractPropertiesBundleProvider
       {
          return new DefaultPropertiesProvider();
       }
+   }
+
+   @Override
+   public String getPropertyDisplayValue(String key)
+   {
+      if (this.propertyKeyDisplayBlackList.contains(key))
+      {
+         return HIDDEN_VALUE_REPLACER;
+      }
+      return getProperties().get(key).toString();
    }
 
 }

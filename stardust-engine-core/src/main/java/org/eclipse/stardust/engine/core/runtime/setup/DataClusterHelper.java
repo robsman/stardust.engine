@@ -285,7 +285,7 @@ public class DataClusterHelper
       }
    }
    
-   private static DataClusterSynchronizationInfo getDataClusterSynchronizationInfo(
+   public static DataClusterSynchronizationInfo getDataClusterSynchronizationInfo(
          DataCluster clusterToSynchronize, 
          IProcessInstance scopeProcessInstance)
    {
@@ -321,7 +321,7 @@ public class DataClusterHelper
       String schemaName = session.getSchemaName();  
       try
       {
-         ddlManager.synchronizeDataCluster(false, synchronizationInfo, session.getConnection(), schemaName, null, null);
+         ddlManager.synchronizeDataCluster(false, synchronizationInfo, session.getConnection(), schemaName, null, null, null);
       }
       catch (SQLException e)
       {

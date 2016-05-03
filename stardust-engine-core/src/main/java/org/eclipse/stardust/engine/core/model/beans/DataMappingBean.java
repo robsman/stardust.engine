@@ -17,10 +17,13 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
+import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.model.utils.ConnectionBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPointProvider;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
@@ -43,6 +46,7 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
 
    static final String ID_ATT = "Id";
    private String id;
+   private String qualifiedId;
    private String name;
 
    static final String DIRECTION_ATT = "Direction";
@@ -148,11 +152,27 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                   {
                      String xPathWithoutIndexes = StructuredDataXPathUtils.getXPathWithoutIndexes(
                            StructDataTransformerKey.stripTransformation(dataPath));
-                     TypedXPath xPath = xPathMap.getXPath(xPathWithoutIndexes);
-                     if (xPath == null)
+                     try
                      {
-                        BpmValidationError error = BpmValidationError.DATA_INVALID_DATAPATH_FOR_DATAMAPPING.raise(getId());
-                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                        TypedXPath xPath = xPathMap.getXPath(xPathWithoutIndexes);
+                        if (xPath == null)
+                        {
+                           // backward compatibility
+                           throw new IllegalOperationException(
+                                 BpmRuntimeError.MDL_UNKNOWN_XPATH.raise(xPathWithoutIndexes));
+                        }
+                     }
+                     catch(IllegalOperationException e)
+                     {
+                        if(BpmRuntimeError.MDL_UNKNOWN_XPATH.getErrorCode().equals(e.getError().getId()))
+                        {
+                           BpmValidationError error = BpmValidationError.DATA_INVALID_DATAPATH_FOR_DATAMAPPING.raise(getId());
+                           inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                        }
+                        else
+                        {
+                           throw e;
+                        }
                      }
                   }
                }
@@ -469,5 +489,15 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
       IApplication application = activity.getApplication();
       return activity.getImplementationType().equals(ImplementationType.Application)
             && application != null && application.isInteractive();
+   }
+
+   @Override
+   public String getQualifiedId()
+   {
+      if(null == qualifiedId)
+      {
+         qualifiedId = ModelUtils.getQualifiedId(getModel(), getId());
+      }
+      return qualifiedId;
    }
 }

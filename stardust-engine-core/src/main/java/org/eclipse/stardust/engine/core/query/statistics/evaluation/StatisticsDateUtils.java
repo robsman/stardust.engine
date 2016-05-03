@@ -48,11 +48,15 @@ public class StatisticsDateUtils
 
    public static Date periodToDate(Period period, Calendar conversionCalendar)
    {
-      conversionCalendar.setTimeInMillis(0l);
-      conversionCalendar.add(Calendar.SECOND, period.get(Period.SECONDS));
-      conversionCalendar.add(Calendar.MINUTE, period.get(Period.MINUTES));
-      conversionCalendar.add(Calendar.HOUR_OF_DAY, period.get(Period.HOURS));
-      conversionCalendar.add(Calendar.DAY_OF_YEAR, period.get(Period.DAYS));
+      long relStartTime = 1000l * (
+            period.get(Period.SECONDS) +
+            (period.get(Period.MINUTES) * 60) +        // minutes in sec
+            (period.get(Period.HOURS) * 60 * 60) +     // hours in sec
+            (period.get(Period.DAYS) * 24 * 60 * 60));  // days in sec
+      
+      conversionCalendar.setTimeInMillis(relStartTime);
+      
+      // months are not standardized so we cannot convert these in millisecs
       conversionCalendar.add(Calendar.MONTH, period.get(Period.MONTHS));
       conversionCalendar.add(Calendar.YEAR, period.get(Period.YEARS));
 

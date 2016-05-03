@@ -62,7 +62,7 @@ public abstract class AbstractIApplicationTypeConverter extends AbstractBpmTypeC
    {
       String bodyAccessPoint = null;
 
-      boolean multipleAccessPoints = false;
+      boolean multipleAccessPoints = true;
 
       if (extendedAttributes.get(CamelConstants.SUPPORT_MULTIPLE_ACCESS_POINTS) != null)
       {

@@ -25,6 +25,7 @@ import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 import org.eclipse.stardust.engine.core.compatibility.el.SyntaxError;
 import org.eclipse.stardust.engine.core.javascript.ConditionEvaluator;
 import org.eclipse.stardust.engine.core.model.utils.ConnectionBean;
+import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailTransitionBean;
 
 
@@ -39,6 +40,8 @@ public class TransitionBean extends ConnectionBean implements ITransition
 
    private static final String ID_ATT = "Id";
    private String id;
+
+   private String qualifiedId;
 
    private static final String NAME_ATT = "Name";
    private String name;
@@ -230,6 +233,16 @@ public class TransitionBean extends ConnectionBean implements ITransition
                "Semantically invalid transition condition: " + e.getMessage(),
                this, Inconsistency.WARNING));
       }
+   }
+   
+   @Override
+   public String getQualifiedId()
+   {
+      if(null == qualifiedId)
+      {
+         qualifiedId = ModelUtils.getQualifiedId(getModel(), getId());
+      }
+      return qualifiedId;
    }
 
    public String toString()

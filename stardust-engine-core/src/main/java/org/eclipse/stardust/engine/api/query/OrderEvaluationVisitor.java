@@ -28,4 +28,6 @@ public interface OrderEvaluationVisitor
    Object visit(DataOrder order, Object context);
    
    Object visit(CustomOrderCriterion order, Object context);
+
+   Object visit(RootProcessDefinitionDescriptor rootProcessDefinitionDescriptor, Object context);
 }

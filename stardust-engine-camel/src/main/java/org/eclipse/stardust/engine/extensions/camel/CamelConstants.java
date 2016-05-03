@@ -102,6 +102,11 @@ public final class CamelConstants
    public static final String JAVASCRIPT="JavaScript";
    public static final String GROOVY="Groovy";
    public static final String PYTHON="Python";
+   public static final String TEMPLATING_OVERLAY="templatingIntegrationOverlay";
+   public static final String DOCX_FORMAT="docx";
+   public static final String EMBEDDED_LOCATION="embedded";
+   public static final String DATA_LOCATION="data";
+   public static final String PRIMITIVE_TYPE="primitive"; 
    
    public static final String TEMPLATING_LOCATION = "CamelTemplatingLocation";
    public static final String TEMPLATING_TEMPLATE_CONTENT = "CamelTemplatingTemplateContent";
@@ -110,6 +115,11 @@ public final class CamelConstants
    public static final String TEMPLATING_OUTPUT_NAME = "CamelTemplatingOutputName";
    public static final String TEMPLATING_CONVERT_TO_PDF = "CamelTemplatingConvertToPdf";
    public static final String TEMPLATING_REQUEST_METADATA= "CamelTemplatingMetaData";
+   
+   public static final String SQL_OVERLAY= "sqlIntegrationOverlay";
+   public static final String SQL_QUERY="stardust:sqlScriptingOverlay::sqlQuery";
+   public static final String SQL_OUTPUT_TYPE="stardust:sqlScriptingOverlay::outputType";
+   
    
    private CamelConstants()
    {}

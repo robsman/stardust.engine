@@ -8,10 +8,10 @@ import java.util.Map;
 
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.util.CastUtils;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.extensions.camel.integration.management.model.CamelContextModel;
 import org.eclipse.stardust.engine.extensions.camel.integration.management.model.RouteCamelModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -21,7 +21,7 @@ import com.google.gson.GsonBuilder;
 
 public class IntegrationManagementImpl implements IntegrationManagement, ApplicationContextAware{
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(IntegrationManagementImpl.class);
+   private static final Logger logger = LogManager.getLogger(IntegrationManagementImpl.class);
 	private ApplicationContext applicationContext;
 
 	private List<CamelContextModel> initCamelContextModel() {
@@ -135,19 +135,21 @@ public class IntegrationManagementImpl implements IntegrationManagement, Applica
 	}
 
 	public void startRouteService( String contextId, String routeId) {
-		LOGGER.info("--> Starting route : " + routeId);
+	   if(logger.isDebugEnabled())
+	      logger.debug("--> Starting route : " + routeId);
 		ModelCamelContext camelcontext=(ModelCamelContext) applicationContext.getBean(contextId);
 		try {
 			startRoute(camelcontext, routeId);
 		} catch (Exception e) {
-			LOGGER.warn("route '" + routeId
-					+ "' doesn't exist in camel context '" + contextId + "'");
+		   logger.error("An error occured while starting route'" + routeId
+					+ "' from camel context '" + contextId + "'", e);
 		}
 	}
 
 
 	public void stopRoute( String contextId, String routeId) {
-		LOGGER.info("--> Stopping route : " + routeId);
+	   if(logger.isDebugEnabled())
+	      logger.debug("--> Stopping route : " + routeId);
 		ModelCamelContext camelContext=(ModelCamelContext) applicationContext.getBean(contextId);
 		stopRunningRoute(camelContext, routeId);
 	}

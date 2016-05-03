@@ -365,7 +365,7 @@ public class UserGroupBean extends AttributedIdentifiablePersistentBean implemen
       if (false == isValid())
       {
          throw new IllegalOperationException(
-               BpmRuntimeError.AUTHx_USER_CANNOT_JOIN_INVALID_USER_GROUP.raise(user.getOID(), getId()));
+               BpmRuntimeError.AUTHx_USER_CANNOT_JOIN_INVALID_USER_GROUP.raise(user.getId(), user.getOID(), getId()));
       }
 
       UserUserGroupLink link = new UserUserGroupLink(user, this);

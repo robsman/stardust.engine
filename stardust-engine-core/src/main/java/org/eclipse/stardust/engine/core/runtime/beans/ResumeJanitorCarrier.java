@@ -17,6 +17,15 @@ public class ResumeJanitorCarrier extends HierarchyStateChangeJanitorCarrier
 {
    private static final long serialVersionUID = 1L;
 
+   /**
+    * Default constructor, needed for creating instances via reflection.
+    *
+    */
+   public ResumeJanitorCarrier()
+   {
+      super();
+   }
+
    public ResumeJanitorCarrier(long processInstanceOid)
    {
       super(processInstanceOid, 0, Parameters.instance().getInteger(

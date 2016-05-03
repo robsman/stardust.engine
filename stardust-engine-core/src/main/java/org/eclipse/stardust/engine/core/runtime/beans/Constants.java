@@ -89,6 +89,7 @@ public interface Constants
                      TransitionTokenBean.class,
                      DaemonLog.class,
                      DataValueBean.class,
+                     DataValueHistoryBean.class,
                      EventBindingBean.class,
                      LogEntryBean.class,
                      PropertyPersistor.class,

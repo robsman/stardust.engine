@@ -10,10 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.suites;
 
-import org.eclipse.stardust.test.spawn.SpawnProcessAttachmentTest;
-import org.eclipse.stardust.test.spawn.SpawnProcessTest;
-import org.eclipse.stardust.test.spawn.SpawnProcessNotesCopyTest;
-
+import org.eclipse.stardust.test.spawn.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -28,10 +25,11 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author Nicolas.Werlein
  */
 @RunWith(Suite.class)
-@SuiteClasses({ 
-   SpawnProcessTest.class, 
+@SuiteClasses({
+   SpawnProcessTest.class,
    SpawnProcessNotesCopyTest.class,
-   SpawnProcessAttachmentTest.class
+   RootProcessAttachmentCrossModelTest.class,
+   RootProcessAttachmentSpawnTest.class
 })
 public class SpawnProcessTestSuite
 {

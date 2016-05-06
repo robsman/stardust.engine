@@ -1277,7 +1277,15 @@ public class StructuredDataXPathUtils
                result = xPathEvaluator.selectNodes(document.getRootElement());
             }
 
-            boolean remove = created || typedXPath != null && typedXPath.isList() && value instanceof Collection;
+            if (typedXPath == null)
+            {
+               String simpleXPath = getXPathWithoutIndexes(xPath);
+               if (xPathMap.containsXPath(simpleXPath))
+               {
+                  typedXPath = xPathMap.getXPath(simpleXPath);
+               }
+            }
+            boolean remove = created || typedXPath != null && (!typedXPath.isList() || typedXPath.isList() && value instanceof Collection);
 
             if (result instanceof List)
             {

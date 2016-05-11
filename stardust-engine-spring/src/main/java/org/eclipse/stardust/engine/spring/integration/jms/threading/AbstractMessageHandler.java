@@ -52,17 +52,17 @@ public abstract class AbstractMessageHandler
       ApplicationContextAware, BeanFactoryAware
 {
    private static final Logger trace = LogManager.getLogger(AbstractMessageHandler.class);
-   
+
    private final ForkingServiceFactory embeddedForkingServiceFactory = new EmbeddedForkingServiceFactory();
-   
+
    private ApplicationContext applicationContext;
-   
+
    private BeanFactory beanFactory;
 
    private PlatformTransactionManager transactionManager;
 
    private ForkingService forkingService;
-   
+
    public ApplicationContext getApplicationContext()
    {
       return applicationContext;
@@ -98,12 +98,12 @@ public abstract class AbstractMessageHandler
    {
       return forkingService;
    }
-   
+
    public void setForkingService(ForkingService forkingService)
    {
       this.forkingService = forkingService;
    }
-   
+
    public ForkingServiceFactory getForkingServiceFactory()
    {
       return embeddedForkingServiceFactory;
@@ -134,14 +134,14 @@ public abstract class AbstractMessageHandler
          }
       }
    }
-   
+
    protected void bootStrapEngine(ActionCarrier carrier, MapMessage mapMessage)
    {
       final short partitionOid = carrier.getPartitionOid();
       final long userDomainOid = carrier.getUserDomainOid();
       final Parameters params = Parameters.instance();
       final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-      
+
       IAuditTrailPartition partition = LoginUtils.findPartition(params, partitionOid);
       rtEnv.setProperty(SecurityProperties.CURRENT_PARTITION, partition);
       rtEnv.setProperty(SecurityProperties.CURRENT_PARTITION_OID, partitionOid);
@@ -150,17 +150,12 @@ public abstract class AbstractMessageHandler
       rtEnv.setProperty(SecurityProperties.CURRENT_DOMAIN, userDomain);
       rtEnv.setProperty(SecurityProperties.CURRENT_DOMAIN_OID, userDomainOid);
 
-      UserRealmBean transientRealm = UserRealmBean.createTransientRealm(
-            PredefinedConstants.SYSTEM_REALM, PredefinedConstants.SYSTEM_REALM, partition);
-      IUser transientUser = UserBean.createTransientUser(PredefinedConstants.SYSTEM,
-            PredefinedConstants.SYSTEM_FIRST_NAME, PredefinedConstants.SYSTEM_LAST_NAME,
-            transientRealm);
-      rtEnv.setProperty(SecurityProperties.CURRENT_USER, transientUser);
+      rtEnv.setProperty(SecurityProperties.CURRENT_USER, UserBean.getSystemUser(partition));
 
       // optionally taking timestamp override into account
       boolean recordedEventTime = params.getBoolean(
             KernelTweakingProperties.EVENT_TIME_OVERRIDABLE, false);
-      
+
       if (recordedEventTime)
       {
          try

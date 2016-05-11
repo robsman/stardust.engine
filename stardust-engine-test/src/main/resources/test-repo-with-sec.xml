@@ -73,6 +73,12 @@
          <param name="directoryManagerClass" value="org.apache.jackrabbit.core.query.lucene.directory.RAMDirectoryManager" />
          <param name="extractorPoolSize" value="0" />
       </SearchIndex>
+
+      <!-- Security -->
+      <WorkspaceSecurity>
+         <!-- Files with ACLs are evaluated separately without Folder hierarchy. -->
+         <AccessControlProvider class="org.apache.jackrabbit.core.security.authorization.acl.FileACLProvider" />
+      </WorkspaceSecurity>
    </Workspace>
 
    <!-- Versioning -->

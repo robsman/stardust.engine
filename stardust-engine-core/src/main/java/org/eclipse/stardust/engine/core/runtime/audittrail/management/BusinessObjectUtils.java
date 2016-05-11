@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 SunGard CSA LLC and others.
+ * Copyright (c) 2014, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,8 +12,8 @@ package org.eclipse.stardust.engine.core.runtime.audittrail.management;
 
 import static org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils.closeResultSet;
 
+import java.io.Reader;
 import java.io.Serializable;
-import java.sql.Clob;
 import java.sql.ResultSet;
 import java.util.*;
 
@@ -348,9 +348,9 @@ public class BusinessObjectUtils
             if (count < subsetPolicy.getMaxSize())
             {
                long piOid = resultSet.getLong(1);
-               Clob clob = resultSet.getClob(2);
+               Reader clobCharacterStream = resultSet.getCharacterStream(2);
 
-               Document document = DocumentBuilder.buildDocument(clob.getCharacterStream());
+               Document document = DocumentBuilder.buildDocument(clobCharacterStream);
                final IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
                StructuredDataConverter converter = new StructuredDataConverter(xPathMap);
 

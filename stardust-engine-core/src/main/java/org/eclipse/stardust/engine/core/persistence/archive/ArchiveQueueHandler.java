@@ -56,14 +56,7 @@ public class ArchiveQueueHandler extends SecurityContextAwareAction
       setPartitionOid(partition.getOID());
       rtEnv.setProperty(SecurityProperties.CURRENT_PARTITION, partition);
       rtEnv.setProperty(SecurityProperties.CURRENT_PARTITION_OID, Short.valueOf(getPartitionOid()));
-
-      UserRealmBean transientRealm = UserRealmBean.createTransientRealm(
-            PredefinedConstants.SYSTEM_REALM, PredefinedConstants.SYSTEM_REALM, partition);
-      IUser transientUser = UserBean.createTransientUser(PredefinedConstants.SYSTEM,
-            PredefinedConstants.SYSTEM_FIRST_NAME, PredefinedConstants.SYSTEM_LAST_NAME,
-            transientRealm);
-      rtEnv.setProperty(SecurityProperties.CURRENT_USER, transientUser);
-
+      rtEnv.setProperty(SecurityProperties.CURRENT_USER, UserBean.getSystemUser(partition));
    }
 
    public Object execute()

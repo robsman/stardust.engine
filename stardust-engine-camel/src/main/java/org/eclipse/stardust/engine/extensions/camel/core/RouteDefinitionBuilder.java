@@ -546,6 +546,8 @@ public class RouteDefinitionBuilder
       StringBuilder onExceptionDefinition=new StringBuilder();
       onExceptionDefinition.append("<onException useOriginalMessage=\"true\">\n");
       onExceptionDefinition.append("<exception>java.lang.Exception</exception>\n");
+      onExceptionDefinition.append("<exception>java.lang.RuntimeException</exception>\n");
+      onExceptionDefinition.append("<handled><constant>true</constant></handled>\n");
       onExceptionDefinition.append("<redeliveryPolicy logRetryAttempted=\"true\" retryAttemptedLogLevel=\"WARN\" maximumRedeliveries=\""+routeContext.getRetryNumber()+"\" ");
       if(routeContext.getRetryTime()>0){
          onExceptionDefinition.append("redeliveryDelay=\""+routeContext.getRetryTime()+"\"");

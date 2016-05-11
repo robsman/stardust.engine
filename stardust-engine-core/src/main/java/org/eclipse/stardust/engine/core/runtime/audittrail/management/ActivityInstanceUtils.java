@@ -285,7 +285,7 @@ public class ActivityInstanceUtils
          boolean allowAdmin) throws AccessForbiddenException
    {
       IUser currentUser = SecurityProperties.getUser();
-      if (isTransientSystemUser(currentUser))
+      if (isSystemUser(currentUser))
       {
          return;
       }
@@ -325,17 +325,14 @@ public class ActivityInstanceUtils
    }
 
    /**
-    * Test if the given user is a transient system user created with
-    * {@link UserBean#createTransientUser(String, String, String, UserRealmBean)}.
+    * Test if the given user is the system user.
     *
     * @param user
     * @return true if it the transient user, otherwise false.
     */
-   private static boolean isTransientSystemUser(IUser user)
+   private static boolean isSystemUser(IUser user)
    {
-      return 0 == user.getOID()
-            && PredefinedConstants.SYSTEM.equals(user.getAccount())
-            && PredefinedConstants.SYSTEM_REALM.equals(user.getRealm().getId());
+      return user == UserBean.getSystemUser(SecurityProperties.getPartition());
    }
 
    private ActivityInstanceUtils()

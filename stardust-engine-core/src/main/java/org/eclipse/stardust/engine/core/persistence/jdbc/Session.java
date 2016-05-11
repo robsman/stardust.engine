@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -168,7 +168,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    private final Parameters params;
 
    private SequenceGenerator uniqueIdGenerator;
-   
+
    private String originalSequenceGenerator;
 
    private final boolean forceImmediateInsert;
@@ -243,7 +243,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          }
       }
    }
-   
+
    public boolean isReadOnly()
    {
       return this.isArchiveAuditTrail || this.isreadOnly;
@@ -299,12 +299,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       DataCluster[] clusterSetup = getClusterSetup();
       return (null != clusterSetup) && (0 < clusterSetup.length);
    }
-   
-   public boolean isUsingDataClusterOnArchiveAuditTrail() 
+
+   public boolean isUsingDataClusterOnArchiveAuditTrail()
    {
       return usingDCArchiveAuditTrail;
    }
-   
+
    public void setUsingDataClusterOnArchiveAuditTrail(boolean usingDCArchiveAuditTrail)
    {
       this.usingDCArchiveAuditTrail = usingDCArchiveAuditTrail;
@@ -464,7 +464,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          boolean useBatchStatement = true;
          DBMSKey dbmsKey = dbDescriptor.getDbmsKey();
-         if (DBMSKey.MSSQL8.equals(dbmsKey) || DBMSKey.MSSQL.equals(dbmsKey))
+         if (DBMSKey.MSSQL8.equals(dbmsKey) || DBMSKey.MSSQL.equals(dbmsKey) || DBMSKey.SYBASE.equals(dbmsKey))
          {
             // MSSQL needs to use getGeneratedKeys() method,
             // since SELECT SCOPE_IDENTITY() has scope problems in Prepared Statements
@@ -1615,12 +1615,18 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          trace.debug(this + ", flushing!");
       }
-      SessionLifecycleUtils.getSessionLifecycleExtension().beforeSave(this);
-
       try
       {
-
          // notify listeners in advance since they might add new objects to the cache
+         Map aiCache = (Map) objCacheRegistry.get(ActivityInstanceBean.class);
+         if ((null != aiCache) && !aiCache.isEmpty())
+         {
+            updateWorkItems(aiCache);
+            updateActivityInstancesHistory(aiCache);
+         }
+
+         SessionLifecycleUtils.getSessionLifecycleExtension().beforeSave(this);
+
          // collect the keys to avoid concurrent modification exceptions
          List<Class<?>> types = CollectionUtils.newList(objCacheRegistry.keySet());
          for (Class<?> type : types)
@@ -1642,17 +1648,8 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                }
             }
          }
-         // update modified objects
-
-         Map aiCache = (Map) objCacheRegistry.get(ActivityInstanceBean.class);
-         if ((null != aiCache) && !aiCache.isEmpty())
-         {
-            updateWorkItems(aiCache);
-            updateActivityInstancesHistory(aiCache);
-         }
 
          // TODO make sure no non-PI related data is lost
-
          Map<Object, PersistenceController> pis = objCacheRegistry.get(ProcessInstanceBean.class);
          final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
          boolean supportsAsynchWrite = params.getBoolean(KernelTweakingProperties.ASYNC_WRITE, false) && rtEnv.getOperationMode() == BpmRuntimeEnvironment.OperationMode.DEFAULT;
@@ -4491,7 +4488,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    {
       DmlManagerRegistry getDmlManagerRegistry(String sessionName, SqlUtils sqlUtils,
             DBDescriptor dbDescriptor, TypeDescriptorRegistry tdRegistry);
-      
+
       void cleanCache(final String sessionName);
    }
 
@@ -4534,7 +4531,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
          return registry;
       }
-      
+
       public void cleanCache(final String sessionName)
       {
          final GlobalParameters globals = GlobalParameters.globals();

@@ -415,6 +415,8 @@ public class QualityAssuranceUtils
                = BpmRuntimeError.BPMRT_COMPLETE_QA_NO_ATTRIBUTES_SET.raise(activityInstance.getOID());
             throw new IllegalOperationException(error);
          }
+         QualityAssuranceUtils.validateActivityInstanceAttributes(attributes,
+               activityInstance);
       }
    }
    

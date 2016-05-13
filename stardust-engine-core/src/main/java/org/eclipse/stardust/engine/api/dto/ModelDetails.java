@@ -21,6 +21,10 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Internal;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.xsd.XSDSchema;
+import org.eclipse.xsd.util.XSDResourceImpl;
+import org.eclipse.xsd.util.XSDSchemaLocator;
+
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.ConcatenatedList;
 import org.eclipse.stardust.common.StringUtils;
@@ -32,9 +36,6 @@ import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
 import org.eclipse.stardust.engine.extensions.dms.data.DocumentType;
-import org.eclipse.xsd.XSDSchema;
-import org.eclipse.xsd.util.XSDResourceImpl;
-import org.eclipse.xsd.util.XSDSchemaLocator;
 
 /**
  * @author ubirkemeyer
@@ -345,6 +346,10 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
       XpdlType type = decl.getXpdlType();
       if (type instanceof SchemaTypeDetails && !((SchemaTypeDetails) type).isResolved())
       {
+         if (schemaLocatorAdapter == null)
+         {
+            setSchemaLocatorAdapter(null);
+         }
          ((SchemaTypeDetails) type).setResource((Internal) schemaLocatorAdapter.createResource());
       }
    }
@@ -368,21 +373,21 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
          String documentTypeId = documentType.getDocumentTypeId();
          if (documentTypeId != null)
          {
-            QName qName = QName.valueOf(documentTypeId);            
+            QName qName = QName.valueOf(documentTypeId);
             String namespaceURI = qName.getNamespaceURI();
             String modelId = QNameUtil.parseModelId(namespaceURI);
             if(!StringUtils.isEmpty(modelId))
             {
-               return new QName(modelId, qName.getLocalPart()).toString();               
+               return new QName(modelId, qName.getLocalPart()).toString();
             }
-            
+
             return QName.valueOf(documentTypeId).getLocalPart();
          }
       }
       return null;
    }
 
-   public void setSchemaLocatorAdapter(SchemaLocatorAdapter schemaLocatorAdapter)
+   public synchronized void setSchemaLocatorAdapter(SchemaLocatorAdapter schemaLocatorAdapter)
    {
       this.schemaLocatorAdapter = schemaLocatorAdapter == null ? new SchemaLocatorAdapter(this) : schemaLocatorAdapter;
    }

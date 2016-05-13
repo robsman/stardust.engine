@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,7 +29,9 @@ public class QueryExtension
 
    private boolean distinct;
    private boolean engineDistinct;
+   // Is the schema ever used?
    private String schema;
+   // Is the alias ever used?
    private String alias;
    private Column[] selection;
    private Joins joins;
@@ -106,8 +108,8 @@ public class QueryExtension
    }
 
    /**
-    * TODO
-    * @param schema
+    * Set schema to be used for that query extension.
+    * @param schema the schema name
     */
    public QueryExtension setSchema(String schema)
    {
@@ -117,8 +119,8 @@ public class QueryExtension
    }
 
    /**
-    * TODO
-    * @param alias
+    * Set an alias to be used for this querry extension
+    * @param alias the alias name
     */
    public QueryExtension setAlias(String alias)
    {
@@ -263,13 +265,13 @@ public class QueryExtension
       int resultSize = selection.length + selectColumnsToAdd.size();
       Column[] columnsToAddAsArray = selectColumnsToAdd.toArray(new Column[selectColumnsToAdd.size()]);
       Column[] result = new Column[resultSize];
-      
+
       System.arraycopy(selection, 0, result, 0, selection.length);
       System.arraycopy(columnsToAddAsArray, 0, result, selection.length, columnsToAddAsArray.length);
-      
+
       this.selection = result;
    }
-   
+
    public Joins getJoins()
    {
       return joins;

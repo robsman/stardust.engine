@@ -299,68 +299,71 @@ public class RouteDefinitionBuilder
       String applicationId = routeContext.getId();
       boolean producerBpmTypeConverter = routeContext.getProducerBpmTypeConverter();
       String routeId = routeContext.getRouteId();
-      StringBuilder routeDefinition = new StringBuilder();
-      routeDefinition.append(CamelConstants.SPRING_XML_ROUTES_HEADER);
-      routeDefinition.append(route(routeId, routeContext.getAutostartupValue()));
-      if(routeContext.isRetryEnabled() && routeContext.isApplicationRetryResponsibilityEnabled())
-         routeDefinition.append(onException(routeContext));
-      routeDefinition.append(description(routeContext.getDescription()));
-      // TODO: define the behavior when a required parameter is missing
-      if (StringUtils.isEmpty(applicationId))
-         logger.error("Application ID is missing");
-
-      if (!StringUtils.isEmpty(providedRoute) && !StringUtils.isEmpty(applicationId))
-      {
-         if (providedRoute.contains("<from"))
+      if(StringUtils.isNotEmpty(providedRoute)){
+         StringBuilder routeDefinition = new StringBuilder();
+         routeDefinition.append(CamelConstants.SPRING_XML_ROUTES_HEADER);
+         routeDefinition.append(route(routeId, routeContext.getAutostartupValue()));
+         if(routeContext.isRetryEnabled() && routeContext.isApplicationRetryResponsibilityEnabled())
+            routeDefinition.append(onException(routeContext));
+         routeDefinition.append(description(routeContext.getDescription()));
+         // TODO: define the behavior when a required parameter is missing
+         if (StringUtils.isEmpty(applicationId))
+            logger.error("Application ID is missing");
+   
+         if (!StringUtils.isEmpty(providedRoute) && !StringUtils.isEmpty(applicationId))
          {
-            throw new RuntimeException(
-                  "From element should not be present in the route configuration");
-         }
-
-         String endpointName = "direct://" + getEndpoint(routeContext);
-
-         if (!providedRoute.contains("<from"))
-         {
-            routeDefinition.append(from(endpointName));
-            if (routeContext.markTransacted())
-               routeDefinition.append(transacted("required"));
-
-            if (routeContext.addApplicationAttributesToHeaders()
-                  || routeContext.addProcessContextHeaders())
-               routeDefinition.append(process("mapAppenderProcessor"));
-
-            if (routeContext.containsInputtAccessPointOfDocumentType())
+            if (providedRoute.contains("<from"))
+            {
+               throw new RuntimeException(
+                     "From element should not be present in the route configuration");
+            }
+   
+            String endpointName = "direct://" + getEndpoint(routeContext);
+   
+            if (!providedRoute.contains("<from"))
+            {
+               routeDefinition.append(from(endpointName));
+               if (routeContext.markTransacted())
+                  routeDefinition.append(transacted("required"));
+   
+               if (routeContext.addApplicationAttributesToHeaders()
+                     || routeContext.addProcessContextHeaders())
+                  routeDefinition.append(process("mapAppenderProcessor"));
+   
+               if (routeContext.containsInputtAccessPointOfDocumentType())
+                  routeDefinition
+                        .append("<to uri=\"bean:documentHandler?method=toAttachment\"/>");
+   
+               if (Boolean.TRUE.equals(producerBpmTypeConverter))
+               {
+                  routeDefinition.append(injectProducertBpmTypeConverter(routeContext,
+                        providedRoute));
+               }
+               else
+               {
+                  routeDefinition.append(providedRoute);
+               }
+            }
+   
+            if (routeContext.containsOutputBodyAccessPointOfDocumentType())
+            {
                routeDefinition
-                     .append("<to uri=\"bean:documentHandler?method=toAttachment\"/>");
-
-            if (Boolean.TRUE.equals(producerBpmTypeConverter))
-            {
-               routeDefinition.append(injectProducertBpmTypeConverter(routeContext,
-                     providedRoute));
-            }
-            else
-            {
-               routeDefinition.append(providedRoute);
+                     .append("<to uri=\"bean:documentHandler?method=toDocument\"/>");
             }
          }
-
-         if (routeContext.containsOutputBodyAccessPointOfDocumentType())
+   
+         routeDefinition.append(SPRING_XML_ROUTE_FOOTER);
+         routeDefinition.append(CamelConstants.SPRING_XML_ROUTES_FOOTER);
+   
+         if (logger.isDebugEnabled())
          {
-            routeDefinition
-                  .append("<to uri=\"bean:documentHandler?method=toDocument\"/>");
+            logger.debug("Route " + routeId + " will be added to context "
+                  + routeContext.getCamelContextId() + " for partition "
+                  + routeContext.getPartitionId());
          }
+         return routeDefinition.toString();
       }
-
-      routeDefinition.append(SPRING_XML_ROUTE_FOOTER);
-      routeDefinition.append(CamelConstants.SPRING_XML_ROUTES_FOOTER);
-
-      if (logger.isDebugEnabled())
-      {
-         logger.debug("Route " + routeId + " will be added to context "
-               + routeContext.getCamelContextId() + " for partition "
-               + routeContext.getPartitionId());
-      }
-      return routeDefinition.toString();
+      return null;
    }
 
    private static String injectProducertBpmTypeConverter(

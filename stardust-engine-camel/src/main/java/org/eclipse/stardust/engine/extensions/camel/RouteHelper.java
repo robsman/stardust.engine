@@ -206,13 +206,14 @@ public class RouteHelper
       }
 
       String routeDefinition = createProducerXmlConfiguration(routeContext);
-
-      if (logger.isDebugEnabled())
-      {
-         logger.debug("Starting Producer Route " + routeId + "  will be added to " + context.getName() + " for partition " + partition);
-         logger.debug("Route Content "+routeDefinition);
+      if(StringUtils.isNotEmpty(routeDefinition)){
+         if (logger.isDebugEnabled())
+         {
+            logger.debug("Starting Producer Route " + routeId + "  will be added to " + context.getName() + " for partition " + partition);
+            logger.debug("Route Content "+routeDefinition);
+         }
+         loadRouteDefinition(routeDefinition, context);
       }
-      loadRouteDefinition(routeDefinition, context);
    }
 
    /**
@@ -371,7 +372,7 @@ public class RouteHelper
 
          if (isProducerApplication(application))
          {
-               createAndStartProducerRoute(application, camelContext, partition);
+            createAndStartProducerRoute(application, camelContext, partition);
          }
       }
       catch (Exception e)

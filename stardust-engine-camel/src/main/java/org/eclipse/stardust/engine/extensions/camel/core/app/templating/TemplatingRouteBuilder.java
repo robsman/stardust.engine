@@ -27,13 +27,13 @@ public class TemplatingRouteBuilder
    {
       StringBuilder routeDefinition = new StringBuilder();
       String format = application.getFormat();
-      if (format.equalsIgnoreCase(DOCX_FORMAT))
-         routeDefinition.append(createRouteForXDocReportTemplates(application));
-      else
-         routeDefinition.append(createRouteForVelocityTemplates(application));
-
       if (StringUtils.isNotEmpty(format))
       {
+         if (format.equalsIgnoreCase(DOCX_FORMAT))
+            routeDefinition.append(createRouteForXDocReportTemplates(application));
+         else
+            routeDefinition.append(createRouteForVelocityTemplates(application));
+
          if (!format.equalsIgnoreCase(DOCX_FORMAT))
          {
             AccessPointBean defaultOutputAp = getAccessPointById("defaultOutputAp",

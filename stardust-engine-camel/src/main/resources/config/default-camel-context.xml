@@ -39,5 +39,6 @@
 
    <camelContext id="defaultCamelContext" trace="true"
       xmlns="http://camel.apache.org/schema/spring">
+      <routeContextRef ref="defaultTemplatingRoutes"/>
    </camelContext>
 </beans>

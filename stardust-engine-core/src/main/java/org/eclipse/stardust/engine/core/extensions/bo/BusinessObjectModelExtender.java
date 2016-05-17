@@ -44,19 +44,21 @@ public class BusinessObjectModelExtender extends AbstractPartitionMonitor
    public void modelLoaded(IModel model)
    {
       ModelElementList<IData> dataList = model.getData();
+      boolean isSimpleModeler = model.getBooleanAttribute("stardust:model:simpleModel");
+
 
       for (IData data : dataList)
       {
-         // find all Data that are Business Objects
+         // find all Data that are Business Objects or add all data
          if (((String) data.getAttribute(PRIMARY_KEY_ATT)) != null
                && StructuredTypeRtUtils.isStructuredType(data.getType().getId()))
          {
-            findDescriptorsForBusinessObject(data, model);
+            findDescriptorsForBusinessObject(data, model, isSimpleModeler);
          }
       }
    }
 
-   private void findDescriptorsForBusinessObject(IData data, IModel model)
+   private void findDescriptorsForBusinessObject(IData data, IModel model, boolean isSimpleModel)
    {
       ITypeDeclaration typeDecl = StructuredTypeRtUtils.getTypeDeclaration(data);
 
@@ -86,17 +88,18 @@ public class BusinessObjectModelExtender extends AbstractPartitionMonitor
 
                ModelElementList<IProcessDefinition> pds = model.getProcessDefinitions();
 
-               // Add descriptor to all process definitions referencing the BO
+               // Add descriptor to all process definitions referencing the BO or are in a simple model
                for (IProcessDefinition pd : pds)
                {
                   if (pd.getAttribute(BUSINESS_OBJECTS_DATAREF) != null
                         && pd.getAttribute(BUSINESS_OBJECTS_DATAREF).equals(
-                              data.getId()))
+                              data.getId()) || isSimpleModel)
                   {
-                     addDescriptorsToProcessDefinition(pd, data, xpath.getXPath(),
-                           descriptorLabelValue);
+                  addDescriptorsToProcessDefinition(pd, data, xpath.getXPath(),
+                        descriptorLabelValue);
                   }
                }
+
             }
          }
       }

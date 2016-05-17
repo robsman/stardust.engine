@@ -403,7 +403,7 @@ public class TransitionConnection extends AbstractWorkflowPathConnection
             {
                throw new PublicException(
                      BpmRuntimeError.MDL_MULTIPLE_INCOMING_TRANSITIONS_ARE_ONLY_ALLOWED_FOR_AND_OR_XOR_ACTIVITY_JOINS
-                           .raise(getTransition().getOID(), toActivity.getOID()));
+                           .raise(getTransition().getOID(), toActivity.getId(), toActivity.getOID()));
             }
             getTransition().setSecond(toActivity);
          }

@@ -173,13 +173,6 @@ public class UserDetails implements User
 
    private void fetchIsAdministrator(IUser user, List<IModel> activeModels)
    {
-      if (activeModels.isEmpty())
-      {
-         if (account.equals(PredefinedConstants.MOTU)) // Should it be only for internal authentication ?
-         {
-            isAdministrator = true;
-         }
-      }
       if (UserDetailsLevel.Minimal != detailsLevel)
       {
          // respect SynchronizationService#TransientAdministratorDecorator

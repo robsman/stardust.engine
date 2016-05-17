@@ -13,7 +13,6 @@ package org.eclipse.stardust.engine.core.query.statistics.api;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
-import java.util.SortedSet;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstancePriority;
@@ -30,13 +29,13 @@ public class CriticalInstancesHistogram
 
    private InstancesHistogram instances = new InstancesHistogram();
 
-   private SortedSet<Long> lowPriorityCriticalInstances;
+   private Set<Long> lowPriorityCriticalInstances;
 
-   private SortedSet<Long> normalPriorityCriticalInstances;
+   private Set<Long> normalPriorityCriticalInstances;
 
-   private SortedSet<Long> highPriorityCriticalInstances;
+   private Set<Long> highPriorityCriticalInstances;
    
-   private SortedSet<Long> interupptedInstances;
+   private Set<Long> interupptedInstances;
 
    public long getInstancesCount(ProcessInstancePriority priority)
    {
@@ -92,7 +91,7 @@ public class CriticalInstancesHistogram
       Set<Long> high = getCriticalInstancesSet(ProcessInstancePriority.HIGH, false);
 
       // TODO create copy only when necessary (more than one set is not empty)
-      SortedSet<Long> result = CollectionUtils.newTreeSet();
+      Set<Long> result = CollectionUtils.newHashSet();
       result.addAll(low);
       result.addAll(normal);
       result.addAll(high);
@@ -117,14 +116,14 @@ public class CriticalInstancesHistogram
 
    private Set<Long> getCriticalInstancesSet(int priority, boolean initializeInstance)
    {
-      SortedSet<Long> result;
+      Set<Long> result;
 
       switch (priority)
       {
       case ProcessInstancePriority.LOW:
          if (initializeInstance && null == lowPriorityCriticalInstances)
          {
-            this.lowPriorityCriticalInstances = CollectionUtils.newTreeSet();
+            this.lowPriorityCriticalInstances = CollectionUtils.newHashSet();
          }
          result = lowPriorityCriticalInstances;
          break;
@@ -132,7 +131,7 @@ public class CriticalInstancesHistogram
       case ProcessInstancePriority.HIGH:
          if (initializeInstance && null == highPriorityCriticalInstances)
          {
-            this.highPriorityCriticalInstances = CollectionUtils.newTreeSet();
+            this.highPriorityCriticalInstances = CollectionUtils.newHashSet();
          }
          result = highPriorityCriticalInstances;
          break;
@@ -140,7 +139,7 @@ public class CriticalInstancesHistogram
       default:
          if (initializeInstance && null == normalPriorityCriticalInstances)
          {
-            this.normalPriorityCriticalInstances = CollectionUtils.newTreeSet();
+            this.normalPriorityCriticalInstances = CollectionUtils.newHashSet();
          }
          result = normalPriorityCriticalInstances;
       }
@@ -152,7 +151,7 @@ public class CriticalInstancesHistogram
    {
       if (this.interupptedInstances == null)
       {
-         this.interupptedInstances = CollectionUtils.newTreeSet();
+         this.interupptedInstances = CollectionUtils.newHashSet();
       }      
       return this.interupptedInstances;
       

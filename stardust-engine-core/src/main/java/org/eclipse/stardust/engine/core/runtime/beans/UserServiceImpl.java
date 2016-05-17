@@ -237,7 +237,7 @@ public class UserServiceImpl implements UserService, Serializable
       {
          throw new IllegalOperationException(
                BpmRuntimeError.AUTHx_OPERATION_FAILED_USER_OID_NOT_FULLY_INITIALIZED
-                     .raise(changes.getOID()));
+                     .raise(changes.getId(), changes.getOID()));
       }
 
       if ( !isInternalAuthentication() && !isInternalAuthorization())
@@ -256,7 +256,7 @@ public class UserServiceImpl implements UserService, Serializable
       {
          user.setQualityAssuranceProbability(changes.getQualityAssuranceProbability());
       }
-      
+
       if (isInternalAuthentication())
       {
          String previousPassword = user.getPassword();
@@ -587,7 +587,9 @@ public class UserServiceImpl implements UserService, Serializable
    public User getUser(String account) throws ObjectNotFoundException,
          IllegalOperationException
    {
-      String realm = SecurityProperties.getUserRealm().getId();
+      IUserRealm userRealm = SecurityProperties.getUserRealm();
+      String realm = (userRealm == UserRealmBean.getSystemRealm(SecurityProperties.getPartition()))
+            ? PredefinedConstants.DEFAULT_REALM_ID : userRealm.getId();
       return getUser(realm, account);
    }
 
@@ -728,7 +730,7 @@ public class UserServiceImpl implements UserService, Serializable
       {
          throw new IllegalOperationException(
                BpmRuntimeError.AUTHx_OPERATION_FAILED_USER_GROUP_OID_NOT_FULLY_INITIALIZED
-                     .raise(changes.getOID()));
+                     .raise(changes.getId(), changes.getOID()));
       }
 
       UserGroupBean userGroup = UserGroupBean.findByOid(changes.getOID());
@@ -934,7 +936,7 @@ public class UserServiceImpl implements UserService, Serializable
       else
       {
          throw new InvalidArgumentException(
-               BpmRuntimeError.ATDB_DEPUTY_SELF_REFERENCE_NOT_ALLOWED.raise(user.getOID()));
+               BpmRuntimeError.ATDB_DEPUTY_SELF_REFERENCE_NOT_ALLOWED.raise(user.getId(), user.getOID()));
       }
    }
 
@@ -957,8 +959,8 @@ public class UserServiceImpl implements UserService, Serializable
       }
 
       throw new ObjectNotFoundException(
-            BpmRuntimeError.ATDB_DEPUTY_DOES_NOT_EXISTS.raise(deputyUser.getOID(),
-                  user.getOID()));
+            BpmRuntimeError.ATDB_DEPUTY_DOES_NOT_EXISTS.raise(deputyUser.getId(), deputyUser.getOID(),
+                  user.getId(), user.getOID()));
    }
 
    @Override

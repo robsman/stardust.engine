@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -149,10 +149,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
    private Map/*<Class, Set>*/ synchronizationCache;
 
-   private final DmlManagerRegistry dmlManagers;
+   private DmlManagerRegistry dmlManagers;
 
    private List /*<BulkDeleteStatement>*/ bulkDeleteStatements = new ArrayList();
    private DBDescriptor dbDescriptor;
+   private DBDescriptor originalDbDescriptor;
    private String name;
 
    private final boolean isArchiveAuditTrail;
@@ -166,9 +167,15 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
    private final Parameters params;
 
-   private final SequenceGenerator uniqueIdGenerator;
+   private SequenceGenerator uniqueIdGenerator;
+
+   private String originalSequenceGenerator;
 
    private final boolean forceImmediateInsert;
+
+   private boolean usingDCArchiveAuditTrail;
+
+   private DmlManagerRegistryProvider dmlManagerRegistryProvider;
 
    public Session(String name)
    {
@@ -193,6 +200,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       this.dbDescriptor = dbDescriptor;
       this.sqlUtils = new SqlUtils(this.schemaName, this.dbDescriptor);
 
+      this.dmlManagerRegistryProvider = dmlManagerRegistryProvider;
       this.dmlManagers = dmlManagerRegistryProvider.getDmlManagerRegistry(name, sqlUtils,
             dbDescriptor, tdRegistry);
 
@@ -292,6 +300,43 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       return (null != clusterSetup) && (0 < clusterSetup.length);
    }
 
+   public boolean isUsingDataClusterOnArchiveAuditTrail()
+   {
+      return usingDCArchiveAuditTrail;
+   }
+
+   public void setUsingDataClusterOnArchiveAuditTrail(boolean usingDCArchiveAuditTrail)
+   {
+      this.usingDCArchiveAuditTrail = usingDCArchiveAuditTrail;
+      if (usingDCArchiveAuditTrail)
+      {
+         originalDbDescriptor = dbDescriptor;
+         dbDescriptor = new SequenceOidDbDescriptor(dbDescriptor);
+         originalSequenceGenerator = params.getString(name + ".SequenceGenerator");
+         params.set(SequenceGenerator.UNIQUE_GENERATOR_PARAMETERS_KEY, null);
+         params.setString(
+               name + ".SequenceGenerator",
+               "org.eclipse.stardust.engine.core.persistence.jdbc.sequence.ArchiveAuditTrailSequenceGenerator");
+         uniqueIdGenerator = getUniqueIdGenerator();
+         dmlManagerRegistryProvider.cleanCache(name);
+         dmlManagers = dmlManagerRegistryProvider.getDmlManagerRegistry(name, sqlUtils,
+               dbDescriptor, tdRegistry);
+      }
+      else if (!usingDCArchiveAuditTrail)
+      {
+         dbDescriptor = originalDbDescriptor;
+         if (dbDescriptor.supportsSequences())
+         {
+            params.set(SequenceGenerator.UNIQUE_GENERATOR_PARAMETERS_KEY, null);
+            params.setString(name + ".SequenceGenerator", originalSequenceGenerator);
+            uniqueIdGenerator = getUniqueIdGenerator();
+         }
+         dmlManagerRegistryProvider.cleanCache(name);
+         dmlManagers = dmlManagerRegistryProvider.getDmlManagerRegistry(name, sqlUtils,
+               dbDescriptor, tdRegistry);
+      }
+   }
+
    /**
     *
     */
@@ -325,12 +370,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
    public void cluster(Persistent persistent)
    {
-      if (isArchiveAuditTrail)
-      {
-         // readonly
-         throw new PublicException(
-               BpmRuntimeError.JDBC_ARCHIVE_AUDITTRAIL_DOES_NOT_ALLOW_CHANGES.raise());
-      }
+//      if (isArchiveAuditTrail)
+//      {
+////          readonly
+//         throw new PublicException(
+//               BpmRuntimeError.JDBC_ARCHIVE_AUDITTRAIL_DOES_NOT_ALLOW_CHANGES.raise());
+//      }
 
 
       String stmtString = null;
@@ -380,7 +425,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
    private boolean isImmediateInsert(Persistent persistent, TypeDescriptor typeDescriptor)
    {
-      if (forceImmediateInsert)
+      if (forceImmediateInsert || usingDCArchiveAuditTrail)
       {
          return true;
       }
@@ -419,7 +464,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          boolean useBatchStatement = true;
          DBMSKey dbmsKey = dbDescriptor.getDbmsKey();
-         if (DBMSKey.MSSQL8.equals(dbmsKey) || DBMSKey.MSSQL.equals(dbmsKey))
+         if (DBMSKey.MSSQL8.equals(dbmsKey) || DBMSKey.MSSQL.equals(dbmsKey) || DBMSKey.SYBASE.equals(dbmsKey))
          {
             // MSSQL needs to use getGeneratedKeys() method,
             // since SELECT SCOPE_IDENTITY() has scope problems in Prepared Statements
@@ -1560,7 +1605,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
     */
    public void flush()
    {
-      if (isReadOnly())
+      if (isReadOnly() && !isUsingDataClusterOnArchiveAuditTrail())
       {
          // readonly
          return;
@@ -1570,12 +1615,18 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          trace.debug(this + ", flushing!");
       }
-      SessionLifecycleUtils.getSessionLifecycleExtension().beforeSave(this);
-
       try
       {
-
          // notify listeners in advance since they might add new objects to the cache
+         Map aiCache = (Map) objCacheRegistry.get(ActivityInstanceBean.class);
+         if ((null != aiCache) && !aiCache.isEmpty())
+         {
+            updateWorkItems(aiCache);
+            updateActivityInstancesHistory(aiCache);
+         }
+
+         SessionLifecycleUtils.getSessionLifecycleExtension().beforeSave(this);
+
          // collect the keys to avoid concurrent modification exceptions
          List<Class<?>> types = CollectionUtils.newList(objCacheRegistry.keySet());
          for (Class<?> type : types)
@@ -1597,17 +1648,8 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                }
             }
          }
-         // update modified objects
-
-         Map aiCache = (Map) objCacheRegistry.get(ActivityInstanceBean.class);
-         if ((null != aiCache) && !aiCache.isEmpty())
-         {
-            updateWorkItems(aiCache);
-            updateActivityInstancesHistory(aiCache);
-         }
 
          // TODO make sure no non-PI related data is lost
-
          Map<Object, PersistenceController> pis = objCacheRegistry.get(ProcessInstanceBean.class);
          final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
          boolean supportsAsynchWrite = params.getBoolean(KernelTweakingProperties.ASYNC_WRITE, false) && rtEnv.getOperationMode() == BpmRuntimeEnvironment.OperationMode.DEFAULT;
@@ -4446,6 +4488,8 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    {
       DmlManagerRegistry getDmlManagerRegistry(String sessionName, SqlUtils sqlUtils,
             DBDescriptor dbDescriptor, TypeDescriptorRegistry tdRegistry);
+
+      void cleanCache(final String sessionName);
    }
 
    public static final class RuntimeDmlManagerProvider
@@ -4486,6 +4530,18 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          }
 
          return registry;
+      }
+
+      public void cleanCache(final String sessionName)
+      {
+         final GlobalParameters globals = GlobalParameters.globals();
+
+         final String keyDmlManagerCache = SessionProperties.DS_NAME_AUDIT_TRAIL
+               .equals(sessionName)
+               ? KEY_AUDIT_TRAIL_DML_MANAGER_CACHE
+               : KEY_GLOBAL_DML_MANAGER_CACHE_PREFIX + sessionName;
+
+         globals.set(keyDmlManagerCache, null);
       }
    }
 

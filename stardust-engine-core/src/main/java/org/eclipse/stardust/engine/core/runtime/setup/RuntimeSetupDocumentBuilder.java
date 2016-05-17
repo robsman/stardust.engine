@@ -18,6 +18,7 @@ import javax.xml.parsers.DocumentBuilder;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.utils.xml.SecureEntityResolver;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -30,9 +31,9 @@ import org.xml.sax.SAXParseException;
 
 /**
  * Instances of this {@link DocumentBuilder} are preconfigured for {@link RuntimeSetup}
- * configuration. The preconfiguration includes validation, namespace-awareness, 
+ * configuration. The preconfiguration includes validation, namespace-awareness,
  * tracing error handler and entity resolver.
- *    
+ *
  * @author sborn
  * @version $Revision$
  */
@@ -47,7 +48,7 @@ public class RuntimeSetupDocumentBuilder extends DocumentBuilder implements XMLC
    {
       domBuilder = XmlUtils.newDomBuilder(true, NS_CARNOT_RUNTIME_SETUP);
       domBuilder.setErrorHandler(new ParseErrorHandler());
-      domBuilder.setEntityResolver(new ParseEntityResolver());
+      domBuilder.setEntityResolver(new SecureEntityResolver(new ParseEntityResolver()));
    }
 
    public boolean isNamespaceAware()
@@ -140,7 +141,7 @@ public class RuntimeSetupDocumentBuilder extends DocumentBuilder implements XMLC
             throws SAXException, IOException
       {
          if ((null != systemId)
-               && (RUNTIME_SETUP_XSD_URL.equals(systemId) || 
+               && (RUNTIME_SETUP_XSD_URL.equals(systemId) ||
                      NS_CARNOT_RUNTIME_SETUP.equals(systemId) ||
                      systemId.endsWith(RUNTIME_SETUP_XSD)))
          {

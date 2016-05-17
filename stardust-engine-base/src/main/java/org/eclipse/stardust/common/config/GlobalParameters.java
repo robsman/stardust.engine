@@ -277,19 +277,17 @@ public class GlobalParameters
                final String key = entry.getKey();
                final Object value = entry.getValue();
 
-               if ( !key.equals("AuditTrail.Password") && !key.equals("Security.Principal.Secret"))
-               {
-                  final Object oldValue = this.localProperties.get(key);
+               final Object oldValue = this.localProperties.get(key);
 
-                  StringBuffer logMsg = new StringBuffer();
-                  logMsg.append("  ").append(key).append(" = ").append(value);
-                  if (null != oldValue)
-                  {
-                     logMsg.append(" (overriding previous value: ").append(oldValue)
-                           .append(")");
-                  }
-                  providerTrace.info(logMsg);
+               StringBuffer logMsg = new StringBuffer();
+               logMsg.append("  ").append(key).append(" = ").append(provider.getPropertyDisplayValue(key));
+               if (null != oldValue)
+               {
+                  logMsg.append(" (overriding previous value: ")
+                        .append(oldValue)
+                        .append(")");
                }
+               providerTrace.info(logMsg);
 
                if (value == null)
                {

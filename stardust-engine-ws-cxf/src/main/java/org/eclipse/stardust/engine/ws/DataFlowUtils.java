@@ -14,24 +14,7 @@
  */
 package org.eclipse.stardust.engine.ws;
 
-import static javax.xml.bind.DatatypeConverter.parseBoolean;
-import static javax.xml.bind.DatatypeConverter.parseByte;
-import static javax.xml.bind.DatatypeConverter.parseDateTime;
-import static javax.xml.bind.DatatypeConverter.parseDouble;
-import static javax.xml.bind.DatatypeConverter.parseFloat;
-import static javax.xml.bind.DatatypeConverter.parseInt;
-import static javax.xml.bind.DatatypeConverter.parseLong;
-import static javax.xml.bind.DatatypeConverter.parseShort;
-import static javax.xml.bind.DatatypeConverter.parseString;
-import static javax.xml.bind.DatatypeConverter.printBoolean;
-import static javax.xml.bind.DatatypeConverter.printByte;
-import static javax.xml.bind.DatatypeConverter.printDateTime;
-import static javax.xml.bind.DatatypeConverter.printDouble;
-import static javax.xml.bind.DatatypeConverter.printFloat;
-import static javax.xml.bind.DatatypeConverter.printInt;
-import static javax.xml.bind.DatatypeConverter.printLong;
-import static javax.xml.bind.DatatypeConverter.printShort;
-import static javax.xml.bind.DatatypeConverter.printString;
+import static javax.xml.bind.DatatypeConverter.*;
 import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
 import static org.eclipse.stardust.engine.api.model.PredefinedConstants.PRIMITIVE_DATA;
@@ -44,14 +27,8 @@ import static org.eclipse.stardust.engine.ws.XmlAdapterUtils.fromXto;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
@@ -64,74 +41,32 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 import javax.xml.transform.dom.DOMResult;
 
-import org.eclipse.stardust.common.Base64;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.CompareHelper;
-import org.eclipse.stardust.common.Direction;
-import org.eclipse.stardust.common.Money;
-import org.eclipse.stardust.common.Pair;
-import org.eclipse.stardust.common.Serialization;
-import org.eclipse.stardust.common.StringUtils;
+import org.w3c.dom.Element;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.dto.ContextKind;
-import org.eclipse.stardust.engine.api.dto.DataMappingDetails;
-import org.eclipse.stardust.engine.api.dto.Note;
-import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
-import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetails;
-import org.eclipse.stardust.engine.api.model.AccessPoint;
-import org.eclipse.stardust.engine.api.model.Activity;
-import org.eclipse.stardust.engine.api.model.ApplicationContext;
-import org.eclipse.stardust.engine.api.model.Data;
-import org.eclipse.stardust.engine.api.model.DataMapping;
-import org.eclipse.stardust.engine.api.model.DataPath;
-import org.eclipse.stardust.engine.api.model.Model;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.model.ProcessDefinition;
-import org.eclipse.stardust.engine.api.model.Reference;
-import org.eclipse.stardust.engine.api.model.TypeDeclaration;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.api.runtime.Folder;
-import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
-import org.eclipse.stardust.engine.api.ws.DocumentXto;
-import org.eclipse.stardust.engine.api.ws.DocumentsXto;
-import org.eclipse.stardust.engine.api.ws.FolderXto;
-import org.eclipse.stardust.engine.api.ws.FoldersXto;
-import org.eclipse.stardust.engine.api.ws.InstancePropertiesXto;
-import org.eclipse.stardust.engine.api.ws.NoteXto;
-import org.eclipse.stardust.engine.api.ws.ObjectFactory;
-import org.eclipse.stardust.engine.api.ws.ParameterXto;
-import org.eclipse.stardust.engine.api.ws.ParametersXto;
-import org.eclipse.stardust.engine.api.ws.XmlValueXto;
+import org.eclipse.stardust.engine.api.dto.*;
+import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.ws.*;
 import org.eclipse.stardust.engine.core.interactions.ModelResolver;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
-import org.eclipse.stardust.engine.core.struct.ClientXPathMap;
-import org.eclipse.stardust.engine.core.struct.IXPathMap;
-import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
-import org.eclipse.stardust.engine.core.struct.StructuredDataConverter;
-import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
-import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
-import org.eclipse.stardust.engine.core.struct.TypedXPath;
+import org.eclipse.stardust.engine.core.struct.*;
 import org.eclipse.stardust.engine.core.struct.sxml.DocumentBuilder;
 import org.eclipse.stardust.engine.core.struct.sxml.Node;
 import org.eclipse.stardust.engine.core.struct.sxml.Text;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsFolderBean;
-import org.w3c.dom.Element;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 /**
  * @author Robert.Sauer
@@ -1735,12 +1670,12 @@ public class DataFlowUtils
          String derefPath)
    {
       Set<TypedXPath> xPaths = StructuredTypeRtUtils.getAllXPaths(model, typeDeclaration);
-      return getStructuredTypeName(xPaths, derefPath);
+      return getStructuredTypeName(xPaths, derefPath, model);
    }
 
-   public static QName getStructuredTypeName(Set<TypedXPath> xPaths, String derefPath)
+   public static QName getStructuredTypeName(Set<TypedXPath> xPaths, String derefPath, Model model)
    {
-      IXPathMap xPathMap = new ClientXPathMap(xPaths);
+      IXPathMap xPathMap = new ClientXPathMap(xPaths, model);
 
       TypedXPath xPath = null;
 
@@ -1963,7 +1898,7 @@ public class DataFlowUtils
       if (null != typeDeclaration)
       {
          IXPathMap xPathMap = new ClientXPathMap(StructuredTypeRtUtils.getAllXPaths(
-               model, typeDeclaration));
+               model, typeDeclaration), model);
 
          return marshalStructValue(xPathMap, derefPath, value);
       }
@@ -1976,7 +1911,7 @@ public class DataFlowUtils
       if (null != typeDeclaration)
       {
          IXPathMap xPathMap = new ClientXPathMap(StructuredTypeRtUtils.getAllXPaths(
-               model, typeDeclaration));
+               model, typeDeclaration), model);
 
          marshalStructValue(xPathMap, derefPath, value, parameterXto);
       }
@@ -2096,12 +2031,21 @@ public class DataFlowUtils
       if (null != typeDeclaration)
       {
          Set<TypedXPath> xPaths = StructuredTypeRtUtils.getAllXPaths(model, typeDeclaration);
-         return unmarshalStructValue(xPaths, rootXPath, value);
+         return unmarshalStructValue(model, xPaths, rootXPath, value);
       }
       return null;
    }
 
+   /**
+    * @deprecated
+    */
    public static Serializable unmarshalStructValue(Set<TypedXPath> xPaths,
+         String rootXPath, Object value)
+   {
+      return unmarshalStructValue(null, xPaths, rootXPath, value);
+   }
+
+   public static Serializable unmarshalStructValue(Model model, Set<TypedXPath> xPaths,
          String rootXPath, Object value)
    {
       Serializable result = null;
@@ -2112,7 +2056,7 @@ public class DataFlowUtils
 
       if (value instanceof Element)
       {
-         IXPathMap xPathMap = new ClientXPathMap(xPaths);
+         IXPathMap xPathMap = new ClientXPathMap(xPaths, model);
 
          StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap, true);
 
@@ -2143,7 +2087,7 @@ public class DataFlowUtils
                StructuredDataXPathUtils.getLastXPathPart(rootXPath));
          element.appendChild(new Text((String) value));
 
-         IXPathMap xPathMap = new ClientXPathMap(xPaths);
+         IXPathMap xPathMap = new ClientXPathMap(xPaths, model);
 
          StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap, true);
 
@@ -2156,7 +2100,7 @@ public class DataFlowUtils
          List<Serializable> list = new ArrayList<Serializable>(((List<?>) value).size());
          for (Object element : (List<?>) value)
          {
-            list.add(unmarshalStructValue(xPaths, rootXPath, element));
+            list.add(unmarshalStructValue(model, xPaths, rootXPath, element));
          }
          result = (Serializable) list;
       }

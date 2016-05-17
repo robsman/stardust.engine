@@ -154,7 +154,7 @@ public class BenchmarkActivityStatisticsRetriever
       }
 
       BusinessObjectQueryPredicate boqEvaluator = new BusinessObjectQueryPredicate(boq);
-      Set<IData> allData = BusinessObjectUtils.collectData(ModelManagerFactory.getCurrent(), boqEvaluator);
+      List<IData> allData = BusinessObjectUtils.collectData(ModelManagerFactory.getCurrent(), boqEvaluator);
       if (allData.isEmpty())
       {
          return result;
@@ -207,7 +207,7 @@ public class BenchmarkActivityStatisticsRetriever
                   case ActivityInstanceState.COMPLETED:
                      result.getBenchmarkStatistics().incrementCompletedPerItem(groupByName, name, aiOid);
                      break;
-                  default: 
+                  default:
                      // ActivityInstanceState.APPLICATION, ActivityInstanceState.SUSPENDED,
                      // ActivityInstanceState.INTERRUPTED, ActivityInstanceState.ABORTING,
                      // ActivityInstanceState.HIBERNATED

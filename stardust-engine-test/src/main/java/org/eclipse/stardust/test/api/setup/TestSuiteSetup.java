@@ -82,6 +82,18 @@ public class TestSuiteSetup extends ExternalResource
       testClassSetup = new TestClassSetup(userPwdPair, forkingServiceMode, testModels);
    }
 
+   /**
+    * <p>
+    * Initializes the object with the given testClassSetup (e.g. DataClusterTestClassSetup)
+    * </p>
+    *
+    * @param testClassSetup
+    */
+   public TestSuiteSetup(TestClassSetup testClassSetup)
+   {
+      this.testClassSetup = testClassSetup;
+   }
+
    /* (non-Javadoc)
     * @see org.junit.rules.ExternalResource#apply(org.junit.runners.model.Statement, org.junit.runner.Description)
     */

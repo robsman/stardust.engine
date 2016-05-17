@@ -1,5 +1,8 @@
 package org.eclipse.stardust.engine.extensions.camel;
 
+import static org.eclipse.stardust.engine.api.model.PredefinedConstants.SYNCHRONOUS_APPLICATION_RETRY_ENABLE;
+import static org.eclipse.stardust.engine.api.model.PredefinedConstants.SYNCHRONOUS_APPLICATION_RETRY_NUMBER;
+import static org.eclipse.stardust.engine.api.model.PredefinedConstants.SYNCHRONOUS_APPLICATION_RETRY_TIME;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.*;
 
 import java.io.IOException;
@@ -15,6 +18,7 @@ import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.core.model.beans.*;
 import org.eclipse.stardust.engine.core.model.utils.Link;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.extensions.camel.trigger.AccessPointProperties;
 
@@ -198,7 +202,17 @@ public class Util
 
    }
 
-
+   public static boolean isPrimitiveType(AccessPointBean accessPoint){
+      return (accessPoint!=null && accessPoint.getType().getId().equalsIgnoreCase(PRIMITIVE_TYPE));
+   }
+   public static boolean isDocumentType(AccessPointBean accessPoint){
+      return (accessPoint!=null && accessPoint.getType().getId().equalsIgnoreCase("dmsDocument"));
+   }
+   public static boolean isStringType(AccessPointBean accessPoint){
+      Type type=(Type) accessPoint.getAttribute("carnot:engine:type");
+      return type!=null && type==Type.String;
+   }
+   
    /**
     * return the value of carnot:engine:camel::producerInboundConversion attribute defined in the trigger.
     * otherwise fromXML as a default value
@@ -259,7 +273,57 @@ public class Util
    {
       return (String) application.getAttribute(ADDITIONAL_SPRING_BEANS_DEF_ATT);
    }
-
+   
+   /**
+    * Return true when retry behavior is configured in the application
+    * 
+    * @param application
+    * @return
+    */
+   public static boolean isRetryEnabled(final IApplication application){
+      Boolean enabled=false;
+      if(application.getAttribute(SYNCHRONOUS_APPLICATION_RETRY_ENABLE) != null)
+         enabled = (Boolean) application.getAttribute(SYNCHRONOUS_APPLICATION_RETRY_ENABLE);
+   
+      return enabled;
+   }
+   /**
+    * Return true for All camel Applications
+    * The engine should not activiate retry behavior for camel application
+    * 
+    * @param application
+    * @return
+    */
+   public static boolean isApplicationRetryResponsibilityEnabled(final IApplication application){
+      Boolean enabled=true;
+      if(application.getAttribute(PredefinedConstants.SYNCHRONOUS_APPLICATION_RETRY_RESPONSIBILITY) != null)
+         enabled = ((String) application.getAttribute(PredefinedConstants.SYNCHRONOUS_APPLICATION_RETRY_RESPONSIBILITY)).equalsIgnoreCase("application");
+   
+      return enabled;
+   }
+   
+   /**
+    * Rturns the No of Retries
+    * @return
+    */
+   public static int getRetryNumber(final IApplication application){
+      int retryNumber = 0;
+      if(application.getAttribute(SYNCHRONOUS_APPLICATION_RETRY_NUMBER)!=null)
+         retryNumber=Integer.parseInt((String)application.getAttribute(SYNCHRONOUS_APPLICATION_RETRY_NUMBER));
+      return (retryNumber>1)?retryNumber-1:retryNumber;
+   }
+   
+   /**
+    * Returns the Time between Retries (seconds)
+    * @return
+    */
+   public static int getRetryTime(final IApplication application){
+      int retryTime = 0;
+      if(application.getAttribute(SYNCHRONOUS_APPLICATION_RETRY_TIME)!=null)
+         retryTime=Integer.parseInt((String)application.getAttribute(SYNCHRONOUS_APPLICATION_RETRY_TIME));
+      return retryTime*1000;
+   }
+   
    /**
     * if the camelContextId is provided in carnot:engine:camel::camelContextId Returns the
     * name of camelContext to be used.
@@ -674,6 +738,20 @@ public class Util
       return null;
    }
 
+   public static AccessPointBean getAccessPointById(String accesspointId,Iterator  accessPoints){
+      AccessPointBean accessPoint=null;
+      while (accessPoints.hasNext())
+      {
+         AccessPointBean ap= (AccessPointBean) accessPoints.next();
+         if (accesspointId.equalsIgnoreCase(ap.getId()))
+         {
+            accessPoint=ap;
+            break;
+         }
+      }
+      return accessPoint;
+   }
+   
    /**
     *
     * @param Trigger
@@ -701,9 +779,13 @@ public class Util
     */
    private static String getThrowableDetailMessage(Throwable throwable)
    {
-      return throwable.getMessage() != null
-            ? throwable.getMessage()
-            : getThrowableDetailMessage(throwable.getCause());
+      if(throwable!=null ){
+         if(throwable.getMessage() != null )
+            return throwable.getMessage();
+         else
+            getThrowableDetailMessage(throwable.getCause());
+      }
+      return "";
    }
    
    /**
@@ -747,5 +829,28 @@ public class Util
    public static String getScriptCode(final IApplication application){
       return application.getAttribute(SCRIPT_CODE_CONTENT);
    }
+   /**
+    * Return the value of the EA stardust:sqlScriptingOverlay::sqlQuery which represents the sql query to be executed.
+    * @param application
+    * @return
+    */
+   public static String getSqlQuery(final IApplication application){
+      return application.getAttribute(SQL_QUERY);
+   }
+   
+   /**
+    * Return the value of the EA stardust:sqlScriptingOverlay::outputType.
+    * @param application
+    * @return
+    */
+   public static String getOutputType(final IApplication application){
+      return application.getAttribute(SQL_OUTPUT_TYPE);
+   }
+   
+   
+   public static <T>T getAttributeValue(String attributeId,IApplication application){
+      return application.getAttribute(attributeId);
+   }
+
    
 }

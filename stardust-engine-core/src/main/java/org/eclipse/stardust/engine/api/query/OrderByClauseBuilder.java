@@ -263,4 +263,9 @@ public final class OrderByClauseBuilder implements OrderEvaluationVisitor
    {
       return new org.eclipse.stardust.engine.core.persistence.OrderCriteria();
    }
+
+   public Object visit(RootProcessDefinitionDescriptor rootProcessDefinitionDescriptor, Object context)
+   {
+      return null;
+   }
 }

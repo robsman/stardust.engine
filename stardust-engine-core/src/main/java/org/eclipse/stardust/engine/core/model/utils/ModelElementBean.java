@@ -50,6 +50,11 @@ public abstract class ModelElementBean extends AttributeHolderImpl implements Mo
 
    public static int nextID(String prefix, int current, String id)
    {
+      if(prefix == null)
+      {
+         throw new IllegalArgumentException("prefix must not be null");
+      }
+      
       if (id != null && id.startsWith(prefix))
       {
          try
@@ -110,12 +115,6 @@ public abstract class ModelElementBean extends AttributeHolderImpl implements Mo
    public long getOID()
    {
       return ((long) getModel().getModelOID() << 32) + elementOID;
-   }
-
-   public void setElementOID(int elementOID)
-   {
-      markModified();
-      this.elementOID = elementOID;
    }
 
    public void setTransient(boolean aTransient)

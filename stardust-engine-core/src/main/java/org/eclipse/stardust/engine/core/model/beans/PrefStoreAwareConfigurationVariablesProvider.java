@@ -16,15 +16,12 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.AdministrationService;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-
-
 
 public class PrefStoreAwareConfigurationVariablesProvider
       extends DefaultConfigurationVariablesProvider
@@ -88,18 +85,12 @@ public class PrefStoreAwareConfigurationVariablesProvider
          throw new PublicException(BpmRuntimeError.MDL_PARTITION_NOT_INITIALIZED.raise());
       }
 
-      UserRealmBean transientRealm = UserRealmBean.createTransientRealm(
-            PredefinedConstants.SYSTEM_REALM, PredefinedConstants.SYSTEM_REALM, partition);
-      IUser user = UserBean.createTransientUser(PredefinedConstants.SYSTEM,
-            PredefinedConstants.SYSTEM_FIRST_NAME, PredefinedConstants.SYSTEM_LAST_NAME,
-            transientRealm);
+      IUser systemUser = UserBean.getSystemUser(partition);
 
-      PropertyLayer pushLayer = ParametersFacade.pushLayer(Collections.singletonMap(
-            SecurityProperties.CURRENT_USER, user));
-      pushLayer.setProperty(SecurityProperties.CURRENT_PARTITION_OID, user.getRealm()
-            .getPartition()
-            .getOID());
-      pushLayer.setProperty(SecurityProperties.CURRENT_DOMAIN_OID, user.getDomainOid());
+      PropertyLayer pushLayer = ParametersFacade.pushLayer(
+            Collections.singletonMap(SecurityProperties.CURRENT_USER, systemUser));
+      pushLayer.setProperty(SecurityProperties.CURRENT_PARTITION_OID, partition.getOID());
+      pushLayer.setProperty(SecurityProperties.CURRENT_DOMAIN_OID, systemUser.getDomainOid());
 
       pushLayer.setProperty(SynchronizationService.PRP_DISABLE_SYNCHRONIZATION, true);
       pushLayer.setProperty(SecurityProperties.AUTHORIZATION_SYNC_LOAD_PROPERTY, false);

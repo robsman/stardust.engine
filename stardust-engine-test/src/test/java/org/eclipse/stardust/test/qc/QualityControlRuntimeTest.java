@@ -73,6 +73,8 @@ public class QualityControlRuntimeTest
    private static final String DATA_VALUE_CORRECTED_BY_QC_MANAGER = "somevalue_corrected_by_qc_manager";
 
    private static final String PROCESS_DEFINITION_ID = "ProcessDefinition1";
+   
+   private static final String PROCESS_DEFINITION_2_ID = "ProcessDefinition2";
 
    private static final String QA_ENABLED_ACTIVITY_ID = "QCEnabledActivity";
    private static final String END_ACTIVITY_ID = "EndActivity";
@@ -535,6 +537,37 @@ public class QualityControlRuntimeTest
       currentActivityInstance
          = monitoredUserWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
       assertNull("no backward references should exists: ", currentActivityInstance.getQualityAssuranceInfo());
+   }
+   
+   @Test
+   public void testAddNoteToQA() throws Exception
+   {
+      currentProcessInstance = monitoredUserWorkflowService.startProcess(
+            PROCESS_DEFINITION_2_ID, null, true);
+      currentActivityInstance = monitoredUserWorkflowService
+            .activateNextActivityInstanceForProcessInstance(currentProcessInstance
+                  .getOID());
+      Map<String, String> data = new HashMap<String, String>();
+      data.put(DATA_ID, QA_DATA_VALUE);
+      currentActivityInstance = monitoredUserWorkflowService.complete(
+            currentActivityInstance.getOID(), null, data);
+
+      currentActivityInstance = qcManagerWorkflowService
+            .activateNextActivityInstanceForProcessInstance(currentProcessInstance
+                  .getOID());
+      assertEquals(currentActivityInstance.getQualityAssuranceState(),
+            QualityAssuranceState.IS_QUALITY_ASSURANCE);
+
+      final String note = "Test note 1";
+
+      // add notes to the qa activity instance
+      ActivityInstanceAttributes noteAttributes
+         = new ActivityInstanceAttributesImpl(currentActivityInstance.getOID());
+      noteAttributes.addNote(note);
+
+      qcManagerWorkflowService.setActivityInstanceAttributes(noteAttributes);
+      assertNotesExists(note);
+      
    }
 
    @Test

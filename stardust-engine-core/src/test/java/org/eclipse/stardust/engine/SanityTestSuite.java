@@ -20,6 +20,7 @@ import org.eclipse.stardust.engine.api.query.QueryTestSuite;
 import org.eclipse.stardust.engine.api.runtime.EngineSetupTestSuite;
 import org.eclipse.stardust.engine.core.compatibility.el.ElTestSuite;
 import org.eclipse.stardust.engine.core.compatibility.spi.SpiTestSuite;
+import org.eclipse.stardust.engine.core.model.ModelTestSuite;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceTestSuite;
 import org.eclipse.stardust.engine.core.preferences.PreferencesTestSuite;
 import org.eclipse.stardust.engine.core.struct.StructuredDataTestSuite;
@@ -46,7 +47,8 @@ import org.junit.runners.Suite.SuiteClasses;
                   SpiTestSuite.class,
                   TransientProcessInstanceTestSuite.class,
                   UpgradeTestSuite.class,
-                  ElTestSuite.class} )
+                  ElTestSuite.class,
+                  ModelTestSuite.class } )
 public class SanityTestSuite
 {
    /* test suite */

@@ -240,10 +240,21 @@ public interface AdministrationService extends Service
     * database. The tables will still remain in the database.
     *
     * @param keepUsers a flag to specify if the users should be deleted or not.
+    * @param keepBO a flag to specify if the BO should be deleted or not.
+    */
+   @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail)
+   void cleanupRuntime(boolean keepUsers, boolean keepBO);
+
+   /**
+    * Removes all records from the runtime environment making up the audit trail
+    * database. The tables will still remain in the database.
+    *
+    * @param keepUsers a flag to specify if the users should be deleted or not.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail)
    void cleanupRuntime(boolean keepUsers);
-
+   
+   
    /**
     * Removes all records from the runtime environment making up the audit trail
     * database. Additionally empties the model table. The tables will still remain in the
@@ -863,7 +874,7 @@ public interface AdministrationService extends Service
     * @param oid The oid of the artifact.
     * @return The artifact or <code>null<code> if it does not exist.
     */
-   @ExecutionPermission(id = ExecutionPermission.Id.readRuntimeArtifact)
+   @ExecutionPermission(id = ExecutionPermission.Id.readRuntimeArtifact, defaults={ExecutionPermission.Default.ALL})
    public RuntimeArtifact getRuntimeArtifact(long oid);
 
    /**

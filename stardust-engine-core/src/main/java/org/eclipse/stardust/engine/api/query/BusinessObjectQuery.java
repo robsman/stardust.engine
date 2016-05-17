@@ -61,7 +61,12 @@ public class BusinessObjectQuery extends Query
       /**
        * Result includes business object instance values.
        */
-      WITH_VALUES
+      WITH_VALUES,
+
+      /**
+       * Result includes only the last business object instance values eventually upgraded to current schema.
+       */
+      UPGRADE
    }
 
    /**

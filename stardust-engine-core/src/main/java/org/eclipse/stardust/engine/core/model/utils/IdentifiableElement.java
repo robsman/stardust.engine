@@ -22,4 +22,6 @@ public interface IdentifiableElement extends ModelElement, Identifiable, Nameabl
    void setId(String id);
 
    void setName(String name);
+   
+   String getQualifiedId();
 }

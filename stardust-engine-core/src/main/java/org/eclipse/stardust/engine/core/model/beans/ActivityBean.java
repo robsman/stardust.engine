@@ -16,7 +16,9 @@ import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
+import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.model.utils.*;
 import org.eclipse.stardust.engine.core.pojo.data.JavaDataTypeUtils;
@@ -669,23 +671,39 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
                   if (xPathMap != null)
                   {
                      String xPathWithoutIndexes = StructuredDataXPathUtils.getXPathWithoutIndexes(dataPath);
-                     TypedXPath xPath = xPathMap.getXPath(xPathWithoutIndexes);
-                     if(xPath == null)
+                     try
                      {
-                        BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING.raise(getId());
-                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
-                     }
-                     else if(xPath.getType() != BigData.STRING)
-                     {
-                        BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING.raise(getId());
-                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
-                     }
-                     else
-                     {
-                        if(xPath.isEnumeration() && !StringUtils.isEmpty(dataPath))
+                        TypedXPath xPath = xPathMap.getXPath(xPathWithoutIndexes);
+                        if(xPath == null)
+                        {
+                           // backward compatibility
+                           throw new IllegalOperationException(
+                                 BpmRuntimeError.MDL_UNKNOWN_XPATH.raise(xPathWithoutIndexes));
+                        }
+                        else if(xPath.getType() != BigData.STRING)
                         {
                            BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING.raise(getId());
                            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                        }
+                        else
+                        {
+                           if(xPath.isEnumeration() && !StringUtils.isEmpty(dataPath))
+                           {
+                              BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING.raise(getId());
+                              inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                           }
+                        }
+                     }
+                     catch(IllegalOperationException e)
+                     {
+                        if(BpmRuntimeError.MDL_UNKNOWN_XPATH.getErrorCode().equals(e.getError().getId()))
+                        {
+                           BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING.raise(getId());
+                           inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                        }
+                        else
+                        {
+                           throw e;
                         }
                      }
                   }

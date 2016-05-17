@@ -825,7 +825,7 @@ public interface QueryService extends Service
     * @param oid The oid of the artifact.
     * @return The artifact or <code>null<code> if it does not exist.
     */
-   @ExecutionPermission(id=ExecutionPermission.Id.readRuntimeArtifact)
+   @ExecutionPermission(id=ExecutionPermission.Id.readRuntimeArtifact, defaults={ExecutionPermission.Default.ALL})
    public RuntimeArtifact getRuntimeArtifact(long oid);
 
    /**
@@ -834,7 +834,7 @@ public interface QueryService extends Service
     * @param query the deployed runtime artifact query.
     * @return The deployed runtime artifacts matching the specified criteria.
     */
-   @ExecutionPermission(id=ExecutionPermission.Id.readRuntimeArtifact)
+   @ExecutionPermission(id=ExecutionPermission.Id.readRuntimeArtifact, defaults={ExecutionPermission.Default.ALL})
    public DeployedRuntimeArtifacts getRuntimeArtifacts(DeployedRuntimeArtifactQuery query);
 
    /**

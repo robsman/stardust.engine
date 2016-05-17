@@ -230,7 +230,7 @@ public abstract class AbstractProperty extends IdentifiablePersistentBean
 
    public <T extends AbstractProperty> T clone(long objectId, T property)
    {
-      // HINT: avoid "<field_name> has private access in 
+      // HINT: avoid "<field_name> has private access in
       // org.eclipse.stardust.engine.core.runtime.beans.AbstractProperty"
       // by casting the parameter explicitly to AbstractProperty
       AbstractProperty ap = (AbstractProperty) property;
@@ -241,6 +241,9 @@ public abstract class AbstractProperty extends IdentifiablePersistentBean
       ap.name = this.name;
       ap.string_value = this.string_value;
       ap.type_key = this.type_key;
+
+      ap.dataHandler.write(this.dataHandler.read(), true);
+      ap.markModified();
 
       return property;
    }

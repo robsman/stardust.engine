@@ -348,63 +348,67 @@ public class StatisticsModelUtils
 
       if (null != modelElement)
       {
-         Object durationValue = modelElement.getAttribute(paramName);
+         duration = (Period) modelElement.getRuntimeAttribute(parsedParamName);
 
-         if (durationValue instanceof Period)
+         if(duration == null)
          {
-            duration = (Period) durationValue;
-         }
-         else
-         {
-            duration = (Period) modelElement.getRuntimeAttribute(parsedParamName);
-            if ((null == duration) && (null != durationValue))
+            Object durationValue = modelElement.getAttribute(paramName);
+   
+            if (durationValue instanceof Period)
             {
-               Calendar calBase = TimestampProviderUtils.getCalendar(0l);
-               Calendar cal = TimestampProviderUtils.getCalendar(0l);
-
-               durationValue = durationValue instanceof Number ? durationValue.toString() : durationValue;
-               if (durationValue instanceof String)
+               duration = (Period) durationValue;
+            }
+            else
+            {
+               if (null != durationValue)
                {
-                  try
+                  Calendar calBase = TimestampProviderUtils.getCalendar(0l);
+                  Calendar cal = TimestampProviderUtils.getCalendar(0l);
+   
+                  durationValue = durationValue instanceof Number ? durationValue.toString() : durationValue;
+                  if (durationValue instanceof String)
                   {
-                     if(((String)durationValue).indexOf(":") > -1)
+                     try
                      {
-                        duration = new Period((String)durationValue);
+                        if(((String)durationValue).indexOf(":") > -1)
+                        {
+                           duration = new Period((String)durationValue);
+                        }
+                        else
+                        {
+                           cal.add(Calendar.MINUTE, NumberFormat.getInstance().parse(
+                              (String) durationValue).intValue());
+                           duration = new Period((short) (cal.get(Calendar.YEAR) - calBase.get(Calendar.YEAR)),
+                                 (short) (cal.get(Calendar.MONTH) - calBase.get(Calendar.MONTH)),
+                                 (short) (cal.get(Calendar.DAY_OF_MONTH) - calBase.get(Calendar.DAY_OF_MONTH)),
+                                 (short) (cal.get(Calendar.HOUR_OF_DAY) - calBase.get(Calendar.HOUR_OF_DAY)),
+                                 (short) (cal.get(Calendar.MINUTE) - calBase.get(Calendar.MINUTE)),
+                                 (short) (cal.get(Calendar.SECOND - calBase.get(Calendar.SECOND))));
+                        }
                      }
-                     else
+                     catch (ParseException pe)
                      {
-                        cal.add(Calendar.MINUTE, NumberFormat.getInstance().parse(
-                           (String) durationValue).intValue());
-                        duration = new Period((short) (cal.get(Calendar.YEAR) - calBase.get(Calendar.YEAR)),
-                              (short) (cal.get(Calendar.MONTH) - calBase.get(Calendar.MONTH)),
-                              (short) (cal.get(Calendar.DAY_OF_MONTH) - calBase.get(Calendar.DAY_OF_MONTH)),
-                              (short) (cal.get(Calendar.HOUR_OF_DAY) - calBase.get(Calendar.HOUR_OF_DAY)),
-                              (short) (cal.get(Calendar.MINUTE) - calBase.get(Calendar.MINUTE)),
-                              (short) (cal.get(Calendar.SECOND - calBase.get(Calendar.SECOND))));
+                        trace.warn("Failed parsing target execution time for model element "
+                              + modelElement, pe);
                      }
                   }
-                  catch (ParseException pe)
+   
+                  if (null != duration
+                        && (modelElement instanceof IProcessDefinition || modelElement instanceof IActivity))
                   {
-                     trace.warn("Failed parsing target execution time for model element "
-                           + modelElement, pe);
+                     if(duration.get(Period.YEARS) == 0 &
+                           duration.get(Period.MONTHS) == 0 &
+                           duration.get(Period.DAYS) == 0 &
+                           duration.get(Period.HOURS) == 0 &
+                           duration.get(Period.MINUTES) == 0 &
+                           duration.get(Period.SECONDS) == 0)
+                     {
+                        duration = null;
+                     }
                   }
+   
+                  modelElement.setRuntimeAttribute(parsedParamName, duration);
                }
-
-               if (null != duration
-                     && (modelElement instanceof IProcessDefinition || modelElement instanceof IActivity))
-               {
-                  if(duration.get(Period.YEARS) == 0 &
-                        duration.get(Period.MONTHS) == 0 &
-                        duration.get(Period.DAYS) == 0 &
-                        duration.get(Period.HOURS) == 0 &
-                        duration.get(Period.MINUTES) == 0 &
-                        duration.get(Period.SECONDS) == 0)
-                  {
-                     duration = null;
-                  }
-               }
-
-               modelElement.setRuntimeAttribute(parsedParamName, duration);
             }
          }
       }

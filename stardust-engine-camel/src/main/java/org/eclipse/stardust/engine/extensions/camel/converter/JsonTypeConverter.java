@@ -146,7 +146,7 @@ public class JsonTypeConverter
 //                  IXPathMap xPathMap = new ClientXPathMap(allXPaths);
 //                  TypedXPath rootXPath=    xPathMap.getRootXPath();
                   json = gson.toJson(ScriptValueConverter.unwrapValue(dataMap,rootXPath));
-               }else if(!rootXPath.getEnumerationValues().isEmpty()){
+               }else if((!rootXPath.getEnumerationValues().isEmpty())||dataMap instanceof String){
                   json=(String) dataMap;
                }
                else

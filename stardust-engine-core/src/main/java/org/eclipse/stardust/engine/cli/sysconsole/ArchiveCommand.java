@@ -100,7 +100,7 @@ public class ArchiveCommand extends AuditTrailCommand
       argTypes.register("-" + DEAD_PROCESSES, "-p", DEAD_PROCESSES, "Deletes terminated "
             + "process instances.", false);
 
-      argTypes.register("-" + DEAD_DATA, "-d", DEAD_DATA, "Deletes data values for terminated process instances.\n"
+      argTypes.register("-" + DEAD_DATA, "-d", DEAD_DATA, "Deletes data values and its historical data values for terminated process instances.\n"
             + "Accepts as argument a single data ID or a comma separated list of data\nIDs.",
             true);
 

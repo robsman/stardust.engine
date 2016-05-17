@@ -763,5 +763,10 @@ public class SpawnProcessTest
          /* always throws an exception to interrupt activity instance */
          throw new UnsupportedOperationException();
       }
+
+      public void doWait() throws InterruptedException
+      {
+         Thread.sleep(5000);
+      }
    }
 }

@@ -55,7 +55,7 @@ public class MySqlDbDescriptor extends IdentityColumnDbDriver
       {
          buffer.append(schemaName).append(".");
       }
-      buffer.append(tableName).append("(");
+      buffer.append(quoteIdentifier(tableName)).append("(");
 
       for (int n = 0; n < indexDescriptor.getColumns().length; ++n)
       {

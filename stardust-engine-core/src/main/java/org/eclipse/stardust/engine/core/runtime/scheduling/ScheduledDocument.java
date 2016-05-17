@@ -18,7 +18,6 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.AbstractLoginInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -75,12 +74,7 @@ public abstract class ScheduledDocument
       String userId = owner.getLocalPart();
       if (StringUtils.isEmpty(userId))
       {
-         IAuditTrailPartition partition = SecurityProperties.getPartition();
-         UserRealmBean transientRealm = UserRealmBean.createTransientRealm(
-               PredefinedConstants.SYSTEM_REALM, PredefinedConstants.SYSTEM_REALM, partition);
-         return UserBean.createTransientUser(PredefinedConstants.SYSTEM,
-               PredefinedConstants.SYSTEM_FIRST_NAME, PredefinedConstants.SYSTEM_LAST_NAME,
-               transientRealm);
+         return UserBean.getSystemUser(SecurityProperties.getPartition());
       }
 
       IUser user = new UserServiceImpl().internalGetUser(realmId, userId);

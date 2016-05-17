@@ -223,7 +223,7 @@ public final class DatabaseHelper
       return getFirstOid(selectPkMinStatement);
    }
 
-   private static long getMaxOid(RuntimeItem item, String qualifiedTableName, String oidColumn) throws SQLException
+   public static long getMaxOid(RuntimeItem item, String qualifiedTableName, String oidColumn) throws SQLException
    {
       StringBuffer selectPkMaxSql = new StringBuffer();
       selectPkMaxSql.append("Select MAX(").append(oidColumn);

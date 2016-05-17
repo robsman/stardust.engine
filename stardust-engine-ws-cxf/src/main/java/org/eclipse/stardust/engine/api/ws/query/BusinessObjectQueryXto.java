@@ -8,8 +8,8 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * 
- *    		TODO: Documentation needed
- *    		
+ *          Query container for building complex queries for business object instances.
+ *          
  * 
  * <p>Java class for BusinessObjectQuery complex type.
  * 

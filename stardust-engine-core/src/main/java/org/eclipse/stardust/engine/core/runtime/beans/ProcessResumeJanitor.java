@@ -99,8 +99,8 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
 
       if (historicStates2 == null || !historicStates2.hasNext())
       {
-         trace.warn("Activity instance " + activityInstance.getOID()
-               + " has no historical states. Resuming to Created state.");
+         trace.warn("Activity instance (oid '" + activityInstance.getOID()
+               + "') has no historical states. Resuming to Created state.");
          activityInstance.setState(ActivityInstanceState.CREATED, executingUserOid);
       }
 
@@ -156,6 +156,14 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
          {
             // halted state found, continue to state before halted.
             haltedFound = true;
+         }
+
+         if (haltedFound && !historicStates2.hasNext())
+         {
+            // no state before halted -> set to created.
+            trace.warn("Activity instance (oid '" + activityInstance.getOID()
+                  + "') has no historical states before it was halted. Resuming to Created state.");
+            activityInstance.setState(ActivityInstanceState.CREATED, executingUserOid);
          }
       } // end while
    }

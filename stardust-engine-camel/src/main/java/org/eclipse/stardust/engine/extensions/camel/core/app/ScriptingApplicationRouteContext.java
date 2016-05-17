@@ -5,14 +5,17 @@ import static org.eclipse.stardust.engine.extensions.camel.core.RouteDefinitionB
 
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IAccessPoint;
 import org.eclipse.stardust.engine.api.model.IApplication;
 import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
+import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.struct.ClientXPathMap;
@@ -45,28 +48,13 @@ public class ScriptingApplicationRouteContext extends ProducerRouteContext
       super(application, partitionId, camelContextId);
    }
 
-   @Override
-   public String getUserProvidedRouteConfiguration()
-   {
-      String providedRoute = Util.getProducerRouteConfiguration(this.application);
-      if (StringUtils.isEmpty(providedRoute))
-      {
-         logger.debug("The extended attribute " + PRODUCER_ROUTE_ATT
-               + " is not found. The new route generation strategy will be used.");
-         return generateRoute(this.application);
-      }
-      logger.debug("The extended attribute " + PRODUCER_ROUTE_ATT
-            + " is found. The route generation strategy will not be used. ");
-      return providedRoute;
-   }
-
    /**
     * Contains the internal logic to generate a Camel route for each Scripting language.
     * 
     * @param application
     * @return
     */
-   private String generateRoute(IApplication application)
+   protected String generateRoute(IApplication application)
    {
       if (Util.getScriptingLanguge(application).equalsIgnoreCase(JAVASCRIPT))
       {
@@ -419,20 +407,61 @@ public class ScriptingApplicationRouteContext extends ProducerRouteContext
       return functions.toString();
    }
 
-//   private static Gson getInstance()
-//   {
-//      GsonBuilder gsonBuilder = new GsonBuilder();
-//      gsonBuilder.registerTypeAdapter(Date.class, new JsonSerializer<Date>()
-//      {
-//         @Override
-//         public JsonElement serialize(Date date, java.lang.reflect.Type typeOfSrc,
-//               JsonSerializationContext context)
-//         {
-//            return date != null
-//                  ? new JsonPrimitive("/Date(" + date.getTime() + ")/")
-//                  : null;
-//         }
-//      });
-//      return gsonBuilder.create();
-//   }
+   
+   @Override
+   public List<Inconsistency> validate()
+   {
+      List<Inconsistency> inconsistencies = CollectionUtils.newList();
+      inconsistencies=super.validate();
+      String scriptingLanguague=Util.getScriptingLanguge(application);
+      if ( StringUtils.isNotEmpty(scriptingLanguague) && scriptingLanguague.equalsIgnoreCase(PYTHON))
+      {
+         inconsistencies.addAll(validatePythonApplication());
+      }
+      else if (StringUtils.isNotEmpty(scriptingLanguague) && scriptingLanguague.equalsIgnoreCase(GROOVY))
+      {
+         inconsistencies.addAll(validateGroovyApplication());
+      }
+      inconsistencies.addAll(validateJavascriptApplication()); 
+      
+      return inconsistencies;
+   }
+   
+   /**
+    * Contains the logic to validate a Javascript Application
+    * @return
+    */
+   private List<Inconsistency> validateJavascriptApplication(){
+      List<Inconsistency> inconsistencies = CollectionUtils.newList();
+      if( StringUtils.isEmpty(Util.getScriptCode(application)))
+      {
+         inconsistencies.add(new Inconsistency("Please provide a valid script for application " + application.getId(), application, Inconsistency.ERROR));
+      }
+      return inconsistencies;
+   }
+   /**
+    * Contains the logic to validate a Python Application
+    * @return
+    */
+   private List<Inconsistency> validatePythonApplication(){
+      List<Inconsistency> inconsistencies = CollectionUtils.newList();
+      if( StringUtils.isEmpty(Util.getScriptCode(application)))
+      {
+         inconsistencies.add(new Inconsistency("Please provide a valid python script for application" + application.getId(), application, Inconsistency.ERROR));
+      }
+      return inconsistencies;
+   }
+   
+   /**
+    * Contains the logic to validate a Groovy Application
+    * @return
+    */
+   private List<Inconsistency> validateGroovyApplication(){
+      List<Inconsistency> inconsistencies = CollectionUtils.newList();
+      if( StringUtils.isEmpty(Util.getScriptCode(application)))
+      {
+         inconsistencies.add(new Inconsistency("Please provide a valid groovy script for application" + application.getId(), application, Inconsistency.ERROR));
+      }
+      return inconsistencies;
+   }
 }

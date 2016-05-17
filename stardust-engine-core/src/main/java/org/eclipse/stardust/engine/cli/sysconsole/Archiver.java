@@ -42,9 +42,8 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
-import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
-import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
-import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
+import org.eclipse.stardust.engine.core.runtime.setup.*;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterMetaInfoRetriever;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
@@ -98,6 +97,9 @@ public class Archiver
 
    private static final ComparisonTerm PT_STRING_DATA_IS_DATA_VALUE_RECORD = Predicates.isEqual(
          LargeStringHolder.FR__DATA_TYPE, TypeDescriptor.getTableName(DataValueBean.class));
+   
+   private static final ComparisonTerm PT_STRING_DATA_IS_DATA_VALUE_HISTORY_RECORD = Predicates.isEqual(
+         LargeStringHolder.FR__DATA_TYPE, TypeDescriptor.getTableName(DataValueHistoryBean.class));
 
    private static final ComparisonTerm PT_STRING_DATA_IS_DMS_DOC_VALUE_RECORD = Predicates
          .inList(LargeStringHolder.FR__DATA_TYPE, new String[] {
@@ -370,8 +372,8 @@ public class Archiver
          if (archive)
          {
          // process instance links can include processes of models other than specified by modelOid
-            List<Long> findModels = findModels(rootPiOids);
-            for (Long toSyncModelOid : findModels)
+            Set<Long> foundModels = findModels(rootPiOids);
+            for (Long toSyncModelOid : foundModels)
             {
                if (toSyncModelOid != null)
                {
@@ -642,7 +644,7 @@ public class Archiver
                break;
             }
 
-            archiveData(modelID, value, Math.min(tsStart + interval, tsStop));
+            archiveData(modelID, value, ids, Math.min(tsStart + interval, tsStop));
          }
          while (true);
       }
@@ -820,6 +822,7 @@ public class Archiver
                      new Object[] {verbPre, new Integer(rootPiOids.size()), targetDbName}));
             }
 
+            // TODO: Still necessary or plain wrong as it does not synch all related model data as in synchronizeMasterTables(...)?
             archiveModels(modelOid);
 
             // synchronize model and utility table to ensure referential integrity for
@@ -827,8 +830,8 @@ public class Archiver
             if (archive)
             {
                // process instance links can include processes of models other than specified by modelOid
-               List<Long> findModels = findModels(rootPiOids);
-               for (Long toSyncModelOid : findModels)
+               Set<Long> foundModels = findModels(rootPiOids);
+               for (Long toSyncModelOid : foundModels)
                {
                   if (toSyncModelOid != null)
                   {
@@ -882,7 +885,7 @@ public class Archiver
       PiLinkVisitationContext visitationContext = new PiLinkVisitationContext();
 
       // only evaluate pi root oids which have links
-      List<Long> rootPiOidsWithLinks = findRootPiOidsHavingLinks(rootPiOids);
+      Set<Long> rootPiOidsWithLinks = findRootPiOidsHavingLinks(rootPiOids);
 
       for (Long oid : rootPiOidsWithLinks)
       {
@@ -901,13 +904,39 @@ public class Archiver
       return resultRootPiOids;
    }
 
-   private List<Long> findRootPiOidsHavingLinks(List<Long> rootPiOids)
+   private Set<Long> findRootPiOidsHavingLinks(List<Long> rootPiOids)
    {
-      QueryDescriptor qFindLinkedPis = QueryDescriptor.from(ProcessInstanceBean.class)
-            .selectDistinct(ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE)
-            .where(splitUpOidsSubList(rootPiOids, ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE));
+      List<Long> rootPiOidsBatch = new ArrayList<Long>(rootPiOids);
+      Set<Long> rootPiOidsWithLink = new HashSet<Long>(stmtBatchSizeLimit);
 
-      qFindLinkedPis.innerJoin(ProcessInstanceLinkBean.class, "PIL_PI")
+      while (!rootPiOidsBatch.isEmpty())
+      {
+         int txBatchSize = 0;
+
+         Set<Long> stmtBatchRootPiOids = new HashSet<Long>();
+         for (Long rootPiOid : rootPiOidsBatch)
+         {
+            if ((stmtBatchRootPiOids.size() < stmtBatchSizeLimit)
+                  && (txBatchSize < txBatchSizeLimit))
+            {
+               stmtBatchRootPiOids.add(rootPiOid);
+               ++txBatchSize;
+            }
+            else
+            {
+               break;
+            }
+         }
+
+         QueryDescriptor qFindLinkedPis = QueryDescriptor
+               .from(ProcessInstanceBean.class)
+            .selectDistinct(ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE)
+               .where(
+                     splitUpOidsSubList(new ArrayList(stmtBatchRootPiOids),
+                           ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE));
+
+         qFindLinkedPis
+               .innerJoin(ProcessInstanceLinkBean.class, "PIL_PI")
             .on(ProcessInstanceBean.FR__OID,
                   ProcessInstanceLinkBean.FIELD__PROCESS_INSTANCE)
             .orOn(ProcessInstanceBean.FR__OID,
@@ -915,7 +944,6 @@ public class Archiver
 
       ResultSet rsLinkedPis = session.executeQuery(qFindLinkedPis, Session.NO_TIMEOUT);
 
-      List<Long> rootPiOidsWithLink = new LinkedList<Long>();
       try
       {
          while (rsLinkedPis.next())
@@ -932,6 +960,10 @@ public class Archiver
       finally
       {
          QueryUtils.closeResultSet(rsLinkedPis);
+      }
+
+         rootPiOidsBatch.removeAll(stmtBatchRootPiOids);
+
       }
       return rootPiOidsWithLink;
    }
@@ -1413,8 +1445,13 @@ public class Archiver
 
          deleteDvParts(piOids, LargeStringHolder.class, LargeStringHolder.FR__OBJECTID,
                PT_STRING_DATA_IS_DATA_VALUE_RECORD);
+         
+         deleteDvHistoryParts(piOids, LargeStringHolder.class, LargeStringHolder.FR__OBJECTID,
+               PT_STRING_DATA_IS_DATA_VALUE_HISTORY_RECORD);
 
          deletePiParts(piOids, DataValueBean.class, DataValueBean.FR__PROCESS_INSTANCE);
+         
+         deletePiParts(piOids, DataValueHistoryBean.class, DataValueHistoryBean.FR__PROCESS_INSTANCE);
 
          deletePiParts(piOids, ProcessInstanceHierarchyBean.class,
                ProcessInstanceHierarchyBean.FR__PROCESS_INSTANCE);
@@ -1583,6 +1620,11 @@ public class Archiver
 
       backupDvParts(piOids, LargeStringHolder.class, LargeStringHolder.FIELD__OBJECTID,
             PT_STRING_DATA_IS_DATA_VALUE_RECORD);
+      
+      backupPiParts(piOids, DataValueHistoryBean.class, DataValueHistoryBean.FIELD__PROCESS_INSTANCE);
+      
+      backupDvHistoryParts(piOids, LargeStringHolder.class, LargeStringHolder.FIELD__OBJECTID,
+            PT_STRING_DATA_IS_DATA_VALUE_HISTORY_RECORD);
 
       backupPiParts(piOids, ActivityInstanceBean.class,
             ActivityInstanceBean.FIELD__PROCESS_INSTANCE);
@@ -1617,7 +1659,7 @@ public class Archiver
 
       backupDepParts();
 
-      // TODO how about data clusters?
+      backupDataCluster(piOids);
 
       return nProcesses;
    }
@@ -1787,118 +1829,23 @@ public class Archiver
       return deadModels;
    }
 
-   private void archiveData(String modelId, List<String> ids, long tsBefore)
+   private void archiveData(String modelId, List<String> ids, String[] fqIds, long tsBefore)
    {
       final int nData;
+      final int nDataHistory;
 
       try
       {
-         // building common subselect, qualifying records to be deleted
-         QueryDescriptor subSel = QueryDescriptor
-               .from(srcSchema, DataValueBean.class)
-               .select(DataValueBean.FR__OID);
-
-         subSel.innerJoin(srcSchema, AuditTrailDataBean.class)
-               .on(DataValueBean.FR__DATA, AuditTrailDataBean.FIELD__OID)
-               .andOn(DataValueBean.FR__MODEL, AuditTrailDataBean.FIELD__MODEL);
-
-         if(modelId != null)
-         {
-            subSel.innerJoin(srcSchema, ModelPersistorBean.class, "m")
-            .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
-            .where(Predicates.andTerm(
-                  Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()),
-                  Predicates.isEqual(ModelPersistorBean.FR__ID, modelId)));
-         }
-         else
-         {
-            subSel.innerJoin(srcSchema, ModelPersistorBean.class, "m")
-            .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
-            .where(Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()));
-         }
-
-         subSel.innerJoin(srcSchema, ProcessInstanceScopeBean.class)
-               .on(DataValueBean.FR__PROCESS_INSTANCE, ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE);
-
-         subSel.innerJoin(srcSchema, ProcessInstanceBean.class)
-               .on(ProcessInstanceScopeBean.FR__ROOT_PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID);
-
-         subSel.setPredicateTerm(Predicates.andTerm(
-               Predicates.inList(AuditTrailDataBean.FR__ID, ids),
-               PT_TERMINATED_PI,
-               Predicates.lessOrEqual(ProcessInstanceBean.FR__TERMINATION_TIME, tsBefore)));
-
-         // deleting overflow records for data values
-         if (trace.isDebugEnabled())
-         {
-            trace.debug("Deleting overflow records for data " + stringLiteralList(ids) + ".");
-         }
-
-         session.executeDelete(DeleteDescriptor
-               .from(srcSchema, LargeStringHolder.class)
-               .where(Predicates.andTerm(
-                     PT_STRING_DATA_IS_DATA_VALUE_RECORD,
-                     Predicates.inList(LargeStringHolder.FR__OBJECTID, subSel))));
-
-         // TODO: Delete "overflow" records for struct data and document/document sets.
-
-         // deleting data values
-         if (trace.isDebugEnabled())
-         {
-            trace.debug("Deleting data values for data " + stringLiteralList(ids) + ".");
-         }
-
-         DeleteDescriptor dvDelete = DeleteDescriptor
-               .from(srcSchema, DataValueBean.class);
-
-         dvDelete.innerJoin(srcSchema, AuditTrailDataBean.class)
-               .on(DataValueBean.FR__DATA, AuditTrailDataBean.FIELD__OID)
-               .andOn(DataValueBean.FR__MODEL, AuditTrailDataBean.FIELD__MODEL);
-
-         if(modelId != null)
-         {
-            dvDelete.innerJoin(srcSchema, ModelPersistorBean.class, "m")
-            .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
-            .where(Predicates.andTerm(
-                  Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()),
-                  Predicates.isEqual(ModelPersistorBean.FR__ID, modelId)));
-         }
-         else
-         {
-            dvDelete.innerJoin(srcSchema, ModelPersistorBean.class, "m")
-            .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
-            .where(Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()));
-
-         }
-
-         dvDelete.innerJoin(srcSchema, ProcessInstanceScopeBean.class)
-               .on(DataValueBean.FR__PROCESS_INSTANCE, ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE);
-
-         dvDelete.innerJoin(srcSchema, ProcessInstanceBean.class)
-               .on(ProcessInstanceScopeBean.FR__ROOT_PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID);
-
-         nData = session.executeDelete(dvDelete
-               .where(Predicates.andTerm(
-                     Predicates.inList(AuditTrailDataBean.FR__ID, ids),
-                     PT_TERMINATED_PI,
-                     Predicates.lessOrEqual(ProcessInstanceBean.FR__TERMINATION_TIME, tsBefore))));
-
-
-// ????
-         // deleting appropriate slots in data cluster tables
-         final DataCluster[] dClusters = RuntimeSetup.instance().getDataClusterSetup();
-         for (int idx = 0; idx < dClusters.length; ++idx)
-         {
-            synchronizeDataCluster(dClusters[idx], ids);
-         }
-// ###
-// ???? call to referencing models
-
+         nData = archiveDataValue(modelId, ids, fqIds, tsBefore);
+         
+         nDataHistory = archiveDataValueHistory(modelId, ids, fqIds, tsBefore);
 
          commit();
 
          trace.info(MessageFormat.format("Deleted {0} values for data {1}.",
                new Object[] {new Long(nData), stringLiteralList(ids)}));
+         trace.info(MessageFormat.format("Deleted {0} history values for data {1}.",
+               new Object[] {new Long(nDataHistory), stringLiteralList(ids)}));
       }
       catch (Exception e)
       {
@@ -1915,6 +1862,210 @@ public class Archiver
                      .raise(stringLiteralList(ids)),
                e);
       }
+   }
+
+   private int archiveDataValue(String modelId, List<String> ids, String[] fqIds,
+         long tsBefore)
+   {
+      final int nData;
+      // building common subselect, qualifying records to be deleted
+      QueryDescriptor subSel = QueryDescriptor
+            .from(srcSchema, DataValueBean.class)
+            .select(DataValueBean.FR__OID);
+
+      subSel.innerJoin(srcSchema, AuditTrailDataBean.class)
+            .on(DataValueBean.FR__DATA, AuditTrailDataBean.FIELD__OID)
+            .andOn(DataValueBean.FR__MODEL, AuditTrailDataBean.FIELD__MODEL);
+
+      if(modelId != null)
+      {
+         subSel.innerJoin(srcSchema, ModelPersistorBean.class, "m")
+         .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
+         .where(Predicates.andTerm(
+               Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()),
+               Predicates.isEqual(ModelPersistorBean.FR__ID, modelId)));
+      }
+      else
+      {
+         subSel.innerJoin(srcSchema, ModelPersistorBean.class, "m")
+         .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
+         .where(Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()));
+      }
+
+      subSel.innerJoin(srcSchema, ProcessInstanceScopeBean.class)
+            .on(DataValueBean.FR__PROCESS_INSTANCE, ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE);
+
+      subSel.innerJoin(srcSchema, ProcessInstanceBean.class)
+            .on(ProcessInstanceScopeBean.FR__ROOT_PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID);
+
+      subSel.setPredicateTerm(Predicates.andTerm(
+            Predicates.inList(AuditTrailDataBean.FR__ID, ids),
+            PT_TERMINATED_PI,
+            Predicates.lessOrEqual(ProcessInstanceBean.FR__TERMINATION_TIME, tsBefore)));
+
+      // deleting overflow records for data values
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("Deleting overflow records for data " + stringLiteralList(ids) + ".");
+      }
+
+      session.executeDelete(DeleteDescriptor
+            .from(srcSchema, LargeStringHolder.class)
+            .where(Predicates.andTerm(
+                  PT_STRING_DATA_IS_DATA_VALUE_RECORD,
+                  Predicates.inList(LargeStringHolder.FR__OBJECTID, subSel))));
+
+      // TODO: Delete "overflow" records for struct data and document/document sets.
+
+      // deleting data values
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("Deleting data values for data " + stringLiteralList(ids) + ".");
+      }
+
+      DeleteDescriptor dvDelete = DeleteDescriptor
+            .from(srcSchema, DataValueBean.class);
+
+      dvDelete.innerJoin(srcSchema, AuditTrailDataBean.class)
+            .on(DataValueBean.FR__DATA, AuditTrailDataBean.FIELD__OID)
+            .andOn(DataValueBean.FR__MODEL, AuditTrailDataBean.FIELD__MODEL);
+
+      if(modelId != null)
+      {
+         dvDelete.innerJoin(srcSchema, ModelPersistorBean.class, "m")
+         .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
+         .where(Predicates.andTerm(
+               Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()),
+               Predicates.isEqual(ModelPersistorBean.FR__ID, modelId)));
+      }
+      else
+      {
+         dvDelete.innerJoin(srcSchema, ModelPersistorBean.class, "m")
+         .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
+         .where(Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()));
+
+      }
+
+      dvDelete.innerJoin(srcSchema, ProcessInstanceScopeBean.class)
+            .on(DataValueBean.FR__PROCESS_INSTANCE, ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE);
+
+      dvDelete.innerJoin(srcSchema, ProcessInstanceBean.class)
+            .on(ProcessInstanceScopeBean.FR__ROOT_PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID);
+
+      nData = session.executeDelete(dvDelete
+            .where(Predicates.andTerm(
+                  Predicates.inList(AuditTrailDataBean.FR__ID, ids),
+                  PT_TERMINATED_PI,
+                  Predicates.lessOrEqual(ProcessInstanceBean.FR__TERMINATION_TIME, tsBefore))));
+
+
+// ????
+      // deleting appropriate slots in data cluster tables
+      final DataCluster[] dClusters = getDataClusterSetup(false);
+      for (int idx = 0; idx < dClusters.length; ++idx)
+      {
+         synchronizeDataCluster(dClusters[idx], Arrays.asList(fqIds));
+      }
+// ###
+// ???? call to referencing models
+      return nData;
+   }
+   
+   private int archiveDataValueHistory(String modelId, List<String> ids, String[] fqIds,
+         long tsBefore)
+   {
+      final int nData;
+      // building common subselect, qualifying records to be deleted
+      QueryDescriptor subSel = QueryDescriptor
+            .from(srcSchema, DataValueHistoryBean.class)
+            .select(DataValueHistoryBean.FR__OID);
+
+      subSel.innerJoin(srcSchema, AuditTrailDataBean.class)
+            .on(DataValueHistoryBean.FR__DATA, AuditTrailDataBean.FIELD__OID)
+            .andOn(DataValueHistoryBean.FR__MODEL, AuditTrailDataBean.FIELD__MODEL);
+
+      if(modelId != null)
+      {
+         subSel.innerJoin(srcSchema, ModelPersistorBean.class, "m")
+         .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
+         .where(Predicates.andTerm(
+               Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()),
+               Predicates.isEqual(ModelPersistorBean.FR__ID, modelId)));
+      }
+      else
+      {
+         subSel.innerJoin(srcSchema, ModelPersistorBean.class, "m")
+         .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
+         .where(Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()));
+      }
+
+      subSel.innerJoin(srcSchema, ProcessInstanceScopeBean.class)
+            .on(DataValueHistoryBean.FR__PROCESS_INSTANCE, ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE);
+
+      subSel.innerJoin(srcSchema, ProcessInstanceBean.class)
+            .on(ProcessInstanceScopeBean.FR__ROOT_PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID);
+
+      subSel.setPredicateTerm(Predicates.andTerm(
+            Predicates.inList(AuditTrailDataBean.FR__ID, ids),
+            PT_TERMINATED_PI,
+            Predicates.lessOrEqual(ProcessInstanceBean.FR__TERMINATION_TIME, tsBefore)));
+
+      // deleting overflow records for data values
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("Deleting overflow records for data " + stringLiteralList(ids) + ".");
+      }
+
+      session.executeDelete(DeleteDescriptor
+            .from(srcSchema, LargeStringHolder.class)
+            .where(Predicates.andTerm(
+                  PT_STRING_DATA_IS_DATA_VALUE_HISTORY_RECORD,
+                  Predicates.inList(LargeStringHolder.FR__OBJECTID, subSel))));
+
+      // TODO: Delete "overflow" records for struct data and document/document sets.
+
+      // deleting data values history
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("Deleting data values history for data " + stringLiteralList(ids) + ".");
+      }
+
+      DeleteDescriptor dvDelete = DeleteDescriptor
+            .from(srcSchema, DataValueHistoryBean.class);
+
+      dvDelete.innerJoin(srcSchema, AuditTrailDataBean.class)
+            .on(DataValueHistoryBean.FR__DATA, AuditTrailDataBean.FIELD__OID)
+            .andOn(DataValueHistoryBean.FR__MODEL, AuditTrailDataBean.FIELD__MODEL);
+
+      if(modelId != null)
+      {
+         dvDelete.innerJoin(srcSchema, ModelPersistorBean.class, "m")
+         .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
+         .where(Predicates.andTerm(
+               Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()),
+               Predicates.isEqual(ModelPersistorBean.FR__ID, modelId)));
+      }
+      else
+      {
+         dvDelete.innerJoin(srcSchema, ModelPersistorBean.class, "m")
+         .on(AuditTrailDataBean.FR__MODEL, ModelPersistorBean.FIELD__OID)
+         .where(Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()));
+
+      }
+
+      dvDelete.innerJoin(srcSchema, ProcessInstanceScopeBean.class)
+            .on(DataValueHistoryBean.FR__PROCESS_INSTANCE, ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE);
+
+      dvDelete.innerJoin(srcSchema, ProcessInstanceBean.class)
+            .on(ProcessInstanceScopeBean.FR__ROOT_PROCESS_INSTANCE, ProcessInstanceBean.FIELD__OID);
+
+      nData = session.executeDelete(dvDelete
+            .where(Predicates.andTerm(
+                  Predicates.inList(AuditTrailDataBean.FR__ID, ids),
+                  PT_TERMINATED_PI,
+                  Predicates.lessOrEqual(ProcessInstanceBean.FR__TERMINATION_TIME, tsBefore))));
+
+      return nData;
    }
 
    private void deleteLogEntries(long tsBefore, PredicateTerm restriction)
@@ -2138,13 +2289,33 @@ public class Archiver
    /**
     * finds distinct modelOids for given rootPiOids including modelOids of subprocesses.
     */
-   private List<Long> findModels(List<Long> rootPiOids)
+   private Set<Long> findModels(List<Long> rootPiOids)
    {
-      List<Long> result = new ArrayList<Long>();
+      List<Long> rootPiOidsBatch = new ArrayList<Long>(rootPiOids);
+      Set<Long> result = new HashSet<Long>(stmtBatchSizeLimit);
+
+      while (!rootPiOidsBatch.isEmpty())
+      {
+         int txBatchSize = 0;
+
+         Set<Long> stmtBatchRootPiOids = new HashSet<Long>();
+         for (Long rootPiOid : rootPiOidsBatch)
+         {
+            if ((stmtBatchRootPiOids.size() < stmtBatchSizeLimit)
+                  && (txBatchSize < txBatchSizeLimit))
+            {
+               stmtBatchRootPiOids.add(rootPiOid);
+               ++txBatchSize;
+            }
+            else
+            {
+               break;
+            }
+         }
 
       QueryDescriptor query = QueryDescriptor
-            .from(srcSchema, ModelPersistorBean.class)
-            .select(ModelPersistorBean.FR__OID);
+               .from(srcSchema, ModelPersistorBean.class).select(
+                     ModelPersistorBean.FR__OID);
 
       ResultSet rs = null;
       try
@@ -2152,12 +2323,12 @@ public class Archiver
          QueryDescriptor piSubQuery = QueryDescriptor
                .from(srcSchema, ProcessInstanceBean.class)
                .selectDistinct(ProcessInstanceBean.FIELD__MODEL)
-               .where(splitUpOidsSubList(rootPiOids,
+                  .where(
+                        splitUpOidsSubList(new ArrayList(stmtBatchRootPiOids),
                      ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE));
 
-         rs = session.executeQuery(query
-               .where(Predicates
-                     .inList(ModelPersistorBean.FR__OID, piSubQuery)));
+            rs = session.executeQuery(query.where(Predicates.inList(
+                  ModelPersistorBean.FR__OID, piSubQuery)));
 
          while (rs.next())
          {
@@ -2166,12 +2337,23 @@ public class Archiver
       }
       catch (Exception e)
       {
-         throw new PublicException(BpmRuntimeError.ARCH_FAILED_FINDING_MODELS.raise(), e);
+            throw new PublicException(BpmRuntimeError.ARCH_FAILED_FINDING_MODELS.raise(),
+                  e);
       }
       finally
       {
          QueryUtils.closeResultSet(rs);
       }
+         rootPiOidsBatch.removeAll(stmtBatchRootPiOids);
+      }
+
+      Set<Long> references = CollectionUtils.newHashSet();
+      for (Long modelOid : result)
+      {
+         references.addAll(getReferences(modelOid));
+      }
+
+      result.addAll(references);
 
       return result;
    }
@@ -2182,23 +2364,65 @@ public class Archiver
 
       try
       {
-         // TODO (kafka) are global properties with OID -1 correctly treated?
-         // rsauer: yes, as property does not have a model association
-         final ComparisonTerm partitionPredicate = Predicates.inList(
-               PropertyPersistor.FR__PARTITION, new long[] { -1, partitionOid });
-         synchronizePkInstableTables(PropertyPersistor.class, null, null, partitionPredicate);
-
-         // deleting runtime config property, if existent, as it currently only controls
-         // data cluster deployments, which are not supported in archive audit trails
-         session.executeDelete(DeleteDescriptor.from(archiveSchema,
-               PropertyPersistor.class).where( //
-               Predicates.andTerm( //
-                     Predicates.isEqual( //
-                           PropertyPersistor.FR__NAME, //
-                           RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION),
-                     partitionPredicate)));
-
          stmt = session.getConnection().createStatement();
+
+         // Fetch OID of current DC property in archive
+         PredicateTerm propertyPredicate = Predicates.inList(
+               PropertyPersistor.FR__PARTITION, new long[] { -1, partitionOid });
+         propertyPredicate = Predicates.andTerm(
+               propertyPredicate,
+               Predicates.isEqual(
+                     PropertyPersistor.FR__NAME,
+                     RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION));
+
+         QueryDescriptor queryDcProperty = QueryDescriptor.from(archiveSchema, PropertyPersistor.class).where(propertyPredicate).select(PropertyPersistor.FR__OID);
+         ResultSet dcPropertyResult = session.executeQuery(queryDcProperty);
+         if(dcPropertyResult.next())
+         {
+            // DC does extist - get current oid
+            long currentOid = dcPropertyResult.getLong(PropertyPersistor.FIELD__OID);
+
+            // find maximum OID from source and archive schema
+            long srcMaxOid = findMaxValue(srcSchema, PropertyPersistor.class,
+                  PropertyPersistor.FR__OID, null);
+            long arcMaxOid = findMaxValue(archiveSchema, PropertyPersistor.class,
+                  PropertyPersistor.FR__OID, null);
+            long maxOid = arcMaxOid > srcMaxOid ? arcMaxOid : srcMaxOid;
+
+            // move archive DC property ahead of max possible OIDs in order to avoid OID collision
+            StringBuilder updBuffer = new StringBuilder();
+            updBuffer.append("UPDATE ")
+                  .append(getArchiveObjName(PropertyPersistor.TABLE_NAME))
+                  .append(" SET ").append(PropertyPersistor.FIELD__OID).append(" = ")
+                  .append(maxOid + 1).append(" WHERE ")
+                  .append(PropertyPersistor.FIELD__OID).append(" = ").append(currentOid);
+
+            int updatedItems = stmt.executeUpdate(updBuffer.toString());
+
+            // update referencing STRING_DATA items
+            updBuffer = new StringBuilder();
+            updBuffer.append("UPDATE ")
+                  .append(getArchiveObjName(LargeStringHolder.TABLE_NAME))
+                  .append(" SET ").append(LargeStringHolder.FIELD__OBJECTID)
+                  .append(" = ").append(maxOid + 1)
+                  .append(" WHERE ")
+                  .append(LargeStringHolder.FIELD__OBJECTID).append(" = ").append(currentOid)
+                  .append(" AND ")
+                  .append(LargeStringHolder.FIELD__DATA_TYPE).append(" = ").append("'" + PropertyPersistor.TABLE_NAME + "'");
+
+            updatedItems = stmt.executeUpdate(updBuffer.toString());
+         }
+
+         // Remove all global and partition related properties, BUT not those for data cluster definition
+         propertyPredicate = Predicates.inList(
+               PropertyPersistor.FR__PARTITION, new long[] {-1, partitionOid});
+         propertyPredicate = Predicates.andTerm(
+               propertyPredicate,
+               Predicates.notEqual(
+                     PropertyPersistor.FR__NAME,
+                     RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION));
+
+         synchronizePkInstableTables(PropertyPersistor.class, null, null, propertyPredicate);
 
          long maxOid = findMaxValue(archiveSchema, PropertyPersistor.class,
                PropertyPersistor.FR__OID, null);
@@ -2210,7 +2434,7 @@ public class Archiver
          String syncSql = "INSERT INTO " + getArchiveObjName(propertyTd.getTableName())
                + " (" + getFieldNames(dbDescriptor, propertyTd) + ") "
                + "VALUES ("
-               + maxOid + 1 + ", '" + Constants.CARNOT_ARCHIVE_AUDITTRAIL + "', 'true', 'DEFAULT', 0"
+               + (maxOid + 1) + ", '" + Constants.CARNOT_ARCHIVE_AUDITTRAIL + "', 'true', 'DEFAULT', 0"
                + ", -1)";  // TODO (kafka): in future properties can belong to partitions.
 
          if (trace.isDebugEnabled())
@@ -2447,8 +2671,13 @@ public class Archiver
 
       deleteDvParts(piOids, LargeStringHolder.class, LargeStringHolder.FR__OBJECTID,
             PT_STRING_DATA_IS_DATA_VALUE_RECORD);
+      
+      deleteDvHistoryParts(piOids, LargeStringHolder.class, LargeStringHolder.FR__OBJECTID,
+            PT_STRING_DATA_IS_DATA_VALUE_HISTORY_RECORD);
 
       deletePiParts(piOids, DataValueBean.class, DataValueBean.FR__PROCESS_INSTANCE);
+      
+      deletePiParts(piOids, DataValueHistoryBean.class, DataValueHistoryBean.FR__PROCESS_INSTANCE);
 
       deletePiParts(piOids, LogEntryBean.class, LogEntryBean.FR__PROCESS_INSTANCE);
 
@@ -2467,21 +2696,36 @@ public class Archiver
       deletePiParts(piOids, ProcessInstanceLinkBean.class,
             ProcessInstanceLinkBean.FR__PROCESS_INSTANCE);
 
+      deleteDataClusterParts(piOids, false);
+
+      return deletePiParts(piOids, ProcessInstanceBean.class,
+            ProcessInstanceBean.FR__OID, null);
+   }
+
+   private void deleteDataClusterParts(List piOids, boolean isArchiveSchema)
+   {
       // finally deleting rows from data clusters
-      final DataCluster[] dClusters = RuntimeSetup.instance().getDataClusterSetup();
+      final DataCluster[] dClusters = getDataClusterSetup(isArchiveSchema);
 
       for (int idx = 0; idx < dClusters.length; ++idx)
       {
          final DataCluster dCluster = dClusters[idx];
 
          Statement stmt = null;
+         String tableName = dCluster.getTableName();
          try
          {
             stmt = session.getConnection().createStatement();
             DBDescriptor dbDescriptor = session.getDBDescriptor();
             StringBuffer buffer = new StringBuffer(100 + piOids.size() * 10);
-            buffer.append("DELETE FROM ").append(getSrcObjName(dbDescriptor.quoteIdentifier(dCluster.getTableName())))
-                  .append(" WHERE ").append(getInClause(dCluster.getProcessInstanceColumn(), piOids));
+            String quotedTableName = dbDescriptor.quoteIdentifier(tableName);
+            buffer.append("DELETE FROM ")
+                  .append(
+                        isArchiveSchema
+                              ? getArchiveObjName(quotedTableName)
+                              : getSrcObjName(quotedTableName))
+                  .append(" WHERE ")
+                  .append(getInClause(dCluster.getProcessInstanceColumn(), piOids));
 
             if (trace.isDebugEnabled())
             {
@@ -2493,16 +2737,15 @@ public class Archiver
          {
             throw new PublicException(
                   BpmRuntimeError.ARCH_FAILED_DELETING_ENTRIES_FROM_DATA_CLUSTER_TABLE.raise(
-                        getSrcObjName(dCluster.getTableName()), e.getMessage()), e);
+                        isArchiveSchema
+                              ? getArchiveObjName(tableName)
+                              : getSrcObjName(tableName), e.getMessage()), e);
          }
          finally
          {
             QueryUtils.closeStatement(stmt);
          }
       }
-
-      return deletePiParts(piOids, ProcessInstanceBean.class,
-            ProcessInstanceBean.FR__OID, null);
    }
 
    protected static String getInClause(String columnName, List inEntries)
@@ -2675,6 +2918,10 @@ public class Archiver
                {
                   buffer.append(", ").append(dataSlot.getSValueColumn()).append("=NULL");
                }
+               if ( !StringUtils.isEmpty(dataSlot.getDValueColumn()))
+               {
+                  buffer.append(", ").append(dataSlot.getDValueColumn()).append("=NULL");
+               }
 
                buffer.append(" WHERE NOT EXISTS (SELECT 'x'")//
                      .append("  FROM ").append(dvTableName).append(" dv")//
@@ -2776,6 +3023,13 @@ public class Archiver
    {
       delete2ndLevelPiParts(piOids, partType, fkDvField, DataValueBean.class,
             DataValueBean.FR__PROCESS_INSTANCE, restriction);
+   }
+   
+   private void deleteDvHistoryParts(List piOids, Class partType, FieldRef fkDvField,
+         PredicateTerm restriction)
+   {
+      delete2ndLevelPiParts(piOids, partType, fkDvField, DataValueHistoryBean.class,
+            DataValueHistoryBean.FR__PROCESS_INSTANCE, restriction);
    }
 
    private int delete2ndLevelPiParts(List piOids, Class partType, FieldRef fkPiPartField,
@@ -2941,6 +3195,273 @@ public class Archiver
    {
       backup2ndLevelPiParts(piOids, targetType, fkPiPartFieldName, DataValueBean.class,
             ActivityInstanceBean.FIELD__PROCESS_INSTANCE, restriction);
+   }
+   
+   private void backupDvHistoryParts(List piOids, Class targetType, String fkPiPartFieldName,
+         PredicateTerm restriction)
+   {
+      backup2ndLevelPiParts(piOids, targetType, fkPiPartFieldName, DataValueHistoryBean.class,
+            DataValueHistoryBean.FIELD__PROCESS_INSTANCE, restriction);
+   }
+
+   private void backupDataCluster(List piOids)
+   {
+      // TODO: partially copied code from DDLManager.synchronizeDataCluster(...). This needs to be refactored in order to prevent code duplication,
+
+      DBDescriptor dbDescriptor = session.getDBDescriptor();
+      final DataCluster[] dClusters = getDataClusterSetup(true);
+
+      for (int idx = 0; idx < dClusters.length; ++idx)
+      {
+         final DataCluster dCluster = dClusters[idx];
+
+         Statement stmt = null;
+
+         final String clusterTable = getArchiveObjName(dbDescriptor.quoteIdentifier(dCluster.getTableName()));
+         final String piTable = getArchiveObjName(TypeDescriptor.get(ProcessInstanceBean.class).getTableName());
+         final String pisTable = getArchiveObjName(TypeDescriptor.get(ProcessInstanceScopeBean.class).getTableName());
+         final String dataTable = getArchiveObjName(TypeDescriptor.get(AuditTrailDataBean.class).getTableName());
+         final String dvTable = getArchiveObjName(TypeDescriptor.get(DataValueBean.class).getTableName());
+         final String structDataTable = getArchiveObjName(TypeDescriptor.get(StructuredDataBean.class).getTableName());
+         final String structDvTable = getArchiveObjName(TypeDescriptor.get(StructuredDataValueBean.class).getTableName());
+         final String modelTable = getArchiveObjName(TypeDescriptor.get(ModelPersistorBean.class).getTableName());
+
+         try
+         {
+            stmt = session.getConnection().createStatement();
+
+            // Add entries for requested PIs
+            String syncInsSql = MessageFormat.format(
+                  "INSERT INTO {0} ({1}) "
+                        + "SELECT DISTINCT PIS.{3} "
+                        + "  FROM {2} PIS "
+                        + "   INNER JOIN {4} PI ON("
+                        + "    PI.{5} = PIS.{3}"
+                        + "      AND PI.{6} IN({7})"
+                        + "   )                    "
+                        + " WHERE NOT EXISTS ("
+                        + "  SELECT ''x'' "
+                        + "    FROM {0} DC "
+                        + "   WHERE PIS.{3} = DC.{1}"
+                        + " )"
+                        + " AND ({8})",
+                        new Object[] {
+                              clusterTable,
+                              dCluster.getProcessInstanceColumn(),
+                              pisTable,
+                              ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE,
+                              piTable,
+                              ProcessInstanceBean.FIELD__OID,
+                              ProcessInstanceBean.FIELD__STATE,
+                              DDLManager.getStateListValues(dCluster),
+                              getPiOidInListPredicateSQLFragment(piOids, "PI", ProcessInstanceBean.FIELD__OID)});
+
+            if (trace.isDebugEnabled())
+            {
+               trace.debug(syncInsSql);
+            }
+            stmt.executeUpdate(syncInsSql);
+
+
+            // synchronizing slot values
+            for (DataSlot dataSlot : dCluster.getAllSlots())
+            {
+               Collection<DataSlotFieldInfo> dataSlotColumnsToSynch = DataClusterMetaInfoRetriever
+                     .getDataSlotFields(dataSlot);
+               if(dataSlotColumnsToSynch.size() != 0)
+               {
+                  String subselectSql;
+                  String dataValuePrefix;
+
+                  if (StringUtils.isEmpty(dataSlot.getAttributeName()))
+                  {
+                     // primitive data
+                     subselectSql = MessageFormat.format(
+                           "  FROM {3} dv, {4} d, {5} m"
+                                 + " WHERE {0}.{1} = dv." + DataValueBean.FIELD__PROCESS_INSTANCE
+                                 + "   AND dv." + DataValueBean.FIELD__DATA + " = d." + AuditTrailDataBean.FIELD__OID
+                                 + "   AND dv." + DataValueBean.FIELD__MODEL + " = d." + AuditTrailDataBean.FIELD__MODEL
+                                 + "   AND d." + AuditTrailDataBean.FIELD__MODEL + " = m." + ModelPersistorBean.FIELD__OID
+                                 + "   AND d." + AuditTrailDataBean.FIELD__ID + " = ''{2}''"
+                                 + "   AND m." + ModelPersistorBean.FIELD__ID + " = ''{6}''"
+                                 ,
+                                 new Object[] {
+                                       clusterTable, // 0
+                                       dCluster.getProcessInstanceColumn(), // 1
+                                       dataSlot.getDataId(), // 2
+                                       dvTable, // 3
+                                       dataTable, // 4
+                                       modelTable, // 5
+                                       dataSlot.getModelId() // 6
+                                 });
+                     dataValuePrefix = "dv";
+                  }
+                  else
+                  {
+                     // structured data
+                     subselectSql = MessageFormat.format(
+                           "  FROM {3} d, {4} sd, {5} sdv, {6} p, {8} m"
+                                 + " WHERE {0}.{1} = sdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
+                                 + "   AND sdv." + StructuredDataValueBean.FIELD__XPATH + " = sd." + StructuredDataBean.FIELD__OID
+                                 + "   AND sd." + DataValueBean.FIELD__DATA + " = d." + AuditTrailDataBean.FIELD__OID
+                                 + "   AND sd." + DataValueBean.FIELD__MODEL + " = d." + AuditTrailDataBean.FIELD__MODEL
+                                 + "   AND p." + ProcessInstanceBean.FIELD__OID + " = sdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
+                                 + "   AND p." + ProcessInstanceBean.FIELD__MODEL + " = d." + DataValueBean.FIELD__MODEL
+                                 + "   AND sd." + StructuredDataBean.FIELD__XPATH + " = ''{7}'' "
+                                 + "   AND d." + AuditTrailDataBean.FIELD__ID + " = ''{2}''"
+                                 + "   AND d."+ DataValueBean.FIELD__MODEL + " = m." + ModelPersistorBean.FIELD__OID
+                                 + "   AND m." + ModelPersistorBean.FIELD__ID + " = ''{9}''"
+                                 ,
+                                 new Object[] {
+                                       clusterTable,
+                                       dCluster.getProcessInstanceColumn(),
+                                       dataSlot.getDataId(),
+                                       dataTable, // 3
+                                       structDataTable, // 4
+                                       structDvTable, // 5
+                                       piTable, // 6
+                                       dataSlot.getAttributeName(), // 7
+                                       modelTable, // 8
+                                       dataSlot.getModelId() // 9
+                                 });
+                     dataValuePrefix = "sdv";
+                  }
+
+                  StringBuffer updBuffer = new StringBuffer(1000);
+                  updBuffer.append("UPDATE ").append(clusterTable)
+                  .append(" SET ");
+
+                  if (dbDescriptor.supportsMultiColumnUpdates())
+                  {
+                     updBuffer.append("(");
+
+                     // which field need to be updated in the cluster table
+                     Iterator<DataSlotFieldInfo> i = dataSlotColumnsToSynch.iterator();
+                     while (i.hasNext())
+                     {
+                        DataSlotFieldInfo dataSlotColumn = i.next();
+                        updBuffer.append(dataSlotColumn.getName());
+                        if (i.hasNext())
+                        {
+                           updBuffer.append(", ");
+                        }
+                     }
+                     updBuffer.append(")");
+                     updBuffer.append(" = ");
+                     updBuffer.append("(");
+                     updBuffer.append(DDLManager.getColumnValuesSelect(dataSlotColumnsToSynch,
+                           dataValuePrefix, subselectSql));
+                     updBuffer.append(")");
+                  }
+                  else
+                  {
+                     Iterator<DataSlotFieldInfo> i = dataSlotColumnsToSynch.iterator();
+                     while (i.hasNext())
+                     {
+                        DataSlotFieldInfo dataSlotColumn = i.next();
+                        String updateColumnValueStmt = DDLManager.getColumnValueSelect(
+                              dataSlotColumn, dataValuePrefix, subselectSql);
+                        updBuffer.append(updateColumnValueStmt);
+                        if (i.hasNext())
+                        {
+                           updBuffer.append(", ");
+                        }
+                     }
+                  }
+                  updBuffer.append(" WHERE ")
+                     .append(getPiOidInListPredicateSQLFragment(piOids, clusterTable,
+                              dCluster.getProcessInstanceColumn()));
+
+                  String syncUpdSql = updBuffer.toString();
+                  if (trace.isDebugEnabled())
+                  {
+                     trace.debug(syncUpdSql);
+                  }
+                  stmt.executeUpdate(syncUpdSql);
+               }
+            }
+         }
+         catch (SQLException e)
+         {
+            throw new PublicException(
+                  BpmRuntimeError.ARCH_FAILED_SYNCHING_ENTRIES_IN_DATA_CLUSTER_TABLE.raise(
+                        getSrcObjName(dCluster.getTableName()), e.getMessage()), e);
+         }
+         finally
+         {
+            QueryUtils.closeStatement(stmt);
+         }
+      }
+   }
+
+   private DataCluster[] getDataClusterSetup(boolean fromArchive)
+   {
+      if (!fromArchive)
+      {
+         // fallback to usage of DataCluster Setup from source schema
+         return RuntimeSetup.instance().getDataClusterSetup();
+      }
+
+      // fetch data cluster setup from archive schema as requested
+      DBDescriptor dbDescriptor = session.getDBDescriptor();
+      boolean useEndMarker = dbDescriptor.isTrimmingTrailingBlanks();
+
+      QueryDescriptor dcXmlQuery = QueryDescriptor.from(archiveSchema, LargeStringHolder.class, "sd");
+      dcXmlQuery.select(LargeStringHolder.FR__DATA);
+
+      Join prpJoin = new Join(archiveSchema, PropertyPersistor.class, PropertyPersistor.DEFAULT_ALIAS)
+         .on(LargeStringHolder.FR__OBJECTID, PropertyPersistor.FIELD__OID)
+         .andOnConstant(LargeStringHolder.FR__DATA_TYPE, "'" + PropertyPersistor.TABLE_NAME + "'")
+         .where(Predicates.isEqual(PropertyPersistor.FR__NAME, RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION));
+
+      dcXmlQuery.getQueryExtension().addJoin(prpJoin);
+      dcXmlQuery.orderBy(LargeStringHolder.FR__OID);
+
+      StringBuilder dcXml = new StringBuilder();
+      ResultSet dcXmlResult = session.executeQuery(dcXmlQuery);
+      try
+      {
+         while (dcXmlResult.next())
+         {
+            String dcXmlChunk = dcXmlResult.getString(LargeStringHolder.FIELD__DATA);
+            if (useEndMarker)
+            {
+               dcXmlChunk = dcXmlChunk.substring(0, dcXmlChunk.length() - 1);
+            }
+            dcXml.append(dcXmlChunk);
+         }
+      }
+      catch (SQLException e)
+      {
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_READING_DATA_CLUSTER_DEFINITION.raise(), e);
+      }
+      finally
+      {
+         QueryUtils.closeResultSet(dcXmlResult);
+      }
+
+      final DataCluster[] dClusters = new TransientRuntimeSetup(dcXml.toString()).getDataClusterSetup();
+      return dClusters;
+   }
+
+   private static String getPiOidInListPredicateSQLFragment(List piOids, String piAlias, String oidColumn)
+   {
+      StringBuilder predicate = new StringBuilder(piOids.size() * 8 + 100);
+      List<List<Long>> splitList = CollectionUtils.split(piOids, SQL_IN_CHUNK_SIZE);
+
+      String predicateDelimiter = "";
+      for (List<Long> subList : splitList)
+      {
+         predicate.append(predicateDelimiter);
+
+         predicate.append(piAlias).append(DOT).append(oidColumn).append(" IN (")
+               .append(StringUtils.join(subList.iterator(), ",")).append(")");
+
+         predicateDelimiter = " OR ";
+      }
+
+      return predicate.toString();
    }
 
    private void backupDepParts()
@@ -3927,7 +4448,7 @@ public class Archiver
    {
       if (archive && modelOid != null)
       {
-         List<Long> references = getReferences(modelOid);
+         Set<Long> references = getReferences(modelOid);
          for (Long oid : references)
          {
             synchronizePkStableTables(ModelPersistorBean.class, oid);
@@ -3950,12 +4471,12 @@ public class Archiver
       }
    }
 
-   private List<Long> getReferences(long modelOid)
+   private Set<Long> getReferences(long modelOid)
    {
       ModelManager modelManager = ModelManagerFactory.getCurrent();
       IModel model = modelManager.findModel(modelOid);
 
-      List<Long> referingModels = new ArrayList<Long>();
+      Set<Long> referingModels = CollectionUtils.newHashSet();
 
       List<IModel> usedModels = ModelRefBean.getUsedModels(model);
       for (Iterator<IModel> j = usedModels.iterator(); j.hasNext();)

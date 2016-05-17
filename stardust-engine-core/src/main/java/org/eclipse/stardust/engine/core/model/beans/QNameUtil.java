@@ -12,8 +12,13 @@ package org.eclipse.stardust.engine.core.model.beans;
 
 import java.text.MessageFormat;
 
+import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
+
 public final class QNameUtil
 {
+   private static final String BASE_INFINITY_NAMESPACE = "http://www.infinity.com/bpm/model/"; //$NON-NLS-1$   
+      
    private QNameUtil() {};
 
    public static String toString(String namespaceURI, String localPart)
@@ -94,5 +99,18 @@ public final class QNameUtil
         		  MessageFormat.format("Cannot parse QNAME from NULL.", new Object[]{qNameAsString}));
       }
       return qNameAsString.substring(endOfNamespaceURI + 1);
+   }
+   
+   public static String parseModelId(String nameSpace)
+   {
+      if (!StringUtils.isEmpty(nameSpace) && !nameSpace.startsWith(StructuredDataConstants.URN_INTERNAL_PREFIX))
+      {
+         if(nameSpace.startsWith(BASE_INFINITY_NAMESPACE))
+         {
+            String resolveNameSpace = nameSpace.substring(BASE_INFINITY_NAMESPACE.length());
+            return resolveNameSpace.substring(0, resolveNameSpace.indexOf("/"));
+         }
+      }            
+      return null;
    }
 }

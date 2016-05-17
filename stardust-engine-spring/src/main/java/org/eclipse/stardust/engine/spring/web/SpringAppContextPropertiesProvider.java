@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.config.PropertyProvider;
 import org.eclipse.stardust.engine.api.spring.SpringConstants;
+
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -36,5 +37,11 @@ public class SpringAppContextPropertiesProvider implements PropertyProvider
       properties.put(SpringConstants.PRP_CACHED_APPLICATION_CONTEXT,
             webApplicationContext);
       return properties;
+   }
+
+   @Override
+   public String getPropertyDisplayValue(String key)
+   {
+      return getProperties().get(key).toString();
    }
 }

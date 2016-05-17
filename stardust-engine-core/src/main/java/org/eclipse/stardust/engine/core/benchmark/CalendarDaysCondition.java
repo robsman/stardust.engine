@@ -168,7 +168,7 @@ public class CalendarDaysCondition implements ConditionEvaluator
       }
       else if (parameterId.equals(ROOT_PROCESS_START_TIME_ATTRIBUTE))
       {
-         processInstance.getRootProcessInstance().getStartTime();
+         return processInstance.getRootProcessInstance().getStartTime();
       }
       return null;
    }

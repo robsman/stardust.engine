@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -244,7 +244,7 @@ public class ModelManagerBean implements ModelManager
    {
       return getModelManagerPartition().getRuntimeOid(data, xPath);
    }
-   
+
    public String[] getFqId(ElementType type, long rtOid)
    {
       return getModelManagerPartition().getFqId(type, rtOid);
@@ -272,7 +272,7 @@ public class ModelManagerBean implements ModelManager
 
    public long getLastDeployment()
    {
-      return getModelManagerPartition().getLastDeployment();
+	   return getModelManagerPartition().getLastDeployment();
    }
 
    public boolean isAlive(IModel model)
@@ -334,9 +334,22 @@ public class ModelManagerBean implements ModelManager
          if (checkAuditTrailVersion)
          {
             List<UpgradeJob> jobs = RuntimeJobs.getRuntimeJobs();
+
+            // Create list of mandatory jobs only.
+            FilteringIterator it = new FilteringIterator(jobs.iterator(),
+                  new Predicate<UpgradeJob>()
+                  {
+                     public boolean accept(UpgradeJob job)
+                     {
+                        return job.isMandatory();
+                     }
+                  });
+            jobs = CollectionUtils.newArrayListFromIterator(it);
+
             if (!jobs.isEmpty())
             {
                Version version = null;
+               // Take job with highest version for comparison.
                UpgradeJob required = jobs.get(jobs.size() - 1);
                PropertyPersistor persistor = PropertyPersistor.findByName(Constants.CARNOT_VERSION);
                if (persistor != null)
@@ -879,9 +892,10 @@ public class ModelManagerBean implements ModelManager
             boolean archive = PropertyPersistor.findByName(Constants.CARNOT_ARCHIVE_AUDITTRAIL) != null;
             Parameters.instance().setBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL, archive);
 
-            // Load predefined model only if a model is already deployed and it does not exist.
-            // This only happens on runtime upgrade. Usually the predefined model is deployed with the first model deployment.
-            if (!archive && getModelCount() > 0
+            // Load predefined model only if it does not exist.
+            // If no other model is deployed the administrator role of predefined model
+            // will be assigned to motu user.
+            if (!archive
                   && null == findActiveModel(PredefinedConstants.PREDEFINED_MODEL_ID))
             {
                List<ParsedDeploymentUnit> predefinedModelElement = ModelUtils.getPredefinedModelElement();
@@ -897,6 +911,17 @@ public class ModelManagerBean implements ModelManager
                      IModel model = persistedModel.fetchModel();
                      if (PredefinedConstants.PREDEFINED_MODEL_ID.equals(model.getId()))
                      {
+                        if (getModelCount() == 0)
+                        {
+                           UserBean motu = getMotuUser(rtEnv);
+                           if (motu != null
+                                 && SecurityProperties.isInternalAuthorization())
+                           {
+                              IRole role = (IRole) model
+                                    .findParticipant(PredefinedConstants.ADMINISTRATOR_ROLE);
+                              motu.addToParticipants(role, null);
+                           }
+                        }
                         models.add(0, model);
                      }
                   }
@@ -1016,6 +1041,16 @@ public class ModelManagerBean implements ModelManager
             }
             MonitoringUtils.partitionMonitors().modelLoaded(model);
          }
+      }
+
+      private UserBean getMotuUser(BpmRuntimeEnvironment rtEnv)
+      {
+         IAuditTrailPartition partition = (IAuditTrailPartition) rtEnv
+               .get(SecurityProperties.CURRENT_PARTITION);
+         UserRealmBean userRealm = UserRealmBean.findById(
+               PredefinedConstants.DEFAULT_REALM_ID, partition.getOID());
+         UserBean user = UserBean.findByAccount(PredefinedConstants.MOTU, userRealm);
+         return user;
       }
 
       private Map<Long, IModelPersistor> getModelPersistors()
@@ -1740,25 +1775,25 @@ public class ModelManagerBean implements ModelManager
          IProcessDefinition process = null;
          if (runtimeOid != -1)
          {
-            ElementByRtOidCache byRtOid = (modelOid < elementsByRtOid.length)
-                  ? elementsByRtOid[(int) modelOid]
-                  : null;
-            if ((null != byRtOid) && (null != byRtOid.processes)
-                  && (runtimeOid < byRtOid.processes.length))
-            {
-               process = byRtOid.processes[(int) runtimeOid];
-            }
+         ElementByRtOidCache byRtOid = (modelOid < elementsByRtOid.length)
+               ? elementsByRtOid[(int) modelOid]
+               : null;
+         if ((null != byRtOid) && (null != byRtOid.processes)
+               && (runtimeOid < byRtOid.processes.length))
+         {
+            process = byRtOid.processes[(int) runtimeOid];
+         }
 
-            if (null == process)
+         if (null == process)
+         {
+            IModel model = findModel(modelOid);
+            if (null != model)
             {
-               IModel model = findModel(modelOid);
-               if (null != model)
-               {
-                  String[] fqId = rtOidRegistry.getFqId(IRuntimeOidRegistry.PROCESS,
-                        runtimeOid);
-                  process = model.findProcessDefinition(fqId[fqId.length - 1]);
-               }
+               String[] fqId = rtOidRegistry.getFqId(IRuntimeOidRegistry.PROCESS,
+                     runtimeOid);
+               process = model.findProcessDefinition(fqId[fqId.length - 1]);
             }
+         }
          }
          return process;
       }
@@ -1933,13 +1968,13 @@ public class ModelManagerBean implements ModelManager
 
          return oid;
       }
-      
+
       public long getRuntimeOid(IData data, String xPath)
       {
          return rtOidRegistry.getRuntimeOid(IRuntimeOidRegistry.STRUCTURED_DATA_XPATH,
                RuntimeOidUtils.getFqId(data, xPath));
       }
-      
+
       public String[] getFqId(ElementType type, long rtOid)
       {
          return rtOidRegistry.getFqId(type, rtOid);
@@ -2300,12 +2335,16 @@ public class ModelManagerBean implements ModelManager
 
          long result = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getCount(
                ProcessInstanceBean.class,
-               QueryExtension.where(Predicates
-                     .andTerm(Predicates.isEqual(ProcessInstanceBean.FR__MODEL, model
-                           .getModelOID()), Predicates.notInList(
-                           ProcessInstanceBean.FR__STATE, new int[] {
-                                 ProcessInstanceState.COMPLETED,
-                                 ProcessInstanceState.ABORTED}))));
+               QueryExtension.where(Predicates.andTerm(
+                     Predicates.isEqual(ProcessInstanceBean.FR__MODEL,
+                           model.getModelOID()),
+                     // TODO: If new ProcessInstanceState will be added then this has to be adapted as well
+                     // also see CRNT-39526
+                     Predicates.inList(ProcessInstanceBean.FR__STATE, new int[] {
+                           ProcessInstanceState.CREATED,
+                           ProcessInstanceState.ACTIVE,
+                           ProcessInstanceState.INTERRUPTED,
+                           ProcessInstanceState.ABORTING }))));
 
          if (result == 0 && !isHeated(model))
          {
@@ -2352,8 +2391,8 @@ public class ModelManagerBean implements ModelManager
          // (fh) this is called whenever a new deployment is made.
          // we just reset here the lastDeployment flag because we do not want to fetch the
          // last deployment in the same transaction when a ModelDeploymentBean was created.
-         lastDeployment = ModelDeploymentBean.getLastDeployment();
-         lastDeploymentSet = true;
+    	  lastDeployment = ModelDeploymentBean.getLastDeployment();
+    	  lastDeploymentSet = true;
       }
 
       public long getLastDeployment()
@@ -2370,7 +2409,7 @@ public class ModelManagerBean implements ModelManager
                }
             }
          }
-      return lastDeployment;
+    	 return lastDeployment;
       }
    }
 

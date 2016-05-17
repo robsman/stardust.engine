@@ -283,7 +283,7 @@ public class SqlApplicationTest extends AbstractCamelIntegrationTest
          licenseValueBeforeUpdate = rs.getString("LICENSE");
       }
       assertNotNull(licenseValueBeforeUpdate);
-      assertEquals("test", licenseValueBeforeUpdate);
+      assertEquals("Ipp", licenseValueBeforeUpdate);
       String revertToInitialLicenseValueQuery = "Update PROJECTS set LICENSE='XXX' where ID=3";
       stmt.executeUpdate(revertToInitialLicenseValueQuery);
 

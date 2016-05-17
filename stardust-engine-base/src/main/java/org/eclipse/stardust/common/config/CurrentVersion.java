@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.stardust.common.config;
 
-import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -24,10 +23,7 @@ import org.eclipse.stardust.common.StringUtils;
  */
 public class CurrentVersion
 {
-   private static final String BUILD_VERSION_NAME = "-buildVersionName";
-   private static final String VERSION_NAME = "-versionName";
-
-   public static final String COPYRIGHT_YEARS = "2000-2015";
+   public static final String COPYRIGHT_YEARS = "2000-2016";
    public static final String COPYRIGHT_MESSAGE;
 
    public static final String VERSION;
@@ -104,42 +100,4 @@ public class CurrentVersion
       return name.toString();
    }
 
-	/**
-	 * @param args
-	 * This main method is been used in projects IPP & Hydra_Test
-	 */
-   public static void main(String[] args)
-   {
-      String message = null;
-      if (args.length == 0)
-      {
-         message = getVerboseVersion();
-      }
-      else if (args.length == 1)
-      {
-         if (VERSION_NAME.equals(args[0]))
-         {
-            message = getVersionName();
-         }
-         else if (BUILD_VERSION_NAME.equals(args[0]))
-         {
-            message = getBuildVersionName();
-         }
-      }
-
-      if (null == message)
-      {
-         message = MessageFormat.format(
-               "Invalid arguments.\nUsage: CurrentVersion [{0}]|[{1}]", new Object[] {
-                     VERSION_NAME, BUILD_VERSION_NAME });
-      }
-
-      System.out.println(message);
-   }
-
-   private static String getVerboseVersion()
-   {
-      return MessageFormat.format(COPYRIGHT_MESSAGE + "\n", new Object[] {
-            getVersionName(), CurrentVersion.COPYRIGHT_YEARS });
-   }
 }

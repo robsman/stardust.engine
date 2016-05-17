@@ -886,6 +886,14 @@ public class JcrVfsRepositoryService
                   AccessMode.Write))
             {
                IFolder vfsFolder = toVfs(folder, getPartitionPrefix());
+               // prevent renaming of root folder
+               if (getPartitionPrefix().equals(oldFolder.getPath()) &&
+                     !oldFolder.getName().equals(vfsFolder.getName()))
+               {
+                  throw new DocumentManagementServiceException(
+                        BpmRuntimeError.DMS_SECURITY_ERROR_ACCESS_DENIED_ON_DOCUMENT.raise(folder.getId()));
+               }
+
                return fromVfs(vfs.updateFolder(vfsFolder), getPartitionPrefix());
             }
             else
@@ -1215,7 +1223,7 @@ public class JcrVfsRepositoryService
          // special case for jackrabbit, thrown if Document.name contains '*' or other
          // unsupported characters
          else if (tr instanceof RepositoryException
-               && tr.getMessage().startsWith("Failed to resolve path"))
+               && tr.getMessage() != null && tr.getMessage().startsWith("Failed to resolve path"))
          {
             error = BpmRuntimeError.DMS_FAILED_PATH_RESOLVE.raise(tr.getCause()
                   .getMessage());

@@ -238,11 +238,6 @@ public class ScopedModelParticipant implements IScopedModelParticipant
       modelParticipant.setDescription(description);
    }
 
-   public void setElementOID(int elementOID)
-   {
-      modelParticipant.setElementOID(elementOID);
-   }
-
    public void setId(String id)
    {
       modelParticipant.setId(id);

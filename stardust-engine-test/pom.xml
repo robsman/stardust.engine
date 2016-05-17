@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-    Copyright (c) 2011, 2012 SunGard CSA LLC and others.
-    All rights reserved. This program and the accompanying materials
-    are made available under the terms of the Eclipse Public License v1.0
-    which accompanies this distribution, and is available at
-    http://www.eclipse.org/legal/epl-v10.html
-
-    Contributors:
-       SunGard CSA LLC - initial API and implementation and/or initial documentation
- -->
+<!-- Copyright (c) 2011, 2012 SunGard CSA LLC and others. All rights reserved. This program 
+   and the accompanying materials are made available under the terms of the Eclipse Public License 
+   v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html 
+   Contributors: SunGard CSA LLC - initial API and implementation and/or initial documentation -->
 
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -47,6 +41,12 @@
          <groupId>org.eclipse.stardust.engine</groupId>
          <artifactId>stardust-engine-business-calendar</artifactId>
          <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.stardust.engine</groupId>
+         <artifactId>stardust-engine-application-decorator</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
 
       <!-- Stardust Camel Integration -->

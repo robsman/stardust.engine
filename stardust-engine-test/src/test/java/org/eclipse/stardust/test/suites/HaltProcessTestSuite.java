@@ -26,7 +26,8 @@ import org.eclipse.stardust.test.spawn.*;
 @RunWith(Suite.class)
 @SuiteClasses({
    SpawnPeerInsertProcessTest.class,
-   HaltedStateApiOperationsTest.class
+   HaltedStateApiOperationsTest.class,
+   HaltingConcurrencyTest.class
 
 })
 public class HaltProcessTestSuite

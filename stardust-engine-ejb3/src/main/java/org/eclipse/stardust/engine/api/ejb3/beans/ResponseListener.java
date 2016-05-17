@@ -47,10 +47,23 @@ public class ResponseListener extends AbstractEjb3MessageListener
          @SuppressWarnings("deprecation")
          public Object execute()
          {
+            ResponseHandlerCarrier carrier = null;
+            
+            try
+            {
+               carrier = new ResponseHandlerCarrier("applicationQueue", message);
+               carrier.extract(message);
+               mergeDefaultCredentials(carrier);
+            }
+            catch (JMSException e)
+            {
+               throw new InternalException(e);
+            }
+            
             // ensure the model manager was bootstrapped
             try
             {
-               bootstrapModelManager();
+               bootstrapModelManager(carrier.getPartitionOid());
             }
             catch (Exception e)
             {
@@ -59,16 +72,13 @@ public class ResponseListener extends AbstractEjb3MessageListener
 
             try
             {
-               ResponseHandlerCarrier carrier = new ResponseHandlerCarrier("applicationQueue", message);
-               carrier.extract(message);
-               mergeDefaultCredentials(carrier);
                forkingService.run(carrier.createAction(), forkingService);
             }
             catch (WorkflowException e)
             {
                throw e.getRootCause();
             }
-            catch (JMSException e)
+            catch (Exception e)
             {
                throw new InternalException(e);
             }

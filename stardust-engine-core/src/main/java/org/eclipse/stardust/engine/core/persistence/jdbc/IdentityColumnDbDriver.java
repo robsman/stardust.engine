@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,12 +54,12 @@ public abstract class IdentityColumnDbDriver extends DBDescriptor
    {
       return null;
    }
-   
+
    public final String getNextValForSeqString(String schemaName, String sequenceName)
    {
       return null;
    }
-   
+
    protected static String getLockRowByUpdateStatementString(SqlUtils sqlUtils,
          TypeDescriptor type, boolean tryToUseDistinctLockTable, String predicate)
    {
@@ -70,7 +70,7 @@ public abstract class IdentityColumnDbDriver extends DBDescriptor
 
       if (tryToUseDistinctLockTable && type.isDistinctLockTableName())
       {
-         // the pk fields in data table and lock table have to be the same 
+         // the pk fields in data table and lock table have to be the same
          lockField = type.getPkFields()[0];
       }
       else
@@ -110,7 +110,7 @@ public abstract class IdentityColumnDbDriver extends DBDescriptor
       if ( !StringUtils.isEmpty(table.getTableAlias())
             && predicate.startsWith(table.getTableAlias()))
       {
-         buffer.append(table.getTableName());
+         sqlUtils.appendTableRef(buffer, table, false);
          final int indexOfDot = predicate.indexOf(".");
          buffer.append(predicate.substring(indexOfDot));
       }

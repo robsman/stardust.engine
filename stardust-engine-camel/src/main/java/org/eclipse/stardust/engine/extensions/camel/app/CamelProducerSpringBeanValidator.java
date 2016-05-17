@@ -2,7 +2,10 @@ package org.eclipse.stardust.engine.extensions.camel.app;
 
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.removeRouteDefinitionWithoutRunningRoute;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.stopAndRemoveRunningRoute;
-import static org.eclipse.stardust.engine.extensions.camel.Util.*;
+import static org.eclipse.stardust.engine.extensions.camel.Util.buildExceptionMessage;
+import static org.eclipse.stardust.engine.extensions.camel.Util.getCamelContextId;
+import static org.eclipse.stardust.engine.extensions.camel.Util.getRouteId;
+import static org.eclipse.stardust.engine.extensions.camel.Util.isProducerApplication;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -11,11 +14,8 @@ import java.util.Map;
 
 import org.apache.camel.Route;
 import org.apache.camel.model.ModelCamelContext;
-import org.springframework.context.support.AbstractApplicationContext;
-
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -28,7 +28,10 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidatorEx;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
+import org.eclipse.stardust.engine.extensions.camel.core.ProducerRouteContext;
+import org.eclipse.stardust.engine.extensions.camel.core.ProducerRouteContextFactory;
 import org.eclipse.stardust.engine.extensions.camel.util.CreateApplicationRouteAction;
+import org.springframework.context.support.AbstractApplicationContext;
 
 public class CamelProducerSpringBeanValidator implements ApplicationValidator, ApplicationValidatorEx
 {
@@ -73,70 +76,33 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
    {
 
       BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor.getCurrent();
-
+      AbstractApplicationContext applicationContext = (AbstractApplicationContext) Parameters.instance().get(CamelConstants.PRP_APPLICATION_CONTEXT);
+      String camelContextId = getCamelContextId(application);
+      camelContext = (ModelCamelContext) applicationContext.getBean(camelContextId);
+      String partitionId = SecurityProperties.getPartition().getId();
+      
       if (logger.isDebugEnabled())
       {
          logger.debug("Start validation of " + application);
       }
 
       List inconsistencies = CollectionUtils.newList();
-
-      String camelContextId = getCamelContextId(application);
-
-      // check for empty camel context ID.
-      if (StringUtils.isEmpty(camelContextId))
-      {
-         inconsistencies.add(new Inconsistency("No camel context ID specified for application: " + application.getId(),
-               application, Inconsistency.ERROR));
-      }
-
-      String invocationPattern = getInvocationPattern(application);
-
-      if (invocationPattern!=null && invocationPattern.equals(CamelConstants.InvocationPatterns.RECEIVE))
-      {
-
-         if (getConsumerRouteConfiguration(application) == null)
-         {
-            inconsistencies.add(new Inconsistency("No route definition specified for application: "
-                              + application.getId(), application, Inconsistency.ERROR));
-         }
-      }
-
-      if (invocationPattern!=null && application.getAllOutAccessPoints().hasNext()
-            && invocationPattern.equals(CamelConstants.InvocationPatterns.SEND))
-      {
-
-         inconsistencies.add(new Inconsistency("Application " + application.getName()
-               + " contains Out AccessPoint while the Endpoint Pattern is set to "
-               + invocationPattern, application, Inconsistency.ERROR));
-
-      }
-      // }
-
-      // TODO : consumer route validation
+      ProducerRouteContext routeContext = ProducerRouteContextFactory.getContext(application,camelContext, partitionId);
+      inconsistencies= routeContext.validate();
 
       if (inconsistencies.isEmpty())
       {
-
          if (logger.isDebugEnabled())
          {
             logger.debug("No inconsistencies found for application: " + application);
          }
-
          try
          {
-
-            AbstractApplicationContext applicationContext = (AbstractApplicationContext) Parameters
-                  .instance().get(CamelConstants.PRP_APPLICATION_CONTEXT);
-
             if (applicationContext != null && bpmRt != null
                   && bpmRt.getModelManager() != null)
             {
-
                IModel model = (IModel) application.getModel();
-
-               IModel activeModel = bpmRt.getModelManager()
-                     .findActiveModel(model.getId());
+               IModel activeModel = bpmRt.getModelManager().findActiveModel(model.getId());
 
                // only start the contained routes if this model (the one being validated)
                // is
@@ -147,19 +113,14 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
                if (model.getModelOID() == 0
                      || model.getModelOID() == activeModel.getModelOID())
                {
-                  String partitionId = SecurityProperties.getPartition().getId();
                   routeId = getRouteId(partitionId, application.getModel().getId(), null,
                         application.getId(), isProducerApplication(application));
-                  camelContext = (ModelCamelContext) applicationContext
-                        .getBean(camelContextId);
-
                   if (logger.isDebugEnabled())
                   {
                      logger.debug("Camel Context " + camelContextId + " used.");
                   }
 
                   List<Route> routesToBeStopped = new ArrayList<Route>();
-
                   // select routes that are running in the current partition
                   for (Route runningRoute : camelContext.getRoutes())
                   {

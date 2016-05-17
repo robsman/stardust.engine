@@ -29,7 +29,7 @@ class DataCopyResult
 {
    Map<String, Serializable> result = CollectionUtils.newMap();
    Set<String> ignoreDataIds = CollectionUtils.newSet();
-   
+
    private final IModel target;
 
    DataCopyResult(IModel target)
@@ -56,7 +56,7 @@ class DataCopyResult
                   return;
                }
             }
-            
+
             boolean isPrimitive = isPrimitive(typeId);
             boolean isStruct = isStruct(typeId);
 
@@ -87,10 +87,10 @@ class DataCopyResult
                IXPathMap tgtMap = StructuredTypeRtUtils.getXPathMap(data);
                TypedXPath tgtPath = !typeId.equals(sourceTypeId) && StructuredTypeRtUtils.isDmsType(typeId)
                      ? tgtMap.getXPath("properties") : tgtMap.getRootXPath();
-               Map<String, Serializable> map = CollectionUtils.newMap();
+               Map<String, Object> map = CollectionUtils.newMap();
                map.put(srcPath.getId(), value);
-               repair(tgtPath, srcPath, map);
-               value = map.get(srcPath.getId());
+               DataCopyUtils.repair(tgtPath, srcPath, map);
+               value = (Serializable) map.get(srcPath.getId());
                if (value == null)
                {
                   // incompatible.
@@ -145,107 +145,5 @@ class DataCopyResult
          }
       }
       return filtered;
-   }
-
-   /**
-    * Transformations:
-    * <ul>
-    * <li>from attribute to element or from element to attribute</li>
-    * <li>from list to single item or from single item to list</li>
-    * <li>empty collections are removed</li>
-    * <li>namespace change is accepted</li>
-    * <li>values for removed attributes or elements are dropped</li>
-    * <li>values for attributes or elements with a different type are dropped (no type conversion)</li>
-    * </ul>
-    */
-   private void repair(TypedXPath tgtPath, TypedXPath srcPath, Map<String, Serializable> map)
-   {
-      if (compatible(tgtPath, srcPath))
-      {
-         Serializable o = map.get(srcPath.getId());
-         if (tgtPath.isList())
-         {
-            if (!srcPath.isList())
-            {
-               ArrayList<Serializable> list = new ArrayList<Serializable>();
-               list.add(o);
-               o = list;
-               map.put(tgtPath.getId(), o);
-            }
-         }
-         else if (srcPath.isList())
-         {
-            if (((List) o).isEmpty())
-            {
-               map.remove(srcPath.getId());
-               return;
-            }
-            else
-            {
-               o = ((List<Serializable>) o).get(0);
-               map.put(tgtPath.getId(), o);
-            }
-         }
-         if (tgtPath.getType() == -1)
-         {
-            if (tgtPath.isList())
-            {
-               for (Serializable item : (List<Serializable>) o)
-               {
-                  repairChildren(tgtPath, srcPath, item);
-               }
-            }
-            else
-            {
-               repairChildren(tgtPath, srcPath, o);
-            }
-         }
-         if (o instanceof Collection)
-         {
-            if (((Collection) o).isEmpty())
-            {
-               map.remove(srcPath.getId());
-            }
-         }
-      }
-      else
-      {
-         map.remove(srcPath.getId());
-      }
-   }
-
-   private void repairChildren(TypedXPath tgtPath, TypedXPath srcPath, Serializable o)
-   {
-      if (o instanceof Map)
-      {
-         Map<String, Serializable> m = (Map) o;
-         Set<String> keys = CollectionUtils.newSet(); 
-         keys.addAll(m.keySet());
-         for (String key : keys)
-         {
-            TypedXPath tgtChild = tgtPath.getChildXPath(key);
-            if (tgtChild == null)
-            {
-               m.remove(key);
-            }
-            else
-            {
-               TypedXPath srcChild = srcPath.getChildXPath(key);
-               repair(tgtChild, srcChild, m);
-            }
-         }
-      }
-   }
-
-   private boolean compatible(TypedXPath tgtPath, TypedXPath srcPath)
-   {
-      // accepted assignment of child xpath to root xpath if they have the same type.
-      if (srcPath.getParentXPath() != null &&
-          tgtPath.getParentXPath() != null &&
-          !CompareHelper.areEqual(tgtPath.getId(), srcPath.getId()))
-      {
-         return false;
-      }
-      return tgtPath.getType() == srcPath.getType();
    }
 }

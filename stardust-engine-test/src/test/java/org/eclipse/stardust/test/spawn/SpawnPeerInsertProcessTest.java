@@ -16,7 +16,6 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.*;
@@ -24,13 +23,13 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runners.MethodSorters;
 
-import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.SpawnOptions.SpawnMode;
+import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.core.runtime.beans.EventDaemon;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
@@ -39,7 +38,6 @@ import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-import org.eclipse.stardust.vfs.impl.utils.CollectionUtils;
 
 /**
  * <p>
@@ -147,6 +145,72 @@ public class SpawnPeerInsertProcessTest
       // check for halted -> active
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Active);
       assertActivityInstanceExists(pi.getOID(), "InputData1", ActivityInstanceState.SUSPENDED);
+   }
+
+   @Test
+   public void testInsertThenAbortOnSameProcess() throws TimeoutException, InterruptedException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+
+      ProcessInstance pi = wfs.startProcess("{SpawnProcessModel}InputData1", new StartOptions(null , true));
+      assertThat(pi.getState(), is(ProcessInstanceState.Active));
+
+      // Spawn process
+      ProcessInstance peer = wfs.spawnPeerProcessInstance(pi.getOID(),
+            "{SpawnProcessModel}InputData1",
+            new SpawnOptions(null, SpawnMode.HALT, null, null));
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
+      assertActivityInstanceExists(pi.getOID(), "InputData1", ActivityInstanceState.HALTED);
+
+      assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(), PredefinedProcessInstanceLinkTypes.INSERT);
+      assertActivityInstanceExists(peer.getOID(), "InputData1", ActivityInstanceState.SUSPENDED);
+
+      ProcessInstance peer2 = wfs.spawnPeerProcessInstance(pi.getOID(),
+            "{SpawnProcessModel}InputData1",
+            new SpawnOptions(null, SpawnMode.ABORT, null, null));
+
+      ProcessInstanceStateBarrier.instance().await(peer2.getOID(), ProcessInstanceState.Active);
+      assertProcessInstanceLinkExists(peer2.getOID(), pi.getOID(), PredefinedProcessInstanceLinkTypes.UPGRADE);
+      assertActivityInstanceExists(peer2.getOID(), "InputData1", ActivityInstanceState.SUSPENDED);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Aborted);
+      assertActivityInstanceExists(pi.getOID(), "InputData1", ActivityInstanceState.ABORTED);
+
+      // reset registered state changes before next steps
+      ProcessInstanceStateBarrier.instance().cleanUp();
+
+      completeActivityInstances(peer.getOID(), 1);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Completed);
+
+      // check if still aborted.
+      assertActivityInstanceExists(pi.getOID(), "InputData1", ActivityInstanceState.ABORTED);
+
+      completeActivityInstances(peer2.getOID(), 1);
+      ProcessInstanceStateBarrier.instance().await(peer2.getOID(), ProcessInstanceState.Completed);
+
+      // check if still aborted.
+      assertActivityInstanceExists(pi.getOID(), "InputData1", ActivityInstanceState.ABORTED);
+   }
+
+   @Test(expected=IllegalOperationException.class)
+   public void testInsertOnAbortedProcess() throws TimeoutException, InterruptedException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+
+      ProcessInstance pi = wfs.startProcess("{SpawnProcessModel}InputData1", new StartOptions(null , true));
+      assertThat(pi.getState(), is(ProcessInstanceState.Active));
+
+      wfs.abortProcessInstance(pi.getOID(), AbortScope.RootHierarchy);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Aborted);
+      assertActivityInstanceExists(pi.getOID(), "InputData1", ActivityInstanceState.ABORTED);
+
+      // Spawn process, should throw exception
+      wfs.spawnPeerProcessInstance(pi.getOID(),
+            "{SpawnProcessModel}InputData1",
+            new SpawnOptions(null, SpawnMode.HALT, null, null));
    }
 
    @Test
@@ -311,7 +375,8 @@ public class SpawnPeerInsertProcessTest
    }
 
    /**
-    * Tests that event action triggered by event daemon is ignored for halted processes.
+    * Tests that event action triggered by event daemon is ignored for halted processes
+    * but event daemon execution after resuming works.
     */
    @Test
    public void testInsertWithTimerEventWhileHalted() throws TimeoutException, InterruptedException
@@ -352,57 +417,10 @@ public class SpawnPeerInsertProcessTest
       // check for timer not fired
       ActivityInstanceStateBarrier.instance().await(ai.getOID(), ActivityInstanceState.Suspended);
       assertActivityInstanceExists(pi.getOID(), "Activity_1", ActivityInstanceState.SUSPENDED);
-   }
 
-   @Test
-   public void testInsertMultiInstance() throws TimeoutException, InterruptedException
-   {
-      WorkflowService wfs = sf.getWorkflowService();
-
-      Map<String, Object> multi = CollectionUtils.newMap();
-      //
-      multi.put("List", createMultiInstanceList(5));
-
-      Map<String, Object> inputData = CollectionUtils.newMap();
-      inputData.put("Multi", multi);
-
-      ProcessInstance pi = wfs.startProcess("{MultiInstance}Main", new StartOptions(inputData , true));
-      assertThat(pi.getState(), is(ProcessInstanceState.Active));
-
-      // Spawn process
-      SpawnOptions options = new SpawnOptions(null, SpawnMode.HALT, null, null);
-      ProcessInstance peer = wfs.spawnPeerProcessInstance(
-            pi.getOID(), "{MultiInstance}Sub2", options);
-
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
-      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
-
-      assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(), PredefinedProcessInstanceLinkTypes.INSERT);
-
-      completeActivityInstances(peer.getOID(), 1);
-      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Completed);
-
-
-      // wait for manual activity after completed multi-instance activity.
-      int tryCount = 10;
-      while (tryCount-- > 0)
-      {
-         try
-         {
-            wfs.activateNextActivityInstanceForProcessInstance(pi.getOID());
-            assertActivityInstanceExists(pi.getOID(), "Manual",
-                  ActivityInstanceState.APPLICATION);
-            tryCount = 0;
-         }
-         catch (ObjectNotFoundException e)
-         {
-            doWait(1000);
-            if (tryCount == 0)
-            {
-               Assert.fail("Expected AI 'Manual' not found");
-            }
-         }
-      }
+      // check for timer fired (3sec)
+      ActivityInstanceStateBarrier.instance().await(ai.getOID(), ActivityInstanceState.Hibernated);
+      assertActivityInstanceExists(pi.getOID(), "Activity_1", ActivityInstanceState.HIBERNATED);
    }
 
    @Test
@@ -413,12 +431,14 @@ public class SpawnPeerInsertProcessTest
       ProcessInstance pi = wfs.startProcess("{SpawnProcessModel}ActivityStateChangeEvent", new StartOptions(null , true));
       assertThat(pi.getState(), is(ProcessInstanceState.Active));
 
-      doWait(2000);
+      doWait(3000);
 
       // Spawn process
       SpawnOptions options = new SpawnOptions(null, SpawnMode.HALT, null, null);
       ProcessInstance peer = wfs.spawnPeerProcessInstance(
             pi.getOID(), "{SpawnProcessModel}InputData1", options);
+
+      doWait(2000);
 
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
       ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
@@ -448,18 +468,80 @@ public class SpawnPeerInsertProcessTest
       assertActivityInstanceCount("ShowDoc", "DisplayDocData", 4, ActivityInstanceState.SUSPENDED);
    }
 
-   // ************** UTILS ***************
-
-   private Object createMultiInstanceList(int count)
+   @Test
+   public void testActivityStateChangeEventScheduleActivityAction() throws TimeoutException, InterruptedException
    {
-      List<String> list = CollectionUtils.newList();
+      WorkflowService wfs = sf.getWorkflowService();
 
-      for (int i = 0; i < count; i++)
-      {
-         list.add(""+i);
-      }
-      return list;
+      ProcessInstance pi = wfs.startProcess("{SpawnProcessModel}ActivityStateChangeEvent2", new StartOptions(null , true));
+      assertThat(pi.getState(), is(ProcessInstanceState.Active));
+
+      doWait(3000);
+
+      // Spawn process
+      SpawnOptions options = new SpawnOptions(null, SpawnMode.HALT, null, null);
+      ProcessInstance peer = wfs.spawnPeerProcessInstance(
+            pi.getOID(), "{SpawnProcessModel}InputData1", options);
+
+      doWait(2000);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
+
+      assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(), PredefinedProcessInstanceLinkTypes.INSERT);
+
+      assertActivityInstanceExists(pi.getOID(), "EventOnHaltedToHibernated", ActivityInstanceState.HALTED);
+      assertActivityInstanceExists(pi.getOID(), "EventOnHaltedToSuspended", ActivityInstanceState.HALTED);
+
+      assertActivityInstanceExists(peer.getOID(), "InputData1", ActivityInstanceState.SUSPENDED);
+
+      // reset registered state changes before next steps
+      ProcessInstanceStateBarrier.instance().cleanUp();
+
+      completeActivityInstances(peer.getOID(), 1);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Completed);
+
+      // check for halted -> active
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Active);
+      assertActivityInstanceExists(pi.getOID(), "EventOnHaltedToHibernated", ActivityInstanceState.SUSPENDED);
+      assertActivityInstanceExists(pi.getOID(), "EventOnHaltedToSuspended", ActivityInstanceState.SUSPENDED);
    }
+
+   @Test
+   public void testSlowPOJOAppCanComplete() throws TimeoutException, InterruptedException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+
+      ProcessInstance pi = wfs.startProcess("{SpawnProcessModel}Wait", new StartOptions(null , false));
+      assertThat(pi.getState(), is(ProcessInstanceState.Active));
+
+      // wait for application state, POJO waits for 5 sec.
+      doWait(2000);
+
+      // Spawn process
+      SpawnOptions options = new SpawnOptions(null, SpawnMode.HALT, null, null);
+      ProcessInstance peer = wfs.spawnPeerProcessInstance(
+            pi.getOID(), "{SpawnProcessModel}InputData1", options);
+
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
+      assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(), PredefinedProcessInstanceLinkTypes.INSERT);
+
+
+      // reset registered state changes before next steps
+      ProcessInstanceStateBarrier.instance().cleanUp();
+
+      completeActivityInstances(peer.getOID(), 1);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Completed);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Active);
+
+      assertActivityInstanceExists(pi.getOID(), "done", ActivityInstanceState.SUSPENDED);
+
+   }
+
+   // ************** UTILS ***************
 
    private void doWait(int i)
    {
@@ -510,13 +592,29 @@ public class SpawnPeerInsertProcessTest
 
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(piOid);
       query.where(ActivityInstanceQuery.STATE.isEqual(ActivityInstanceState.SUSPENDED));
-      ActivityInstances ais = qs.getAllActivityInstances(query);
+
+      int patientCounter = 5;
+      ActivityInstances ais = null;
+      while (patientCounter-- > 0)
+      {
+         ais = qs.getAllActivityInstances(query);
+
+         if (ais.size() == count)
+         {
+            patientCounter = 0;
+         }
+         else
+         {
+            doWait(1000);
+         }
+      }
 
       assertThat(ais.size(), is(count));
 
       for (ActivityInstance ai : ais)
       {
-         wfs.activateAndComplete(ai.getOID(), PredefinedConstants.DEFAULT_CONTEXT, Collections.<String, Object>emptyMap());
+         wfs.activateAndComplete(ai.getOID(), PredefinedConstants.DEFAULT_CONTEXT,
+               Collections.<String, Object> emptyMap());
       }
       ais = qs.getAllActivityInstances(query);
       assertThat(ais.size(), is(0));
@@ -531,7 +629,25 @@ public class SpawnPeerInsertProcessTest
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(piOid);
       query.where(ActivityFilter.forAnyProcess(activityId));
       query.where(ActivityInstanceQuery.STATE.isEqual(state));
-      ActivityInstance ai = qs.findFirstActivityInstance(query);
+
+      int patientCounter = 5;
+      ActivityInstances ais = null;
+      while (patientCounter-- > 0)
+      {
+         ais = qs.getAllActivityInstances(query);
+
+         if (ais.size() == 1)
+         {
+            patientCounter = 0;
+         }
+         else
+         {
+            doWait(1000);
+         }
+      }
+      Assert.assertTrue(0 < ais.size());
+      ActivityInstance ai = ais.get(0);
+
       Assert.assertEquals(activityId, ai.getActivity().getId());
       return ai;
    }

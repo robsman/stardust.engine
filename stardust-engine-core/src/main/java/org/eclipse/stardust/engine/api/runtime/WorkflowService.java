@@ -26,6 +26,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.core.runtime.command.Configurable;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
+import org.eclipse.stardust.engine.core.runtime.utils.TransientState;
 
 /**
  * The WorkflowService provides all functionality for workflow operations in a
@@ -297,10 +298,10 @@ public interface WorkflowService extends Service
     */
    // This method also checks data.readDataValues permission for the accessed data
    @ExecutionPermission(
-         id=ExecutionPermission.Id.performActivity,
+         id=ExecutionPermission.Id.readActivityInstanceData,
          scope=ExecutionPermission.Scope.activity,
-         defaults={ExecutionPermission.Default.OWNER},
-         changeable=false)
+         defaults={ExecutionPermission.Default.ALL},
+         fixed={ExecutionPermission.Default.OWNER})
    Serializable getInDataValue(long activityInstanceOID, String context, String id)
          throws ObjectNotFoundException;
 
@@ -328,10 +329,10 @@ public interface WorkflowService extends Service
     */
    // This method also checks data.readDataValues permission for each accessed data
    @ExecutionPermission(
-         id=ExecutionPermission.Id.performActivity,
+         id=ExecutionPermission.Id.readActivityInstanceData,
          scope=ExecutionPermission.Scope.activity,
-         defaults={ExecutionPermission.Default.OWNER},
-         changeable=false)
+         defaults={ExecutionPermission.Default.ALL},
+         fixed={ExecutionPermission.Default.OWNER})
    Map<String, Serializable> getInDataValues(long activityInstanceOID, String context, Set<String> ids)
          throws ObjectNotFoundException;
 
@@ -1188,6 +1189,7 @@ public interface WorkflowService extends Service
     * @return An instance of {@link Worklist} making up the requested view on the
     *         current user's worklist.
     */
+   @TransientState
    @ExecutionPermission(
          id=ExecutionPermission.Id.readActivityInstanceData,
          scope=ExecutionPermission.Scope.workitem,

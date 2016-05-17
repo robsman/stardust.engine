@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="MultiInstance" Name="MultiInstance">
 <PackageHeader>
 <XPDLVersion>2.1</XPDLVersion>
-<Vendor>SunGard CSA LLC, IPP</Vendor>
+<Vendor>Eclipse.org, Eclipse Process Manager</Vendor>
 <Created>Tue Jan 26 10:50:36 CET 2016</Created>
 </PackageHeader>
 <RedefinableHeader PublicationStatus="UNDER_REVISION">
@@ -287,21 +287,6 @@
 </ExtendedAttribute>
 </ExtendedAttributes>
 </DataField>
-<DataField Id="Counter" Name="Counter" IsArray="FALSE">
-<DataType>
-<BasicType Type="INTEGER"/>
-</DataType>
-<ExtendedAttributes>
-<ExtendedAttribute Name="CarnotExt">
-<carnot:DataField Oid="141" Type="primitive">
-<carnot:Attributes>
-<carnot:Attribute Name="carnot:model:uuid" Value="2fe9fc1e-c740-4002-9ddd-c9089a760faa"/>
-<carnot:Attribute Name="carnot:engine:type" Value="long" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
-</carnot:Attributes>
-</carnot:DataField>
-</ExtendedAttribute>
-</ExtendedAttributes>
-</DataField>
 </DataFields>
 <WorkflowProcesses>
 <WorkflowProcess Id="Main" Name="Main" AccessLevel="PUBLIC">
@@ -512,269 +497,6 @@
 </ExtendedAttribute>
 </ExtendedAttributes>
 </WorkflowProcess>
-<WorkflowProcess Id="Counter" Name="Counter" AccessLevel="PUBLIC">
-<ProcessHeader/>
-<Activities>
-<Activity Id="Substr" Name="Substr">
-<Implementation>
-<Task>
-<TaskApplication Id="SubstractOne">
-<ActualParameters>
-<ActualParameter>Counter</ActualParameter>
-</ActualParameters>
-</TaskApplication>
-</Task>
-</Implementation>
-<StartMode>
-<Automatic/>
-</StartMode>
-<FinishMode>
-<Automatic/>
-</FinishMode>
-<ExtendedAttributes>
-<ExtendedAttribute Name="CarnotExt">
-<carnot:Activity Oid="130" Implementation="Application">
-<carnot:EventHandlers/>
-<carnot:QualityCodes/>
-<carnot:DataFlows>
-<carnot:DataFlow Oid="153" Id="Counter1" Name="Counter1" Direction="IN" Context="application">
-<carnot:DataRef Id="Counter"/>
-<carnot:AccessPointRef Id="Old"/>
-</carnot:DataFlow>
-</carnot:DataFlows>
-<carnot:Attributes>
-<carnot:Attribute Name="carnot:model:uuid" Value="59e2629a-a6b0-42b1-82d3-1ed4b539a93a"/>
-<carnot:Attribute Name="taskType" Value="script"/>
-</carnot:Attributes>
-</carnot:Activity>
-</ExtendedAttribute>
-</ExtendedAttributes>
-</Activity>
-<Activity Id="gateway" Name="">
-<Implementation>
-<No/>
-</Implementation>
-<Performer/>
-<StartMode>
-<Automatic/>
-</StartMode>
-<FinishMode>
-<Manual/>
-</FinishMode>
-<TransitionRestrictions>
-<TransitionRestriction>
-<Join Type="XOR"/>
-</TransitionRestriction>
-<TransitionRestriction>
-<Split Type="XOR">
-<TransitionRefs>
-<TransitionRef Id="ac4ed993-5498-494b-9464-e63afea7b97c"/>
-<TransitionRef Id="fc0ba6b9-733f-444a-ae65-04bb34d5a4ae"/>
-</TransitionRefs>
-</Split>
-</TransitionRestriction>
-</TransitionRestrictions>
-<ExtendedAttributes>
-<ExtendedAttribute Name="CarnotExt">
-<carnot:Activity Oid="159">
-<carnot:EventHandlers/>
-<carnot:QualityCodes/>
-<carnot:DataFlows/>
-<carnot:Attributes>
-<carnot:Attribute Name="carnot:model:uuid" Value="469abd52-093c-4ce2-b577-9be3313cc435"/>
-<carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
-</carnot:Attributes>
-</carnot:Activity>
-</ExtendedAttribute>
-</ExtendedAttributes>
-</Activity>
-<Activity Id="Activity1" Name="Activity 1">
-<Implementation>
-<No/>
-</Implementation>
-<Performer>Administrator</Performer>
-<StartMode>
-<Automatic/>
-</StartMode>
-<FinishMode>
-<Manual/>
-</FinishMode>
-<ExtendedAttributes>
-<ExtendedAttribute Name="CarnotExt">
-<carnot:Activity Oid="163" Implementation="Manual">
-<carnot:EventHandlers/>
-<carnot:QualityCodes/>
-<carnot:DataFlows>
-<carnot:DataFlow Oid="174" Id="Counter" Name="Counter" Direction="IN" Context="default">
-<carnot:DataRef Id="Counter"/>
-<carnot:AccessPointRef/>
-</carnot:DataFlow>
-</carnot:DataFlows>
-<carnot:Attributes>
-<carnot:Attribute Name="carnot:model:uuid" Value="bdaa15dc-2a88-4cd0-b5a9-f94211a7d0ba"/>
-</carnot:Attributes>
-</carnot:Activity>
-</ExtendedAttribute>
-</ExtendedAttributes>
-</Activity>
-<Activity Id="gateway1" Name="">
-<Implementation>
-<No/>
-</Implementation>
-<Performer/>
-<StartMode>
-<Automatic/>
-</StartMode>
-<FinishMode>
-<Manual/>
-</FinishMode>
-<TransitionRestrictions>
-<TransitionRestriction>
-<Join Type="OR"/>
-</TransitionRestriction>
-<TransitionRestriction>
-<Split Type="OR">
-<TransitionRefs>
-<TransitionRef Id="4876822e-1512-47b0-8fc9-67f833b7c68b"/>
-</TransitionRefs>
-</Split>
-</TransitionRestriction>
-</TransitionRestrictions>
-<ExtendedAttributes>
-<ExtendedAttribute Name="CarnotExt">
-<carnot:Activity Oid="167">
-<carnot:EventHandlers/>
-<carnot:QualityCodes/>
-<carnot:DataFlows/>
-<carnot:Attributes>
-<carnot:Attribute Name="carnot:model:uuid" Value="83d7d6f5-baa0-4756-a6b8-3170a39a7225"/>
-<carnot:Attribute Name="documentation:comments" Value="{&quot;comments&quot;:[]}"/>
-</carnot:Attributes>
-</carnot:Activity>
-</ExtendedAttribute>
-</ExtendedAttributes>
-</Activity>
-<Activity Id="Route" Name="Route">
-<Implementation>
-<No/>
-</Implementation>
-<Performer>Administrator</Performer>
-<StartMode>
-<Automatic/>
-</StartMode>
-<FinishMode>
-<Manual/>
-</FinishMode>
-<ExtendedAttributes>
-<ExtendedAttribute Name="CarnotExt">
-<carnot:Activity Oid="176" Implementation="Manual">
-<carnot:EventHandlers/>
-<carnot:QualityCodes/>
-<carnot:DataFlows/>
-<carnot:Attributes>
-<carnot:Attribute Name="carnot:model:uuid" Value="bd670f7b-32ff-4e52-8671-c8f07e0144e8"/>
-</carnot:Attributes>
-</carnot:Activity>
-</ExtendedAttribute>
-</ExtendedAttributes>
-</Activity>
-</Activities>
-<Transitions>
-<Transition Id="726eac74-3c02-4a1c-a40c-d2dc80b36c76" Name="" From="Substr" To="gateway">
-<Condition Type="CONDITION">true</Condition>
-<ExtendedAttributes>
-<ExtendedAttribute Name="CarnotExt">
-<carnot:Transition Oid="161" IsForkingOnTraversal="false"/>
-</ExtendedAttribute>
-</ExtendedAttributes>
-</Transition>
-<Transition Id="ac4ed993-5498-494b-9464-e63afea7b97c" Name="" From="gateway" To="Activity1">
-<Condition Type="OTHERWISE"/>
-<ExtendedAttributes>
-<ExtendedAttribute Name="CarnotExt">
-<carnot:Transition Oid="165" IsForkingOnTraversal="false"/>
-</ExtendedAttribute>
-</ExtendedAttributes>
-</Transition>
-<Transition Id="4876822e-1512-47b0-8fc9-67f833b7c68b" Name="" From="gateway1" To="Substr">
-<Condition Type="CONDITION">true</Condition>
-<ExtendedAttributes>
-<ExtendedAttribute Name="CarnotExt">
-<carnot:Transition Oid="170" IsForkingOnTraversal="false"/>
-</ExtendedAttribute>
-</ExtendedAttributes>
-</Transition>
-<Transition Id="fc0ba6b9-733f-444a-ae65-04bb34d5a4ae" Name="" From="gateway" To="gateway1">
-<Condition Type="CONDITION">Counter &gt; 0;</Condition>
-<ExtendedAttributes>
-<ExtendedAttribute Name="CarnotExt">
-<carnot:Transition Oid="172" IsForkingOnTraversal="false"/>
-</ExtendedAttribute>
-</ExtendedAttributes>
-</Transition>
-<Transition Id="0b544db9-1146-4cf1-885d-fe47b4394eb2" Name="" From="Route" To="gateway1">
-<Condition Type="CONDITION">true</Condition>
-<ExtendedAttributes>
-<ExtendedAttribute Name="CarnotExt">
-<carnot:Transition Oid="179" IsForkingOnTraversal="false"/>
-</ExtendedAttribute>
-</ExtendedAttributes>
-</Transition>
-</Transitions>
-<ExtendedAttributes>
-<ExtendedAttribute Name="CarnotExt">
-<carnot:WorkflowProcess Oid="126">
-<carnot:Triggers>
-<carnot:Trigger Oid="133" Id="ManualTrigger1" Name="" Type="manual">
-<carnot:AccessPoints/>
-<carnot:DataFlows/>
-<carnot:Attributes>
-<carnot:Attribute Name="carnot:engine:participant" Value="Administrator"/>
-</carnot:Attributes>
-</carnot:Trigger>
-</carnot:Triggers>
-<carnot:DataPaths/>
-<carnot:EventHandlers/>
-<carnot:Attributes>
-<carnot:Attribute Name="carnot:model:uuid" Value="d880c1a5-4135-42dc-b72f-a301ccce4a43"/>
-</carnot:Attributes>
-<carnot:Diagrams>
-<carnot:Diagram Oid="129" Name="Diagram 1" Orientation="Vertical" Mode="MODE_4_5_0">
-<carnot:Symbols>
-<carnot:Symbol Kind="POOL" Oid="128" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="528" Height="670" Orientation="Vertical">
-<carnot:Symbols>
-<carnot:Symbol Kind="LANE" Oid="127" Id="DefaultLane" Name="Default Lane" X="12" Y="32" Width="494" Height="600" Orientation="Vertical" ParticipantReference="Administrator" ParentLane="128">
-<carnot:Symbols>
-<carnot:Symbol Kind="ACTIVITY" Oid="131" X="151" Y="185" Width="180" Height="50" ModelElement="Substr"/>
-<carnot:Symbol Kind="STARTEVENT" Oid="132" X="192" Y="35" Width="110" Height="50" ModelElement="ManualTrigger1"/>
-<carnot:Symbol Kind="DATA" Oid="152" X="10" Y="209" Width="100" Height="70" ModelElement="Counter"/>
-<carnot:Symbol Kind="ACTIVITY" Oid="160" X="151" Y="302" Width="180" Height="50" ModelElement="gateway"/>
-<carnot:Symbol Kind="ACTIVITY" Oid="164" X="151" Y="426" Width="180" Height="50" ModelElement="Activity1"/>
-<carnot:Symbol Kind="ACTIVITY" Oid="168" X="287" Y="112" Width="180" Height="50" ModelElement="gateway1"/>
-<carnot:Symbol Kind="ACTIVITY" Oid="177" X="115" Y="87" Width="180" Height="50" ModelElement="Route"/>
-</carnot:Symbols>
-<carnot:Connections/>
-</carnot:Symbol>
-</carnot:Symbols>
-<carnot:Connections>
-<carnot:Connection Kind="DATA_FLOW" Oid="154" SourceSymbol="152" TargetSymbol="131" SourceAnchor="bottom" TargetAnchor="left"/>
-<carnot:Connection Kind="TRANSITION" Oid="162" ModelElement="726eac74-3c02-4a1c-a40c-d2dc80b36c76" SourceSymbol="131" TargetSymbol="160" SourceAnchor="bottom" TargetAnchor="top"/>
-<carnot:Connection Kind="TRANSITION" Oid="166" ModelElement="ac4ed993-5498-494b-9464-e63afea7b97c" SourceSymbol="160" TargetSymbol="164" SourceAnchor="bottom" TargetAnchor="top"/>
-<carnot:Connection Kind="TRANSITION" Oid="171" ModelElement="4876822e-1512-47b0-8fc9-67f833b7c68b" SourceSymbol="168" TargetSymbol="131" SourceAnchor="bottom" TargetAnchor="top"/>
-<carnot:Connection Kind="TRANSITION" Oid="173" ModelElement="fc0ba6b9-733f-444a-ae65-04bb34d5a4ae" SourceSymbol="160" TargetSymbol="168" SourceAnchor="bottom" TargetAnchor="right"/>
-<carnot:Connection Kind="DATA_FLOW" Oid="175" SourceSymbol="152" TargetSymbol="164" SourceAnchor="bottom" TargetAnchor="left"/>
-<carnot:Connection Kind="TRANSITION" Oid="178" SourceSymbol="132" TargetSymbol="177" SourceAnchor="bottom" TargetAnchor="top"/>
-<carnot:Connection Kind="TRANSITION" Oid="180" ModelElement="0b544db9-1146-4cf1-885d-fe47b4394eb2" SourceSymbol="177" TargetSymbol="168" SourceAnchor="right" TargetAnchor="left"/>
-</carnot:Connections>
-</carnot:Symbol>
-</carnot:Symbols>
-<carnot:Connections/>
-</carnot:Diagram>
-</carnot:Diagrams>
-</carnot:WorkflowProcess>
-</ExtendedAttribute>
-</ExtendedAttributes>
-</WorkflowProcess>
 <WorkflowProcess Id="Sub2" Name="Sub2" AccessLevel="PRIVATE">
 <ProcessHeader/>
 <Activities>
@@ -835,10 +557,134 @@
 </ExtendedAttribute>
 </ExtendedAttributes>
 </WorkflowProcess>
+<WorkflowProcess Id="Main2" Name="Main2" AccessLevel="PUBLIC">
+<ProcessHeader/>
+<Activities>
+<Activity Id="CallSubs" Name="CallSubs">
+<Implementation>
+<SubFlow Id="Sub" Execution="SYNCHR"/>
+</Implementation>
+<StartMode>
+<Automatic/>
+</StartMode>
+<FinishMode>
+<Automatic/>
+</FinishMode>
+<xpdl:Loop xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:ext="http://www.carnot.ag/workflowmodel/3.1/xpdl/extensions" LoopType="MultiInstance">
+<xpdl:LoopMultiInstance MI_Ordering="Parallel">
+<ext:LoopDataRef>
+<ext:InputItemRef>processInterface:Text</ext:InputItemRef>
+<ext:OutputItemRef>processInterface:Text</ext:OutputItemRef>
+</ext:LoopDataRef>
+</xpdl:LoopMultiInstance>
+</xpdl:Loop>
+<ExtendedAttributes>
+<ExtendedAttribute Name="CarnotExt">
+<carnot:Activity Oid="189" Implementation="Subprocess" IsHibernatedOnCreation="false" SubProcessMode="sync_separate">
+<carnot:EventHandlers/>
+<carnot:QualityCodes/>
+<carnot:DataFlows>
+<carnot:DataFlow Oid="188" Id="Multi" Name="Multi" Direction="IN" Context="processInterface">
+<carnot:DataRef Id="Multi" Expression="List"/>
+<carnot:AccessPointRef Id="Text"/>
+</carnot:DataFlow>
+</carnot:DataFlows>
+<carnot:Attributes>
+<carnot:Attribute Name="carnot:model:uuid" Value="e38372ca-b7e5-42fa-b8e7-08e8ad2d64f0"/>
+<carnot:Attribute Name="taskType" Value="none"/>
+<carnot:Attribute Name="carnot:engine:subprocess:copyAllData" Value="false" Type="boolean"/>
+<carnot:Attribute Name="carnot:engine:bound" Value="false" Type="boolean"/>
+</carnot:Attributes>
+</carnot:Activity>
+</ExtendedAttribute>
+</ExtendedAttributes>
+</Activity>
+<Activity Id="Manual" Name="Manual">
+<Implementation>
+<No/>
+</Implementation>
+<Performer>Administrator</Performer>
+<StartMode>
+<Automatic/>
+</StartMode>
+<FinishMode>
+<Manual/>
+</FinishMode>
+<ExtendedAttributes>
+<ExtendedAttribute Name="CarnotExt">
+<carnot:Activity Oid="190" Implementation="Manual">
+<carnot:EventHandlers/>
+<carnot:QualityCodes/>
+<carnot:DataFlows/>
+<carnot:Attributes>
+<carnot:Attribute Name="carnot:model:uuid" Value="f648c1cf-49fa-4744-bdd0-e28d08287d6e"/>
+</carnot:Attributes>
+</carnot:Activity>
+</ExtendedAttribute>
+</ExtendedAttributes>
+</Activity>
+</Activities>
+<Transitions>
+<Transition Id="c675b074-6499-43c6-a016-bd1423ea3bec" Name="" From="CallSubs" To="Manual">
+<Condition Type="CONDITION">true</Condition>
+<ExtendedAttributes>
+<ExtendedAttribute Name="CarnotExt">
+<carnot:Transition Oid="191" IsForkingOnTraversal="false"/>
+</ExtendedAttribute>
+</ExtendedAttributes>
+</Transition>
+</Transitions>
+<ExtendedAttributes>
+<ExtendedAttribute Name="CarnotExt">
+<carnot:WorkflowProcess Oid="203">
+<carnot:Triggers>
+<carnot:Trigger Oid="192" Id="ManualTrigger1" Name="" Type="manual">
+<carnot:AccessPoints/>
+<carnot:DataFlows/>
+<carnot:Attributes>
+<carnot:Attribute Name="carnot:engine:integration::overlay" Value="manualTrigger"/>
+<carnot:Attribute Name="carnot:engine:participant" Value="Administrator"/>
+</carnot:Attributes>
+</carnot:Trigger>
+</carnot:Triggers>
+<carnot:DataPaths/>
+<carnot:EventHandlers/>
+<carnot:Attributes>
+<carnot:Attribute Name="carnot:model:uuid" Value="4922e486-cff8-4a02-9ba2-fa3bd7e687ab"/>
+</carnot:Attributes>
+<carnot:Diagrams>
+<carnot:Diagram Oid="202" Name="Diagram 1" Orientation="Vertical" Mode="MODE_4_5_0">
+<carnot:Symbols>
+<carnot:Symbol Kind="POOL" Oid="201" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="512" Height="670" Orientation="Vertical">
+<carnot:Symbols>
+<carnot:Symbol Kind="LANE" Oid="200" Id="DefaultLane" Name="Default Lane" X="12" Y="32" Width="478" Height="600" Orientation="Vertical" ParticipantReference="Administrator" ParentLane="201">
+<carnot:Symbols>
+<carnot:Symbol Kind="ACTIVITY" Oid="196" X="78" Y="147" Width="180" Height="50" ModelElement="CallSubs"/>
+<carnot:Symbol Kind="ACTIVITY" Oid="197" X="78" Y="243" Width="180" Height="50" ModelElement="Manual"/>
+<carnot:Symbol Kind="STARTEVENT" Oid="198" X="113" Y="37" Width="110" Height="50" ModelElement="ManualTrigger1"/>
+<carnot:Symbol Kind="DATA" Oid="199" X="312" Y="152" Width="100" Height="70" ModelElement="Multi"/>
+</carnot:Symbols>
+<carnot:Connections/>
+</carnot:Symbol>
+</carnot:Symbols>
+<carnot:Connections>
+<carnot:Connection Kind="TRANSITION" Oid="193" ModelElement="c675b074-6499-43c6-a016-bd1423ea3bec" SourceSymbol="196" TargetSymbol="197" SourceAnchor="bottom" TargetAnchor="top"/>
+<carnot:Connection Kind="DATA_FLOW" Oid="194" SourceSymbol="199" TargetSymbol="196" SourceAnchor="bottom" TargetAnchor="right"/>
+<carnot:Connection Kind="TRANSITION" Oid="195" SourceSymbol="198" TargetSymbol="196" SourceAnchor="bottom" TargetAnchor="top"/>
+</carnot:Connections>
+</carnot:Symbol>
+</carnot:Symbols>
+<carnot:Connections/>
+</carnot:Diagram>
+</carnot:Diagrams>
+</carnot:WorkflowProcess>
+</ExtendedAttribute>
+</ExtendedAttributes>
+</WorkflowProcess>
 </WorkflowProcesses>
 <ExtendedAttributes>
 <ExtendedAttribute Name="CarnotExt">
-<carnot:Package Oid="0" CarnotVersion="9.9.9" ModelOid="0">
+<carnot:Package Oid="0" CarnotVersion="4.0.0" ModelOid="0">
 <carnot:MetaTypes>
 <carnot:DataTypes>
 <carnot:DataType Oid="1" Id="primitive" Name="Primitive Data" IsPredefined="true">
@@ -969,7 +815,7 @@
 <carnot:Views/>
 <carnot:Attributes>
 <carnot:Attribute Name="carnot:model:uuid" Value="f75a37df-ca5b-4579-9cdd-d11d6eb48a62"/>
-<carnot:Attribute Name="ipp:model:modified" Value="Wed Feb 03 12:33:28 CET 2016"/>
+<carnot:Attribute Name="ipp:model:modified" Value="Fri Apr 15 11:02:26 CEST 2016"/>
 </carnot:Attributes>
 </carnot:Package>
 </ExtendedAttribute>

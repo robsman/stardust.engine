@@ -118,6 +118,8 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
    private List<DataPath> descriptorDefinitions = CollectionUtils.newList();
 
    private boolean caseProcessInstance;
+   
+   private List<HistoricalData> historicalData = CollectionUtils.newList();
 
    ProcessInstanceDetails(IProcessInstance processInstance)
    {
@@ -309,6 +311,11 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
          }
 
          initHistoricalEvents(parameters, processInstance);
+         
+         if (!ProcessInstanceUtils.isTransientExecutionScenario(processInstance))
+         {
+            initHistoricalData(parameters, processInstance);
+         }
       }
       finally
       {
@@ -635,6 +642,43 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             || addEventNotes;
    }
 
+   private void initHistoricalData(Parameters parameters, IProcessInstance processInstance)
+   {
+      
+      Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+      Iterator lIter = null;
+      if (session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
+      {
+         
+         
+         /**lIter = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getIterator(
+               DataValueHistoryBean.class);*/
+         lIter = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getCache(
+               DataValueHistoryBean.class)
+               .iterator();
+
+      }
+      /**while (lIter != null && lIter.hasNext())
+      {
+         DataValueHistoryBean historyBean = (DataValueHistoryBean) lIter.next();
+         if (historyBean.getProcessInstance().getOID() == getOID())
+         {
+            historicalData.add(new HistoricalDataDetails(historyBean));
+         }
+
+      }*/
+      
+      while (lIter != null && lIter.hasNext())
+      {
+         PersistenceController pc = (PersistenceController) lIter.next();
+         DataValueHistoryBean historyBean = (DataValueHistoryBean) pc.getPersistent();
+
+         historicalData.add(new HistoricalDataDetails(historyBean));
+         
+      }      
+      
+   }
+   
    private void initHistoricalEvents(Parameters parameters,
          IProcessInstance processInstance)
    {
@@ -808,5 +852,10 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
    public String getRootProcessInstanceName()
    {
       return rootProcessName;
+   }
+   
+   public List<HistoricalData> getHistoricalData()
+   {
+      return historicalData;
    }
 }

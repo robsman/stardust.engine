@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -94,7 +94,7 @@ public class ModelPersistorBean extends IdentifiablePersistentBean implements IM
    private long revision;
    private long disabled;
    private AuditTrailPartitionBean partition;
-   
+
    /**
     * Used for caching the model loaded by fetchModel(), so that subsequent invocations in the same transaction
     * will return the already loaded model.
@@ -111,7 +111,7 @@ public class ModelPersistorBean extends IdentifiablePersistentBean implements IM
             SessionFactory.AUDIT_TRAIL).findFirst(
                   ModelPersistorBean.class,
                   QueryExtension.where(Predicates.isEqual(FR__OID, oid)));
-      
+
       if (result == null)
       {
          throw new ObjectNotFoundException(
@@ -126,7 +126,7 @@ public class ModelPersistorBean extends IdentifiablePersistentBean implements IM
    public static Iterator findAll(short partitionOid)
    {
       return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getVector(
-            ModelPersistorBean.class, // 
+            ModelPersistorBean.class, //
             QueryExtension.where( //
                   Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partitionOid))) //
             .iterator();
@@ -136,7 +136,7 @@ public class ModelPersistorBean extends IdentifiablePersistentBean implements IM
    {
       return id_COLUMN_LENGTH;
    }
-   
+
    public ModelPersistorBean(Date validFrom, String comment, int predecessorOID, AuditTrailPartitionBean partition)
    {
       this.validFrom = validFrom;
@@ -178,6 +178,18 @@ public class ModelPersistorBean extends IdentifiablePersistentBean implements IM
       return fetchModel().getId();
    }
 
+   /**
+    * This will return the ID as it is persisted in table. This prevents bootstrapping of complete model.
+    * In order to get ID from model definition {@link getId()} should be called.
+    *
+    * @return the ID as it persisted in table.
+    */
+   public String getPersistedId()
+   {
+      fetch();
+      return id;
+   }
+
    public IModel fetchModel()
    {
       if (model == null)
@@ -189,7 +201,7 @@ public class ModelPersistorBean extends IdentifiablePersistentBean implements IM
       }
       return model;
    }
-   
+
    public IConfigurationVariablesProvider getConfigurationVariablesProvider()
    {
       // use configuration variable provider if configured by properties
@@ -207,7 +219,7 @@ public class ModelPersistorBean extends IdentifiablePersistentBean implements IM
       }
       return confVarProvider;
    }
-   
+
    public void setConfVarProvider(IConfigurationVariablesProvider confVarProvider)
    {
       if (this.confVarProvider != null)
@@ -219,7 +231,7 @@ public class ModelPersistorBean extends IdentifiablePersistentBean implements IM
 
    /**
     * Updates the model information in the audit trail.
-    * 
+    *
     * @param model The in memory representation of the model.
     * @param modelXml The string representation of the model, assumed to be in CWM,
     *       format encoded in ISO-8859-1.
@@ -241,16 +253,16 @@ public class ModelPersistorBean extends IdentifiablePersistentBean implements IM
          {
             Document parsedModel = XmlUtils.parseString(modelXml,
                   DefaultXMLReader.getCarnotModelEntityResolver());
-   
+
             // convert into ASCII encoding to prevent model corruption as of DBMS charset
             // constraints
             Properties properties = new Properties();
             properties.put(OutputKeys.ENCODING, XMLConstants.ENCODING_ISO_8859_1);
             modelXml = XmlUtils.toString(parsedModel, properties);
          }
-         
+
          // TODO inject attributes into XML
-         
+
          // model is assumed to be in ISO8859-1 encoding, so it can be safely stored in
          // most databases
          LargeStringHolder.setLargeString(getOID(), ModelPersistorBean.class, modelXml);
@@ -262,7 +274,7 @@ public class ModelPersistorBean extends IdentifiablePersistentBean implements IM
       fetchLink(FIELD__PARTITION);
       return partition;
    }
-   
+
    private void injectTo(IModel model)
    {
       model.setModelOID((int) getOID());

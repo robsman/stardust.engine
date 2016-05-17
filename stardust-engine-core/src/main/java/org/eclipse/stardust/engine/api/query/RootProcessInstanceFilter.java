@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,14 +13,14 @@ package org.eclipse.stardust.engine.api.query;
 /**
  * Restricts the resulting items to the ones related to a specific root process.
  *
- * @author rsauer
+ * @author barry.grotjahn
  * @version $Revision$
  */
 public class RootProcessInstanceFilter implements FilterCriterion
 {
    private final String processID;
    private final String processName;
-   
+
    /**
     * Creates a filter matching the root process identified by
     * <code>processID</code> and/or <code>processName</code>.
@@ -30,8 +30,8 @@ public class RootProcessInstanceFilter implements FilterCriterion
     */
    public RootProcessInstanceFilter(String processID, String processName)
    {
-      this.processID = processID;         
-      this.processName = processName;         
+      this.processID = processID;
+      this.processName = processName;
    }
 
    /**
@@ -67,7 +67,7 @@ public class RootProcessInstanceFilter implements FilterCriterion
       sb.append(processID);
       sb.append(" ProcessName = ");
       sb.append(processName);
-      
+
       return sb.toString();
    }
 }

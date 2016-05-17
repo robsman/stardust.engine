@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -64,27 +64,28 @@ public interface Activity extends ModelElement, EventAware
    GatewayType getSplitType();
 
    /**
-    * TODO
+    * Returns <code>true</code> is quality assurance is enabled for this activity.
     */
    boolean isQualityAssuranceEnabled();
 
    /**
-    * TODO
+    * Returns the currently assigned quality assurance performer.
+    * Can be <code>null</null> if quality assurance is disabled.
     */
    ModelParticipant getQualityAssurancePerformer();
 
    /**
-    * TODO
+    * Returns the quality assurance probability.
     */
    int getDefaultQualityAssuranceProbability();
 
    /**
-    * TODO
+    * Returns the quality assurance formula, written in script language (e.g. java script)
     */
    String getQualityAssuranceFormula();
 
    /**
-    * TODO
+    * Returns a set of defined QA codes which can be used during QA performed on activity instances for that activity.
     */
    Set<QualityAssuranceCode> getAllQualityAssuranceCodes();
 

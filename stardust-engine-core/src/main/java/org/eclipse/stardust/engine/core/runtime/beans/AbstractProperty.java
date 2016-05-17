@@ -242,6 +242,9 @@ public abstract class AbstractProperty extends IdentifiablePersistentBean
       ap.string_value = this.string_value;
       ap.type_key = this.type_key;
 
+      property.dataHandler.write(this.dataHandler.read(), true);
+      property.markModified();
+
       return property;
    }
 }

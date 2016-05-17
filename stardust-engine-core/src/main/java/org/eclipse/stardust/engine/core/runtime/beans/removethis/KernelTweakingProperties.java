@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,12 +60,12 @@ public final class KernelTweakingProperties
       "Carnot.Engine.Tuning.ProcessTerminationHierarchyCleanup";
 
    /**
-    * TODO: describe
+    * Number of how often it will be retried to fetch new transition tokens within ActivityThread.
     */
    public static final String ACTIVITY_THREAD_RETRY_COUNT = "Carnot.Engine.Tuning.ActivityThread.Retries";
 
    /**
-    * TODO: describe
+    * Time in milliseconds to wait before it will be retried to fetch new transition tokens within ActivityThread.
     */
    public static final String ACTIVITY_THREAD_RETRY_PAUSE = "Carnot.Engine.Tuning.ActivityThread.Pause";
 
@@ -111,9 +111,9 @@ public final class KernelTweakingProperties
    public static final String DESCRIPTOR_PREFETCH_BATCH_SIZE =
       "Carnot.Engine.Tuning.Query.DescriptorPrefetchBatchSize";
 
-   public static final String HISTORICAL_DATA_PREFETCH_BATCH_SIZE = 
-      "Carnot.Engine.Tuning.Query.HistoricalDataPrefetchBatchSize"; 
-   
+   public static final String HISTORICAL_DATA_PREFETCH_BATCH_SIZE =
+      "Carnot.Engine.Tuning.Query.HistoricalDataPrefetchBatchSize";
+
    public static final String DESCRIPTOR_PREFETCH_STRUCT_XML =
       "Carnot.Engine.Tuning.Query.DescriptorPrefetchStructXml";
    public static final String DESCRIPTOR_PREFETCH_STRUCT_INDEX =
@@ -224,7 +224,7 @@ public final class KernelTweakingProperties
    public static final String ASSIGN_TO_INVALID_USER = "Infinity.Engine.Activity.AssignToInvalidUser";
 
    public static final String WRITE_HISTORICAL_DATA_TO_DB = "Stardust.Engine.Data.WriteHistoricalDataToDb";
-   
+
    public static final String INFINITY_DMS_SHARED_DATA_EXIST = "Infinity.Dms.SharedDataExist";
 
    public static final String ENGINE_EXCLUDE_USER_EVALUATION = "Stardust.Engine.Tuning.Query.ExcludeUser.Evaluation";

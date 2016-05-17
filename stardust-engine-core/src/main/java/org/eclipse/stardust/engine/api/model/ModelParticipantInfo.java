@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,8 +13,9 @@ package org.eclipse.stardust.engine.api.model;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
 
 /**
- * TODO:
- * 
+ * A client side view with base information only of a workflow participant defined in a workflow model.
+ * A participant is a workflow element which performs manual or interactive activities.
+ *
  * @author Florin.Herinean
  * @version $Revision: $
  */
@@ -26,7 +27,7 @@ public interface ModelParticipantInfo extends ParticipantInfo
    public static final ModelParticipantInfo ADMINISTRATOR = new ModelParticipantInfo()
    {
       private static final long serialVersionUID = 1L;
-      
+
       private static final String TO_STRING = "ModelParticipant: " + PredefinedConstants.ADMINISTRATOR_ROLE;
 
       public boolean definesDepartmentScope()
@@ -71,35 +72,35 @@ public interface ModelParticipantInfo extends ParticipantInfo
          return getId();
       }
    };
-   
+
    /**
     * Gets the runtime OID of the model element.
     * <p>
     * Contrary to the element OID, runtime element OIDs are guaranteed to be stable over
     * model versions for model elements of same type and identical fully qualified IDs.
     * </p>
-    * 
+    *
     * <p>
     * The fully qualified ID of a model element consists of the concatenation of the fully
     * qualified element ID of its parent element, if existent, and the element ID.
     * </p>
-    * 
+    *
     * @return the runtime model element OID
-    * 
+    *
     * @see ModelElement#getElementOID()
     */
    long getRuntimeElementOID();
-   
+
    /**
     * Returns true if model participant is modeled to support departments, either directly or inherited from the parent.
-    *   
+    *
     * @return true if this model participant supports department scoping, otherwise false.
     */
    boolean isDepartmentScoped();
 
    /**
     * Returns true if the model participant is modeled to support creation of its own departments.
-    *   
+    *
     * @return true if this model participant supports creation of departments, otherwise false.
     */
    boolean definesDepartmentScope();
@@ -108,7 +109,7 @@ public interface ModelParticipantInfo extends ParticipantInfo
     * Returns the department associated with this model participant or null if the participant has no department association.<br>
     * This method will return Department.DEFAULT instead of null if this object was obtained from
     * Department.DEFAULT.getScopedParticipant(ModelParticipant).
-    * 
+    *
     * @return The department info.
     */
    DepartmentInfo getDepartment();

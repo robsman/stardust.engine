@@ -117,12 +117,7 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
       rtEnv.setProperty(SecurityProperties.CURRENT_DOMAIN, userDomain);
       rtEnv.setProperty(SecurityProperties.CURRENT_DOMAIN_OID, Long.valueOf(getUserDomainOid()));
 
-      UserRealmBean transientRealm = UserRealmBean.createTransientRealm(
-            PredefinedConstants.SYSTEM_REALM, PredefinedConstants.SYSTEM_REALM, partition);
-      IUser transientUser = UserBean.createTransientUser(PredefinedConstants.SYSTEM,
-            PredefinedConstants.SYSTEM_FIRST_NAME, PredefinedConstants.SYSTEM_LAST_NAME,
-            transientRealm);
-      rtEnv.setProperty(SecurityProperties.CURRENT_USER, transientUser);
+      rtEnv.setProperty(SecurityProperties.CURRENT_USER, UserBean.getSystemUser(partition));
 
       // optionally taking timestamp override into account
       boolean recordedEventTime = params.getBoolean(

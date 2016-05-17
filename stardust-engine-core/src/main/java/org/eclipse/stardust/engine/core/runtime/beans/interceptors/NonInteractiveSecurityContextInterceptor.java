@@ -12,7 +12,6 @@ package org.eclipse.stardust.engine.core.runtime.beans.interceptors;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.PropertyLayer;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.LoginUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
@@ -21,15 +20,14 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 
-
 public class NonInteractiveSecurityContextInterceptor implements MethodInterceptor
 {
    private static final long serialVersionUID = 1L;
 
    private static final String METHOD_FORKING_SERVICE_ISOLATE = "isolate";
-   
+
    private static final String METHOD_ACTION_RUNNER_EXECUTE = "execute";
-   
+
    public Object invoke(MethodInvocation invocation) throws Throwable
    {
       if (isSecurityContextAwareActionInvocation(invocation))
@@ -46,7 +44,7 @@ public class NonInteractiveSecurityContextInterceptor implements MethodIntercept
 
       return invocation.proceed();
    }
-   
+
    public static boolean isSecurityContextAwareActionInvocation(MethodInvocation invocation)
    {
       final Object[] args = invocation.getArguments();
@@ -62,7 +60,7 @@ public class NonInteractiveSecurityContextInterceptor implements MethodIntercept
             && (1 == args.length)
             && (args[0] instanceof SecurityContextBoundAction);
    }
-   
+
    public static void buildSecurityContext(SecurityContextAwareAction action,
          PropertyLayer props, Parameters params)
    {
@@ -86,13 +84,7 @@ public class NonInteractiveSecurityContextInterceptor implements MethodIntercept
          props.setProperty(SecurityProperties.CURRENT_DOMAIN, domain);
 
          // bind system user
-         UserRealmBean transientRealm = UserRealmBean.createTransientRealm(
-               PredefinedConstants.SYSTEM_REALM, PredefinedConstants.SYSTEM_REALM,
-               partition);
-         IUser transientUser = UserBean.createTransientUser(PredefinedConstants.SYSTEM,
-               PredefinedConstants.SYSTEM_FIRST_NAME, PredefinedConstants.SYSTEM_LAST_NAME,
-               transientRealm);
-         props.setProperty(SecurityProperties.CURRENT_USER, transientUser);
+         props.setProperty(SecurityProperties.CURRENT_USER, UserBean.getSystemUser(partition));
       }
    }
 

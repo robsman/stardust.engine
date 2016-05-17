@@ -12,6 +12,8 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.CompareHelper;
@@ -19,8 +21,7 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.LoginUtils;
 import org.eclipse.stardust.engine.api.runtime.UserPK;
@@ -35,14 +36,9 @@ import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 
-
-
-/**
- *
- */
 public class UserRealmBean extends AttributedIdentifiablePersistentBean implements IUserRealm, Serializable, Cacheable
 {
-   private static final Logger trace = LogManager.getLogger(UserRealmBean.class);
+   private static final long serialVersionUID = 2L;
 
    public static final String FIELD__OID = IdentifiablePersistentBean.FIELD__OID;
    public static final String FIELD__ID = "id";
@@ -73,6 +69,8 @@ public class UserRealmBean extends AttributedIdentifiablePersistentBean implemen
    private static final int description_COLUMN_LENGTH = 4000;
    private String description;
    private long partition;
+
+   private static ConcurrentMap<Short, IUserRealm> SYSTEM_REALMS = new ConcurrentHashMap<Short, IUserRealm>();
 
    public static UserRealmBean findByOID(long oid)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException
@@ -121,7 +119,26 @@ public class UserRealmBean extends AttributedIdentifiablePersistentBean implemen
       return result;
    }
 
-   public static UserRealmBean createTransientRealm(String id, String name,
+   public static IUserRealm getSystemRealm(IAuditTrailPartition partition)
+   {
+      Short partitionOid = partition.getOID();
+      IUserRealm systemRealm = SYSTEM_REALMS.get(partitionOid);
+      if (systemRealm == null)
+      {
+         systemRealm = new UserRealmBean();
+         ((UserRealmBean) systemRealm).id = PredefinedConstants.SYSTEM_REALM;
+         ((UserRealmBean) systemRealm).name = PredefinedConstants.SYSTEM_REALM;
+         ((UserRealmBean) systemRealm).partition = (null != partition) ? partition.getOID() : 0;
+         IUserRealm existing = SYSTEM_REALMS.putIfAbsent(partitionOid, systemRealm);
+         if (existing != null)
+         {
+            systemRealm = existing;
+         }
+      }
+      return systemRealm;
+   }
+
+   /*public static UserRealmBean createTransientRealm(String id, String name,
          IAuditTrailPartition partition)
    {
       UserRealmBean realm = new UserRealmBean();
@@ -131,7 +148,7 @@ public class UserRealmBean extends AttributedIdentifiablePersistentBean implemen
       realm.setPartition(partition);
 
       return realm;
-   }
+   }*/
 
    public UserRealmBean()
    {

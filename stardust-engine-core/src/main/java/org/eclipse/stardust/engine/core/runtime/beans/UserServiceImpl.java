@@ -256,7 +256,7 @@ public class UserServiceImpl implements UserService, Serializable
       {
          user.setQualityAssuranceProbability(changes.getQualityAssuranceProbability());
       }
-      
+
       if (isInternalAuthentication())
       {
          String previousPassword = user.getPassword();
@@ -587,7 +587,9 @@ public class UserServiceImpl implements UserService, Serializable
    public User getUser(String account) throws ObjectNotFoundException,
          IllegalOperationException
    {
-      String realm = SecurityProperties.getUserRealm().getId();
+      IUserRealm userRealm = SecurityProperties.getUserRealm();
+      String realm = (userRealm == UserRealmBean.getSystemRealm(SecurityProperties.getPartition()))
+            ? PredefinedConstants.DEFAULT_REALM_ID : userRealm.getId();
       return getUser(realm, account);
    }
 

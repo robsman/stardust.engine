@@ -26,7 +26,7 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          .getLogger(R9_2_0from9_0_0RuntimeJob.class);
 
    private RuntimeUpgradeTaskExecutor upgradeTaskExecutor;
-   
+
    private static final String AI_LCK_TABLE_NAME = "activity_instance_lck";
 
    private static final String AUDIT_TRAIL_PARTITION_TABLE_NAME = "partition";
@@ -52,7 +52,7 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String DATA_VALUE_HISTORY_TABLE_NAME = "data_value_history";
 
    private static final String DATA_VALUE_HISTORY_FIELD_OID = "oid";
-   
+
    private static final String DATA_VALUE_HISTORY_FIELD_MODEL = "model";
 
    private static final String DATA_VALUE_HISTORY_FIELD_DATA = "data";
@@ -72,11 +72,11 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String DATA_VALUE_HISTORY_FIELD_MOD_USER = "mod_user";
 
    private static final String DATA_VALUE_HISTORY_FIELD_MOD_ACTIVITY_INSTANCE = "mod_activity_instance";
-   
+
    private static final String DATA_VALUE_HISTORY_SEQ = "data_value_history_seq";
-   
+
    private static final String DATA_VALUE_HISTORY_LCK_TABLE_NAME = "data_value_history_lck";
-   
+
    private static final String DATA_VALUE_HISTORY_LCK_IDX = "data_value_history_lck_idx";
 
 
@@ -95,7 +95,7 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private void initUpgradeTasks()
    {
       upgradeTaskExecutor = new RuntimeUpgradeTaskExecutor("R9_2_0from9_0_0RuntimeJob",
-            Parameters.instance().getBoolean(RuntimeUpgrader.UPGRADE_DATA, false));
+            Parameters.instance().getBoolean(RuntimeUpgrader.UPGRADE_DATA, true));
 
       upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
       {
@@ -118,7 +118,7 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          {
          }
       });
-      
+
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
       {
          @Override
@@ -126,7 +126,7 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          {
             insertDataValueHistoryTable();
          }
-         
+
          @Override
          public void printInfo()
          {
@@ -135,9 +135,9 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
                   + "'mod_timestamp', 'mod_user', 'mod_activity_instance', "
                   + "'processInstance' and 'type_key' will be created.");
          }
-         
+
       });
-      
+
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
       {
          @Override
@@ -173,7 +173,7 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       String tableName = DatabaseHelper
             .getQualifiedName(PROCESS_INSTANCE_LINK_TYPE_TABLE_NAME);
 
-      if (!linkTypeExists(PredefinedProcessInstanceLinkTypes.RELATED, connection))
+      if (!linkTypeExists(PredefinedProcessInstanceLinkTypes.INSERT, connection))
       {
          // Populate ProcessInstanceLinkType table
          StringBuffer insertCmd = new StringBuffer();
@@ -316,7 +316,7 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
       return partitionInfo;
    }
-   
+
    private void insertDataValueHistoryTable()
    {
       DatabaseHelper.createTable(item, new CreateTableInfo(
@@ -324,34 +324,34 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       {
          private final FieldInfo oid = new FieldInfo(
                DATA_VALUE_HISTORY_FIELD_OID, Long.TYPE, 0, true);
-         
+
          private final FieldInfo model = new FieldInfo(
                DATA_VALUE_HISTORY_FIELD_MODEL, Long.TYPE, 0, false);
 
          private final FieldInfo data = new FieldInfo(
                DATA_VALUE_HISTORY_FIELD_DATA, Long.TYPE, 0, false);
-         
+
          private final FieldInfo string_value = new FieldInfo(
                DATA_VALUE_HISTORY_FIELD_STRING_VALUE, String.class, 255, false);
-         
+
          private final FieldInfo number_value = new FieldInfo(
                DATA_VALUE_HISTORY_FIELD_NUMBER_VALUE, Long.TYPE, 0, false);
-         
+
          private final FieldInfo double_value = new FieldInfo(
                DATA_VALUE_HISTORY_FIELD_DOUBLE_VALUE, Double.TYPE, 0, false);
-         
+
          private final FieldInfo mod_timestamp = new FieldInfo(
                DATA_VALUE_HISTORY_FIELD_MOD_TIMESTAMP, Long.TYPE, 0, false);
 
          private final FieldInfo mod_user = new FieldInfo(
                DATA_VALUE_HISTORY_FIELD_MOD_USER, Long.TYPE, 0, false);
-         
+
          private final FieldInfo mod_activity_instance = new FieldInfo(
                DATA_VALUE_HISTORY_FIELD_MOD_ACTIVITY_INSTANCE, Long.TYPE, 0, false);
-         
+
          private final FieldInfo type_key = new FieldInfo(
                DATA_VALUE_HISTORY_FIELD_TYPE_KEY, Integer.TYPE, 0, false);
-         
+
          private final FieldInfo processInstance = new FieldInfo(
                DATA_VALUE_HISTORY_FIELD_PROCESS_INSTANCE, Long.TYPE, 0, false);
 
@@ -377,7 +377,7 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
 
       }, runtimeJob);
-         
+
    }
 
    protected void insertDataValueHistoryLckTable()

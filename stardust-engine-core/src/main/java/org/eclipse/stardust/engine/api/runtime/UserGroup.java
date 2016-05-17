@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,9 @@ import org.eclipse.stardust.engine.api.model.DynamicParticipant;
 
 
 /**
+ * A client side view of an user group participant defined at runtime.
+ * An user group participant is a workflow element which performs manual or interactive activities.
+ *
  * @author sborn
  * @version $Revision$
  */
@@ -26,10 +29,10 @@ public interface UserGroup extends DynamicParticipant, UserGroupInfo
    /**
     * Sets the name of the user group. The actual name will not be changed until
     * {@link UserService#modifyUserGroup(UserGroup)} is invoked.
-    * 
+    *
     * @param name
     *           the new name.
-    * 
+    *
     * @see UserService#modifyUserGroup(UserGroup)
     */
    void setName(String name);
@@ -37,10 +40,10 @@ public interface UserGroup extends DynamicParticipant, UserGroupInfo
    /**
     * Sets the validity start date of the user group. The actual date will not be changed
     * until {@link UserService#modifyUserGroup(UserGroup)} is invoked.
-    * 
+    *
     * @param validFrom
     *           the validity start date, or null if unlimited.
-    * 
+    *
     * @see UserService#modifyUserGroup(UserGroup)
     */
    void setValidFrom(Date validFrom);
@@ -48,17 +51,17 @@ public interface UserGroup extends DynamicParticipant, UserGroupInfo
    /**
     * Sets the validity end date of the user group. The actual date will not be changed
     * until {@link UserService#modifyUserGroup(UserGroup)} is invoked.
-    * 
+    *
     * @param validTo
     *           the validity end date, or null if unlimited.
-    * 
+    *
     * @see UserService#modifyUserGroup(UserGroup)
     */
    void setValidTo(Date validTo);
 
    /**
     * Retrieves this user group's description.
-    * 
+    *
     * @return the description.
     */
    String getDescription();
@@ -66,14 +69,14 @@ public interface UserGroup extends DynamicParticipant, UserGroupInfo
    /**
     * Sets the description of the user group. The actual description will not be changed
     * until {@link UserService#modifyUserGroup(UserGroup)} is invoked.
-    * 
+    *
     * @param description
     *           the description.
-    * 
+    *
     * @see UserService#modifyUserGroup(UserGroup)
     */
    void setDescription(String description);
-   
+
    /**
     * @param name
     * @param value
@@ -83,12 +86,12 @@ public interface UserGroup extends DynamicParticipant, UserGroupInfo
    /**
     * Sets a custom property. The actual propertY will not be changed until
     * {@link UserService#modifyUserGroup(UserGroup)} is invoked.
-    * 
+    *
     * @param name
     *           the name of the property.
     * @param value
     *           the value of the property.
-    * 
+    *
     * @see UserService#modifyUserGroup(UserGroup)
     */
    // void setProperty(String name, Serializable value);
@@ -97,13 +100,13 @@ public interface UserGroup extends DynamicParticipant, UserGroupInfo
     * Sets all the custom properties of the user group. This method will clear any
     * previous custom properties the user group may have. The actual properties will not
     * be changed until {@link UserService#modifyUserGroup(UserGroup)} is invoked.
-    * 
+    *
     * @param properties
     *           a Map containing name-value pair of custom properties.
-    * 
+    *
     * @see UserService#modifyUserGroup(UserGroup)
     */
    // void setAllProperties(Map properties);
-   
+
    public UserGroupDetailsLevel getDetailsLevel();
 }

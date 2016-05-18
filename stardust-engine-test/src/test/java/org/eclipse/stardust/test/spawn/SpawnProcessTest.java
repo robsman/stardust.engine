@@ -768,5 +768,11 @@ public class SpawnProcessTest
       {
          Thread.sleep(5000);
       }
+
+      public void doWaitAndInterrupt() throws InterruptedException
+      {
+         doWait();
+         interrupt();
+      }
    }
 }

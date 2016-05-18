@@ -541,6 +541,123 @@ public class SpawnPeerInsertProcessTest
 
    }
 
+   @Test
+   public void testSlowPOJOAppCanInterrupt() throws TimeoutException, InterruptedException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+
+      ProcessInstance pi = wfs.startProcess("{SpawnProcessModel}WaitAndInterrupt", new StartOptions(null , false));
+      assertThat(pi.getState(), is(ProcessInstanceState.Active));
+
+      // wait for application state, POJO waits for 5 sec then interrupts.
+      doWait(2000);
+
+      // Spawn process
+      SpawnOptions options = new SpawnOptions(null, SpawnMode.HALT, null, null);
+      ProcessInstance peer = wfs.spawnPeerProcessInstance(
+            pi.getOID(), "{SpawnProcessModel}InputData1", options);
+
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
+      assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(), PredefinedProcessInstanceLinkTypes.INSERT);
+
+      // Now POJO app has interrupted
+      doWait(3000);
+
+
+      // reset registered state changes before next steps
+      ProcessInstanceStateBarrier.instance().cleanUp();
+
+      assertActivityInstanceExists(pi.getOID(), "Activity_1", ActivityInstanceState.INTERRUPTED);
+
+      completeActivityInstances(peer.getOID(), 1);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Completed);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Active);
+
+      assertActivityInstanceExists(pi.getOID(), "done", ActivityInstanceState.SUSPENDED);
+
+   }
+
+   @Test
+   public void testSubProcessWorksAfterApplicationStateAICompleted() throws TimeoutException, InterruptedException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+
+      ProcessInstance pi = wfs.startProcess("{SpawnProcessModel}ComplexProcess", new StartOptions(null , true));
+      assertThat(pi.getState(), is(ProcessInstanceState.Active));
+
+      // Activate manual AI
+      ActivityInstance ai = wfs.activateNextActivityInstanceForProcessInstance(pi.getOID());
+      Assert.assertNotNull(ai);
+
+      // Spawn process
+      SpawnOptions options = new SpawnOptions(null, SpawnMode.HALT, null, null);
+      ProcessInstance peer = wfs.spawnPeerProcessInstance(
+            pi.getOID(), "{SpawnProcessModel}InputData1", options);
+
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
+      assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(), PredefinedProcessInstanceLinkTypes.INSERT);
+
+      // Complete manual AI of main process. This halts the next subprocess ai.
+      wfs.complete(ai.getOID(), null, null);
+
+      // reset registered state changes before next steps
+      ProcessInstanceStateBarrier.instance().cleanUp();
+
+      completeActivityInstances(peer.getOID(), 1);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Completed);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Active);
+
+      assertActivityInstanceExists(pi.getOID(), "InputData1", ActivityInstanceState.SUSPENDED);
+
+//      assertActivityInstanceExists(pi.getOID(), "left", ActivityInstanceState.SUSPENDED);
+//      assertActivityInstanceExists(pi.getOID(), "right", ActivityInstanceState.SUSPENDED);
+   }
+
+   @Test
+   public void testSubProcessWorksAfterApplicationStateAISuspended() throws TimeoutException, InterruptedException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+
+      ProcessInstance pi = wfs.startProcess("{SpawnProcessModel}ComplexProcess", new StartOptions(null , true));
+      assertThat(pi.getState(), is(ProcessInstanceState.Active));
+
+      // Activate manual AI
+      ActivityInstance ai = wfs.activateNextActivityInstanceForProcessInstance(pi.getOID());
+      Assert.assertNotNull(ai);
+
+      // Spawn process
+      SpawnOptions options = new SpawnOptions(null, SpawnMode.HALT, null, null);
+      ProcessInstance peer = wfs.spawnPeerProcessInstance(
+            pi.getOID(), "{SpawnProcessModel}InputData1", options);
+
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
+      assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(), PredefinedProcessInstanceLinkTypes.INSERT);
+
+      // Suspend manual AI of main process.
+      wfs.suspend(ai.getOID(), null);
+
+      // reset registered state changes before next steps
+      ProcessInstanceStateBarrier.instance().cleanUp();
+
+      completeActivityInstances(peer.getOID(), 1);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Completed);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Active);
+
+      // Complete manual AI of main process.
+      wfs.activateAndComplete(ai.getOID(), null, null);
+
+      assertActivityInstanceExists(pi.getOID(), "InputData1", ActivityInstanceState.SUSPENDED);
+      assertActivityInstanceCount(pi.getProcessID(), "InputData1", 2, ActivityInstanceState.SUSPENDED);
+      assertActivityInstanceCount("{SpawnProcessModel}InputData1", "InputData1", 1, ActivityInstanceState.SUSPENDED);
+   }
+
    // ************** UTILS ***************
 
    private void doWait(int i)

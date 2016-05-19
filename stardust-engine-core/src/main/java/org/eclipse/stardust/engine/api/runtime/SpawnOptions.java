@@ -184,6 +184,10 @@ public class SpawnOptions implements Serializable
       return dataCopyOptions;
    }
 
+   /**
+    * Specifies what action to take with the originating process instance.
+    * 
+    */
    public enum SpawnMode
    {
       KEEP,

@@ -14,6 +14,9 @@ import org.eclipse.stardust.common.error.ErrorCase;
 import org.eclipse.stardust.common.error.PublicException;
 
 /**
+ * Thrown in case of semantic binding errors during binding/unbinding event handler to
+ * activity or process instances.
+ * 
  * @author ubirkemeyer
  * @version $Revision$
  */

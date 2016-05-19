@@ -15,6 +15,8 @@ import org.eclipse.stardust.common.error.PublicException;
 
 
 /**
+ * Thrown if another user with the specified account already exists.
+ * 
  * @author ubirkemeyer
  * @version $Revision$
  */

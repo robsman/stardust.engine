@@ -13,11 +13,10 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.util.Iterator;
 
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.LogCode;
-import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 
 public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
@@ -170,29 +169,43 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
 
    private boolean canResume(ProcessInstanceBean pi)
    {
-      // check if all linked inserted processes are terminated.
-      ResultIterator<IProcessInstanceLink> links = ProcessInstanceLinkBean.findAllForProcessInstance(pi);
-      if (links !=null)
+      if (pi.isHalting())
       {
-         while (links.hasNext())
+         throw new PublicException(BpmRuntimeError.BPMRT_PI_IS_STILL_HALTING.raise(pi.getOID()));
+      }
+
+      if (pi.isHalted())
+      {
+         // check if all linked inserted processes are terminated.
+         ResultIterator<IProcessInstanceLink> links = ProcessInstanceLinkBean
+               .findAllForProcessInstance(pi);
+         if (links != null)
          {
-            IProcessInstanceLink link = links.next();
-            if (PredefinedProcessInstanceLinkTypes.INSERT.getId().equals(
-                  link.getLinkType().getId()) && link.getProcessInstanceOID() == pi.getOID())
+            while (links.hasNext())
             {
-               IProcessInstance linkedPi = link.getLinkedProcessInstance();
-               if (!linkedPi.isTerminated())
+               IProcessInstanceLink link = links.next();
+               if (PredefinedProcessInstanceLinkTypes.INSERT.getId()
+                     .equals(link.getLinkType().getId())
+                     && link.getProcessInstanceOID() == pi.getOID())
                {
-                  trace.info(
-                        "Cannot resume halted process '" + link.getProcessInstanceOID()
-                              + "'. The linked inserted processes '" + linkedPi.getOID()
-                              + "' is not terminated.");
-                  return false;
+                  IProcessInstance linkedPi = link.getLinkedProcessInstance();
+                  if (!linkedPi.isTerminated())
+                  {
+                     trace.info(
+                           "Cannot resume halted process '" + link.getProcessInstanceOID()
+                                 + "'. The linked inserted processes '"
+                                 + linkedPi.getOID() + "' is not terminated.");
+                     return false;
+                  }
                }
             }
          }
+         return true;
       }
-      return true;
+      else
+      {
+         return false;
+      }
    }
 
    @Override

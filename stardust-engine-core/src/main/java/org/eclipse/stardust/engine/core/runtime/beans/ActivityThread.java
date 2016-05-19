@@ -1280,6 +1280,22 @@ public class ActivityThread implements Runnable
                }
                return;
             }
+            else if(ActivityInstanceState.Halted.equals(activityInstance.getState()))
+            {
+               if (trace.isDebugEnabled())
+               {
+                  trace.debug("Leaving " + activityInstance + " in halted state.");
+               }
+               return;
+            }
+            else if(ActivityInstanceState.Halting.equals(activityInstance.getState()))
+            {
+               if (trace.isDebugEnabled())
+               {
+                  trace.debug("Leaving " + activityInstance + " in halting state.");
+               }
+               return;
+            }
 
             activityInstance.complete();
          }

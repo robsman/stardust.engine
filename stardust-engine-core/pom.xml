@@ -850,6 +850,7 @@
                   <include>api/query/FilterTerm.java</include>
                   <include>api/query/FilterVerifier.java</include>
                   <include>api/query/FilterableAttribute.java</include>
+                  <include>api/query/HistoricalDataPolicy.java</include>
                   <include>api/query/HistoricalEventPolicy.java</include>
                   <include>api/query/HistoricalStatesPolicy.java</include>
                   <include>api/query/LinkDirection.java</include>

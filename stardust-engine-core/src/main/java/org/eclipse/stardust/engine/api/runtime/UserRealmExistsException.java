@@ -15,6 +15,8 @@ import org.eclipse.stardust.common.error.PublicException;
 
 
 /**
+ * Thrown if another user realm with the specified id already exists.
+ * 
  * @author sborn
  * @version $Revision$
  */

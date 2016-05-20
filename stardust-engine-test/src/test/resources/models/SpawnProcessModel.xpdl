@@ -75,6 +75,24 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </Application>
+      <Application Id="PlainJavaApplication3" Name="Plain Java Application 3">
+         <ExternalReference location="org.eclipse.stardust.test.spawn.SpawnProcessTest$PojoApp" xref="doWaitAndInterrupt:"/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Application Oid="10327" Type="plainJava">
+                  <carnot:ApplicationContexts/>
+                  <carnot:AccessPoints/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.spawn.SpawnProcessTest$PojoApp"/>
+                     <carnot:Attribute Name="carnot:engine:methodName" Value="doWaitAndInterrupt()"/>
+                     <carnot:Attribute Name="carnot:engine:constructorName" Value="SpawnProcessTest$PojoApp()"/>
+                     <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
+                  </carnot:Attributes>
+               </carnot:Application>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Application>
    </Applications>
    <DataFields>
       <DataField Id="LAST_ACTIVITY_PERFORMER" Name="Last Activity Performer" IsArray="FALSE">
@@ -2095,6 +2113,92 @@
                                  <carnot:Connection Kind="TRANSITION" Oid="10318" ModelElement="Transition1" SourceSymbol="10323" TargetSymbol="10305" SourceAnchor="center" TargetAnchor="top"/>
                                  <carnot:Connection Kind="TRANSITION" Oid="10324" SourceSymbol="10302" TargetSymbol="10323" SourceAnchor="center" TargetAnchor="center"/>
                                  <carnot:Connection Kind="TRANSITION" Oid="10326" ModelElement="Transition2" SourceSymbol="10323" TargetSymbol="10322" SourceAnchor="center" TargetAnchor="top"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
+      <WorkflowProcess Id="WaitAndInterrupt" Name="WaitAndInterrupt" AccessLevel="PUBLIC">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="Activity_1" Name="Application Activity 1">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="PlainJavaApplication3">
+                        <ActualParameters/>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10328" Implementation="Application" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:relocate:source" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.modifyAttributes" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="10337">
+                  <carnot:Triggers>
+                     <carnot:Trigger Oid="10329" Id="manual_1" Name="Manual Trigger 1" Type="manual">
+                        <carnot:AccessPoints/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:participant" Value="Administrator"/>
+                        </carnot:Attributes>
+                     </carnot:Trigger>
+                  </carnot:Triggers>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.readProcessInstanceData" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:processDefinition.manageEventHandlers[0]" Value="Administrator"/>
+                  </carnot:Attributes>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="10336" Name="Default" Orientation="Vertical" Mode="MODE_4_0_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="10335" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="STARTEVENT" Oid="10330" X="60" Y="5" Width="110" Height="50" ModelElement="manual_1"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10331" X="25" Y="95" Width="180" Height="50" ModelElement="Activity_1"/>
+                                 <carnot:Symbol Kind="APPLICATION" Oid="10338" X="220" Y="100" Width="140" Height="40" ModelElement="PlainJavaApplication3"/>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10333" SourceSymbol="10330" TargetSymbol="10331" SourceAnchor="center" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="EXECUTED_BY" Oid="10339" SourceSymbol="10338" TargetSymbol="10331"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>

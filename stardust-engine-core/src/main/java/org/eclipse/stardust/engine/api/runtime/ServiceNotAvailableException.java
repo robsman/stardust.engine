@@ -13,6 +13,8 @@ package org.eclipse.stardust.engine.api.runtime;
 import org.eclipse.stardust.common.error.ApplicationException;
 
 /**
+ * Thrown if the (remote) service could not be reached.
+ * 
  * @author ubirkemeyer
  * @version $Revision$
  */

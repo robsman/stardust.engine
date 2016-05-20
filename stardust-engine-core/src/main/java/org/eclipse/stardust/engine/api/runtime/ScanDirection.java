@@ -11,22 +11,26 @@
 package org.eclipse.stardust.engine.api.runtime;
 
 /**
- * TODO
+ * Specifies the direction to search potential target activities from an activity instance
+ * for relocation. Possible directions are {@link ScanDirection#FORWARD},
+ * {@link ScanDirection#BACKWARD} or {@link ScanDirection#BOTH}
+ * 
  * @author Florin.Herinean
  * @version $Revision: $
  */
 public enum ScanDirection
 {
    /**
-    * TODO
+    * To retrieve possible target activities for forward transitions to continue the
+    * process but skip current activity.
     */
    FORWARD,
    /**
-    * TODO
+    * To retrieve backward transition targets to repeat a previous executed activity.
     */
    BACKWARD,
    /**
-    * TODO
+    * To retrieve both transition targets: forward and backward.
     */
    BOTH
 }

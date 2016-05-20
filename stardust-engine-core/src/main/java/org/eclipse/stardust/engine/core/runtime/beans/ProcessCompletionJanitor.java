@@ -154,8 +154,9 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
 
    private void resumeHaltedProcessHierarchy(long processInstanceOid)
    {
-      // Always create Janitor. Each janitor decides if it can resume the process.
-      ProcessResumeJanitor.scheduleJanitor(new ResumeJanitorCarrier(processInstanceOid));
+      // Always create Janitor.
+      // Each janitor decides if it can resume the process.
+      ProcessResumeJanitor.schedule(processInstanceOid);
    }
 
    static void resumeParentOfSpawnedSubprocess(IProcessInstance pi, boolean hasParent)
@@ -203,7 +204,7 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
                ProcessInstanceState state = pi.getState();
                ((IdentifiablePersistentBean) pi).reloadAttribute(ProcessInstanceBean.FIELD__STATE);
 
-               if (!pi.isTerminated() && !pi.isAborting())
+               if (!pi.isTerminated() && !pi.isAborting() /*&& !pi.isHalting()*/)
                {
                   // (fh) restore original state
                   if (!state.equals(pi.getState()))

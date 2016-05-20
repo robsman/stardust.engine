@@ -10,9 +10,16 @@
 *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import static org.eclipse.stardust.engine.api.runtime.ActivityInstanceState.Aborted;
+import static org.eclipse.stardust.engine.api.runtime.ActivityInstanceState.Aborting;
+import static org.eclipse.stardust.engine.api.runtime.ActivityInstanceState.Completed;
+import static org.eclipse.stardust.engine.api.runtime.ActivityInstanceState.Halted;
+
 import java.util.Iterator;
 
+import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
@@ -27,7 +34,12 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
    public static final String PRP_RETRY_COUNT = "Infinity.Engine.ProcessResume.Failure.RetryCount";
    public static final String PRP_RETRY_PAUSE = "Infinity.Engine.ProcessResume.Failure.RetryPause";
 
-   public ProcessResumeJanitor(ResumeJanitorCarrier carrier)
+   public static final void schedule(long processInstanceOid)
+   {
+      scheduleJanitor(new ResumeJanitorCarrier(processInstanceOid));
+   }
+
+   private ProcessResumeJanitor(ResumeJanitorCarrier carrier)
    {
       super(carrier);
    }
@@ -53,140 +65,122 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
    @Override
    protected void processPi(ProcessInstanceBean pi)
    {
-      if (!pi.isTerminated())
+      if (pi.isHalting())
+      {
+         try
+         {
+            Thread.sleep(getRetryPause());
+         }
+         catch (InterruptedException e)
+         {
+            throw new InternalException(e);
+         }
+         // schedules retry
+         schedule(pi.getOID());
+         if (trace.isDebugEnabled()) trace.debug("Rescheduled ProcessResumeJanitor for pi '" + pi.getOID() + "'.");
+      }
+      if (pi.isHalted() && canResume(pi))
       {
          pi.lock();
 
-         if (canResume(pi))
+         /* check if this is needed */
+         IProcessInstance rootProcessInstance = pi.getRootProcessInstance();
+         rootProcessInstance.lock();
+         rootProcessInstance.removeHaltingPiOid(pi.getOID());
+         /* end check block */
+
+         // sets to active and sends resume event.
+         pi.resetInterrupted();
+         if (trace.isDebugEnabled()) trace.debug("Resumed " + pi);
+
+         for (Iterator aiIter = ActivityInstanceBean.getAllForProcessInstance(pi); aiIter.hasNext();)
          {
-            IProcessInstance rootProcessInstance = pi.getRootProcessInstance();
-            rootProcessInstance.lock();
-            rootProcessInstance.removeHaltingPiOid(pi.getOID());
-
-            // sets to active and sends resume event.
-            pi.resetInterrupted();
-
-            for (Iterator aiIter = ActivityInstanceBean
-                  .getAllForProcessInstance(pi); aiIter.hasNext();)
+            ActivityInstanceBean activityInstance = (ActivityInstanceBean) aiIter.next();
+            if (!activityInstance.isTerminated())
             {
-               final ActivityInstanceBean activityInstance = (ActivityInstanceBean) aiIter
-                     .next();
-
-               if (!activityInstance.isTerminated())
-               {
-                  activityInstance.lock();
-
-                  restoreStateFromHistory(activityInstance);
-               }
+               activityInstance.lock();
+               restoreStateFromHistory(activityInstance);
+               if (trace.isDebugEnabled()) trace.debug("Resumed " + activityInstance);
             }
-
-            // Run recovery. This also calls recovery on all events.
-            ActivityThreadsRecoveryAction activityThreadsRecoveryAction = new ActivityThreadsRecoveryAction(
-                  pi.getOID());
-            activityThreadsRecoveryAction.execute();
-
-            AuditTrailLogger.getInstance(LogCode.ENGINE, pi)
-                  .info("Process instance resumed.");
          }
+
+         // Run recovery. This also calls recovery on all events.
+         if (trace.isDebugEnabled()) trace.debug("Scheduling recovery for " + pi);
+         new ActivityThreadsRecoveryAction(pi.getOID()).execute();
+
+         AuditTrailLogger.getInstance(LogCode.ENGINE, pi).info("Process instance resumed.");
       }
    }
 
    private void restoreStateFromHistory(final ActivityInstanceBean activityInstance)
    {
-      Iterator<ActivityInstanceHistoryBean> historicStates2 = ActivityInstanceHistoryBean
-            .getAllForActivityInstance(activityInstance, false);
-      boolean haltedFound = false;
+      ActivityInstanceState targetState = null;
 
-      if (historicStates2 == null || !historicStates2.hasNext())
+      Iterator<ActivityInstanceHistoryBean> historicStates = ActivityInstanceHistoryBean.getAllForActivityInstance(activityInstance, false);
+      if (historicStates == null || !historicStates.hasNext())
       {
          trace.warn("Activity instance (oid '" + activityInstance.getOID()
                + "') has no historical states. Resuming to Created state.");
-         activityInstance.setState(ActivityInstanceState.CREATED, executingUserOid);
       }
-
-      while (historicStates2.hasNext())
+      else
       {
-         ActivityInstanceHistoryBean activityInstanceHistoryBean = (ActivityInstanceHistoryBean) historicStates2
-               .next();
-
-         ActivityInstanceState state = activityInstanceHistoryBean.getState();
-         if (haltedFound)
+         boolean haltedFound = false;
+         while (historicStates.hasNext())
          {
-            if (ActivityInstanceState.Interrupted.equals(state))
+            ActivityInstanceState state = ((ActivityInstanceHistoryBean) historicStates.next()).getState();
+            if (haltedFound)
             {
-               // return to interrupted.
-               activityInstance.setState(ActivityInstanceState.INTERRUPTED,
-                     executingUserOid);
-            }
-            else if (ActivityInstanceState.Hibernated.equals(state))
-            {
-               // return to hibernated.
-               activityInstance.setState(ActivityInstanceState.HIBERNATED,
-                     executingUserOid);
-            }
-            else if (ActivityInstanceState.Suspended.equals(state))
-            {
-               // return to suspended.
-               activityInstance.setState(ActivityInstanceState.SUSPENDED,
-                     executingUserOid);
-            }
-            else if (ActivityInstanceState.Created.equals(state))
-            {
-               // Recovery will continue the ai.
-               activityInstance.setState(ActivityInstanceState.CREATED,
-                     executingUserOid);
+               if (Aborted.equals(state) || Aborting.equals(state) || Completed.equals(state))
+               {
+                  // terminated states should not be in history before halt.
+                  trace.error(state + " not expected.");
+                  return;
+               }
+               else if (Halted.equals(state))
+               {
+                  // in case of multiple 'halted' entries, continue with next state before halted.
+                  continue;
+               }
+               targetState = state;
+               break;
             }
             else if (ActivityInstanceState.Halted.equals(state))
             {
-               // in case of multiple 'halted' entries, continue with next state before
-               // halted.
-               continue;
+               // halted state found, continue to state before halted.
+               haltedFound = true;
             }
-            else
-            {
-               // terminated states should not be in history before halt.
-               trace.error(state + " not expected.");
-               continue;
-            }
-
-            // done, state before halted is restored.
-            break;
          }
-         else if (ActivityInstanceState.Halted.equals(state))
+         if (haltedFound && targetState == null)
          {
-            // halted state found, continue to state before halted.
-            haltedFound = true;
-         }
-
-         if (haltedFound && !historicStates2.hasNext())
-         {
-            // no state before halted -> set to created.
             trace.warn("Activity instance (oid '" + activityInstance.getOID()
                   + "') has no historical states before it was halted. Resuming to Created state.");
-            activityInstance.setState(ActivityInstanceState.CREATED, executingUserOid);
          }
-      } // end while
+      }
+      // if no previous state found resume to created
+      activityInstance.setState(targetState == null ? ActivityInstanceState.CREATED : targetState.getValue(), executingUserOid);
    }
 
    private boolean canResume(ProcessInstanceBean pi)
    {
       // check if all linked inserted processes are terminated.
-      ResultIterator<IProcessInstanceLink> links = ProcessInstanceLinkBean.findAllForProcessInstance(pi);
-      if (links !=null)
+      ResultIterator<IProcessInstanceLink> links = ProcessInstanceLinkBean
+            .findAllForProcessInstance(pi);
+      if (links != null)
       {
          while (links.hasNext())
          {
             IProcessInstanceLink link = links.next();
-            if (PredefinedProcessInstanceLinkTypes.INSERT.getId().equals(
-                  link.getLinkType().getId()) && link.getProcessInstanceOID() == pi.getOID())
+            if (PredefinedProcessInstanceLinkTypes.INSERT.getId()
+                  .equals(link.getLinkType().getId())
+                  && link.getProcessInstanceOID() == pi.getOID())
             {
                IProcessInstance linkedPi = link.getLinkedProcessInstance();
                if (!linkedPi.isTerminated())
                {
-                  trace.info(
+                  trace.debug(
                         "Cannot resume halted process '" + link.getProcessInstanceOID()
-                              + "'. The linked inserted processes '" + linkedPi.getOID()
-                              + "' is not terminated.");
+                              + "'. The linked inserted processes '"
+                              + linkedPi.getOID() + "' is not terminated.");
                   return false;
                }
             }
@@ -205,4 +199,25 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
       return "Process resume janitor, pi = " + processInstanceOid;
    }
 
+   public static class ResumeJanitorCarrier extends HierarchyStateChangeJanitorCarrier
+   {
+      private static final long serialVersionUID = 1L;
+
+      // default constructor needed by reflection
+      public ResumeJanitorCarrier()
+      {
+      }
+
+      public ResumeJanitorCarrier(long processInstanceOid)
+      {
+         super(processInstanceOid, 0, Parameters.instance().getInteger(
+               ProcessResumeJanitor.PRP_RETRY_COUNT, 10));
+      }
+
+      @Override
+      public Action doCreateAction()
+      {
+         return new ProcessResumeJanitor(this);
+      }
+   }
 }

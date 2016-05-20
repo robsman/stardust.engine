@@ -75,7 +75,7 @@ public class ScheduledCalendar extends ScheduledDocument
                {
                   JsonObject relationship = SchedulingUtils.getAsJsonObject(details,
                         "relationship");
-                  if (relationship != null && !businessObjectData.isEmpty())
+                  if (relationship.get("otherBusinessObject") != null && !businessObjectData.isEmpty())
                   {
                      String other = SchedulingUtils.getAsString(relationship,
                            "otherBusinessObject");

@@ -99,8 +99,30 @@ public class DataMappingDetails extends ModelElementDetails implements DataMappi
                         .getEndClass().getName();
          }
          else
-         {
-            type = FALLBACK_TYPE_NAME;
+         {            
+            String constantsDataPath = mapping.getDataPath();         
+            constantsDataPath = constantsDataPath.trim();
+            if(constantsDataPath.startsWith("("))
+            {
+               constantsDataPath = constantsDataPath.substring(1, constantsDataPath.length());
+               String[] split = constantsDataPath.split("\\)");
+               String accessPathType = split[0];    
+               
+               try
+               {
+                  Class<?> classType = Reflect.getClassFromAbbreviatedName(accessPathType);
+                  type = classType.getCanonicalName();
+               }
+               catch (Exception e)
+               {
+                  LogUtils.traceException(e, false);                  
+                  type = FALLBACK_TYPE_NAME;                                 
+               }            
+            }
+            else
+            {
+               type = FALLBACK_TYPE_NAME;               
+            }
          }         
       }
       catch (Exception e)

@@ -72,6 +72,9 @@ public class AuditTrailHealthReport implements Serializable
     * beeing marked as completed itself. Performing a process recovery on such processes
     * is recommended.
     * 
+    * The number is based on all process instances from the audit trail that are not in the
+    * state COMPLETED, ABORTING or ABORTED and are having unconsumed transition tokens
+    * 
     * @return The number of process instances.
     */
    public long getNumberOfProcessInstancesLackingCompletion()
@@ -83,6 +86,8 @@ public class AuditTrailHealthReport implements Serializable
     * Gets the number of process instances which had been scheduled for abortion but did
     * not succeed. 
     * Performing a process recovery on such processes is recommended.
+    * 
+    * The number is based on all process instances from the audit trail that are in the state ABORTING
     * 
     * @return The number of process instances.
     */
@@ -96,6 +101,8 @@ public class AuditTrailHealthReport implements Serializable
     * not succeed. 
     * Performing a process recovery on such activities is recommended.
     * 
+    * The number is based on all activity instances from the audit trail that are in the state ABORTING  
+    * 
     * @return The number of activity instances.
     */
    public long getNumberOfActivityInstancesLackingAbortion()
@@ -106,6 +113,8 @@ public class AuditTrailHealthReport implements Serializable
    /**
     * Gets the number of process instances likely to have crashed event bindings.
     * Performing a process recovery on such processes is recommended.
+    * 
+    * The number is based on all event binding from the audit trail having a 'deactivate' flag on the event type id.
     * 
     * @return The number of process instances.
     */
@@ -118,6 +127,9 @@ public class AuditTrailHealthReport implements Serializable
     * Gets the number of process instances likely to have crashed activity instances.
     * Performing a process recovery on such processes is recommended.
     * 
+    * The number is based on all process instances from the audit trail that are not in the state COMPLETED or ABORTED, having 
+    * unconsumed transition tokens and having activities that are in the state CREATED or INTERRUPTED targeted by the transition token. 
+    * 
     * @return The number of process instances.
     */
    public long getNumberOfProcessInstancesHavingCrashedActivities()
@@ -128,6 +140,9 @@ public class AuditTrailHealthReport implements Serializable
    /**
     * Gets the number of process instances likely to have crashed activity threads.
     * Performing a process recovery on such processes is recommended.
+    * 
+    * The number is based on all process instances from the audit trail that that are not in the state COMPLETED or ABORTED 
+    * and where all target activity instances for all existing source activity instances are 0
     * 
     * @return The number of process instances.
     */
@@ -141,6 +156,9 @@ public class AuditTrailHealthReport implements Serializable
     * beeing marked as completed itself. Performing a process recovery on such processes
     * is recommended.
     * 
+    * The set is based on all process instances from the audit trail that are not in the
+    * state COMPLETED, ABORTING or ABORTED and are having unconsumed transition tokens
+    * 
     * @return The set of process instances oids.
     */
    public Set<Long> getProcessInstancesLackingCompletion()
@@ -152,6 +170,8 @@ public class AuditTrailHealthReport implements Serializable
     * Gets the set of process instances oids which had been scheduled for abortion but did
     * not succeed. 
     * Performing a process recovery on such processes is recommended.
+    * 
+    * The set is based on all process instances from the audit trail that are in the state ABORTING
     * 
     * @return The set of process instances oids.
     */
@@ -165,6 +185,8 @@ public class AuditTrailHealthReport implements Serializable
     * not succeed. 
     * Performing a process recovery on such processes is recommended.
     * 
+    * The set is based on all activity instances from the audit trail that are in the state ABORTING  
+    * 
     * @return The set of process instances oids.
     */
    public Set<Long> getActivityInstancesLackingAbortion()
@@ -175,6 +197,9 @@ public class AuditTrailHealthReport implements Serializable
    /**
     * Gets the set of process instances oids likely to have crashed activity instances.
     * Performing a process recovery on such processes is recommended.
+    * 
+    * The set is based on all process instances from the audit trail that are not in the state COMPLETED or ABORTED, having 
+    * unconsumed transition tokens and having activities that are in the state CREATED or INTERRUPTED targeted by the transition token. 
     * 
     * @return The set of process instances oids.
     */
@@ -187,6 +212,9 @@ public class AuditTrailHealthReport implements Serializable
     * Gets the set of process instances oids likely to have crashed activity threads.
     * Performing a process recovery on such processes is recommended.
     * 
+    * The set is based on all process instances from the audit trail that that are not in the state COMPLETED or ABORTED 
+    * and where all target activity instances for all existing source activity instances are 0
+    * 
     * @return The set of process instances oids.
     */
    public Set<Long> getProcessInstancesHavingCrashedThreads()
@@ -197,6 +225,8 @@ public class AuditTrailHealthReport implements Serializable
    /**
     * Gets the set of process instances oids likely to have crashed event bindings.
     * Performing a process recovery on such processes is recommended.
+    * 
+    * The set is based on all event binding from the audit trail having a 'deactivate' flag on the event type id.
     * 
     * @return The set of process instances oids.
     */

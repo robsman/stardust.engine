@@ -69,7 +69,6 @@ public class ProcessHaltJanitor extends ProcessHierarchyStateChangeJanitor
          for (Iterator itr = ActivityInstanceBean.getAllForProcessInstance(pi); itr.hasNext();)
          {
             ActivityInstanceBean ai = (ActivityInstanceBean) itr.next();
-            System.err.println(ai);
             if (ActivityInstanceUtils.isHaltable(ai))
             {
                ai.lock();

@@ -140,6 +140,6 @@ public interface Constants
                      AuditTrailProcessDefinitionBean.class,
                      AuditTrailTransitionBean.class,
                      AuditTrailTriggerBean.class,
-                     RuntimeOidBean.class
+                     //RuntimeOidBean.class
          };
 }

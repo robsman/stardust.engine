@@ -430,6 +430,10 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
     */
    public int lockAndReload()
    {
+      if (getPersistenceController() != null && getPersistenceController().isLocked())
+      {
+         return 0;
+      }
       try
       {
          lock();

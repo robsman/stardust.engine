@@ -739,7 +739,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       IModel model = (IModel) originatingProcessDefinition.getModel();
 
       String modelId = qname.getNamespaceURI();
-      if ( !modelId.equals(XMLConstants.NULL_NS_URI))
+      if (!modelId.equals(XMLConstants.NULL_NS_URI))
       {
          ModelManager mm = ModelManagerFactory.getCurrent();
          model = mm.findActiveModel(modelId);
@@ -1831,8 +1831,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    private IProcessInstance internalStopProcessInstance(long processInstanceOID, AbortScope abortScope, StopMode stopMode)
    {
       // fetch the process.
-      IProcessInstance processInstance = ProcessInstanceBean
-            .findByOID(processInstanceOID);
+      IProcessInstance processInstance = ProcessInstanceBean.findByOID(processInstanceOID);
 
       if (processInstance.isCaseProcessInstance())
       {
@@ -1857,12 +1856,12 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                activityInstance.lock();
             }
          }
+         // TODO: (fh) this is not correct if stopMode is not Abort
          ActivityInstanceUtils.abortActivityInstance(activityInstance, abortScope);
       }
       else
       {
-         // get the process to abort, either this process or the root process depending on
-         // the scope.
+         // find the process to stop, depending on the scope either this process or the root process.
          IProcessInstance pi = processInstance;
          IProcessInstance rootProcessInstance = processInstance.getRootProcessInstance();
          if (rootProcessInstance != processInstance

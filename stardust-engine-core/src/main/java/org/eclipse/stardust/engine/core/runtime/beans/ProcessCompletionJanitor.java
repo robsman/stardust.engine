@@ -204,7 +204,11 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
                ProcessInstanceState state = pi.getState();
                ((IdentifiablePersistentBean) pi).reloadAttribute(ProcessInstanceBean.FIELD__STATE);
 
-               if (!pi.isTerminated() && !pi.isAborting() /*&& !pi.isHalting()*/)
+               if (pi.isHalting())
+               {
+                  ProcessHaltJanitor.schedule(pi.getOID(), 0);
+               }
+               else if (!pi.isTerminated() && !pi.isAborting())
                {
                   // (fh) restore original state
                   if (!state.equals(pi.getState()))

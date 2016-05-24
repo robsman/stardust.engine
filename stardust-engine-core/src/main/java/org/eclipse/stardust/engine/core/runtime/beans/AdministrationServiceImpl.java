@@ -936,16 +936,14 @@ public class AdministrationServiceImpl
             service = factory.get();
 
             // first try is synchronous.
-            service.isolate(new ProcessAbortionJanitor(new AbortionJanitorCarrier(piOid,
-                  userOid)));
+            service.isolate(new ProcessAbortionJanitor(new AbortionJanitorCarrier(piOid, userOid)));
          }
          else if (processInstance.isHalting())
          {
             service = factory.get();
 
             // first try is synchronous.
-            service
-                  .isolate(new ProcessHaltJanitor(new HaltJanitorCarrier(piOid, userOid)));
+            service.isolate(new ProcessHaltJanitor.Carrier(piOid, userOid).createAction());
          }
          else if (!processInstance.isCompleted())
          {

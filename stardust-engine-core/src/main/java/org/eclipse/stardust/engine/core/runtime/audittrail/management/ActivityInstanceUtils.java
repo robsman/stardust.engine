@@ -429,7 +429,7 @@ public class ActivityInstanceUtils
    public static boolean isActiveState(IActivityInstance activityInstance)
    {
       return !activityInstance.isTerminated() && !activityInstance.isAborting()
-            && !activityInstance.isHalting() && !activityInstance.isHalted();
+            && !activityInstance.isHalted();
    }
 
    public static boolean isHaltable(IActivityInstance activityInstance)
@@ -441,12 +441,7 @@ public class ActivityInstanceUtils
 
       IActivity activity = activityInstance.getActivity();
 
-      if (activity.getLoopCharacteristics() instanceof IMultiInstanceLoopCharacteristics)
-      {
-         // do not halt multi instance activities
-         return false;
-      }
-      else if (ActivityInstanceState.Application.equals(activityInstance.getState()))
+      if (ActivityInstanceState.Application.equals(activityInstance.getState()))
       {
          // do not halt application state for interactive and non-interactive
          return false;
@@ -467,18 +462,19 @@ public class ActivityInstanceUtils
 
    public static void assertNotHalted(IActivityInstance ai)
    {
-      if (ai.isHalted() || ai.isHalting())
+      if (ai.isHalted())
       {
          throw new IllegalOperationException(
                BpmRuntimeError.BPMRT_AI_IS_HALTED.raise(ai.getOID()));
       }
+      // TODO: (fh) check if it is necessary
       if (isHaltable(ai)
             && ProcessInstanceUtils.isInHaltingPiHierarchy(ai.getProcessInstance()))
       {
          // found an AI which is in halted hierarchy but not in halted state.
 
          // reschedule halt janitor.
-         ProcessHaltJanitor.scheduleJanitor(new HaltJanitorCarrier(ai.getProcessInstanceOID(), 0), false);
+         ProcessHaltJanitor.schedule(ai.getProcessInstanceOID(), 0);
 
          // cancel current service call.
          throw new IllegalOperationException(

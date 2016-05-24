@@ -268,11 +268,13 @@ public class ActivityThread implements Runnable
             error = BpmRuntimeError.BPMRT_CANNOT_RUN_AI_INVALID_PI_STATE
                   .raise(activityInstance.getOID(), processInstance.getOID());
          }
+         // TODO: (fh) shouldn't be in a separate transaction ?
          ProcessAbortionJanitor.scheduleJanitor(
                new AbortionJanitorCarrier(this.processInstance.getOID(), oid));
          throw new IllegalOperationException(error);
       }
 
+      // TODO: (fh) verify this
       if (isInHaltingPiHierarchyAndHaltable())
       {
          Long oid = (Long) processInstance
@@ -293,9 +295,9 @@ public class ActivityThread implements Runnable
             error = BpmRuntimeError.BPMRT_CANNOT_RUN_AI_INVALID_PI_STATE
                   .raise(activityInstance.getOID(), processInstance.getOID());
          }
-         ProcessHaltJanitor.scheduleJanitor(
-               new HaltJanitorCarrier(this.processInstance.getOID(), oid), false);
-         throw new IllegalOperationException(error);
+         ProcessHaltJanitor.schedule(processInstance.getOID(), oid);
+         //throw new IllegalOperationException(error);
+         return;
       }
 
       if (trace.isDebugEnabled())
@@ -413,6 +415,7 @@ public class ActivityThread implements Runnable
                if (!activityInstance.isTerminated() || activityInstance.isAborting()
                      || isInAbortingPiHierarchy() || isInHaltingPiHierarchyAndHaltable())
                {
+                  if (trace.isDebugEnabled()) trace.debug("Activity thread stopped for " + activityInstance);
                   break;
                }
             }
@@ -661,25 +664,40 @@ public class ActivityThread implements Runnable
       {
          // traverse outgoing transitions
          List<TransitionTokenBean> boundInTokens = tokenCache.getBoundInTokens(activityInstance, activity);
-
+         if (boundInTokens.isEmpty())
+         {
+            if (trace.isDebugEnabled()) trace.debug("No tokens found!");
+            activityInstance = null;
+            return;
+         }
          for (TransitionTokenBean boundToken : boundInTokens)
          {
             if (isMultiInstance())
             {
                // (fh) lock this token and any other token we can get
                TransitionTokenBean token = tokenCache.lockSourceAndOtherToken(boundToken);
+               if (boundToken.isConsumed())
+               {
+                  if (trace.isDebugEnabled()) trace.debug("!!! Bound token already consumed: " + boundToken);
+                  activityInstance = null;
+                  return;
+               }
                if (token != boundToken)
                {
                   // (fh) this thread dies here
                   if (token == null)
                   {
-                     schedule(processInstance, null, activityInstance,
-                           false, null, Collections.EMPTY_MAP, false);
+                     if (trace.isDebugEnabled()) trace.debug("No other token locked, another thread scheduled for " + activityInstance);
+                     schedule(processInstance, null, activityInstance, false, null, Collections.EMPTY_MAP, false);
                      activityInstance = null;
                      return;
                   }
                   else
                   {
+                     if (token.isConsumed())
+                     {
+                        if (trace.isDebugEnabled()) trace.debug("!!! Other token already consumed: " + token);
+                     }
                      tokenCache.consumeToken(boundToken);
                      getCurrentActivityThreadContext().completingTransition(boundToken);
                      if (isSequential())
@@ -692,6 +710,7 @@ public class ActivityThread implements Runnable
                      }
                      else
                      {
+                        if (trace.isDebugEnabled()) trace.debug("Thread stops here for " + activityInstance + " because other unconsumed token found " + token);
                         activityInstance = null;
                      }
                      return;
@@ -1182,6 +1201,14 @@ public class ActivityThread implements Runnable
       {
          try
          {
+            if (activityInstance instanceof ActivityInstanceBean)
+            {
+               ((ActivityInstanceBean) activityInstance).lockAndCheck();
+            }
+            else
+            {
+               activityInstance.lock();
+            }
             activityInstance.start();
          }
          catch (NonInteractiveApplicationException x)
@@ -1285,14 +1312,6 @@ public class ActivityThread implements Runnable
                if (trace.isDebugEnabled())
                {
                   trace.debug("Leaving " + activityInstance + " in halted state.");
-               }
-               return;
-            }
-            else if(ActivityInstanceState.Halting.equals(activityInstance.getState()))
-            {
-               if (trace.isDebugEnabled())
-               {
-                  trace.debug("Leaving " + activityInstance + " in halting state.");
                }
                return;
             }

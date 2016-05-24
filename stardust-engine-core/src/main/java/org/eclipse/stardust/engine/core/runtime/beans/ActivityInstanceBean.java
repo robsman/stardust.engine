@@ -542,7 +542,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          }
          else
          {
-            // reshedule aborting
+            // reschedule aborting
             ProcessAbortionJanitor.scheduleJanitor(new AbortionJanitorCarrier(
                   getProcessInstanceOID(), workflowUserOid));
 
@@ -562,57 +562,58 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       boolean inHaltingPiHierarchy = ProcessInstanceUtils.isInHaltingPiHierarchy(getProcessInstance());
       if (inHaltingPiHierarchy
             && ActivityInstanceUtils.isHaltable(this)
-            && !(state == ActivityInstanceState.HALTED || state == ActivityInstanceState.HALTING))
+            && !(state == ActivityInstanceState.HALTED))
       {
          // Acquire lock on root to avoid conflict with halt or resume.
          try
          {
-            this.processInstance.getRootProcessInstance().lock();
+            getProcessInstance().getRootProcessInstance().lock();
+
+            // reload state after lock was obtained
+            ProcessInstanceState originalPiState = piState;
+            try
+            {
+               if (!processInstance.getPersistenceController().isLocked())
+               {
+                  processInstance.reloadAttribute(ProcessInstanceBean.FIELD__STATE);
+                  piState = processInstance.getState();
+               }
+            }
+            catch (PhantomException e)
+            {
+               // (fh) don't know what else to do
+               throw new InternalException(e);
+            }
+            finally
+            {
+               if (piState != originalPiState)
+               {
+                  processInstance.restoreState(originalPiState);
+                  trace.debug("Using current process instance state '"
+                        + piState + "' instead of the cached state '"
+                        + originalPiState + "'.");
+               }
+            }
          }
          catch (ConcurrencyException e)
          {
-            trace.warn("Could not optain lock on root process instance (oid '"
+            trace.warn("Could not obtain lock on root process instance (oid '"
                   + this.processInstance.getRootProcessInstanceOID()
                   + "'). This might be due to currently running Halt or Resume action.");
             throw e;
          }
 
-         if (piState.equals(ProcessInstanceState.Halted))
+         if (piState.equals(ProcessInstanceState.Halted) || piState.equals(ProcessInstanceState.Halting))
          {
             StringBuilder msg = new StringBuilder();
             msg.append("The process of activity instance (oid '")
                   .append(oid)
-                  .append(
-                        "') is in state 'Halted'. Hence the state of the activity had to be changed to 'Halted'.");
+                  .append("') is in state '")
+                  .append(piState)
+                  .append("'. Hence the state of the activity had to be changed to 'Halted'.");
 
             trace.warn(msg.toString());
             state = ActivityInstanceState.HALTED;
-         }
-         else if (piState.equals(ProcessInstanceState.Halting))
-         {
-            StringBuilder msg = new StringBuilder();
-            msg.append("The process of activity instance (oid '")
-                  .append(oid)
-                  .append(
-                        "') is in state 'Halting'. Hence the state of the activity had to be changed to 'Halted'.");
-
-            trace.warn(msg.toString());
-            state = ActivityInstanceState.HALTED;
-
-            // reshedule halting
-//            ProcessHaltJanitor.scheduleJanitor(new HaltJanitorCarrier(
-//                  getProcessInstanceOID(), workflowUserOid));
-//
-//            ActivityInstanceState newState = ActivityInstanceState.getState(state);
-//            StringBuffer msg = new StringBuffer("Invalid state change from ");
-//            msg.append(ActivityInstanceState.getState(this.state)).append(" to ")
-//                  .append(newState);
-//            msg.append(" because the process instance is ");
-//            msg.append("in process of halting.");
-//
-//            trace.error(msg.toString());
-//            throw new IllegalStateChangeException(this.toString(),
-//                  ActivityInstanceState.getState(state), this.getState(), piState);
          }
       }
 
@@ -627,7 +628,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       }
       this.lastModifyingUser = workflowUserOid;
       this.state = state;
-      
+
       if (trace.isInfoEnabled())
       {
          trace.info("State change for " + this + ": "
@@ -664,6 +665,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                PredefinedConstants.SIGNAL_CONDITION, event);
       }
 
+      // TODO: (fh) move to ActivityThread
       if (inHaltingPiHierarchy && ActivityInstanceUtils.isHaltable(this))
       {
          // is haltable after state change of this ActivityInstance.
@@ -676,8 +678,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          if (piState.equals(ProcessInstanceState.Halting))
          {
             // reshedule halting for process
-            ProcessHaltJanitor.scheduleJanitor(new HaltJanitorCarrier(
-                  getProcessInstanceOID(), workflowUserOid));
+            ProcessHaltJanitor.schedule(getProcessInstanceOID(), workflowUserOid);
          }
       }
    }
@@ -924,11 +925,6 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       ActivityInstanceState state = getState();
       return (ActivityInstanceState.Completed == state)
             || (ActivityInstanceState.Aborted == state);
-   }
-
-   public boolean isHalting()
-   {
-      return ActivityInstanceState.Halting == getState();
    }
 
    public boolean isHalted()
@@ -1765,7 +1761,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             // retry will be handled by application
             retry = false;
          }
-                  
+
          // if retry is enabled, check the other values
          if (retry)
          {
@@ -2749,7 +2745,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    public void lockAndCheck()
    {
-      if ( !getPersistenceController().isLocked())
+      if (getPersistenceController() != null && !getPersistenceController().isLocked())
       {
          lock();
          try

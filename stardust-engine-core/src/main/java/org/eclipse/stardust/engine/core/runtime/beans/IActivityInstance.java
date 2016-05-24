@@ -170,7 +170,4 @@ public interface IActivityInstance extends AttributedIdentifiablePersistent
    void doCompleteActivity() throws IllegalStateChangeException;
 
    boolean isHalted();
-
-   boolean isHalting();
-
 }

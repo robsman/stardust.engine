@@ -14,7 +14,6 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ConcurrencyException;
@@ -25,12 +24,12 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
 public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContextAwareAction
 {
-
    public static final Logger trace = LogManager.getLogger(ProcessHierarchyStateChangeJanitor.class);
 
    protected long processInstanceOid;
    protected long executingUserOid;
    protected int triesLeft;
+
    private ProcessInstanceLocking piLock = new ProcessInstanceLocking();
 
    protected abstract HierarchyStateChangeJanitorCarrier getNewCarrier();
@@ -125,7 +124,7 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
          ProcessStopJanitorMonitor monitor = ProcessStopJanitorMonitor.getInstance();
          monitor.unregister(processInstanceOid);
 
-         // if exception is handleable and tries are left - resheduling new abort thread
+         // if the exception can be handled and tries are left, a new janitor is scheduled
          if (canHandleExceptionOnStop(exception) && triesLeft > 0
                && rtEnv.getExecutionPlan() == null)
          {
@@ -142,7 +141,6 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
             }
             scheduleJanitor(getNewCarrier());
          }
-
       }
 
       return performed ? Boolean.TRUE : Boolean.FALSE;
@@ -163,19 +161,11 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
       }
    }
 
-   public static class ProcessStopJanitorMonitor
+   private static class ProcessStopJanitorMonitor
    {
       private static ProcessStopJanitorMonitor instance = null;
 
-      private HashMap<Long, Boolean> repository;
-
-      private final ReentrantLock lock = new ReentrantLock();
-
-      private ProcessStopJanitorMonitor()
-      {
-
-         repository = new HashMap<Long, Boolean>();
-      }
+      private HashMap<Long, Boolean> repository = new HashMap<Long, Boolean>();
 
       public synchronized static ProcessStopJanitorMonitor getInstance()
       {
@@ -183,48 +173,22 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
          {
             instance = new ProcessStopJanitorMonitor();
          }
-
          return instance;
       }
 
-      public boolean register(long processInstanceOid)
+      public synchronized boolean register(long processInstanceOid)
       {
-         lock.lock();
-         try
+         if (repository.containsKey(processInstanceOid))
          {
-            if (repository.containsKey(processInstanceOid))
-            {
-               return false;
-            }
-            else
-            {
-               repository.put(processInstanceOid, true);
-               return true;
-            }
+            return false;
          }
-         finally
-         {
-            lock.unlock();
-         }
+         repository.put(processInstanceOid, true);
+         return true;
       }
 
-      public void unregister(long processInstanceOid)
+      public synchronized void unregister(long processInstanceOid)
       {
-         lock.lock();
-         try
-         {
-            repository.remove(processInstanceOid);
-         }
-         finally
-         {
-            lock.unlock();
-         }
-      }
-
-      public HashMap<Long, Boolean> getRepository()
-      {
-         return repository;
+         repository.remove(processInstanceOid);
       }
    }
-
 }

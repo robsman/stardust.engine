@@ -48,7 +48,7 @@ public class ScheduleEventAction implements EventActionInstance
          IActivityInstance ai = (IActivityInstance) EventUtils
                .getEventSourceInstance(event);
 
-         if ((null != ai) && !ai.isTerminated() && !ai.isAborting() && !ai.isHalted() && !ai.isHalting())
+         if ((null != ai) && !ai.isTerminated() && !ai.isAborting() && !ai.isHalted())
          {
             Object targetState = attributes.get(PredefinedConstants.TARGET_STATE_ATT);
             if (ActivityInstanceState.Suspended.equals(targetState))

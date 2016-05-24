@@ -36,10 +36,10 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
 
    public static final void schedule(long processInstanceOid)
    {
-      scheduleJanitor(new ResumeJanitorCarrier(processInstanceOid));
+      scheduleJanitor(new Carrier(processInstanceOid));
    }
 
-   private ProcessResumeJanitor(ResumeJanitorCarrier carrier)
+   private ProcessResumeJanitor(Carrier carrier)
    {
       super(carrier);
    }
@@ -47,7 +47,7 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
    @Override
    protected HierarchyStateChangeJanitorCarrier getNewCarrier()
    {
-      return new ResumeJanitorCarrier(processInstanceOid);
+      return new Carrier(processInstanceOid);
    }
 
    @Override
@@ -79,7 +79,7 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
          schedule(pi.getOID());
          if (trace.isDebugEnabled()) trace.debug("Rescheduled ProcessResumeJanitor for pi '" + pi.getOID() + "'.");
       }
-      if (pi.isHalted() && canResume(pi))
+      if (canResume(pi))
       {
          pi.lock();
 
@@ -96,7 +96,7 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
          for (Iterator aiIter = ActivityInstanceBean.getAllForProcessInstance(pi); aiIter.hasNext();)
          {
             ActivityInstanceBean activityInstance = (ActivityInstanceBean) aiIter.next();
-            if (!activityInstance.isTerminated())
+            if (activityInstance.isHalted())
             {
                activityInstance.lock();
                restoreStateFromHistory(activityInstance);
@@ -199,16 +199,18 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
       return "Process resume janitor, pi = " + processInstanceOid;
    }
 
-   public static class ResumeJanitorCarrier extends HierarchyStateChangeJanitorCarrier
+   public static class Carrier extends HierarchyStateChangeJanitorCarrier
    {
       private static final long serialVersionUID = 1L;
 
-      // default constructor needed by reflection
-      public ResumeJanitorCarrier()
+      /**
+       * Default constructor needed by reflection.
+       */
+      public Carrier()
       {
       }
 
-      public ResumeJanitorCarrier(long processInstanceOid)
+      public Carrier(long processInstanceOid)
       {
          super(processInstanceOid, 0, Parameters.instance().getInteger(
                ProcessResumeJanitor.PRP_RETRY_COUNT, 10));

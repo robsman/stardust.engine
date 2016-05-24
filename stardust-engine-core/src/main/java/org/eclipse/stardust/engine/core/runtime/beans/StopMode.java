@@ -16,6 +16,7 @@ public enum StopMode
    HALT ("Halt", "Halting", "Halted");
 
    private final String modeName;
+   // TODO: (fh) use ProcessInstanceState
    private final String transitionState;
    private final String finalState;
 
@@ -40,5 +41,4 @@ public enum StopMode
    {
       return finalState;
    }
-
 }

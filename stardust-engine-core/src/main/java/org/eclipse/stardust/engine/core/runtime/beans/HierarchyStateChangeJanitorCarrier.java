@@ -81,5 +81,4 @@ public abstract class HierarchyStateChangeJanitorCarrier extends ActionCarrier
          userOid = mapMessage.getLong(USER_OID_KEY);
       }
    }
-
 }

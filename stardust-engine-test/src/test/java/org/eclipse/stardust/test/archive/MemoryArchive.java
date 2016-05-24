@@ -1,3 +1,13 @@
+/**********************************************************************************
+ * Copyright (c) 2015 SunGard CSA LLC and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SunGard CSA LLC - initial API and implementation and/or initial documentation
+ **********************************************************************************/
 package org.eclipse.stardust.test.archive;
 
 import java.io.Serializable;
@@ -13,10 +23,10 @@ public class MemoryArchive implements IArchive
 {
    private ExportIndex exportIndex;
    private ExportModel exportModel;
-   
+
    private HashMap<Long, byte[]> dataByProcess;
    private HashMap<String, byte[]> documentData;
-   
+
    private String key;
    private Date date;
 
@@ -36,7 +46,7 @@ public class MemoryArchive implements IArchive
    {
       return key;
    }
-   
+
    public Date getDate()
    {
       return date;
@@ -56,7 +66,7 @@ public class MemoryArchive implements IArchive
    {
       return dataByProcess;
    }
-   
+
    @Override
    public byte[] getDocumentContent(String documentName)
    {
@@ -81,12 +91,12 @@ public class MemoryArchive implements IArchive
       return result;
    }
 
-   
+
    @Override
    public byte[] getData(List<Long> processInstanceOids)
    {
       byte[] result = new byte[]{};
-            
+
       if (dataByProcess != null)
       {
          for (Long processInstanceOid : processInstanceOids)
@@ -101,7 +111,7 @@ public class MemoryArchive implements IArchive
          {
             result = null;
          }
-         
+
       }
       return result;
    }
@@ -117,7 +127,7 @@ public class MemoryArchive implements IArchive
    {
       return getExportIndex().getArchiveManagerId();
    }
-   
+
    @Override
    public String getDumpLocation()
    {

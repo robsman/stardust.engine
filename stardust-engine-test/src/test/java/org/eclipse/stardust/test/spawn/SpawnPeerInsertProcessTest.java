@@ -37,6 +37,7 @@ import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
+import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
 /**
@@ -103,6 +104,43 @@ public class SpawnPeerInsertProcessTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Active);
       assertActivityInstanceExists(pi.getOID(), "InputData1", ActivityInstanceState.SUSPENDED);
    }
+
+   @Test
+   public void testInsertProcessUser1() throws TimeoutException, InterruptedException
+   {
+      UserHome.create(sf, "u1");
+      ServiceFactory sf = ServiceFactoryLocator.get("u1","u1");
+      WorkflowService wfs = sf.getWorkflowService();
+
+      ProcessInstance pi = wfs.startProcess("{SpawnProcessModel}InputData1", new StartOptions(null , true));
+      assertThat(pi.getState(), is(ProcessInstanceState.Active));
+
+      // Spawn process
+      SpawnOptions options = new SpawnOptions(null, SpawnMode.HALT, null, DataCopyOptions.DEFAULT);
+      ProcessInstance peer = wfs.spawnPeerProcessInstance(
+            pi.getOID(), "{SpawnProcessModel}InputData1", options);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
+
+      assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(), PredefinedProcessInstanceLinkTypes.INSERT);
+
+      assertActivityInstanceExists(pi.getOID(), "InputData1", ActivityInstanceState.HALTED);
+      assertActivityInstanceExists(peer.getOID(), "InputData1", ActivityInstanceState.SUSPENDED);
+
+      // reset registered state changes before next steps
+      ProcessInstanceStateBarrier.instance().cleanUp();
+
+      completeActivityInstances(peer.getOID(), 1);
+      ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Completed);
+
+      // check for halted -> active
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Active);
+      assertActivityInstanceExists(pi.getOID(), "InputData1", ActivityInstanceState.SUSPENDED);
+
+      sf.close();
+   }
+
 
    @Test
    public void testInsertTwoOnSameProcess() throws TimeoutException, InterruptedException
@@ -550,7 +588,7 @@ public class SpawnPeerInsertProcessTest
       assertThat(pi.getState(), is(ProcessInstanceState.Active));
 
       // wait for application state, POJO waits for 5 sec then interrupts.
-      doWait(2000);
+      doWait(1000);
 
       // Spawn process
       SpawnOptions options = new SpawnOptions(null, SpawnMode.HALT, null, null);
@@ -563,21 +601,23 @@ public class SpawnPeerInsertProcessTest
       assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(), PredefinedProcessInstanceLinkTypes.INSERT);
 
       // Now POJO app has interrupted
-      doWait(3000);
+      doWait(6000);
 
 
       // reset registered state changes before next steps
       ProcessInstanceStateBarrier.instance().cleanUp();
 
-      assertActivityInstanceExists(pi.getOID(), "Activity_1", ActivityInstanceState.INTERRUPTED);
+      assertActivityInstanceExists(pi.getOID(), "Activity_1", ActivityInstanceState.HALTED);
 
       completeActivityInstances(peer.getOID(), 1);
       ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Completed);
 
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Active);
 
-      assertActivityInstanceExists(pi.getOID(), "done", ActivityInstanceState.SUSPENDED);
+      doWait(6000);
 
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
+      assertActivityInstanceExists(pi.getOID(), "Activity_1", ActivityInstanceState.INTERRUPTED);
    }
 
    @Test

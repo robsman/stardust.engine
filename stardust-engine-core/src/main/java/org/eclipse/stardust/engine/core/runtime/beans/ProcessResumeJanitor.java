@@ -76,8 +76,10 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
             throw new InternalException(e);
          }
          // schedules retry
+         if (trace.isDebugEnabled()) trace.debug(pi.toString() + " is still halting, rescheduling.");
+         ProcessStopJanitorMonitor monitor = ProcessStopJanitorMonitor.getInstance();
+         monitor.unregister(pi.getOID());
          schedule(pi.getOID());
-         if (trace.isDebugEnabled()) trace.debug("Rescheduled ProcessResumeJanitor for pi '" + pi.getOID() + "'.");
       }
       if (canResume(pi))
       {

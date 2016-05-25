@@ -14,6 +14,7 @@ import java.util.Iterator;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
@@ -30,7 +31,7 @@ public class ProcessHaltJanitor extends ProcessHierarchyStateChangeJanitor
 
    public static void schedule(long processInstanceOid, long haltingUserOid)
    {
-      scheduleJanitor(new Carrier(processInstanceOid, haltingUserOid), false);
+      scheduleJanitor(new Carrier(processInstanceOid, haltingUserOid));
    }
 
    private ProcessHaltJanitor(Carrier carrier)
@@ -86,7 +87,17 @@ public class ProcessHaltJanitor extends ProcessHierarchyStateChangeJanitor
 
          if (hasActiveActivities)
          {
+            try
+            {
+               Thread.sleep(getRetryPause());
+            }
+            catch (InterruptedException e)
+            {
+               throw new InternalException(e);
+            }
             if (trace.isDebugEnabled()) trace.debug(pi.toString() + " is still active, rescheduling.");
+            ProcessStopJanitorMonitor monitor = ProcessStopJanitorMonitor.getInstance();
+            monitor.unregister(pi.getOID());
             schedule(pi.getOID(), executingUserOid);
          }
          else

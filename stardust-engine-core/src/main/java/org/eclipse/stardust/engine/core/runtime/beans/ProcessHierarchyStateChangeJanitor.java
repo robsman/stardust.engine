@@ -74,7 +74,10 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
             factory.release(service);
          }
       }
-
+      else
+      {
+         if (trace.isDebugEnabled()) trace.debug("Janitor not scheduled: " + carrier);
+      }
    }
 
    public Object execute()
@@ -161,7 +164,7 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
       }
    }
 
-   private static class ProcessStopJanitorMonitor
+   static class ProcessStopJanitorMonitor
    {
       private static ProcessStopJanitorMonitor instance = null;
 

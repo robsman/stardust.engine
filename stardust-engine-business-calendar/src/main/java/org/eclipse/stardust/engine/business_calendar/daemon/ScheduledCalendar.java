@@ -164,6 +164,10 @@ public class ScheduledCalendar extends ScheduledDocument
                }
                if (value != null)
                {
+                  if (businessObjectId.startsWith("{"))
+                  {
+                     businessObjectId = QName.valueOf(businessObjectId).getLocalPart();
+                  }
                   data.put(businessObjectId, value);
                }
             }

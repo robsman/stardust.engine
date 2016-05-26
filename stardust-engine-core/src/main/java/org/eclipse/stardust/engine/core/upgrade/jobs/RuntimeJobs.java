@@ -36,6 +36,7 @@ public class RuntimeJobs
             jobs.add(new AT2_0_0from1_1_0RuntimeJob());
             jobs.add(new AT3_0_2from2_0_0RuntimeJob());
             jobs.add(new AT3_1_0from3_0_2RuntimeJob());
+            jobs.add(new AT4_0_0from3_1_0RuntimeJob());
          }
          else
          {

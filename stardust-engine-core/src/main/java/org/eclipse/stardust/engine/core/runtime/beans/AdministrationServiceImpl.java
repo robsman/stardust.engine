@@ -83,6 +83,7 @@ import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables;
 import org.eclipse.stardust.engine.core.preferences.permissions.PermissionUtils;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.BusinessObjectUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerBean.ModelManagerPartition;
 import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonUtils;
@@ -1730,6 +1731,14 @@ public class AdministrationServiceImpl
                {
                   throw new PublicException(BpmRuntimeError.DMS_DOCUMENT_TYPE_DEPLOY_ERROR.raise(), e.getCause());
                }
+               try
+               {
+                  BusinessObjectUtils.updateBusinessObjects(unit.getModel());
+               }
+               catch (InternalException e)
+               {
+                  throw new PublicException(BpmRuntimeError.DMS_DOCUMENT_TYPE_DEPLOY_ERROR.raise(), e.getCause());
+               }
             }
          }
          for (DeploymentInfo info : infos)
@@ -1840,6 +1849,14 @@ public class AdministrationServiceImpl
          catch (Exception e)
          {
             throw new PublicException(e);
+         }
+         try
+         {
+            BusinessObjectUtils.updateBusinessObjects(model);
+         }
+         catch (InternalException e)
+         {
+            throw new PublicException(BpmRuntimeError.DMS_DOCUMENT_TYPE_DEPLOY_ERROR.raise(), e.getCause());
          }
 
          reportDeploymentState(info);

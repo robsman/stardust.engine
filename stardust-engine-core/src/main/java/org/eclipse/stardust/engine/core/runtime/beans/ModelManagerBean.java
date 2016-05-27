@@ -891,11 +891,13 @@ public class ModelManagerBean implements ModelManager
             // from carnot.properties.
             boolean archive = PropertyPersistor.findByName(Constants.CARNOT_ARCHIVE_AUDITTRAIL) != null;
             Parameters.instance().setBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL, archive);
+            
+            boolean upgrade = isUpgrade();
 
             // Load predefined model only if it does not exist.
             // If no other model is deployed the administrator role of predefined model
             // will be assigned to motu user.
-            if (!archive
+            if (!upgrade && !archive
                   && null == findActiveModel(PredefinedConstants.PREDEFINED_MODEL_ID))
             {
                List<ParsedDeploymentUnit> predefinedModelElement = ModelUtils.getPredefinedModelElement();
@@ -1041,6 +1043,16 @@ public class ModelManagerBean implements ModelManager
             }
             MonitoringUtils.partitionMonitors().modelLoaded(model);
          }
+      }
+
+      private boolean isUpgrade()
+      {
+         PropertyPersistor propertyPersistor = (PropertyPersistor) SessionFactory
+               .getSession(SessionFactory.AUDIT_TRAIL).findFirst(
+                     PropertyPersistor.class,
+                     QueryExtension.where(Predicates.isEqual(PropertyPersistor.FR__NAME,
+                           Constants.UPGRADE_LOCK)));
+         return propertyPersistor != null;
       }
 
       private UserBean getMotuUser(BpmRuntimeEnvironment rtEnv)

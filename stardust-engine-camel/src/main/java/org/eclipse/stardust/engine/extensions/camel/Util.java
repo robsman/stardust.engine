@@ -715,7 +715,10 @@ public class Util
       return accessPointList;
    }
 
-   //
+   public static String getDataSourceName(final IApplication application){
+      String dataSourceId=application.getAttribute(SQL_DATASOURCE_ID);
+      return StringUtils.isEmpty(dataSourceId)?application.getId()+ "Ds":dataSourceId;
+   }
 
    @SuppressWarnings("rawtypes")
    private static String getOutAccessPointNameUsingDataMappingName(

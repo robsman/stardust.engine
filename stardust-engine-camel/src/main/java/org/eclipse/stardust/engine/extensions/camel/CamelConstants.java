@@ -119,6 +119,7 @@ public final class CamelConstants
    public static final String SQL_OVERLAY= "sqlIntegrationOverlay";
    public static final String SQL_QUERY="stardust:sqlScriptingOverlay::sqlQuery";
    public static final String SQL_OUTPUT_TYPE="stardust:sqlScriptingOverlay::outputType";
+   public static final String SQL_DATASOURCE_ID="stardust:sqlScriptingOverlay::dataSourceId";
    
    
    private CamelConstants()

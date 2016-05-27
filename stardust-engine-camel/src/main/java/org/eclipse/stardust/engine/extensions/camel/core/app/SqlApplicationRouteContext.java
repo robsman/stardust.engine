@@ -74,7 +74,7 @@ public class SqlApplicationRouteContext extends ProducerRouteContext
       return parameters;
    }
    private String getDataSourceName(IApplication application){
-      return application.getId()+ "Ds";
+      return Util.getDataSourceName(application);
    }
    private String getOutputTypegetQuery(IApplication application){
       String outputType= Util.getOutputType(application);

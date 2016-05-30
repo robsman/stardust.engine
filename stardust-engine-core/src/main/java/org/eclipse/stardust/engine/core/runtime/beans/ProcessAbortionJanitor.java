@@ -62,6 +62,8 @@ public class ProcessAbortionJanitor extends ProcessHierarchyStateChangeJanitor
    @Override
    protected void processPi(ProcessInstanceBean pi)
    {
+      if (trace.isDebugEnabled()) trace.debug("Processing " + pi);
+
       if (!pi.isTerminated())
       {
          pi.lock();
@@ -91,6 +93,10 @@ public class ProcessAbortionJanitor extends ProcessHierarchyStateChangeJanitor
 
          AuditTrailLogger.getInstance(LogCode.ENGINE, pi).info(
                "Process instance aborted.");
+      }
+      else
+      {
+         if (trace.isDebugEnabled()) trace.debug(pi.toString() + " is in " + pi.getState() + " state!");
       }
    }
 

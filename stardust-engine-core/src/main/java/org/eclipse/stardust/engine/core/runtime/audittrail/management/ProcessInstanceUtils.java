@@ -389,7 +389,7 @@ public class ProcessInstanceUtils
             {
                if (piState != processInstance.getState())
                {
-                  trace.debug(
+                  if (trace.isDebugEnabled()) trace.debug(
                         "Using current process instance state '" + processInstance.getState()
                         + "' instead of the cached state '" + piState + "'.");
                   ((ProcessInstanceBean) processInstance).restoreState(piState);
@@ -401,7 +401,7 @@ public class ProcessInstanceUtils
       else
       {
          IProcessInstance rootPi = processInstance.getRootProcessInstance();
-         ProcessInstanceState piState = processInstance.getState();
+         ProcessInstanceState piState = rootPi.getState();
          try
          {
             if (!rootPi.getPersistenceController().isLocked())

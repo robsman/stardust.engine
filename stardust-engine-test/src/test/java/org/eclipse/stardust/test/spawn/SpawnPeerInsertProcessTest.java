@@ -637,14 +637,13 @@ public class SpawnPeerInsertProcessTest
       ProcessInstance peer = wfs.spawnPeerProcessInstance(
             pi.getOID(), "{SpawnProcessModel}InputData1", options);
 
-
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
       ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
       assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(), PredefinedProcessInstanceLinkTypes.INSERT);
 
       // Complete manual AI of main process. This halts the next subprocess ai.
-      wfs.complete(ai.getOID(), null, null);
+      patientComplete(wfs, ai.getOID());
 
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
       // reset registered state changes before next steps
       ProcessInstanceStateBarrier.instance().cleanUp();
 
@@ -656,6 +655,28 @@ public class SpawnPeerInsertProcessTest
 
 //      assertActivityInstanceExists(pi.getOID(), "left", ActivityInstanceState.SUSPENDED);
 //      assertActivityInstanceExists(pi.getOID(), "right", ActivityInstanceState.SUSPENDED);
+   }
+
+   private void patientComplete(WorkflowService wfs, long oid)
+   {
+      int count = 10;
+
+      while (count >0)
+      {
+         try
+         {
+         wfs.complete(oid, null, null);
+         count = 0;
+         }
+         catch (Exception e)
+         {
+           e.printStackTrace();
+
+           doWait(500);
+           count--;
+         }
+      }
+
    }
 
    @Test
@@ -676,13 +697,13 @@ public class SpawnPeerInsertProcessTest
             pi.getOID(), "{SpawnProcessModel}InputData1", options);
 
 
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
       ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
       assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(), PredefinedProcessInstanceLinkTypes.INSERT);
 
       // Suspend manual AI of main process.
       wfs.suspend(ai.getOID(), null);
 
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
       // reset registered state changes before next steps
       ProcessInstanceStateBarrier.instance().cleanUp();
 

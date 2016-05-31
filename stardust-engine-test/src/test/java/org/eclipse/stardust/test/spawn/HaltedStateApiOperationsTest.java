@@ -425,8 +425,8 @@ public class HaltedStateApiOperationsTest
       ProcessInstance peer = wfs.spawnPeerProcessInstance(pi.getOID(),
             "{SpawnProcessModel}InputData1", options);
 
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(),
-            ProcessInstanceState.Halted);
+//      ProcessInstanceStateBarrier.instance().await(pi.getOID(),
+//            ProcessInstanceState.Halting);
       ProcessInstanceStateBarrier.instance().await(peer.getOID(),
             ProcessInstanceState.Active);
 

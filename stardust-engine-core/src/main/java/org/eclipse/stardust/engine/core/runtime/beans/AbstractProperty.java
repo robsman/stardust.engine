@@ -230,16 +230,20 @@ public abstract class AbstractProperty extends IdentifiablePersistentBean
 
    public <T extends AbstractProperty> T clone(long objectId, T property)
    {
-      property.objectOID = objectId;
+      // HINT: avoid "<field_name> has private access in
+      // org.eclipse.stardust.engine.core.runtime.beans.AbstractProperty"
+      // by casting the parameter explicitly to AbstractProperty
+      AbstractProperty ap = (AbstractProperty) property;
+      ap.objectOID = objectId;
 
-      property.lastModificationTime = this.lastModificationTime;
-      property.number_value = this.number_value;
-      property.name = this.name;
-      property.string_value = this.string_value;
-      property.type_key = this.type_key;
+      ap.lastModificationTime = this.lastModificationTime;
+      ap.number_value = this.number_value;
+      ap.name = this.name;
+      ap.string_value = this.string_value;
+      ap.type_key = this.type_key;
 
-      property.dataHandler.write(this.dataHandler.read(), true);
-      property.markModified();
+      ap.dataHandler.write(this.dataHandler.read(), true);
+      ap.markModified();
 
       return property;
    }

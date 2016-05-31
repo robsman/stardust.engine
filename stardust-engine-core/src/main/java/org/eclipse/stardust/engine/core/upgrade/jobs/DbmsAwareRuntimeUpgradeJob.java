@@ -11,10 +11,7 @@
 package org.eclipse.stardust.engine.core.upgrade.jobs;
 
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -124,6 +121,13 @@ public abstract class DbmsAwareRuntimeUpgradeJob extends RuntimeUpgradeJob
       {
          // TODO Auto-generated method stub
          return null;
+      }
+
+      @Override
+      public java.util.logging.Logger getParentLogger()
+            throws SQLFeatureNotSupportedException
+      {
+         throw new UnsupportedOperationException();
       }
    }
 

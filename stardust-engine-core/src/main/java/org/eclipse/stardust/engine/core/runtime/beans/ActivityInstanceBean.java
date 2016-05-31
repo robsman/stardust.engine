@@ -674,6 +674,12 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             // halt activity instance directly after suspend.
             this.setState(ActivityInstanceState.HALTED, workflowUserOid);
          }
+         // is haltable after state change of this ActivityInstance.
+         if (state == ActivityInstanceState.INTERRUPTED)
+         {
+            // halt activity instance directly after interruption.
+            this.setState(ActivityInstanceState.HALTED, workflowUserOid);
+         }
 
          if (piState.equals(ProcessInstanceState.Halting))
          {

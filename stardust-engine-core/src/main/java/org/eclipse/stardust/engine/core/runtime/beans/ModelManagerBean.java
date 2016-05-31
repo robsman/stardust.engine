@@ -911,11 +911,11 @@ public class ModelManagerBean implements ModelManager
                      IModel model = persistedModel.fetchModel();
                      if (PredefinedConstants.PREDEFINED_MODEL_ID.equals(model.getId()))
                      {
-                        if (getModelCount() == 0)
+                        if (getModelCount() == 0
+                              && SecurityProperties.isInternalAuthorization())
                         {
                            UserBean motu = getMotuUser(rtEnv);
-                           if (motu != null
-                                 && SecurityProperties.isInternalAuthorization())
+                           if (motu != null)
                            {
                               IRole role = (IRole) model
                                     .findParticipant(PredefinedConstants.ADMINISTRATOR_ROLE);

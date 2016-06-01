@@ -25,6 +25,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
+import org.eclipse.stardust.engine.core.persistence.PhantomException;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 
 public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
@@ -67,51 +68,74 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
    {
       if (pi.isHalting())
       {
-         try
-         {
-            Thread.sleep(getRetryPause());
-         }
-         catch (InterruptedException e)
-         {
-            throw new InternalException(e);
-         }
-         // schedules retry
-         if (trace.isDebugEnabled()) trace.debug(pi.toString() + " is still halting, rescheduling.");
-         ProcessStopJanitorMonitor monitor = ProcessStopJanitorMonitor.getInstance();
-         monitor.unregister(pi.getOID());
-         schedule(pi.getOID());
+         ensureHalted(pi);
       }
-      if (canResume(pi))
+      else if (canResume(pi))
       {
-         pi.lock();
-
-         /* check if this is needed */
-         IProcessInstance rootProcessInstance = pi.getRootProcessInstance();
-         rootProcessInstance.lock();
-         rootProcessInstance.removeHaltingPiOid(pi.getOID());
-         /* end check block */
-
-         // sets to active and sends resume event.
-         pi.resetInterrupted();
-         if (trace.isDebugEnabled()) trace.debug("Resumed " + pi);
-
-         for (Iterator aiIter = ActivityInstanceBean.getAllForProcessInstance(pi); aiIter.hasNext();)
+         if (pi.getPersistenceController() != null && !pi.getPersistenceController().isLocked())
          {
-            ActivityInstanceBean activityInstance = (ActivityInstanceBean) aiIter.next();
-            if (activityInstance.isHalted())
+            pi.lock();
+            try
             {
-               activityInstance.lock();
-               restoreStateFromHistory(activityInstance);
-               if (trace.isDebugEnabled()) trace.debug("Resumed " + activityInstance);
+               pi.reloadAttribute(ProcessInstanceBean.FIELD__STATE);
+            }
+            catch (PhantomException e)
+            {
+               throw new InternalException(e);
             }
          }
 
-         // Run recovery. This also calls recovery on all events.
-         if (trace.isDebugEnabled()) trace.debug("Scheduling recovery for " + pi);
-         new ActivityThreadsRecoveryAction(pi.getOID()).execute();
+         if (pi.isHalting())
+         {
+            ensureHalted(pi);
+         }
+         else if (!pi.isTerminated())
+         {
+            /* check if this is needed */
+            IProcessInstance rootProcessInstance = pi.getRootProcessInstance();
+            rootProcessInstance.lock();
+            rootProcessInstance.removeHaltingPiOid(pi.getOID());
+            /* end check block */
 
-         AuditTrailLogger.getInstance(LogCode.ENGINE, pi).info("Process instance resumed.");
+            // sets to active and sends resume event.
+            pi.resetInterrupted();
+            if (trace.isDebugEnabled()) trace.debug("Resumed " + pi);
+
+            for (Iterator aiIter = ActivityInstanceBean.getAllForProcessInstance(pi); aiIter.hasNext();)
+            {
+               ActivityInstanceBean activityInstance = (ActivityInstanceBean) aiIter.next();
+               if (activityInstance.isHalted())
+               {
+                  activityInstance.lock();
+                  restoreStateFromHistory(activityInstance);
+                  if (trace.isDebugEnabled()) trace.debug("Resumed " + activityInstance);
+               }
+            }
+
+            // Run recovery. This also calls recovery on all events.
+            if (trace.isDebugEnabled()) trace.debug("Scheduling recovery for " + pi);
+            new ActivityThreadsRecoveryAction(pi.getOID()).execute();
+
+            AuditTrailLogger.getInstance(LogCode.ENGINE, pi).info("Process instance resumed.");
+         }
       }
+   }
+
+   protected void ensureHalted(ProcessInstanceBean pi)
+   {
+      try
+      {
+         Thread.sleep(getRetryPause());
+      }
+      catch (InterruptedException e)
+      {
+         throw new InternalException(e);
+      }
+      // schedules retry
+      if (trace.isDebugEnabled()) trace.debug(pi.toString() + " is still halting, rescheduling.");
+      ProcessStopJanitorMonitor monitor = ProcessStopJanitorMonitor.getInstance();
+      monitor.unregister(pi.getOID());
+      schedule(pi.getOID());
    }
 
    private void restoreStateFromHistory(final ActivityInstanceBean activityInstance)

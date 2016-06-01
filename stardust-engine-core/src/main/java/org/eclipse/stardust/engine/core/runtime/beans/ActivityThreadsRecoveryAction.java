@@ -44,6 +44,7 @@ public class ActivityThreadsRecoveryAction implements Action
       boolean spawned = false;
       ResultIterator tokens = TransitionTokenBean.findUnconsumedForProcessInstance(processInstanceOID);
 
+      ensureCompletion(tokens);
       while (tokens.hasNext())
       {
          TransitionTokenBean token = (TransitionTokenBean) tokens.next();
@@ -118,6 +119,19 @@ public class ActivityThreadsRecoveryAction implements Action
       recoverProcess();
 
       return spawned ? Boolean.TRUE : Boolean.FALSE;
+   }
+
+   private void ensureCompletion(ResultIterator tokens)
+   {
+      if (!tokens.hasNext())
+      {
+         ProcessInstanceBean pi = ProcessInstanceBean.findByOID(processInstanceOID);
+         if (!pi.isTerminated())
+         {
+            ProcessCompletionJanitor processCompletionJanitor = new ProcessCompletionJanitor(new JanitorCarrier(pi.getOID()), false);
+            processCompletionJanitor.execute();
+         }
+      }
    }
 
    private boolean isSuspendedSubPiActivity(IActivityInstance ai)

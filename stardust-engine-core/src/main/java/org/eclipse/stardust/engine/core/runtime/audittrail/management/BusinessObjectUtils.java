@@ -1058,8 +1058,6 @@ public class BusinessObjectUtils
 
    private static void updateBusinessObject(IData data)
    {
-      long targetModelOid = data.getModel().getOID();
-
       String businessObjectId = new QName(data.getModel().getId(), data.getId()).toString();
 
       BusinessObjectQuery query = BusinessObjectQuery.findForBusinessObject(businessObjectId);
@@ -1074,14 +1072,13 @@ public class BusinessObjectUtils
          if (!processedIds.contains(bo.getModelId()) && !bo.getValues().isEmpty())
          {
             processedIds.add(bo.getModelId());
-            long sourceModelOid = bo.getModelOid();
             for (Value value : bo.getValues())
             {
-               if (sourceModelOid == targetModelOid)
+               try
                {
                   updateInstance(businessObjectId, value.getValue());
                }
-               else
+               catch (ObjectNotFoundException ex)
                {
                   createInstance(businessObjectId, value.getValue());
                }

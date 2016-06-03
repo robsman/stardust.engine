@@ -26,6 +26,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -439,8 +440,6 @@ public class ActivityInstanceUtils
          return false;
       }
 
-      IActivity activity = activityInstance.getActivity();
-
       if (ActivityInstanceState.Application.equals(activityInstance.getState()))
       {
          // do not halt application state for interactive and non-interactive
@@ -489,7 +488,7 @@ public class ActivityInstanceUtils
       {
          return false;
       }
-
+            
       IDataType dataType = (IDataType) data.getType();
       if(PredefinedConstants.PRIMITIVE_DATA.equals(dataType.getId()))
       {
@@ -506,7 +505,24 @@ public class ActivityInstanceUtils
          return false;
       }
 
-      if(dataMapping.getBooleanAttribute(PredefinedConstants.MANDATORY_DATA_MAPPING))
+      IActivityInstance ai = ActivityInstanceBean.findByOID(activityInstanceOID);
+      IActivity activity = ai.getActivity();
+
+      IDataMapping mandatoryDataMapping = null;
+      ModelElementList outDataMappings = activity.getOutDataMappings();
+      for (int i = 0; i < outDataMappings.size(); ++i)
+      {
+         IDataMapping outDataMapping = (IDataMapping) outDataMappings.get(i);
+         if(outDataMapping.getId().equals(dataMapping.getId())
+               && outDataMapping.getData().equals(dataMapping.getData())
+               && outDataMapping.getContext().equals(dataMapping.getContext()))
+         {
+            mandatoryDataMapping = outDataMapping;
+            break;
+         }         
+      }               
+      
+      if(mandatoryDataMapping != null && mandatoryDataMapping.getBooleanAttribute(PredefinedConstants.MANDATORY_DATA_MAPPING))
       {
          if(data.getAttribute(PredefinedConstants.DEFAULT_VALUE_ATT) == null)
          {

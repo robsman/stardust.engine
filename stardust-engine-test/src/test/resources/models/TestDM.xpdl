@@ -276,10 +276,7 @@
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="77" Id="PrimitiveData2" Name="PrimitiveData2" Direction="IN" Context="default">
                               <carnot:DataRef Id="PrimitiveData2"/>
-                              <carnot:AccessPointRef/>
-                              <carnot:Attributes>
-                     			   <carnot:Attribute Name="carnot:engine:mandatoryDataMapping" Value="true" Type="boolean"/>                  
-                              </carnot:Attributes>
+                              <carnot:AccessPointRef/>                              
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="79" Id="PrimitiveData3" Name="PrimitiveData3" Direction="IN" Context="default">
                               <carnot:DataRef Id="PrimitiveData3"/>
@@ -292,6 +289,9 @@
                            <carnot:DataFlow Oid="82" Id="PrimitiveData2" Name="PrimitiveData2" Direction="OUT" Context="default">
                               <carnot:DataRef Id="PrimitiveData2"/>
                               <carnot:AccessPointRef/>
+                              <carnot:Attributes>
+                     			   <carnot:Attribute Name="carnot:engine:mandatoryDataMapping" Value="true" Type="boolean"/>                  
+                              </carnot:Attributes>                              
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="83" Id="PrimitiveData3" Name="PrimitiveData3" Direction="OUT" Context="default">
                               <carnot:DataRef Id="PrimitiveData3"/>
@@ -336,9 +336,6 @@
                            <carnot:DataFlow Oid="69" Id="PrimitiveData2" Name="PrimitiveData2" Direction="IN" Context="default">
                               <carnot:DataRef Id="PrimitiveData2"/>
                               <carnot:AccessPointRef/>
-                              <carnot:Attributes>
-                                 <carnot:Attribute Name="carnot:engine:mandatoryDataMapping" Value="true" Type="boolean"/>                  
-                              </carnot:Attributes>                              
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="73" Id="PrimitiveData3" Name="PrimitiveData3" Direction="IN" Context="default">
                               <carnot:DataRef Id="PrimitiveData3"/>
@@ -353,8 +350,11 @@
                               <carnot:AccessPointRef/>
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="85" Id="PrimitiveData2" Name="PrimitiveData2" Direction="OUT" Context="default">
-                              <carnot:DataRef Id="PrimitiveData2"/>
+                              <carnot:DataRef Id="PrimitiveData2"/>                              
                               <carnot:AccessPointRef/>
+                              <carnot:Attributes>
+                                 <carnot:Attribute Name="carnot:engine:mandatoryDataMapping" Value="true" Type="boolean"/>                  
+                              </carnot:Attributes>                                                            
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="86" Id="PrimitiveData3" Name="PrimitiveData3" Direction="OUT" Context="default">
                               <carnot:DataRef Id="PrimitiveData3"/>

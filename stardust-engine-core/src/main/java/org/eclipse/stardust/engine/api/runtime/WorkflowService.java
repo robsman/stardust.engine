@@ -361,11 +361,11 @@ public interface WorkflowService extends Service
     * @see #suspendToDefaultPerformer(long, String, Map)
     */
    @ExecutionPermission(
-         id=ExecutionPermission.Id.delegateToOther,
+         id=ExecutionPermission.Id.performActivity,
          scope=ExecutionPermission.Scope.activity,
-         defaults={ExecutionPermission.Default.ALL},
-         fixed={ExecutionPermission.Default.OWNER},
-         implied={ExecutionPermission.Id.delegateToDepartment})
+         defaults={ExecutionPermission.Default.OWNER},
+         changeable=false,
+         administratorOverride=false)
    ActivityInstance suspend(long activityInstanceOID, ContextData outData)
          throws ObjectNotFoundException, AccessForbiddenException, InvalidArgumentException;
 
@@ -392,11 +392,11 @@ public interface WorkflowService extends Service
     * @see #suspendToDefaultPerformer(long, String, Map)
     */
    @ExecutionPermission(
-         id=ExecutionPermission.Id.delegateToOther,
+         id=ExecutionPermission.Id.performActivity,
          scope=ExecutionPermission.Scope.activity,
-         defaults={ExecutionPermission.Default.ALL},
-         fixed={ExecutionPermission.Default.OWNER},
-         implied={ExecutionPermission.Id.delegateToDepartment})
+         defaults={ExecutionPermission.Default.OWNER},
+         changeable=false,
+         administratorOverride=false)
    ActivityInstance suspendToDefaultPerformer(long activityInstanceOID)
          throws ObjectNotFoundException, ConcurrencyException, AccessForbiddenException;
 
@@ -425,11 +425,11 @@ public interface WorkflowService extends Service
     * @see #suspendToDefaultPerformer(long)
     */
    @ExecutionPermission(
-         id=ExecutionPermission.Id.delegateToOther,
+         id=ExecutionPermission.Id.performActivity,
          scope=ExecutionPermission.Scope.activity,
-         defaults={ExecutionPermission.Default.ALL},
-         fixed={ExecutionPermission.Default.OWNER},
-         implied={ExecutionPermission.Id.delegateToDepartment})
+         defaults={ExecutionPermission.Default.OWNER},
+         changeable=false,
+         administratorOverride=false)
    ActivityInstance suspendToDefaultPerformer(long activityInstanceOID, String context,
          Map<String, ? > outData) throws ObjectNotFoundException, ConcurrencyException,
          AccessForbiddenException, InvalidArgumentException;
@@ -457,11 +457,11 @@ public interface WorkflowService extends Service
     * @see #suspendToUser(long, String, Map)
     */
    @ExecutionPermission(
-         id=ExecutionPermission.Id.delegateToOther,
+         id=ExecutionPermission.Id.performActivity,
          scope=ExecutionPermission.Scope.activity,
-         defaults={ExecutionPermission.Default.ALL},
-         fixed={ExecutionPermission.Default.OWNER},
-         implied={ExecutionPermission.Id.delegateToDepartment})
+         defaults={ExecutionPermission.Default.OWNER},
+         changeable=false,
+         administratorOverride=false)
    ActivityInstance suspendToUser(long activityInstanceOID)
          throws ObjectNotFoundException, ConcurrencyException, AccessForbiddenException;
 
@@ -489,11 +489,11 @@ public interface WorkflowService extends Service
     * @see #suspendToUser(long)
     */
    @ExecutionPermission(
-         id=ExecutionPermission.Id.delegateToOther,
+         id=ExecutionPermission.Id.performActivity,
          scope=ExecutionPermission.Scope.activity,
-         defaults={ExecutionPermission.Default.ALL},
-         fixed={ExecutionPermission.Default.OWNER},
-         implied={ExecutionPermission.Id.delegateToDepartment})
+         defaults={ExecutionPermission.Default.OWNER},
+         changeable=false,
+         administratorOverride=false)
    ActivityInstance suspendToUser(long activityInstanceOID, String context, Map<String, ?> outData)
          throws ObjectNotFoundException, ConcurrencyException, AccessForbiddenException, InvalidArgumentException;
 

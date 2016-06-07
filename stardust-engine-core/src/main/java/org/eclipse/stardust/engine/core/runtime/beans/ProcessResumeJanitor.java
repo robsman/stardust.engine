@@ -141,6 +141,7 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
    private void restoreStateFromHistory(final ActivityInstanceBean activityInstance)
    {
       ActivityInstanceState targetState = null;
+      long userOid = executingUserOid;
 
       Iterator<ActivityInstanceHistoryBean> historicStates = ActivityInstanceHistoryBean.getAllForActivityInstance(activityInstance, false);
       if (historicStates == null || !historicStates.hasNext())
@@ -153,7 +154,8 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
          boolean haltedFound = false;
          while (historicStates.hasNext())
          {
-            ActivityInstanceState state = ((ActivityInstanceHistoryBean) historicStates.next()).getState();
+            ActivityInstanceHistoryBean history = (ActivityInstanceHistoryBean) historicStates.next();
+            ActivityInstanceState state = history.getState();
             if (haltedFound)
             {
                if (Aborted.equals(state) || Aborting.equals(state) || Completed.equals(state))
@@ -168,6 +170,10 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
                   continue;
                }
                targetState = state;
+               if (history.getUserOid() != 0)
+               {
+                  userOid = history.getUserOid();
+               }
                break;
             }
             else if (ActivityInstanceState.Halted.equals(state))
@@ -183,7 +189,7 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
          }
       }
       // if no previous state found resume to created
-      activityInstance.setState(targetState == null ? ActivityInstanceState.CREATED : targetState.getValue(), executingUserOid);
+      activityInstance.setState(targetState == null ? ActivityInstanceState.CREATED : targetState.getValue(), userOid);
    }
 
    private boolean canResume(ProcessInstanceBean pi)

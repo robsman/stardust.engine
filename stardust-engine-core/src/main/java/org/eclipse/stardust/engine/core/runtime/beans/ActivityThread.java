@@ -49,6 +49,7 @@ import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessIns
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger.LoggingBehaviour;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.TokenCache;
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.TokenCache.TokenLocation;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
@@ -412,9 +413,19 @@ public class ActivityThread implements Runnable
                runCurrentActivity();
                executedActivities++;
 
-               if (!activityInstance.isTerminated() || activityInstance.isAborting()
-                     || isInAbortingPiHierarchy() || isInHaltingPiHierarchyAndHaltable())
+               if (!activityInstance.isTerminated() || isInAbortingPiHierarchy())
                {
+                  if (trace.isDebugEnabled()) trace.debug("Activity thread stopped for " + activityInstance);
+                  break;
+               }
+               else if (ProcessInstanceUtils.isInHaltingPiHierarchy(processInstance))
+               {
+                  if (ActivityInstanceUtils.isHaltable(activityInstance))
+                  {
+                     ((ActivityInstanceBean) activityInstance).setState(ActivityInstanceState.HALTED);
+                     ProcessHaltJanitor.schedule(processInstance.getOID(),
+                           activityInstance.getActivity().isInteractive() ? SecurityProperties.getUserOID() : 0);
+                  }
                   if (trace.isDebugEnabled()) trace.debug("Activity thread stopped for " + activityInstance);
                   break;
                }
@@ -494,8 +505,8 @@ public class ActivityThread implements Runnable
 
    private boolean isInHaltingPiHierarchyAndHaltable()
    {
-      return ProcessInstanceUtils.isInHaltingPiHierarchy(this.processInstance)
-            && ActivityInstanceUtils.isHaltable(activityInstance);
+      return ActivityInstanceUtils.isHaltable(activityInstance)
+            && ProcessInstanceUtils.isInHaltingPiHierarchy(this.processInstance);
    }
 
    private void createActivityInstance(List<TransitionTokenBean> inTokens)
@@ -1324,7 +1335,8 @@ public class ActivityThread implements Runnable
       {
          Assert.lineNeverReached();
       }
-      else if (activityInstance.getState() == ActivityInstanceState.Application)
+      else if (activityInstance.getState() == ActivityInstanceState.Application
+            || activityInstance.getState() == ActivityInstanceState.Halted)
       {
          activityInstance.complete();
          activityInstance.accept(receiverData);

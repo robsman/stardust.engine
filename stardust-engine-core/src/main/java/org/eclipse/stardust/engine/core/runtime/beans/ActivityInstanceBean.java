@@ -665,6 +665,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                PredefinedConstants.SIGNAL_CONDITION, event);
       }
 
+      /*
       // TODO: (fh) move to ActivityThread
       if (inHaltingPiHierarchy && ActivityInstanceUtils.isHaltable(this))
       {
@@ -686,7 +687,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             // reshedule halting for process
             ProcessHaltJanitor.schedule(getProcessInstanceOID(), workflowUserOid);
          }
-      }
+      }*/
    }
 
    public Date getStartTime()
@@ -2354,6 +2355,11 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    public void suspend() throws IllegalStateChangeException
    {
       setState(ActivityInstanceState.SUSPENDED);
+   }
+
+   public void halt() throws IllegalStateChangeException
+   {
+      setState(ActivityInstanceState.HALTED);
    }
 
    public void interrupt() throws IllegalStateChangeException

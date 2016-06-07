@@ -435,28 +435,15 @@ public class ActivityInstanceUtils
 
    public static boolean isHaltable(IActivityInstance activityInstance)
    {
-      if (activityInstance == null || activityInstance.isTerminated())
-      {
-         return false;
-      }
-
-      if (ActivityInstanceState.Application.equals(activityInstance.getState()))
-      {
-         // do not halt application state for interactive and non-interactive
-         return false;
-      }
-      else if (ActivityInstanceState.Halted.equals(activityInstance.getState()))
-      {
-         // is already halted
-         return false;
-      }
-      else if (ActivityInstanceState.Aborting.equals(activityInstance.getState()))
-      {
-         // is in process of aborting, do not halt.
-         return false;
-      }
-
-      return true;
+      return activityInstance != null
+            // terminated activities are terminated !!!
+            && (!activityInstance.isTerminated()
+            // already halted, nothing more to do here.
+            && !activityInstance.isHalted()
+            // is in process of aborting, do not halt.
+            && !activityInstance.isAborting()
+            || ActivityInstanceState.Application.equals(activityInstance.getState())
+               && activityInstance.getActivity().isInteractive());
    }
 
    public static void assertNotHalted(IActivityInstance ai)
@@ -488,7 +475,7 @@ public class ActivityInstanceUtils
       {
          return false;
       }
-            
+
       IDataType dataType = (IDataType) data.getType();
       if(PredefinedConstants.PRIMITIVE_DATA.equals(dataType.getId()))
       {
@@ -519,9 +506,9 @@ public class ActivityInstanceUtils
          {
             mandatoryDataMapping = outDataMapping;
             break;
-         }         
-      }               
-      
+         }
+      }
+
       if(mandatoryDataMapping != null && mandatoryDataMapping.getBooleanAttribute(PredefinedConstants.MANDATORY_DATA_MAPPING))
       {
          if(data.getAttribute(PredefinedConstants.DEFAULT_VALUE_ATT) == null)

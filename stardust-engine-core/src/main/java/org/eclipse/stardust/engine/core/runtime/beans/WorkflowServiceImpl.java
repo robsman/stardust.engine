@@ -1085,10 +1085,10 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          Map<String, ? > outData, boolean synchronously) throws ObjectNotFoundException,
          InvalidValueException, AccessForbiddenException
    {
-      ActivityInstanceUtils.assertNotHalted(activityInstance);
       ActivityInstanceUtils.assertNotTerminated(activityInstance);
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
       ActivityInstanceUtils.assertNotDefaultCaseInstance(activityInstance);
+
       // TODO rsauer fix for special scenario from CSS, involving automatic completion
       // of activities after a certain period of time, while the activity sticky to the
       // predecessor activitie's user worklist.
@@ -1105,6 +1105,21 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       }
       else
       {
+         if (activityInstance.isHalted())
+         {
+            // check last states must be Halted and Application in that order
+            Iterator<ActivityInstanceHistoryBean> historicStates = ActivityInstanceHistoryBean.getAllForActivityInstance(activityInstance, false);
+            if (historicStates != null && historicStates.hasNext()
+                  && ActivityInstanceState.Halted == historicStates.next().getState())
+            {
+               if (historicStates.hasNext()
+                     && ActivityInstanceState.Application == historicStates.next().getState())
+               {
+                  ActivityInstanceUtils.complete(activityInstance, context, outData, synchronously);
+                  return;
+               }
+            }
+         }
          throw new IllegalStateChangeException(activityInstance.toString(),
                ActivityInstanceState.Completed, activityInstance.getState());
       }
@@ -1131,7 +1146,6 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       IActivityInstance activityInstance = ActivityInstanceUtils.lock(activityInstanceOID);
 
-      ActivityInstanceUtils.assertNotHalted(activityInstance);
       ActivityInstanceUtils.assertNotTerminated(activityInstance);
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
       ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
@@ -1176,6 +1190,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          break;
       }
 
+      boolean halted = activityInstance.isHalted();
       activityInstance.suspend();
 
       if (participant == null)
@@ -1212,6 +1227,10 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                      activityInstance.getActivity().getId()));
       }
 
+      if (halted)
+      {
+         activityInstance.halt();
+      }
       return (ActivityInstance) DetailsFactory.create(activityInstance,
             IActivityInstance.class, ActivityInstanceDetails.class);
    }
@@ -1222,7 +1241,6 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       IActivityInstance activityInstance = ActivityInstanceUtils.lock(activityInstanceOID);
 
-      ActivityInstanceUtils.assertNotHalted(activityInstance);
       ActivityInstanceUtils.assertNotTerminated(activityInstance);
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
       ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
@@ -1234,8 +1252,15 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          ActivityInstanceUtils.setOutDataValues(data.getContext(), data.getData(),
                activityInstance, true);
       }
+      boolean halted = activityInstance.isHalted();
       activityInstance.suspend();
-      return delegateToParticipant(activityInstance.getOID(), participant);
+      delegateToParticipant(activityInstance.getOID(), participant);
+      if (halted)
+      {
+         activityInstance.halt();
+      }
+      return (ActivityInstance) DetailsFactory.create(activityInstance,
+            IActivityInstance.class, ActivityInstanceDetails.class);
    }
 
    public ActivityInstance suspendToUser(long activityInstanceOID)

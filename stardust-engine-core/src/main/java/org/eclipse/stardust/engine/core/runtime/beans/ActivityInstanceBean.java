@@ -544,7 +544,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          {
             // reschedule aborting
             ProcessAbortionJanitor.scheduleJanitor(new AbortionJanitorCarrier(
-                  getProcessInstanceOID(), workflowUserOid));
+                  getProcessInstanceOID(), workflowUserOid), false);
 
             ActivityInstanceState newState = ActivityInstanceState.getState(state);
             StringBuffer msg = new StringBuffer("Invalid state change from ");
@@ -559,7 +559,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          }
       }
 
-      boolean inHaltingPiHierarchy = ProcessInstanceUtils.isInHaltingPiHierarchy(getProcessInstance());
+      /*boolean inHaltingPiHierarchy = ProcessInstanceUtils.isInHaltingPiHierarchy(getProcessInstance());
       if (inHaltingPiHierarchy
             && ActivityInstanceUtils.isHaltable(this)
             && !(state == ActivityInstanceState.HALTED))
@@ -615,7 +615,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             trace.warn(msg.toString());
             state = ActivityInstanceState.HALTED;
          }
-      }
+      }*/
 
       recordHistoricState(workflowUserOid);
 

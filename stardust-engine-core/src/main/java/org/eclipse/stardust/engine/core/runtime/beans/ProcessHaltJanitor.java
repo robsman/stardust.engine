@@ -31,7 +31,7 @@ public class ProcessHaltJanitor extends ProcessHierarchyStateChangeJanitor
 
    public static void schedule(long processInstanceOid, long haltingUserOid)
    {
-      scheduleJanitor(new Carrier(processInstanceOid, haltingUserOid));
+      scheduleJanitor(new Carrier(processInstanceOid, haltingUserOid), true);
    }
 
    private ProcessHaltJanitor(Carrier carrier)

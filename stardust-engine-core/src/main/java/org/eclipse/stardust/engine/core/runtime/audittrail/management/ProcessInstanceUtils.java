@@ -742,7 +742,7 @@ public class ProcessInstanceUtils
          else
          {
             // abort/halt the complete subprocess hierarchy asynchronously.
-            ProcessHierarchyStateChangeJanitor.scheduleJanitor(carrier);
+            ProcessHierarchyStateChangeJanitor.scheduleJanitor(carrier, !StopMode.ABORT.equals(stopMode));
          }
       }
    }

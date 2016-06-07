@@ -50,16 +50,16 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
       this.triesLeft = carrier.getTriesLeft();
    }
 
-   public static void scheduleJanitor(HierarchyStateChangeJanitorCarrier carrier)
+   public static void scheduleJanitor(HierarchyStateChangeJanitorCarrier carrier, boolean force)
    {
-      scheduleJanitor(carrier, true);
+      scheduleJanitor(carrier, true, force);
    }
 
-   public static void scheduleJanitor(HierarchyStateChangeJanitorCarrier carrier, boolean transacted)
+   public static void scheduleJanitor(HierarchyStateChangeJanitorCarrier carrier, boolean transacted, boolean force)
    {
       ProcessStopJanitorMonitor monitor = ProcessStopJanitorMonitor.getInstance();
       // only one abortion thread allowed per process instance
-      if (monitor.register(carrier.getProcessInstanceOid()))
+      if (force || monitor.register(carrier.getProcessInstanceOid()))
       {
          ForkingServiceFactory factory = (ForkingServiceFactory) Parameters.instance()
                .get(EngineProperties.FORKING_SERVICE_HOME);
@@ -142,7 +142,7 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
             catch (InterruptedException x)
             {
             }
-            scheduleJanitor(getNewCarrier());
+            scheduleJanitor(getNewCarrier(), true);
          }
       }
 

@@ -37,7 +37,7 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
 
    public static final void schedule(long processInstanceOid)
    {
-      scheduleJanitor(new Carrier(processInstanceOid));
+      scheduleJanitor(new Carrier(processInstanceOid), true);
    }
 
    private ProcessResumeJanitor(Carrier carrier)

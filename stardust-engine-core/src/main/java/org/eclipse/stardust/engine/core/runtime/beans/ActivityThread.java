@@ -271,7 +271,7 @@ public class ActivityThread implements Runnable
          }
          // TODO: (fh) shouldn't be in a separate transaction ?
          ProcessAbortionJanitor.scheduleJanitor(
-               new AbortionJanitorCarrier(this.processInstance.getOID(), oid));
+               new AbortionJanitorCarrier(this.processInstance.getOID(), oid), false);
          throw new IllegalOperationException(error);
       }
 
@@ -410,23 +410,13 @@ public class ActivityThread implements Runnable
                   context.suspendActivityThread(this);
                }
 
+               if (trace.isDebugEnabled()) trace.debug("Runninging " + activity);
                runCurrentActivity();
                executedActivities++;
 
-               if (!activityInstance.isTerminated() || isInAbortingPiHierarchy())
+               if (!activityInstance.isTerminated() || isInAbortingPiHierarchy() || ProcessInstanceUtils.isInHaltingPiHierarchy(processInstance))
                {
-                  if (trace.isDebugEnabled()) trace.debug("Activity thread stopped for " + activityInstance);
-                  break;
-               }
-               else if (ProcessInstanceUtils.isInHaltingPiHierarchy(processInstance))
-               {
-                  if (ActivityInstanceUtils.isHaltable(activityInstance))
-                  {
-                     ((ActivityInstanceBean) activityInstance).setState(ActivityInstanceState.HALTED);
-                     ProcessHaltJanitor.schedule(processInstance.getOID(),
-                           activityInstance.getActivity().isInteractive() ? SecurityProperties.getUserOID() : 0);
-                  }
-                  if (trace.isDebugEnabled()) trace.debug("Activity thread stopped for " + activityInstance);
+                  if (trace.isDebugEnabled()) trace.debug("Activity thread stopped for " + activityInstance + ", state = " + activityInstance.getState());
                   break;
                }
             }
@@ -460,6 +450,13 @@ public class ActivityThread implements Runnable
          }
 
          throw new InternalException("Unexpected activity thread state.");
+      }
+
+      if (ActivityInstanceUtils.isHaltable(activityInstance) && ProcessInstanceUtils.isInHaltingPiHierarchy(processInstance))
+      {
+         ((ActivityInstanceBean) activityInstance).setState(ActivityInstanceState.HALTED);
+         ProcessHaltJanitor.schedule(processInstance.getOID(),
+               activityInstance.getActivity().isInteractive() ? SecurityProperties.getUserOID() : 0);
       }
 
       if (checkForEnabledInclusiveORVertexes)

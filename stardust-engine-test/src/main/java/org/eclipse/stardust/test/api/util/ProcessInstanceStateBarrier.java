@@ -121,7 +121,7 @@ public class ProcessInstanceStateBarrier
          final boolean success = condition.latch().await(timeout.time(), timeout.unit());
          if ( !success)
          {
-            throw new TimeoutException("Process instance is still not in the state '" + piState + "'.");
+            throw new TimeoutException("Process instance " + piOid + " is still not in the state '" + piState + "'.");
          }
       }
       finally

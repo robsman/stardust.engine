@@ -229,11 +229,15 @@ public class ActivityInstanceStateBarrier
 
       aiStateCondition = new ActivityInstanceStateCondition(aiOid, aiState);
 
-      for (final ActivityInstanceInfo aii : ais.get(aiOid))
+      Set<ActivityInstanceInfo> set = ais.get(aiOid);
+      if (set != null)
       {
-         if (aiStateCondition.matches(aiOid, aii.state()))
+         for (final ActivityInstanceInfo aii : set)
          {
-            return true;
+            if (aiStateCondition.matches(aiOid, aii.state()))
+            {
+               return true;
+            }
          }
       }
 
@@ -503,6 +507,12 @@ public class ActivityInstanceStateBarrier
       public boolean isTerminated()
       {
          return state == ActivityInstanceState.Completed || state == ActivityInstanceState.Aborted;
+      }
+
+      @Override
+      public String toString()
+      {
+         return state.toString();
       }
    }
 }

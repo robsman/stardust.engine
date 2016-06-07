@@ -698,12 +698,15 @@ public class SpawnPeerInsertProcessTest
 
 
       ProcessInstanceStateBarrier.instance().await(peer.getOID(), ProcessInstanceState.Active);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
       assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(), PredefinedProcessInstanceLinkTypes.INSERT);
 
-      // Suspend manual AI of main process.
+      ActivityInstanceStateBarrier.instance().await(ai.getOID(), ActivityInstanceState.Halted);
+      assertThat(wfs.getActivityInstance(ai.getOID()).getState(), is(ActivityInstanceState.Halted));
+      // Suspending manual AI of main process only saves the data but nothing else.
       wfs.suspend(ai.getOID(), null);
+      assertThat(wfs.getActivityInstance(ai.getOID()).getState(), is(ActivityInstanceState.Halted));
 
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Halted);
       // reset registered state changes before next steps
       ProcessInstanceStateBarrier.instance().cleanUp();
 
@@ -808,7 +811,7 @@ public class SpawnPeerInsertProcessTest
       query.where(ActivityFilter.forAnyProcess(activityId));
       query.where(ActivityInstanceQuery.STATE.isEqual(state));
 
-      int patientCounter = 5;
+      int patientCounter = 10;
       ActivityInstances ais = null;
       while (patientCounter-- > 0)
       {

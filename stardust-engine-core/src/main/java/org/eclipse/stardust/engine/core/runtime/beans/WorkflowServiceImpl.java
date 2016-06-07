@@ -1088,6 +1088,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       ActivityInstanceUtils.assertNotTerminated(activityInstance);
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
       ActivityInstanceUtils.assertNotDefaultCaseInstance(activityInstance);
+      ActivityInstanceUtils.assertPerformAllowedIfHalted(activityInstance);
 
       // TODO rsauer fix for special scenario from CSS, involving automatic completion
       // of activities after a certain period of time, while the activity sticky to the
@@ -1099,27 +1100,13 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          ActivityInstanceUtils.assertNotActivatedByOther(activityInstance, true);
       }
 
-      if (activityInstance.getState() == ActivityInstanceState.Application)
+      if (activityInstance.getState() == ActivityInstanceState.Application
+            || activityInstance.isHalted())
       {
          ActivityInstanceUtils.complete(activityInstance, context, outData, synchronously);
       }
       else
       {
-         if (activityInstance.isHalted())
-         {
-            // check last states must be Halted and Application in that order
-            Iterator<ActivityInstanceHistoryBean> historicStates = ActivityInstanceHistoryBean.getAllForActivityInstance(activityInstance, false);
-            if (historicStates != null && historicStates.hasNext()
-                  && ActivityInstanceState.Halted == historicStates.next().getState())
-            {
-               if (historicStates.hasNext()
-                     && ActivityInstanceState.Application == historicStates.next().getState())
-               {
-                  ActivityInstanceUtils.complete(activityInstance, context, outData, synchronously);
-                  return;
-               }
-            }
-         }
          throw new IllegalStateChangeException(activityInstance.toString(),
                ActivityInstanceState.Completed, activityInstance.getState());
       }
@@ -1150,6 +1137,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
       ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
       ActivityInstanceUtils.assertNotDefaultCaseInstance(activityInstance);
+      ActivityInstanceUtils.assertPerformAllowedIfHalted(activityInstance);
 
       if (data != null)
       {
@@ -1246,6 +1234,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
       ActivityInstanceUtils.assertNotDefaultCaseInstance(activityInstance);
       ProcessInstanceGroupUtils.assertNotCasePerformer(participant);
+      ActivityInstanceUtils.assertPerformAllowedIfHalted(activityInstance);
 
       if (data != null)
       {

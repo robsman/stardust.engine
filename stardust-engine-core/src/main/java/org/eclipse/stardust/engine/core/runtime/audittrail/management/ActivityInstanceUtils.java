@@ -446,6 +446,31 @@ public class ActivityInstanceUtils
                && activityInstance.getActivity().isInteractive());
    }
 
+   public static void assertPerformAllowedIfHalted(IActivityInstance ai)
+   {
+      if (ai.isHalted() && !wasPreviouslyActivated(ai))
+      {
+         throw new IllegalOperationException(
+               BpmRuntimeError.BPMRT_PI_IS_HALTED.raise(ai.getProcessInstanceOID()));
+      }
+   }
+
+   private static boolean wasPreviouslyActivated(IActivityInstance activityInstance)
+   {
+      // check last states must be Halted and Application in that order
+      Iterator<ActivityInstanceHistoryBean> historicStates = ActivityInstanceHistoryBean.getAllForActivityInstance(activityInstance, false);
+      if (historicStates != null && historicStates.hasNext()
+            && ActivityInstanceState.Halted == historicStates.next().getState())
+      {
+         if (historicStates.hasNext()
+               && ActivityInstanceState.Application == historicStates.next().getState())
+         {
+            return true;
+         }
+      }
+      return false;
+   }
+
    public static void assertNotHalted(IActivityInstance ai)
    {
       if (ai.isHalted())

@@ -145,7 +145,7 @@ public class HaltedStateApiOperationsTest
    public void testSuspend() throws TimeoutException, InterruptedException
    {
       WorkflowService wfs = sf.getWorkflowService();
-      ActivityInstance ai = getHaltedAi();
+      ActivityInstance ai = getHaltedAi(true);
 
       // suspend is allowed, the state should remain halted
       wfs.suspend(ai.getOID(), null);
@@ -154,12 +154,22 @@ public class HaltedStateApiOperationsTest
       Assert.assertEquals(ActivityInstanceState.Halted, ai.getState());
    }
 
+   @Test(expected = IllegalOperationException.class)
+   public void testSuspendFail() throws IllegalStateException, TimeoutException, InterruptedException
+   {
+      WorkflowService wfs = sf.getWorkflowService();
+      ActivityInstance ai = getHaltedAi();
+
+      // suspend is not allowed
+      wfs.suspend(ai.getOID(), null);
+   }
+
    @Test
    public void testSuspendToDefaultPerformer()
          throws TimeoutException, InterruptedException
    {
       WorkflowService wfs = sf.getWorkflowService();
-      ActivityInstance ai = getHaltedAi();
+      ActivityInstance ai = getHaltedAi(true);
 
       // suspend is allowed, the state should remain halted
       wfs.suspendToDefaultPerformer(ai.getOID());

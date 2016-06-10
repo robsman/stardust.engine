@@ -410,7 +410,7 @@ public class ActivityThread implements Runnable
                   context.suspendActivityThread(this);
                }
 
-               if (trace.isDebugEnabled()) trace.debug("Runninging " + activity);
+               if (trace.isDebugEnabled()) trace.debug("Executing " + activity);
                runCurrentActivity();
                executedActivities++;
 
@@ -452,10 +452,14 @@ public class ActivityThread implements Runnable
          throw new InternalException("Unexpected activity thread state.");
       }
 
-      if (ActivityInstanceUtils.isHaltable(activityInstance) && ProcessInstanceUtils.isInHaltingPiHierarchy(processInstance))
+      if (ActivityInstanceUtils.isHaltable(activityInstance)
+            && ProcessInstanceUtils.isInHaltingPiHierarchy(activityInstance.getProcessInstance()))
       {
-         ((ActivityInstanceBean) activityInstance).setState(ActivityInstanceState.HALTED);
-         ProcessHaltJanitor.schedule(processInstance.getOID(),
+         if (trace.isDebugEnabled()) trace.debug("Halting execution because "
+               + activityInstance.getProcessInstance() + " is " + activityInstance.getProcessInstance().getState());
+
+         //((ActivityInstanceBean) activityInstance).setState(ActivityInstanceState.HALTED);
+         ProcessHaltJanitor.schedule(activityInstance.getProcessInstanceOID(),
                activityInstance.getActivity().isInteractive() ? SecurityProperties.getUserOID() : 0);
       }
 
@@ -1263,11 +1267,18 @@ public class ActivityThread implements Runnable
                            activity, x.getCause().getClass().getName(),
                            x.getCause().getMessage()});
 
-               if(!txStatus.isRollbackOnly())
+               if (!txStatus.isRollbackOnly())
                {
-                  processInstance.interrupt();
-
+                  boolean halting = ProcessInstanceUtils.isInHaltingPiHierarchy(processInstance);
+                  if (!halting)
+                  {
+                     processInstance.interrupt();
+                  }
                   activityInstance.interrupt();
+                  if (halting)
+                  {
+                     activityInstance.halt();
+                  }
 
                   AuditTrailLogger auditTrailLogger = AuditTrailLogger.getInstance(
                         LogCode.ENGINE, activityInstance,

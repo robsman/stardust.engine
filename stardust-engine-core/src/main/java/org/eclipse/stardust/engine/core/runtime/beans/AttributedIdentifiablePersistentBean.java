@@ -46,7 +46,7 @@ public abstract class AttributedIdentifiablePersistentBean
       implements AttributedIdentifiablePersistent
 {
    private static final String[] EMPTY = new String[0];
-   
+
    /**
     * Holds a cached version of all properties
     */
@@ -64,7 +64,7 @@ public abstract class AttributedIdentifiablePersistentBean
          for (Iterator i = cachedParts.iterator(); i.hasNext();)
          {
             PersistenceController pc = (PersistenceController) i.next();
-            
+
             if ( !((DefaultPersistenceController) pc).isDeleted())
             {
                AbstractProperty cachedProperty = (AbstractProperty) pc.getPersistent();
@@ -75,14 +75,14 @@ public abstract class AttributedIdentifiablePersistentBean
                      // allocate properties map as lazy as possible, as for the majority
                      // of cases there will be no properties at all
                      result = newHashMap();
-                     
+
                      // add transient attribute containers for supported multi-attributes.
                      for (String attributeName : supportedMultiAttributes())
                      {
                         result.put(attributeName, new MultiAttribute(attributeName));
                      }
                   }
-                  
+
                   Object existingProperty = result.get(cachedProperty.getName());
                   if (existingProperty instanceof MultiAttribute)
                   {
@@ -97,7 +97,7 @@ public abstract class AttributedIdentifiablePersistentBean
             }
          }
       }
-      
+
       return result;
    }
 
@@ -113,18 +113,18 @@ public abstract class AttributedIdentifiablePersistentBean
                   getPropertyImplementationClass()).fieldRef(
                   AbstractProperty.FIELD__OBJECT_OID), getOID())));
       Map result = new HashMap();
-      
+
       // add transient attribute containers for supported multi attributes.
       for (int idx = 0; idx < supportedMultiAttributes().length; idx++)
       {
          String attributeName = supportedMultiAttributes()[idx];
          result.put(attributeName, new MultiAttribute(attributeName));
       }
-      
+
       for (; i.hasNext();)
       {
          AbstractProperty property = (AbstractProperty) i.next();
-         
+
          Object existingProperty = result.get(property.getName());
          if (existingProperty instanceof MultiAttribute)
          {
@@ -136,10 +136,10 @@ public abstract class AttributedIdentifiablePersistentBean
             result.put(property.getName(), property);
          }
       }
-      
+
       return result;
    }
-   
+
    public Map getAllProperties()
    {
       if (null == cachedProperties)
@@ -154,33 +154,33 @@ public abstract class AttributedIdentifiablePersistentBean
             cachedProperties = getAllPropertiesFromAuditTrail();
          }
       }
-      
+
       return (null != cachedProperties) ? cachedProperties : emptyMap();
    }
 
    public Map getAllPropertyValues()
    {
       Map result = new HashMap();
-      
+
       for (Iterator i = getAllProperties().entrySet().iterator(); i.hasNext();)
       {
          Map.Entry entry = (Map.Entry) i.next();
          result.put(entry.getKey(), entry.getValue());
       }
-      
+
       return result;
    }
 
    public void addPropertyValues(Map attributes)
    {
       Map existingProperties = getAllProperties();
-      
+
       for (Iterator i = attributes.entrySet().iterator(); i.hasNext();)
       {
          Map.Entry entry = (Map.Entry) i.next();
          AbstractProperty existing = (AbstractProperty)
                existingProperties.get(entry.getKey());
-         
+
          if (existing != null)
          {
             existing.setValue(entry.getValue());
@@ -224,7 +224,7 @@ public abstract class AttributedIdentifiablePersistentBean
          {
             this.cachedProperties = newHashMap();
          }
-         
+
          property = createProperty(name, value);
 
          if (Arrays.asList(supportedMultiAttributes()).contains(name))
@@ -250,7 +250,7 @@ public abstract class AttributedIdentifiablePersistentBean
          property.setValue(value);
       }
    }
-   
+
    public void addProperty(AbstractProperty existingProperty)
    {
       String name = existingProperty.getName();
@@ -261,7 +261,7 @@ public abstract class AttributedIdentifiablePersistentBean
          {
             this.cachedProperties = newHashMap();
          }
-         
+
          property = existingProperty;
 
          if (Arrays.asList(supportedMultiAttributes()).contains(name))
@@ -281,8 +281,8 @@ public abstract class AttributedIdentifiablePersistentBean
          MultiAttribute container = (MultiAttribute) property;
          container.add(existingProperty);
       }
-   }   
-   
+   }
+
    public void setPropertyValue(String name, Serializable value)
    {
       setPropertyValue(name, value, false);
@@ -315,7 +315,7 @@ public abstract class AttributedIdentifiablePersistentBean
          }
       }
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.runtime.beans.AttributedIdentifiablePersistent#removeProperty(java.lang.String, java.io.Serializable)
     */
@@ -349,11 +349,11 @@ public abstract class AttributedIdentifiablePersistentBean
          }
       }
    }
-   
+
    public abstract AbstractProperty createProperty(String name, Serializable value);
 
    public abstract Class getPropertyImplementationClass();
-   
+
    /**
     * @return the names of attributes/properties which are allowed to have more than one entry.
     */
@@ -361,24 +361,40 @@ public abstract class AttributedIdentifiablePersistentBean
    {
       return EMPTY;
    }
-      
+
    protected static boolean propertyExists(Attribute properties)
    {
-      boolean result = false;
-
       if (null != properties)
       {
          if (properties instanceof MultiAttribute)
          {
             MultiAttribute container = (MultiAttribute) properties;
-            result = !((List) container.getValue()).isEmpty();
+            List<?> list = (List<?>) container.getValue();
+            for (Object value : list)
+            {
+               if (value instanceof Attribute)
+               {
+                  if (propertyExists((Attribute) value))
+                  {
+                     return true;
+                  }
+               }
+               else
+               {
+                  return true;
+               }
+            }
+         }
+         else if (properties instanceof AbstractProperty)
+         {
+            return !((AbstractProperty) properties).getPersistenceController().isDeleted();
          }
          else
          {
-            result = true;
+            return true;
          }
       }
 
-      return result;
-   }   
+      return false;
+   }
 }

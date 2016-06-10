@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.core.persistence.PhantomException;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityInstanceUtils;
 
 public class ProcessHaltJanitor extends ProcessHierarchyStateChangeJanitor
@@ -31,7 +32,14 @@ public class ProcessHaltJanitor extends ProcessHierarchyStateChangeJanitor
 
    public static void schedule(long processInstanceOid, long haltingUserOid)
    {
+      if (trace.isDebugEnabled()) trace.debug("Scheduling halt janitor for pi: " + processInstanceOid);
       scheduleJanitor(new Carrier(processInstanceOid, haltingUserOid), true);
+   }
+
+   public static void scheduleSeparate(long processInstanceOid, long haltingUserOid)
+   {
+      if (trace.isDebugEnabled()) trace.debug("Scheduling in separate transaction halt janitor for pi: " + processInstanceOid);
+      scheduleJanitor(new Carrier(processInstanceOid, haltingUserOid), false, true);
    }
 
    private ProcessHaltJanitor(Carrier carrier)
@@ -61,57 +69,72 @@ public class ProcessHaltJanitor extends ProcessHierarchyStateChangeJanitor
    @Override
    protected void processPi(ProcessInstanceBean pi)
    {
-      if (trace.isDebugEnabled()) trace.debug("Processing " + pi);
-
-      if (pi.isHalting())
+      pi.lock();
+      try
       {
-         // TODO: (fh) should we lock at the beginning ?
-         boolean hasActiveActivities = false;
-         for (Iterator itr = ActivityInstanceBean.getAllForProcessInstance(pi); itr.hasNext();)
+         pi.reloadAttribute(ProcessInstanceBean.FIELD__STATE);
+         if (pi.isHalting() || pi.isHalted())
          {
-            ActivityInstanceBean ai = (ActivityInstanceBean) itr.next();
-            if (ActivityInstanceUtils.isHaltable(ai))
+            if (trace.isDebugEnabled()) trace.debug("Processing " + pi + " in " + pi.getState() + " state!");
+            boolean hasActiveActivities = false;
+            for (Iterator itr = ActivityInstanceBean.getAllForProcessInstance(pi); itr.hasNext();)
             {
+               ActivityInstanceBean ai = (ActivityInstanceBean) itr.next();
                ai.lock();
-               ai.setState(ActivityInstanceState.HALTED, executingUserOid);
-               if (trace.isDebugEnabled()) trace.debug("Halted " + ai);
-            }
-            else
-            {
-               if (ActivityInstanceUtils.isActiveState(ai))
+               try
                {
-                  hasActiveActivities = true;
+                  ai.reloadAttribute(ProcessInstanceBean.FIELD__STATE);
+                  if (ActivityInstanceUtils.isHaltable(ai))
+                  {
+                     ai.setState(ActivityInstanceState.HALTED, executingUserOid);
+                     if (trace.isDebugEnabled()) trace.debug("Halted " + ai);
+                  }
+                  else
+                  {
+                     if (ActivityInstanceUtils.isActiveState(ai))
+                     {
+                        if (trace.isDebugEnabled()) trace.debug("Found active " + ai);
+                        hasActiveActivities = true;
+                     }
+                  }
+               }
+               catch (PhantomException e)
+               {
+                  // ignore
                }
             }
-         }
 
-         if (hasActiveActivities)
-         {
-            try
+            if (hasActiveActivities)
             {
-               Thread.sleep(getRetryPause());
+               try
+               {
+                  Thread.sleep(getRetryPause());
+               }
+               catch (InterruptedException e)
+               {
+                  throw new InternalException(e);
+               }
+               if (trace.isDebugEnabled()) trace.debug(pi.toString() + " is still active, rescheduling.");
+               ProcessStopJanitorMonitor monitor = ProcessStopJanitorMonitor.getInstance();
+               monitor.unregister(pi.getOID());
+               schedule(pi.getOID(), executingUserOid);
             }
-            catch (InterruptedException e)
+            else if (pi.isHalting())
             {
-               throw new InternalException(e);
+               pi.setState(ProcessInstanceState.HALTED);
+               pi.addHaltingUserOid(executingUserOid);
+               AuditTrailLogger.getInstance(LogCode.ENGINE, pi).info("Process instance halted.");
+               if (trace.isDebugEnabled()) trace.debug("Halted " + pi);
             }
-            if (trace.isDebugEnabled()) trace.debug(pi.toString() + " is still active, rescheduling.");
-            ProcessStopJanitorMonitor monitor = ProcessStopJanitorMonitor.getInstance();
-            monitor.unregister(pi.getOID());
-            schedule(pi.getOID(), executingUserOid);
          }
          else
          {
-            pi.lock();
-            pi.setState(ProcessInstanceState.HALTED);
-            pi.addHaltingUserOid(executingUserOid);
-            AuditTrailLogger.getInstance(LogCode.ENGINE, pi).info("Process instance halted.");
-            if (trace.isDebugEnabled()) trace.debug("Halted " + pi);
+            if (trace.isDebugEnabled()) trace.debug("Skipping " + pi + " in " + pi.getState() + " state!");
          }
       }
-      else
+      catch (PhantomException ex)
       {
-         if (trace.isDebugEnabled()) trace.debug(pi.toString() + " is in " + pi.getState() + " state!");
+         // ignore
       }
    }
 

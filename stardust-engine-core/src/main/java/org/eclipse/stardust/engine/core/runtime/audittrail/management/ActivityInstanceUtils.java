@@ -478,14 +478,14 @@ public class ActivityInstanceUtils
          throw new IllegalOperationException(
                BpmRuntimeError.BPMRT_AI_IS_HALTED.raise(ai.getOID()));
       }
-      // TODO: (fh) check if it is necessary
+
       if (isHaltable(ai)
             && ProcessInstanceUtils.isInHaltingPiHierarchy(ai.getProcessInstance()))
       {
          // found an AI which is in halted hierarchy but not in halted state.
 
          // reschedule halt janitor.
-         ProcessHaltJanitor.schedule(ai.getProcessInstanceOID(), 0);
+         ProcessHaltJanitor.scheduleSeparate(ai.getProcessInstanceOID(), 0);
 
          // cancel current service call.
          throw new IllegalOperationException(

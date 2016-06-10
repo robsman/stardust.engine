@@ -2238,6 +2238,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       }
       if (result != null)
       {
+         result.lock();
+         // TODO: (fh) recheck state ?
          result.activate();
       }
       return DetailsFactory.create(result, IActivityInstance.class,

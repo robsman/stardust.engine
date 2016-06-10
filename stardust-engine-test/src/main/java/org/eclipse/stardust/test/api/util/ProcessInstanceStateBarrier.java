@@ -41,9 +41,9 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 public class ProcessInstanceStateBarrier
 {
    /**
-    * the default timeout: 10 seconds
+    * the default timeout: 20 seconds
     */
-   private static final WaitTimeout DEFAULT_TIMEOUT = new WaitTimeout(10, TimeUnit.SECONDS);
+   private static final WaitTimeout DEFAULT_TIMEOUT = new WaitTimeout(20, TimeUnit.SECONDS);
 
    private static WaitTimeout timeout = DEFAULT_TIMEOUT;
 

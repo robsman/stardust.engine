@@ -97,7 +97,7 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
          }
 
          pi = ProcessInstanceBean.findByOID(processInstanceOid);
-         if ( !pi.isTerminated())
+         if (!pi.isTerminated())
          {
             Collection<IProcessInstance> pis = piLock.lockAllTransitions(pi);
 
@@ -142,7 +142,7 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
             catch (InterruptedException x)
             {
             }
-            scheduleJanitor(getNewCarrier(), true);
+            scheduleJanitor(getNewCarrier(), false, true);
          }
       }
 

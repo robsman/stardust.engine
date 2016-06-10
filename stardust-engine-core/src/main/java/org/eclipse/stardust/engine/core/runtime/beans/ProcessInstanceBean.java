@@ -1766,7 +1766,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          return Collections.singletonList(propertyValue);
       }
       List attributes = (List) propertyValue;
-      if(null == attributes)
+      if (null == attributes)
       {
          return Collections.EMPTY_LIST;
       }

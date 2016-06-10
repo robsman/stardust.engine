@@ -378,7 +378,10 @@ public class ProcessInstanceUtils
                {
                   ((ProcessInstanceBean) processInstance).reloadAttribute(ProcessInstanceBean.FIELD__STATE);
                }
-               return processInstance.isHalting() || processInstance.isHalted();
+               result = processInstance.isHalting() || processInstance.isHalted();
+               if (result && trace.isDebugEnabled()) trace.debug("Found " + processInstance.getState()
+                     + " " + processInstance);
+               return result;
             }
             catch (PhantomException e)
             {
@@ -396,6 +399,8 @@ public class ProcessInstanceUtils
                }
             }
          }
+         if (trace.isDebugEnabled()) trace.debug("Found " + processInstance.getState()
+               + " non standard " + processInstance);
          return processInstance.isHalting() || processInstance.isHalted();
       }
       else
@@ -410,6 +415,8 @@ public class ProcessInstanceUtils
             }
             if (rootPi.isHalting() || rootPi.isHalted())
             {
+               if (trace.isDebugEnabled()) trace.debug("Found " + rootPi.getState()
+                     + " *root* " + rootPi);
                result = true;
             }
             else
@@ -443,11 +450,18 @@ public class ProcessInstanceUtils
                      }
                   }
 
+                  if (!haltingOids.isEmpty() && trace.isDebugEnabled())
+                  {
+                     trace.debug("Halting oids: " + haltingOids);
+                  }
+
                   IProcessInstance currentPi = processInstance;
                   while (null != currentPi)
                   {
                      if (haltingOids.contains(Long.valueOf(currentPi.getOID())))
                      {
+                        if (trace.isDebugEnabled()) trace.debug("Found " + currentPi
+                              + " in halting hierarchy of root " + rootPi);
                         result = true;
                         break;
                      }

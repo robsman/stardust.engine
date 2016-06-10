@@ -37,6 +37,7 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
 
    public static final void schedule(long processInstanceOid)
    {
+      if (trace.isDebugEnabled()) trace.debug("Scheduling resume janitor for pi: " + processInstanceOid);
       scheduleJanitor(new Carrier(processInstanceOid), true);
    }
 
@@ -94,7 +95,12 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
             /* check if this is needed */
             IProcessInstance rootProcessInstance = pi.getRootProcessInstance();
             rootProcessInstance.lock();
+            Object old = rootProcessInstance.getHaltingPiOids();
             rootProcessInstance.removeHaltingPiOid(pi.getOID());
+            if (trace.isDebugEnabled()) trace.debug("Removed " + pi
+                  + " from  halting " + rootProcessInstance
+                  + ", old list: " + old
+                  + ", new list: " + rootProcessInstance.getHaltingPiOids());
             /* end check block */
 
             // sets to active and sends resume event.

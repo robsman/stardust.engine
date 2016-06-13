@@ -538,18 +538,27 @@ public class ActivityInstanceUtils
       {
          if(data.getAttribute(PredefinedConstants.DEFAULT_VALUE_ATT) == null)
          {
-            int cnt = 0;
+            int cntAll = 0;
+            int cntSuspended = 0;
+            int cntApplication = 0;            
+            
             Iterator<ActivityInstanceHistoryBean> history = ActivityInstanceHistoryBean.getAllForActivityInstance(
             ActivityInstanceBean.findByOID(activityInstanceOID));
             while (history.hasNext())
             {
+               cntAll++;
                ActivityInstanceHistoryBean aih = history.next();
                if (ActivityInstanceState.Application == aih.getState())
                {
-                  cnt++;
+                  cntApplication++;
                }
+               if (ActivityInstanceState.Suspended == aih.getState())
+               {
+                  cntSuspended++;
+               }               
             }
-            if(cnt == 1)
+            
+            if(cntAll == (cntApplication + cntSuspended))
             {
                return true;
             }

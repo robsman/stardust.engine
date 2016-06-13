@@ -232,7 +232,7 @@ public class BusinessObjectUtils
          for (Iterator<IData> data = model.getData().iterator(); data.hasNext();)
          {
             IData item = data.next();
-            if (queryEvaluator.accept(item)
+            if (item.getModel() == model && queryEvaluator.accept(item)
                   && (auth == null || auth.accept(item) || BusinessObjectSecurityUtils
                         .isUnscopedPropagatedAccessAllowed(item, auth)))
             {

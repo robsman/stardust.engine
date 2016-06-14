@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.runtime.beans.interceptors;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 
+import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -73,9 +74,9 @@ public class MultipleTryInterceptor implements MethodInterceptor
    private int handleException(Throwable caughtException, Throwable cause, int triesLeft)
          throws Throwable
    {
-      if (0 >= --triesLeft)
+      if (0 >= --triesLeft || cause instanceof NoRetryException)
       {
-         throw caughtException;
+         throw cause.getCause();
       }
       else
       {
@@ -98,6 +99,16 @@ public class MultipleTryInterceptor implements MethodInterceptor
          }
          
          return triesLeft;
+      }
+   }
+
+   public static class NoRetryException extends ApplicationException
+   {
+      private static final long serialVersionUID = 1L;
+
+      public NoRetryException(Throwable e)
+      {
+         super(e);
       }
    }
 }

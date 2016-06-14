@@ -19,6 +19,7 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ConcurrencyException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.MultipleTryInterceptor.NoRetryException;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
@@ -35,6 +36,8 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
    protected abstract HierarchyStateChangeJanitorCarrier getNewCarrier();
 
    protected abstract boolean preventFinalState();
+
+   protected abstract boolean doRollback();
 
    protected abstract long getRetryPause();
 
@@ -128,21 +131,34 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
          monitor.unregister(processInstanceOid);
 
          // if the exception can be handled and tries are left, a new janitor is scheduled
-         if (canHandleExceptionOnStop(exception) && triesLeft > 0
-               && rtEnv.getExecutionPlan() == null)
+         if (exception != null && triesLeft > 0 && rtEnv.getExecutionPlan() == null)
          {
-            trace.info(MessageFormat.format("Rescheduling " + this.getClass().getSimpleName()
-                  + " for {0} Tries left: {1}.",
-                  new Object[] {pi, new Integer(triesLeft)}));
 
-            try
+            // reschedule if exception can be handled.
+            if (canHandleExceptionOnStop(exception))
             {
-               Thread.sleep(getRetryPause());
+               trace.info(MessageFormat.format(
+                     "Rescheduling " + this.getClass().getSimpleName()
+                           + " for {0} Tries left: {1}.",
+                     new Object[] {pi, new Integer(triesLeft)}));
+
+               try
+               {
+                  Thread.sleep(getRetryPause());
+               }
+               catch (InterruptedException x)
+               {
+               }
+
+               // schedule out of current TX to not be affected by rollback.
+               scheduleJanitor(getNewCarrier(), false, true);
             }
-            catch (InterruptedException x)
+
+            if (doRollback())
             {
+               // re-throw exception but without retry from MultipleTryInterceptor.
+               throw new NoRetryException(exception);
             }
-            scheduleJanitor(getNewCarrier(), false, true);
          }
       }
 

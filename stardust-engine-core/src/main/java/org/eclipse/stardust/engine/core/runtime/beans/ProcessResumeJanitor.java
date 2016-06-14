@@ -65,6 +65,12 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
    }
 
    @Override
+   protected boolean doRollback()
+   {
+      return true;
+   }
+
+   @Override
    protected void processPi(ProcessInstanceBean pi)
    {
       if (pi.isHalting())

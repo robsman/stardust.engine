@@ -61,6 +61,12 @@ public class ProcessHaltJanitor extends ProcessHierarchyStateChangeJanitor
    }
 
    @Override
+   protected boolean doRollback()
+   {
+      return false;
+   }
+
+   @Override
    protected long getRetryPause()
    {
       return Parameters.instance().getLong(PRP_RETRY_PAUSE, 500);

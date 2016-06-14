@@ -63,15 +63,18 @@ public class DocumentXPathQueryFilterEvaluator implements FilterEvaluationVisito
       {
          FilterCriterion criterion = (FilterCriterion) part;
          String andPart = (String) criterion.accept(this, context);
-
          if (andTerm.length() == 0)
          {
             andTerm.append("(");
-            andTerm.append(andPart);
          }
-         else
+         else if (!isEmpty(andPart))
          {
-            andTerm.append(" " + operator + " " + andPart);
+            andTerm.append(" " + operator + " ");
+         }
+
+         if (!isEmpty(andPart))
+         {
+            andTerm.append(andPart);
          }
       }
       if (andTerm.length() != 0)
@@ -104,7 +107,7 @@ public class DocumentXPathQueryFilterEvaluator implements FilterEvaluationVisito
       // TODO Auto-generated method stub
       throw new UnsupportedOperationException();
    }
-   
+
    public Object visit(ProcessDefinitionFilter filter, Object context)
    {
       // TODO Auto-generated method stub

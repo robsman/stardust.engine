@@ -335,6 +335,22 @@ public class DmsDocumentSearchTest
    }
 
    @Test
+   public void testFindWithEmptyOrTerm()
+   {
+      DocumentQuery query = DocumentQuery.findAll();
+
+      query.where(DocumentQuery.CONTENT_TYPE.isEqual("text/plain"))
+      .and(DocumentQuery.NAME.like("*.txt"));
+
+      // empty or term should not affect query
+      query.getFilter().addOrTerm();
+
+      Documents docs = sf.getDocumentManagementService().findDocuments(query);
+
+      assertEquals("Documents", 1, docs.size());
+   }
+
+   @Test
    public void testFindContentLike() throws InterruptedException
    {
       // final int expectedDocSize = 3;

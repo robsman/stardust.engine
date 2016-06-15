@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
@@ -23,6 +24,8 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.IOrganization;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.core.cache.CacheInputStream;
+import org.eclipse.stardust.engine.core.cache.CacheOutputStream;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
@@ -64,7 +67,7 @@ public class UserParticipantLink extends IdentifiablePersistentBean
    public static final String[] user_particip_idx1_INDEX = new String[] {FIELD__USER};
    public static final String[] user_particip_idx2_INDEX = new String[] {FIELD__PARTICIPANT, FIELD__DEPARTMENT};
    // TODO: need more Indexes containing scope
-   
+
    public static final String[] user_particip_idx3_UNIQUE_INDEX = new String[] {FIELD__OID};
 
    private UserBean workflowUser;
@@ -74,7 +77,7 @@ public class UserParticipantLink extends IdentifiablePersistentBean
    private long participant;
    private long department;
    private long onBehalfOf;
-   
+
    private transient IModelParticipant cachedParticipant;
 
    /**
@@ -97,7 +100,7 @@ public class UserParticipantLink extends IdentifiablePersistentBean
       where.addJoin(participantsJoin);
       return session.getCount(UserParticipantLink.class, where);
    }
-   
+
    public static long countAllFor(long rtOid, long modelOid)
    {
       Join participantsJoin = new Join(AuditTrailParticipantBean.class, "p")
@@ -111,7 +114,7 @@ public class UserParticipantLink extends IdentifiablePersistentBean
       {
          joins.add(modelsJoin);
       }
-      
+
       org.eclipse.stardust.engine.core.persistence.Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
       QueryExtension where = QueryExtension.where(Predicates.andTerm(
             Predicates.isEqual(FR__PARTICIPANT, rtOid),
@@ -121,7 +124,7 @@ public class UserParticipantLink extends IdentifiablePersistentBean
       where.addJoins(joins);
       return session.getCount(UserParticipantLink.class, where);
    }
-   
+
    public static long findFirstAssignedDepartment(IUser user, IModelParticipant participant, List<Long> departments)
    {
       ModelManager modelManager = ModelManagerFactory.getCurrent();
@@ -212,13 +215,13 @@ public class UserParticipantLink extends IdentifiablePersistentBean
          IDepartment department, long onBehalfOf)
    {
       this.workflowUser = workflowUser;
-      
+
       long rtOid = ModelManagerFactory.getCurrent().getRuntimeOid(participant);
       if (0 == rtOid)
       {
          throw new InternalException("Missing runtime OID for participant " + participant);
       }
-      
+
       this.participant = rtOid;
       this.department = department == null ? 0 : department.getOID();
       this.onBehalfOf = onBehalfOf;
@@ -227,14 +230,15 @@ public class UserParticipantLink extends IdentifiablePersistentBean
    /**
     * For transient creation of links.
     */
-   public UserParticipantLink(long oid, UserBean workflowUser, long participant, long department)
+   public UserParticipantLink(long oid, UserBean workflowUser, long participant, long department, long onBehalfOf)
    {
       this.oid = oid;
       this.workflowUser = workflowUser;
       this.participant = participant;
       this.department = department;
+      this.onBehalfOf = onBehalfOf;
    }
-   
+
    public UserParticipantLink()
    {
       participant = 0;
@@ -262,7 +266,7 @@ public class UserParticipantLink extends IdentifiablePersistentBean
       }
       return cachedParticipant;
    }
-   
+
    public long getRuntimeParticipantOid()
    {
       fetch();
@@ -278,18 +282,18 @@ public class UserParticipantLink extends IdentifiablePersistentBean
       }
       return null;
    }
-   
+
    public long getDepartmentOid()
    {
       fetch();
       return department;
    }
-   
+
    public long getOnBehalfOf()
    {
       fetch();
       return onBehalfOf;
-   }   
+   }
 
    public static void deleteAllForDepartment(IDepartment department)
    {
@@ -305,7 +309,7 @@ public class UserParticipantLink extends IdentifiablePersistentBean
          ((UserBean) link.getUser()).removeFromParticipants(link.getParticipant(), link.getDepartment());
       }
    }
-     
+
    public static ClosableIterator<UserParticipantLink> findForUsers(long[] others)
    {
       org.eclipse.stardust.engine.core.persistence.Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
@@ -313,5 +317,33 @@ public class UserParticipantLink extends IdentifiablePersistentBean
             Predicates.isEqual(FR__ON_BEHALF_OF, 0), Predicates.inList(FR__USER, others));
       return session.getIterator(UserParticipantLink.class,
             QueryExtension.where(predicate));
-   }   
+   }
+
+   public void store(CacheOutputStream cos) throws IOException
+   {
+      fetch();
+      cos.writeLong(oid == null ? 0L : oid);
+      cos.writeLong(participant);
+      cos.writeLong(department);
+      cos.writeLong(onBehalfOf);
+   }
+
+   public static UserParticipantLink retrieve(org.eclipse.stardust.engine.core.persistence.Session session,
+         UserBean user, CacheInputStream cis) throws IOException
+   {
+      long oid = cis.readLong();
+      long participant = cis.readLong();
+      long department = cis.readLong();
+      long onBehalfOf = cis.readLong();
+      if (session.existsInCache(UserParticipantLink.class, oid))
+      {
+         return (UserParticipantLink) session.findByOID(UserParticipantLink.class, oid);
+      }
+      else
+      {
+         UserParticipantLink link = new UserParticipantLink(oid, user, participant, department, onBehalfOf);
+         user.addController(session, oid, link);
+         return link;
+      }
+   }
 }

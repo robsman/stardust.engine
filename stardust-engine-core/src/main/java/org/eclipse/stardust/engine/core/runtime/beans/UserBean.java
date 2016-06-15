@@ -78,7 +78,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
 {
    private static final long serialVersionUID = -1840799806267424871L;
 
-   private static final Logger trace = LogManager.getLogger(UserBean.class);
+   static final Logger trace = LogManager.getLogger(UserBean.class);
 
    private static final int EXTENDED_STATE_PASSWORD_EXPIRED = 1;  // first bit
    private static final int EXTENDED_STATE_QUALITY_CODE_SIZE = 2; // 2nd bit
@@ -681,7 +681,9 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
          this.grantsCache = null;
 
          AuditTrailLogger.getInstance(LogCode.SECURITY, this).info(buffer.toString());
+
          link.delete();
+         participantLinks.remove(link);
       }
 
       fetchVector(LINK__PARTICIPANT_LINKS);
@@ -719,7 +721,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       {
          UserParticipantLink participantLink = i.next();
          IModelParticipant participant = participantLink.getParticipant();
-         if(participant == null)
+         if (participant == null)
          {
             participantLinks.remove(participantLink);
             trace.warn("ParticipantLink without Participant will be removed: " + participantLink.toString());
@@ -1145,29 +1147,15 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       long realm = cis.readLong();
       if (realm >= 0)
       {
-         this.realm = (UserRealmBean) session.
-            findByOID(UserRealmBean.class, realm);
+         this.realm = (UserRealmBean) session.findByOID(UserRealmBean.class, realm);
       }
-
       extendedState = cis.readInt();
 
       // read participantLinks
       int size = cis.readInt();
       for (int i = 0; i < size; i++)
       {
-         long oid = cis.readLong();
-         long participant = cis.readLong();
-         long department = cis.readLong();
-         if (session.existsInCache(UserParticipantLink.class, oid))
-         {
-            participantLinks.add(session.findByOID(UserParticipantLink.class, oid));
-         }
-         else
-         {
-            UserParticipantLink link = new UserParticipantLink(oid, this, participant, department);
-            addController(session, oid, link);
-            participantLinks.add(link);
-         }
+         participantLinks.add(UserParticipantLink.retrieve(session, this, cis));
       }
 
       // read usergroupLinks
@@ -1194,7 +1182,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       cis.close();
    }
 
-   private void addController(Session session, Long key, Persistent persistent)
+   void addController(Session session, Long key, Persistent persistent)
    {
       if (session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
       {
@@ -1238,9 +1226,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       for (int i = 0; i < size; i++)
       {
          UserParticipantLink link = itp.next();
-         cos.writeLong(link.getOID());
-         cos.writeLong(link.getRuntimeParticipantOid());
-         cos.writeLong(link.getDepartmentOid());
+         link.store(cos);
       }
 
       // write userGroupLinks

@@ -167,18 +167,21 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
             if ( !StringUtils.isEmpty(dataId))
             {
                IModel model = (IModel) organization.getModel();
-               String modelId = model.getId();
+
+               IData theData = model.findData(dataId);
+               String qualifiedId = theData.getQualifiedId();
                
                String dataPath = organization
                      .getStringAttribute(PredefinedConstants.BINDING_DATA_PATH_ATT);
-               Pair<String, String> dataKey = new Pair("{" + modelId + "}" + dataId, dataPath);
+
+               Pair<String, String> dataKey = new Pair(qualifiedId, dataPath);
                if ( !distinctData.contains(dataKey))
                {
                   distinctData.add(dataKey);
                   orderedPrefetchData.add(dataKey);
 
-                  DataPrefetchHint filter = new DataPrefetchHint("{" + modelId + "}" + dataId, StringUtils
-                        .isEmpty(dataPath) ? null : dataPath);
+                  DataPrefetchHint filter = new DataPrefetchHint(qualifiedId, StringUtils
+                      .isEmpty(dataPath) ? null : dataPath);                  
                   if (trace.isDebugEnabled())
                   {
                      trace.debug("Adding prefetch filter: " + filter);

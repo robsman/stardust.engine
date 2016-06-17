@@ -12,12 +12,12 @@
 package org.eclipse.stardust.test.security;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.*;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -126,9 +126,13 @@ public class SecurityUtilitiesTest
    {
       SecurityProvider provider = SecurityUtilities.getSecurityProvider();
 
-      Date validDate = provider.getValidDate("A_Date", "01.01.2016",
-            new SimpleDateFormat("d.M.y"), false);
-      assertTrue(validDate.toString().equals("Fri Jan 01 00:00:00 CET 2016"));
+      DateFormat df = new SimpleDateFormat("d.M.y");
+      Calendar dateFormatCalendar = df.getCalendar();
+      Date validDate = provider.getValidDate("A_Date", "02.03.2016", df, false);
+      dateFormatCalendar.setTime(validDate);
+      assertThat(dateFormatCalendar.get(Calendar.DAY_OF_MONTH), is(2));
+      assertThat(dateFormatCalendar.get(Calendar.MONTH), is(Calendar.MARCH));
+      assertThat(dateFormatCalendar.get(Calendar.YEAR), is(2016));
 
       Double validNumber = provider.getValidNumber("A_Number", "48.5", 0, 100, false);
       assertTrue(validNumber == 48.5);

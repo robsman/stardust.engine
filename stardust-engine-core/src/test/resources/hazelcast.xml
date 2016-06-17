@@ -20,7 +20,7 @@
    </group>
 
    <network>
-      <port auto-increment="false">5900</port>
+      <port auto-increment="false">${stardust.hazelcast.network.port}</port>
 
       <join>
          <multicast enabled="false" />

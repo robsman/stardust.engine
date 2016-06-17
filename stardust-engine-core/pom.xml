@@ -547,6 +547,9 @@
    </dependencies>
 
    <build>
+      <filters>
+         <filter>src/common/filters/network.properties</filter>
+      </filters>
       <resources>
          <resource>
             <directory>src/main/resources</directory>
@@ -555,6 +558,22 @@
             </excludes>
          </resource>
       </resources>
+      <testResources>
+         <testResource>
+            <directory>src/test/resources</directory>
+            <includes>
+               <include>hazelcast.xml</include>
+            </includes>
+            <filtering>true</filtering>
+         </testResource>
+         <testResource>
+            <directory>src/test/resources</directory>
+            <excludes>
+               <exclude>hazelcast.xml</exclude>
+            </excludes>
+            <filtering>false</filtering>
+         </testResource>
+      </testResources>
       <plugins>
          <plugin>
             <artifactId>maven-compiler-plugin</artifactId>

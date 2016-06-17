@@ -21,10 +21,6 @@
    <name>Stardust Engine Test</name>
    <description>This project allows for writing functional tests against 'Stardust Engine'.</description>
 
-   <properties>
-      <hazelcast.network.port>5900</hazelcast.network.port>
-   </properties>
-
    <dependencies>
       <!-- Stardust Engine -->
       <dependency>
@@ -202,11 +198,15 @@
    </dependencies>
 
    <build>
+      <filters>
+         <filter>src/common/filters/network.properties</filter>
+      </filters>
       <resources>
          <resource>
             <directory>src/main/resources</directory>
             <includes>
                <include>hazelcast.xml</include>
+               <include>carnot.properties</include>
             </includes>
             <filtering>true</filtering>
          </resource>
@@ -214,10 +214,29 @@
             <directory>src/main/resources</directory>
             <excludes>
                <exclude>hazelcast.xml</exclude>
+               <exclude>carnot.properties</exclude>
             </excludes>
             <filtering>false</filtering>
          </resource>
       </resources>
+      <testResources>
+         <testResource>
+            <directory>src/test/resources</directory>
+            <includes>
+               <include>**/SQLApplicationTestCrossModel.xpdl</include>
+               <include>**/SqlApplicationTestModel.xpdl</include>
+            </includes>
+            <filtering>true</filtering>
+         </testResource>
+         <testResource>
+            <directory>src/test/resources</directory>
+            <excludes>
+               <exclude>**/SQLApplicationTestCrossModel.xpdl</exclude>
+               <exclude>**/SqlApplicationTestModel.xpdl</exclude>
+            </excludes>
+            <filtering>false</filtering>
+         </testResource>
+      </testResources>
       <plugins>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>

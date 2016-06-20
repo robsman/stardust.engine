@@ -59,6 +59,7 @@ import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.D
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterSynchronizationInfo;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.struct.DataXPathMap;
+import org.eclipse.stardust.engine.core.struct.IXPathMap;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 import org.eclipse.stardust.engine.core.struct.spi.StructuredDataXPathEvaluator;
@@ -447,6 +448,18 @@ public class DataClusterHelper
                DataValueBean dataValue = (DataValueBean) dpc.getPersistent();
                DataSlot dataSlot = compoundValue.getSecond();
                
+               String dataTypeId = dataValue.getData().getType().getId();
+               if (!StringUtils.isEmpty(dataSlot.getSValueColumn())
+                     && (StructuredTypeRtUtils.isDmsType(dataTypeId) || StructuredTypeRtUtils
+                           .isStructuredType(dataTypeId)))
+               {
+                  IXPathMap xPathMap = DataXPathMap.getXPathMap(dataValue.getData());
+                  if (!xPathMap.containsXPath(dataSlot.getAttributeName()))
+                  {
+                     continue;
+                  }
+               }
+               
                buffer.append(appendToken);
                appendToken = ",";
                
@@ -464,7 +477,7 @@ public class DataClusterHelper
                
                bindValueList.add(new Pair(Long.class, Long.valueOf(dataValue.getOID())));
                
-               String dataTypeId = dataValue.getData().getType().getId();
+              
                if ( !StringUtils.isEmpty(dataSlot.getSValueColumn()))
                {
                   String sValue;

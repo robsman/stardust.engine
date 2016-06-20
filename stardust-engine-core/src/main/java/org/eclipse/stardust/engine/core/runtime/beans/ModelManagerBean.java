@@ -928,7 +928,7 @@ public class ModelManagerBean implements ModelManager
                         && SecurityProperties.isInternalAuthorization())
                      {
                            UserBean motu = getMotuUser(rtEnv);
-                     if (motu != null)
+                           if (motu != null)
                            {
                               IRole role = (IRole) model
                                     .findParticipant(PredefinedConstants.ADMINISTRATOR_ROLE);

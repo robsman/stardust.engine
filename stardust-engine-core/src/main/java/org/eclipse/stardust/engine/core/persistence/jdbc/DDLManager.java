@@ -2401,7 +2401,10 @@ public class DDLManager
                         }
                      }
                   }
-                  executeOrSpoolStatement(buffer.toString(), connection, spoolFile);
+                  if (count != 0)
+                  {
+                     executeOrSpoolStatement(buffer.toString(), connection, spoolFile);
+                  }
                }
             }
          }
@@ -2724,7 +2727,42 @@ public class DDLManager
 
       syncStringTemplate = replaceSqlFragmentsByCluster(syncStringTemplate, dataCluster,
             schemaName);
-      String syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplate, dataSlot);
+      
+      String syncStringTemplateStruct =
+            "SELECT 'x' FROM _$CLUSTER_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m " +
+            "WHERE " +
+               "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
+               "dc._$DC_OID$_ IS NULL AND " +
+               "dc._$DC_TYPE_KEY$_ IS NULL AND " +
+               "dc._$DC_VALUE$_ IS NULL AND " +
+               "pi._$PI_MODEL$_ = m._$M_OID$_ AND " +
+               "m._$M_ID$_ = '_$SLOT_MODEL_ID_VALUE$_' AND " +
+               "EXISTS( " +
+                  "SELECT 'x' " +
+                  "FROM _$D_TAB$_ d, _$DV_TAB$_ dv, _$SD_TAB$_ sd, _$SDV_TAB$_ sdv " +
+                  "WHERE " +
+                     "d._$D_ID$_ = '_$SLOT_DATA_ID$_' AND " +
+                     "d._$D_MODEL$_ = pi._$PI_MODEL$_ AND " +
+                     "d._$D_OID$_ = dv._$DV_DATA$_ AND " +
+                     "d._$D_MODEL$_ = dv._$DV_MODEL$_ AND " +
+                     "dv._$DV_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
+                     "sdv._$SDV_PROCESSINSTANCE$_ = dv._$DV_NUMBERVALUE$_ AND " +
+                     "sdv._$SDV_XPATH$_ = sd._$SD_OID$_ AND " +
+                     "sd._$SD_XPATH$_ = '_$SLOT_ATTRIBUTE_NAME$_')";
+
+      syncStringTemplateStruct = replaceSqlFragmentsByCluster(syncStringTemplateStruct, dataCluster,
+            schemaName);
+      
+      String syncStmtString;
+      if (StringUtils.isEmpty(dataSlot.getAttributeName()))
+      {
+         syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplate, dataSlot);
+      }
+      else
+      {
+         syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplateStruct, dataSlot);
+      }
+      
       verifyStmt.execute(syncStmtString);
       return verifyStmt.getResultSet();
    }
@@ -2792,7 +2830,7 @@ public class DDLManager
                "sdv._$SDV_PROCESSINSTANCE$_ = dv._$DV_NUMBERVALUE$_ AND " +
                "sdv._$SDV_XPATH$_ = sd._$SD_OID$_ AND " +
                "sd._$SD_XPATH$_ = '_$SLOT_ATTRIBUTE_NAME$_' AND " +
-               "sdv._$DV_OID$_ = dc._$DC_OID$_ AND " +
+               "dv._$DV_OID$_ = dc._$DC_OID$_ AND " +
                "sdv._$DV_TYPE_KEY$_ = dc._$DC_TYPE_KEY$_ AND " +
                "(sdv._$DV_VALUE$_ = dc._$DC_VALUE$_ OR " +
                   "(sdv._$DV_VALUE$_ IS NULL AND dc._$DC_VALUE$_ IS NULL)))";

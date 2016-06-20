@@ -111,7 +111,8 @@ public abstract class SchedulingRecurrence
 
       String startDateStr = recurrenceRange.get("startDate").getAsString();
       String executionTime = getExecutionTime(json);
-      startDate = SchedulingUtils.getParsedDate(startDateStr + ' ' + executionTime, SchedulingUtils.INPUT_DATE_FORMAT);
+      startDate = SchedulingUtils.getParsedDate(startDateStr + ' ' + executionTime
+            , SchedulingUtils.INPUT_DATE_FORMAT_EXT, SchedulingUtils.INPUT_DATE_FORMAT);
 
       Calendar instance = Calendar.getInstance();
       instance.setTime(startDate);
@@ -173,10 +174,12 @@ public abstract class SchedulingRecurrence
       String executionTime = getExecutionTime(json);
       JsonObject recurrenceRange = json.get("recurrenceRange").getAsJsonObject();
       String startDateStr = recurrenceRange.get("startDate").getAsString();
-      Date startDate1 = SchedulingUtils.getParsedDate(startDateStr + ' ' + executionTime, SchedulingUtils.INPUT_DATE_FORMAT);
+      Date startDate1 = SchedulingUtils.getParsedDate(startDateStr + ' ' + executionTime,
+            SchedulingUtils.INPUT_DATE_FORMAT_EXT, SchedulingUtils.INPUT_DATE_FORMAT);
       startDate1.setSeconds(0);
 
-      this.startDate = SchedulingUtils.getParsedDate(startDate + ' ' + executionTime, SchedulingUtils.INPUT_DATE_FORMAT);
+      this.startDate = SchedulingUtils.getParsedDate(startDate + ' ' + executionTime,
+            SchedulingUtils.INPUT_DATE_FORMAT_EXT, SchedulingUtils.INPUT_DATE_FORMAT);
       this.startDate.setSeconds(0);
 
       if (this.startDate.before(startDate1))
@@ -192,8 +195,7 @@ public abstract class SchedulingRecurrence
       this.startDate.setHours(0);
       this.startDate.setMinutes(0);
 
-      Date endDateObj = SchedulingUtils.getParsedDate(endDate,
-            SchedulingUtils.CLIENT_DATE_FORMAT);
+      Date endDateObj = SchedulingUtils.getParsedDate(endDate, SchedulingUtils.CLIENT_DATE_FORMAT);
       endDateObj.setHours(23);
       endDateObj.setMinutes(59);
       endDateObj.setSeconds(59);

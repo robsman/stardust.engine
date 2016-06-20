@@ -19,6 +19,7 @@ public class SchedulingUtils
 
    public static DateFormat SERVER_DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss:SSS", Locale.ENGLISH);
    public static DateFormat INPUT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd hh:mm aa", Locale.ENGLISH);
+   public static DateFormat INPUT_DATE_FORMAT_EXT = new SimpleDateFormat("yyyy-MM-dd hh:mm aa Z", Locale.ENGLISH);
    public static DateFormat CLIENT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
    public static DateFormat YEAR_DATE_FORMAT = new SimpleDateFormat("yyyy", Locale.ENGLISH);
    public static DateFormat TIME_FORMAT = new SimpleDateFormat("hh:mm aa", Locale.ENGLISH);
@@ -76,17 +77,31 @@ public class SchedulingUtils
       return TIME_SLOTS[slot - 1];
    }
 
-   public static Date getParsedDate(String startDateStr, DateFormat format)
+   public static Date getParsedDate(String startDateStr, DateFormat... format)
    {
-      try
+      if (format != null)
       {
-         return format.parse(startDateStr);
+         ParseException ex = null;
+         for (int i = 0; i < format.length; i++)
+         {
+            if (format[i] != null)
+            {
+               try
+               {
+                  return format[i].parse(startDateStr);
+               }
+               catch (ParseException e)
+               {
+                  ex = e;
+               }
+            }
+         }
+         if (ex != null)
+         {
+            trace.error(ex);
+         }
       }
-      catch (ParseException e)
-      {
-         trace.error(e);
-         return null;
-      }
+      return null;
    }
 
    public static JsonArray getAsJsonArray(JsonObject json, String propertyName)

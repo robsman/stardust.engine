@@ -13,7 +13,6 @@ package org.eclipse.stardust.engine.business_calendar.daemon;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.TreeSet;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.rt.IJobManager;

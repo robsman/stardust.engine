@@ -897,40 +897,49 @@ public class ModelManagerBean implements ModelManager
             // Load predefined model only if it does not exist.
             // If no other model is deployed the administrator role of predefined model
             // will be assigned to motu user.
-            if (!upgrade && !archive
-                  && null == findActiveModel(PredefinedConstants.PREDEFINED_MODEL_ID))
+            if (!upgrade && !archive)
             {
-               List<ParsedDeploymentUnit> predefinedModelElement = ModelUtils.getPredefinedModelElement();
+               boolean deployedPredefinedModel = false;
+               if (null == findActiveModel(PredefinedConstants.PREDEFINED_MODEL_ID))
+            {
+                  List<ParsedDeploymentUnit> predefinedModelElement = ModelUtils
+                        .getPredefinedModelElement();
                if (predefinedModelElement != null)
                {
                   trace.warn("Deploying missing PredefinedModel.xpdl");
-                  loader.deployModel(predefinedModelElement, DeploymentOptions.DEFAULT, rtOidRegistry);
+                     loader.deployModel(predefinedModelElement, DeploymentOptions.DEFAULT,
+                           rtOidRegistry);
+                     deployedPredefinedModel = true;
+                  }
+                  else
+                  {
+                     trace.warn("Could not load PredefinedModel.xpdl");
+                  }
+               }
 
-                  Iterator<IModelPersistor> loadedModelsIncludingPredefinedModel = loader.loadModels();
+               Iterator<IModelPersistor> loadedModelsIncludingPredefinedModel = loader
+                     .loadModels();
                   while (loadedModelsIncludingPredefinedModel.hasNext())
                   {
-                     IModelPersistor persistedModel = loadedModelsIncludingPredefinedModel.next();
+                  IModelPersistor persistedModel = loadedModelsIncludingPredefinedModel
+                        .next();
                      IModel model = persistedModel.fetchModel();
-                     if (PredefinedConstants.PREDEFINED_MODEL_ID.equals(model.getId()))
+                  if (PredefinedConstants.PREDEFINED_MODEL_ID.equals(model.getId())
+                        && SecurityProperties.isInternalAuthorization())
                      {
-                        if (getModelCount() == 0)
-                        {
                            UserBean motu = getMotuUser(rtEnv);
-                           if (motu != null
-                                 && SecurityProperties.isInternalAuthorization())
+                     if (motu != null)
                            {
                               IRole role = (IRole) model
                                     .findParticipant(PredefinedConstants.ADMINISTRATOR_ROLE);
                               motu.addToParticipants(role, null);
                            }
-                        }
+
+                     if (deployedPredefinedModel)
+                     {
                         models.add(0, model);
                      }
                   }
-               }
-               else
-               {
-                  trace.warn("Could not load PredefinedModel.xpdl");
                }
             }
          }

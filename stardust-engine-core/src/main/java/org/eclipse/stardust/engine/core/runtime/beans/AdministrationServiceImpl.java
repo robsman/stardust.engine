@@ -1159,6 +1159,8 @@ public class AdministrationServiceImpl
 
          PreferenceStoreUtils.cleanupAllPreferencesFromDms(userOID, keepLoginUser, sf);
       }
+
+      restoreDefaultModelAndUsers();
    }
 
    /**
@@ -1214,15 +1216,44 @@ public class AdministrationServiceImpl
 
          SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 
-         // On internal authentication motu has to be preserved
-         // It is just reset to the initial state.
+         restoreDefaultModelAndUsers();
+
+         trace.info("Entire Runtime and Modeling Environment cleaned up.");
+      }
+      finally
+      {
+         flushCaches();
+      }
+   }
+
+   /**
+    * only call if motu does not exist
+    */
+   private void restoreDefaultModelAndUsers()
+   {
+      AuditTrailPartitionBean partition = (AuditTrailPartitionBean) SecurityProperties.getPartition(false);
+
+      // recreate default realm.
+      UserRealmBean carnotRealm = null;
+      try
+      {
+         carnotRealm = UserRealmBean.findById(PredefinedConstants.DEFAULT_REALM_ID,
+               partition.getOID());
+      }
+      catch (ObjectNotFoundException e)
+      {
+         carnotRealm = new UserRealmBean(PredefinedConstants.DEFAULT_REALM_ID,
+               PredefinedConstants.DEFAULT_REALM_NAME, partition);
+      }
+
+      // recreate motu user.
          UserBean motu = null;
-         if (SecurityProperties.isInternalAuthentication())
+      try
+      {
+         motu = UserBean.findByAccount(PredefinedConstants.MOTU, carnotRealm);
+      }
+      catch (ObjectNotFoundException e)
          {
-            UserRealmBean carnotRealm = new UserRealmBean(
-                  PredefinedConstants.DEFAULT_REALM_ID,
-                  PredefinedConstants.DEFAULT_REALM_NAME,
-                  (AuditTrailPartitionBean) SecurityProperties.getPartition(false));
             motu = new UserBean(PredefinedConstants.MOTU,
                   PredefinedConstants.MOTU_FIRST_NAME, PredefinedConstants.MOTU_LAST_NAME,
                   carnotRealm);
@@ -1231,6 +1262,7 @@ public class AdministrationServiceImpl
 
          ModelManagerFactory.setDirty();
 
+      // redeploy predefined model.
          ModelManager modelManager = ModelManagerFactory.getCurrent();
          IModel predefinedModel = modelManager
                .findActiveModel(PredefinedConstants.PREDEFINED_MODEL_ID);
@@ -1258,13 +1290,6 @@ public class AdministrationServiceImpl
                trace.warn("Could not load PredefinedModel.xpdl");
             }
          }
-
-         trace.info("Entire Runtime and Modeling Environment cleaned up.");
-      }
-      finally
-      {
-         flushCaches();
-      }
    }
 
    private void cleanupDeployments(Session session)

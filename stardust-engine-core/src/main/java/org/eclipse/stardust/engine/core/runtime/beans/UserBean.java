@@ -878,6 +878,12 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
    {
       String trimmed_account = StringUtils.cutString(account, account_COLUMN_LENGTH);
 
+      // ignore case for "motu"
+      if (PredefinedConstants.MOTU.equalsIgnoreCase(trimmed_account))
+      {
+         trimmed_account = PredefinedConstants.MOTU;
+      }
+
       if (SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).exists(UserBean.class,
             QueryExtension.where(Predicates.andTerm(//
                   Predicates.isEqual(FR__REALM, realm.getOID()),//

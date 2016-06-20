@@ -141,7 +141,7 @@ public class Authorization2
             }
             break;
          case model:
-            List<IModel> models = ModelManagerFactory.getCurrent().findActiveModels();
+            List<IModel> models = ModelManagerFactory.getCurrent().findLastDeployedModels();
             if (models.isEmpty())
             {
                if ( !SecurityProperties.isInternalAuthorization()

@@ -3,7 +3,7 @@ package org.eclipse.stardust.test.daemon;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.daemon.DaemonConstants.*;
 
-import java.io.*;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -11,18 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
-
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
-import org.eclipse.stardust.engine.api.runtime.*;
-import org.eclipse.stardust.engine.business_calendar.daemon.ScheduledCalendar;
-import org.eclipse.stardust.engine.business_calendar.daemon.ScheduledCalendarFinder;
-import org.eclipse.stardust.engine.core.runtime.scheduling.SchedulingUtils;
-import org.eclipse.stardust.test.api.setup.TestClassSetup;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
-import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
-import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
 import org.junit.*;
 import org.junit.rules.RuleChain;
@@ -32,6 +20,21 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.config.GlobalParameters;
+import org.eclipse.stardust.common.config.TimestampProvider;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
+import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.business_calendar.daemon.ScheduledCalendar;
+import org.eclipse.stardust.engine.business_calendar.daemon.ScheduledCalendarFinder;
+import org.eclipse.stardust.engine.core.runtime.scheduling.SchedulingUtils;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
+import org.eclipse.stardust.test.api.setup.TestClassSetup;
+import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
+import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
 /**
  * <p>
@@ -55,11 +58,22 @@ public class ScheduledCalendarsTest
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(sf);
    
+   private final TimestampProvider testTimestampProvider = new WeekdayTimestampProvider();
+   
    @Before
    public void setup()
    {
+      GlobalParameters.globals().set(TimestampProviderUtils.PROP_TIMESTAMP_PROVIDER_CACHED_INSTANCE,
+            testTimestampProvider);
+      
       DocumentManagementService dms = sf.getDocumentManagementService();
-      cleanDMS(dms);      
+      cleanDMS(dms);
+   }
+
+   @After
+   public void tearDown()
+   {
+      GlobalParameters.globals().set(TimestampProviderUtils.PROP_TIMESTAMP_PROVIDER_CACHED_INSTANCE, null);
    }
 
    private void cleanDMS(DocumentManagementService dms)
@@ -291,7 +305,7 @@ public class ScheduledCalendarsTest
       
    private List<ScheduledCalendar> checkCalendars(int expected)
    {
-      ScheduledCalendarFinder finder = new ScheduledCalendarFinder(new Date(), sf.getDocumentManagementService())
+      ScheduledCalendarFinder finder = new ScheduledCalendarFinder(testTimestampProvider.getTimestamp(), sf.getDocumentManagementService())
       {
          @Override
          protected ScheduledCalendar createScheduledDocument(JsonObject documentJson,
@@ -399,15 +413,16 @@ public class ScheduledCalendarsTest
    
    private Calendar getAlignedCalendar() throws InterruptedException
    {
-      Date date = new Date();
+      /*Date date = testTimestampProvider.getTimestamp();
       @SuppressWarnings("deprecation")
       int secs = date.getSeconds();
       if (secs > 30)
       {
          System.out.println("Sleeping: " + (62 - secs));
          Thread.sleep(62 - secs);
-      }
+      }*/
       Calendar cal = Calendar.getInstance();
+      cal.setTime(testTimestampProvider.getTimestamp());
       cal.add(Calendar.DAY_OF_YEAR, -1);
       return cal;
    }
@@ -520,5 +535,27 @@ public class ScheduledCalendarsTest
          this.name = name;
          this.value = value;
       }
+   }
+   
+   private static class WeekdayTimestampProvider implements TimestampProvider
+   {
+      private final Calendar cal;
+      
+      protected WeekdayTimestampProvider()
+      {
+         cal = Calendar.getInstance();
+         int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+         if(dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY)
+         {
+            cal.add(Calendar.DAY_OF_WEEK, -2);
+         }
+      }
+      
+      @Override
+      public Date getTimestamp()
+      {
+         return cal.getTime();
+      }
+      
    }
 }

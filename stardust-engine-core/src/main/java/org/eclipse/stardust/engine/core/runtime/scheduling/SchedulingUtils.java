@@ -17,13 +17,6 @@ public class SchedulingUtils
 {
    private static final Logger trace = LogManager.getLogger(SchedulingRecurrence.class);
 
-   public static DateFormat SERVER_DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss:SSS", Locale.ENGLISH);
-   public static DateFormat INPUT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd hh:mm aa", Locale.ENGLISH);
-   public static DateFormat INPUT_DATE_FORMAT_EXT = new SimpleDateFormat("yyyy-MM-dd hh:mm aa Z", Locale.ENGLISH);
-   public static DateFormat CLIENT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-   public static DateFormat YEAR_DATE_FORMAT = new SimpleDateFormat("yyyy", Locale.ENGLISH);
-   public static DateFormat TIME_FORMAT = new SimpleDateFormat("hh:mm aa", Locale.ENGLISH);
-
    public enum RecurrencePattern
    {
       none, daily, weekly, monthly, yearly
@@ -69,8 +62,8 @@ public class SchedulingUtils
     * This function has dummy implementation , more meaningful implementation would be
     * provided by the usage of daemon/engine.
     *
-    * @param selectedExecutionTime
-    * @return
+    * @param slot Time slot selector, slot 1 means 12:00 AM, slot 2 12:30 AM etc until slot 48 that points to 11:30 PM
+    * @return time representative of a given slot
     */
    public static String getExecutionTime(int slot)
    {
@@ -123,5 +116,35 @@ public class SchedulingUtils
       JsonElement property = json.get(propertyName);
       return (property == null || property.isJsonNull() || !property.isJsonPrimitive())
             ? null : property.getAsString();
+   }
+   
+   public static DateFormat getServerDateFormat()
+   {
+      return new SimpleDateFormat("yyyy/MM/dd hh:mm:ss:SSS", Locale.ENGLISH);
+   }
+
+   public static DateFormat getInputDateFormat()
+   {
+      return new SimpleDateFormat("yyyy-MM-dd hh:mm aa", Locale.ENGLISH);
+   }
+
+   public static DateFormat getInputDateFormatExt()
+   {
+      return new SimpleDateFormat("yyyy-MM-dd hh:mm aa Z", Locale.ENGLISH);
+   }
+
+   public static DateFormat getClientDateFormat()
+   {
+      return new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+   }
+
+   public static DateFormat getYearDateFormat()
+   {
+      return new SimpleDateFormat("yyyy", Locale.ENGLISH);
+   }
+
+   public static DateFormat getTimeDateFormat()
+   {
+      return new SimpleDateFormat("hh:mm aa", Locale.ENGLISH);
    }
 }

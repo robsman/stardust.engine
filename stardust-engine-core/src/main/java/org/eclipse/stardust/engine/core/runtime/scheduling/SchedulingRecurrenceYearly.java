@@ -33,7 +33,7 @@ public class SchedulingRecurrenceYearly extends SchedulingRecurrence
                        yearlyRecurrenceOptions.get("onTheXDay").getAsInt()))
                  .append(' ');
       }
-      cronExpr.append(SchedulingUtils.YEAR_DATE_FORMAT.format(getStartDate()))
+      cronExpr.append(SchedulingUtils.getYearDateFormat().format(getStartDate()))
               .append('/')
               .append(recurrenceYearIntervalCount);
 

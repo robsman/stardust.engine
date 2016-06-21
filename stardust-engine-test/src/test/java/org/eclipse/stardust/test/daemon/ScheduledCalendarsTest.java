@@ -346,7 +346,7 @@ public class ScheduledCalendarsTest
                                     property("processDefinitionId", processId))),                        
                               property("scheduling", json(
                                     property("active", Boolean.TRUE),
-                                    property("executionTime", SchedulingUtils.TIME_FORMAT.format(date)),
+                                    property("executionTime", SchedulingUtils.getTimeDateFormat().format(date)),
                                     property("recurrenceInterval", "daily"),
                                     property("dailyRecurrenceOptions", json(
                                           property("daysRecurrence", "weekdays"))),
@@ -369,7 +369,7 @@ public class ScheduledCalendarsTest
                               property("type", "timeOff"),
                               property("scheduling", json(
                                     property("active", Boolean.TRUE),
-                                    property("executionTime", SchedulingUtils.TIME_FORMAT.format(date)),                              
+                                    property("executionTime", SchedulingUtils.getTimeDateFormat().format(date)),                              
                                     property("recurrenceInterval", "daily"),
                                     property("dailyRecurrenceOptions", json(
                                           property("daysRecurrence", "weekdays"))),

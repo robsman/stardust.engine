@@ -176,4 +176,9 @@ public class Log4jLogMessageBarrier extends WriterAppender
    {
       this.active = false;
    }
+   
+   public List<String> getLogMessages()
+   {
+      return logMessages;
+   }
 }

@@ -151,10 +151,10 @@ public class RouteHelper
                   if (logger.isDebugEnabled())
                      logger.debug("Bean <" + elt.getAttribute("id").getValue()
                            + "> is already defined in the spring context");
-
+                  ((BeanDefinitionRegistry)applicationcontext.getBeanFactory()).removeBeanDefinition(elt.getAttribute("id").getValue());
                }
-               else
-               {
+//               else
+//               {
                   XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
                   String xmlRepresentation = outputter.outputString(elt);
                   StringBuilder generatedXmlRepresentation = new StringBuilder();
@@ -174,7 +174,7 @@ public class RouteHelper
                   if (logger.isDebugEnabled())
                      logger.debug(res + "beans loaded in the application context.");
                }
-            }
+//            }
          }
       }
 

@@ -10,12 +10,6 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine;
 
-import org.eclipse.stardust.common.BaseTestSuite;
-import org.eclipse.stardust.common.config.ConfigTestSuite;
-import org.eclipse.stardust.common.config.extensions.ExtensionsTestSuite;
-import org.eclipse.stardust.common.criticality.CriticalityTestSuite;
-import org.eclipse.stardust.common.reflect.ReflectTestSuite;
-import org.eclipse.stardust.common.utils.xml.XmlUtilsTestSuite;
 import org.eclipse.stardust.engine.api.query.QueryTestSuite;
 import org.eclipse.stardust.engine.api.runtime.EngineSetupTestSuite;
 import org.eclipse.stardust.engine.core.compatibility.el.ElTestSuite;
@@ -27,23 +21,20 @@ import org.eclipse.stardust.engine.core.struct.StructuredDataTestSuite;
 import org.eclipse.stardust.engine.core.struct.sxml.SxmlTestSuite;
 import org.eclipse.stardust.engine.core.upgrade.UpgradeTestSuite;
 import org.eclipse.stardust.engine.extensions.mail.utils.MailValidationUtilsTest;
+import org.eclipse.stardust.engine.extensions.xml.XmlUtilsTestSuite;
+
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses( {  BaseTestSuite.class,
-                  ConfigTestSuite.class,
-                  CriticalityTestSuite.class,
-                  EngineSetupTestSuite.class,
-                  ExtensionsTestSuite.class,
+@SuiteClasses( {  EngineSetupTestSuite.class,
                   XmlUtilsTestSuite.class,
                   SxmlTestSuite.class,
                   StructuredDataTestSuite.class,
                   QueryTestSuite.class,
                   MailValidationUtilsTest.class,
                   PreferencesTestSuite.class,
-                  ReflectTestSuite.class,
                   SpiTestSuite.class,
                   TransientProcessInstanceTestSuite.class,
                   UpgradeTestSuite.class,

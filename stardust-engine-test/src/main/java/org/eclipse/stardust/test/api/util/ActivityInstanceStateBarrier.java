@@ -170,7 +170,7 @@ public class ActivityInstanceStateBarrier
     * </p>
     *
     * @param piOid the OID of the process instance enclosing the activity instance to wait for
-    * @param activityID the ID of the activity to wait for
+    * @param activityId the ID of the activity to wait for
     *
     * @throws IllegalStateException if one tries to wait for more than one condition at a time
     * @throws TimeoutException if the condition is still not met, but the timeout has exceeded
@@ -203,8 +203,8 @@ public class ActivityInstanceStateBarrier
     * </p>
     *
     * <p>
-    * Needs to be synchronized since it modifies the fields {@link #ais}, {@link aiStateCondition},
-    * {@link aiAliveCondition}, and {@link #aiForIdCondition} which are accessed concurrently.
+    * Needs to be synchronized since it modifies the fields {@link #ais}, {@link #aiStateCondition},
+    * {@link #aiAliveCondition}, and {@link #aiForIdCondition} which are accessed concurrently.
     * </p>
     */
    public synchronized void cleanUp()

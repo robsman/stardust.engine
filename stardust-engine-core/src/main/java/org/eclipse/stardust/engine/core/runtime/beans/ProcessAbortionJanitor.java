@@ -74,6 +74,11 @@ public class ProcessAbortionJanitor extends ProcessHierarchyStateChangeJanitor
       {
          pi.lock();
 
+         if (trace.isDebugEnabled())
+         {
+            trace.debug("Abort process instance " + pi.getOID());
+         }
+         
          pi.setTerminationTime(TimestampProviderUtils.getTimeStamp());
          pi.setState(ProcessInstanceState.ABORTED);
          pi.addAbortingUserOid(executingUserOid);
@@ -87,6 +92,12 @@ public class ProcessAbortionJanitor extends ProcessHierarchyStateChangeJanitor
             if (!activityInstance.isTerminated())
             {
                activityInstance.lock();
+               
+               if (trace.isDebugEnabled())
+               {
+                  trace.debug("Abort activity instance " + activityInstance.getOID()
+                        + " because process instance " + pi.getOID() + " was aborted.");
+               }
 
                activityInstance.setState(ActivityInstanceState.ABORTED, executingUserOid);
                activityInstance.removeFromWorklists();

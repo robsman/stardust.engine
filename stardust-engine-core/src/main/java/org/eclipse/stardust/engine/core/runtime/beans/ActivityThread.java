@@ -266,6 +266,12 @@ public class ActivityThread implements Runnable
          }
          else
          {
+            if(trace.isDebugEnabled() && activityInstance.isAborting())
+            {
+               trace.debug("Activity instance " + activityInstance.getOID() +
+                     " from process instance " + processInstance.getOID() +
+                     " cannot proceed because it is in an aborting PI hierarchy");
+            }
             error = BpmRuntimeError.BPMRT_CANNOT_RUN_AI_INVALID_PI_STATE
                   .raise(activityInstance.getOID(), processInstance.getOID());
          }

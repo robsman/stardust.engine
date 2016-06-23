@@ -80,7 +80,11 @@ public class ErrorEventTest
 
       // error event was thrown
       aiStateChangeBarrier.awaitForId(failingProcess.getOID(), "ThrowError");
-      ActivityInstance throwErrorAi = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState("FailingProcess", "ThrowError", new ActivityInstanceState[] { ActivityInstanceState.Aborting, ActivityInstanceState.Aborted}));
+      ActivityInstance throwErrorAi = sf.getQueryService().findFirstActivityInstance(
+            ActivityInstanceQuery.findInState("FailingProcess", "ThrowError", 
+                  new ActivityInstanceState[] { 
+                        ActivityInstanceState.Aborting,
+                        ActivityInstanceState.Aborted}));
       assertThat(throwErrorAi, notNullValue());
 
       // await error was received

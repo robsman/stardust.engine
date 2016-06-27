@@ -35,7 +35,7 @@ public class CodeGen
    private static final String TAG_SEE = "see";
    private static final String TAG_THROWS = "throws";
 
-   private static final String TAB = "    ";
+   private static final String TAB = "   ";
 
    private static final String TUNNELING_PREFIX = "Tunneling";
 
@@ -50,8 +50,8 @@ public class CodeGen
 
       createMethod.append(TAB).append("public void ejbCreate() throws javax.ejb.CreateException\n");
       createMethod.append(TAB).append("{\n");
-      createMethod.append("      super.init(").append(longServiceName + ".class,\n");
-      createMethod.append("            ").append(packageName.replace(".api.", ".core.")).append(".beans.").
+      createMethod.append(TAB).append("   super.init(").append(longServiceName + ".class,\n");
+      createMethod.append(TAB).append("      ").append(packageName.replace(".api.", ".core.")).append(".beans.").
          append(javaSourceName).append("Impl.class);\n");
       createMethod.append(TAB).append("}");
 
@@ -204,6 +204,12 @@ public class CodeGen
       String newClassName = splitToLastWord('.',longServiceName);
 
       result.append("package ").append(packageName).append(";\n\n");
+      
+      /*if(imports == null)
+      {
+         imports = src.getImports();
+      }*/
+      
       if (imports != null && imports.length > 0)
       {
          for (int i = 0; i < imports.length; i++)
@@ -466,7 +472,7 @@ public class CodeGen
          StringBuffer result = new StringBuffer(getJavaDocMethodString(method,
                longServiceName, exceptions, importList, longNameList));
 
-         result = result.append(splitLongLines(getMethodString(method), -1, 9, 0));
+         result = result.append(splitLongLines(getMethodString(method), -1, TAB.length() * 3, 0));
 
          result.append("\n").append(TAB).append("{\n");
 
@@ -488,7 +494,7 @@ public class CodeGen
             }
 
             addString.append("__invocationContextBackup = initInvocationContext(__tunneledContext);");
-            result.append(splitLongLines(addString.toString(), -1, 9, 0)).
+            result.append(splitLongLines(addString.toString(), -1, TAB.length() * 3, 0)).
             append("\n");
 
             addString = new StringBuffer();
@@ -516,7 +522,7 @@ public class CodeGen
 
          addString.append(");");
 
-         result.append(splitLongLines(addString.toString(), -1, 9, 3)).
+         result.append(splitLongLines(addString.toString(), -1, TAB.length() * 3, TAB.length())).
          append("\n");
 
          result.append("      }\n");
@@ -560,7 +566,7 @@ public class CodeGen
          StringBuffer addString = new StringBuffer(getMethodString(method));
          addString.append(", ");
          addString.append("java.rmi.RemoteException;\n");
-         result.append(splitLongLines(addString.toString(), -1, 9, 0));
+         result.append(splitLongLines(addString.toString(), -1, TAB.length() * 3, 0));
          return result;
       }
    }
@@ -580,7 +586,7 @@ public class CodeGen
                longServiceName, exceptions, importList, longNameList));
          StringBuffer addString = new StringBuffer(getMethodString(method));
          addString.append(";\n");
-         result.append(splitLongLines(addString.toString(), -1, 9, 0));
+         result.append(splitLongLines(addString.toString(), -1, TAB.length() * 3, 0));
          return result;
       }
    }
@@ -656,7 +662,7 @@ public class CodeGen
       String comment = method.getComment();
       if (comment != null)
       {
-         String newComment = splitLongLines(comment, 5, 4, 0);
+         String newComment = splitLongLines(comment, TAB.length() + 1, TAB.length(), 0);
          docString.append(TAB).append(" * " + newComment + "\n").append(TAB).append(" *\n");
       }
       boolean needsDefaultThrowsFragment = true;
@@ -706,7 +712,7 @@ public class CodeGen
             tagValue = StringUtils.replace(tagValue, tagParameter, throwTag);
 
             docString.append(TAB).append(" * @throws ");
-            docString.append(splitLongLines(tagValue, 5, 4, 4));
+            docString.append(splitLongLines(tagValue, TAB.length() + 1, TAB.length(), TAB.length()));
             docString.append("\n").append(TAB).append(" *     ");
             tagValue = "<em>Instances of {@link " + throwTag
                   + "} will be wrapped inside "
@@ -739,7 +745,7 @@ public class CodeGen
             docString.append(TAB).append(" * @" + tagName + " ");
          }
 
-         docString.append(splitLongLines(tagValue, 5, 4, 4) + "\n");
+         docString.append(splitLongLines(tagValue, TAB.length() + 1, TAB.length(), TAB.length()) + "\n");
          oldTagName = tagName;
       }
 
@@ -763,7 +769,7 @@ public class CodeGen
       }
       tagComment = longServiceName + "#" + method.getName()
          + getParameterNameList(method);
-      docString.append(TAB).append(" * @see " + splitLongLines(tagComment, 5, 4, 4));
+      docString.append(TAB).append(" * @see " + splitLongLines(tagComment, TAB.length() + 1, TAB.length(), TAB.length()));
       docString.append("\n").append(TAB).append(" */\n");
 
       return docString.toString();
@@ -866,7 +872,14 @@ public class CodeGen
       }
       else
       {
-         addString = line.substring(newLineLength + 1, line.length());
+         if((newLineLength + 1) <= line.length())
+         {
+            addString = line.substring(newLineLength + 1, line.length());
+         }
+         else
+         {
+            addString = "";
+         }
       }
       if ((addString.length() + tabStartLength) > 90)
       {

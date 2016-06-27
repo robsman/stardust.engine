@@ -142,7 +142,7 @@ public class PermissionHelper
     * 
     * @param service an instance of a <code>Service</code> from which permissions can be fetched.
     * @param permissionId the permission to be checked, i.e. <code>processDefinition.readProcessInstanceData</code>.
-    * @param activity the <code>ProcessDefinition</code> on which the permission is defined.
+    * @param process the <code>ProcessDefinition</code> on which the permission is defined.
     * @return <code>true</code> if the user has the permission granted.
     */
    public boolean hasPermission(Service service, String permissionId, ProcessDefinition process)
@@ -156,7 +156,7 @@ public class PermissionHelper
     * 
     * @param service an instance of a <code>Service</code> from which permissions can be fetched.
     * @param permissionId the permission to be checked, i.e. <code>model.readModelData</code>.
-    * @param activity the <code>DeployedModelDescription</code> on which the permission is defined.
+    * @param model the <code>DeployedModelDescription</code> on which the permission is defined.
     * @return <code>true</code> if the user has the permission granted.
     */
    public boolean hasPermission(Service service, String permissionId, DeployedModelDescription model)

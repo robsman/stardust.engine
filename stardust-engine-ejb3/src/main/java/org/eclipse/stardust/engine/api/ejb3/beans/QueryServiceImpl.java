@@ -8,8 +8,11 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
 /**
- * to set {@link SessionProperties.DS_NAME_READ_ONLY}
- * used in {@link DataValueBean}
+ * to set {@link
+ * org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties#DS_NAME_READ_ONLY
+ * SessionProperties.DS_NAME_READ_ONLY}
+ * used in {@link org.eclipse.stardust.engine.core.runtime.beans.DataValueBean
+ * DataValueBean}
  *
  */
 @Stateless

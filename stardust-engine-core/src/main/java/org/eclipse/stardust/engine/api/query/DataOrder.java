@@ -109,8 +109,8 @@ public final class DataOrder extends AbstractSingleOrderCriterion
    }
 
    /**
-    * Returns
-    * @return
+    * Returns the name of the data attribute
+    * @return the name of the data attribute or <code>null</code> if no name was set
     */
    public String getAttributeName()
    {
@@ -119,7 +119,7 @@ public final class DataOrder extends AbstractSingleOrderCriterion
 
    /**
     * Returns the name of the data attribute or an empty string if the name is null.
-    * @return
+    * @return the name of the data attribute or an empty string if the name is null
     */
    public String getNormalizedAttributeName()
    {

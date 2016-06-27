@@ -79,7 +79,7 @@ public class ParticipantAssociationFilter implements FilterCriterion
     *
     * @param participantID The ID of the model participant to filter for.
     * 
-    * @deprecated Superseded by {@link #forParticipant(ParticipantInfo)
+    * @deprecated Superseded by {@link #forParticipant(ParticipantInfo)}
     */
    public static ParticipantAssociationFilter forModelParticipant(String participantID)
    {
@@ -92,7 +92,7 @@ public class ParticipantAssociationFilter implements FilterCriterion
     * 
     * @param participantID The ID of the model participant to filter for.
     * 
-    * @deprecated Superseded by {@link #forParticipant(ParticipantInfo, boolean)
+    * @deprecated Superseded by {@link #forParticipant(ParticipantInfo, boolean)}
     */
    public static ParticipantAssociationFilter forModelParticipant(String participantID,
          boolean recursively)
@@ -106,7 +106,7 @@ public class ParticipantAssociationFilter implements FilterCriterion
     *
     * @param groupID The ID of the user group to filter for.
     * 
-    * @deprecated Superseded by {@link #forParticipant(ParticipantInfo)
+    * @deprecated Superseded by {@link #forParticipant(ParticipantInfo)}
     */
    public static ParticipantAssociationFilter inUserGroup(String groupID)
    {
@@ -128,7 +128,7 @@ public class ParticipantAssociationFilter implements FilterCriterion
    /**
     * Constructs a filter criterion matching the team leader role identified by the given id.
     *
-    * @param account The account of the user to filter for.
+    * @param roleId The id of the team leader role to filter for.
     * 
     * @deprecated Superseded by {@link #forTeamLeader(RoleInfo)}
     */

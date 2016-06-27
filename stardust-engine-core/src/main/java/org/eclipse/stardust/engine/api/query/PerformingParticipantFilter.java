@@ -20,8 +20,8 @@ import org.eclipse.stardust.engine.api.dto.ModelParticipantInfoDetails;
 import org.eclipse.stardust.engine.api.dto.UserGroupInfoDetails;
 import org.eclipse.stardust.engine.api.model.IParticipant;
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
+import org.eclipse.stardust.engine.api.model.Participant;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.UserGroupInfo;
 
 
@@ -84,7 +84,7 @@ public class PerformingParticipantFilter implements FilterCriterion
    private final Set<IParticipant> contributors;
 
    /**
-    * @deprecated Superseded by {@link #forModelParticipant(ParticipantInfo)}
+    * @deprecated Superseded by {@link #forParticipant(ParticipantInfo)}
     */
    public static PerformingParticipantFilter forModelParticipant(String participantID)
    {
@@ -92,7 +92,7 @@ public class PerformingParticipantFilter implements FilterCriterion
    }
 
    /**
-    * @deprecated Superseded by {@link #forModelParticipant(ParticipantInfo, boolean)}
+    * @deprecated Superseded by {@link #forParticipant(ParticipantInfo, boolean)}
     */
    public static PerformingParticipantFilter forModelParticipant(String participantID,
          boolean recursively)
@@ -102,7 +102,7 @@ public class PerformingParticipantFilter implements FilterCriterion
    }
    
    /**
-    * @deprecated Superseded by {@link #forModelParticipant(ParticipantInfo)}
+    * @deprecated Superseded by {@link #forParticipant(ParticipantInfo)}
     */
    public static PerformingParticipantFilter forUserGroup(String groupID)
    {

@@ -17,10 +17,10 @@ public interface NoteCapable
    /**
     * Adds the Note.
     *
+    * @param note
+    * 
     * @throws org.eclipse.stardust.common.error.InvalidArgumentException
     *            if the id of the Note already exists.
-    *
-    * @param highlight
     */
    void addNote(Note note);
 
@@ -33,25 +33,25 @@ public interface NoteCapable
    /**
     * Replaces the stored notes with the given set. <br>
     *
+    * @param notes
+    * 
     * @throws org.eclipse.stardust.common.error.InvalidArgumentException
     *            if the given set contains more than one element with the same
     *            Identifiable#id.<br>
-    *
-    * @param notes
     */
    void setNotes(Set<Note> notes);
 
    /**
     * Adds the given set of notes to the stored ones.<br>
     *
+    * @param notes
+    * 
     * @throws org.eclipse.stardust.common.error.InvalidArgumentException
     *            if the given set contains more than one element with the same
     *            Identifiable#id.<br>
     * @throws org.eclipse.stardust.common.error.InvalidArgumentException
     *            if the given set contains at least one note with the same Identifiable#id
     *            as a stored note.
-    *
-    * @param notes
     */
    void addAllNotes(Set<Note> notes);
 

@@ -26,13 +26,13 @@ public interface DataValidator
    /**
     * Performs static Data validation. An implementation is expected to
     * inspect the given attributes and indicate any
-    * problems with an appropriate {@link org.eclipse.stardust.engine.api.model.Inconsistency}.
+    * problems with an appropriate {@link
+    * org.eclipse.stardust.engine.api.model.Inconsistency Inconsistency}.
     *
     * @param attributes Implementation specific data attributes.
     *
-    * @return The list of found {@link org.eclipse.stardust.engine.api.model.Inconsistency} instances.
-    *
-    * @see org.eclipse.stardust.engine.core.compatibility.spi.model.gui.DataPropertiesPanel#getAttributes
+    * @return The list of found {@link org.eclipse.stardust.engine.api.model.Inconsistency
+    *          Inconsistency} instances.
     */
    List validate(Map attributes);
 
@@ -45,8 +45,8 @@ public interface DataValidator
     * @param path
     *           the implementation specific access path.
     * @param direction
-    *           the data flow direction, either {@link Direction#In}if a LHS bridge is
-    *           requested or {@link Direction#Out}if a RHS bridge is requested
+    *           the data flow direction, either {@link Direction#IN}if a LHS bridge is
+    *           requested or {@link Direction#OUT}if a RHS bridge is requested
     * 
     * @return the corresponding bridge object.
     */

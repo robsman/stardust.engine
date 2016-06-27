@@ -35,7 +35,7 @@ public class UnsupportedFilterException extends PublicException
    /**
     * Creates the exception with the provided message.
     *
-    * @param message the exception message.
+    * @param errorCase the specific {@link ErrorCase} for this exception
     */
    public UnsupportedFilterException(ErrorCase errorCase)
    {
@@ -56,7 +56,7 @@ public class UnsupportedFilterException extends PublicException
    /**
     * Creates the exception with the provided message and invalid filter criterion.
     *
-    * @param message the exception message.
+    * @param errorCase the specific {@link ErrorCase} for this exception
     * @param filter the unsupported filter criterion
     */
    public UnsupportedFilterException(ErrorCase errorCase, FilterCriterion filter)

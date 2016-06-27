@@ -35,7 +35,7 @@ public interface ProcessInterface extends Serializable
     * This list may be empty (but never null) if the process interface does not define formal parameters.
     *
     * @return List of defined formal parameters.
-    * @see FormalParameterType
+    * @see FormalParameter
     */
    List<FormalParameter> getFormalParameters();
 }

@@ -45,15 +45,11 @@ public interface RuntimeEnvironmentInfo extends Serializable
    
    /**
     * The UUID of the AuditTrail.
-    * 
-    * @return
     */
    public String getAuditTrailUUID();
    
    /**
     * The name of the AuditTrail.
-    * 
-    * @return
     */
    public String getAuditTrailName();
          

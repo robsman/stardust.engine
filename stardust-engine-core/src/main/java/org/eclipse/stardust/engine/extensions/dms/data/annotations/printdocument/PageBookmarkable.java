@@ -18,10 +18,10 @@ public interface PageBookmarkable
    /**
     * Adds the Bookmark.
     *
+    * @param bookmark
+    * 
     * @throws org.eclipse.stardust.common.error.InvalidArgumentException
     *            if the id of the Bookmark already exists.
-    *
-    * @param highlight
     */
    void addBookmark(PageBookmark bookmark);
 
@@ -40,25 +40,25 @@ public interface PageBookmarkable
    /**
     * Replaces the stored bookmarks with the given set.<br>
     *
+    * @param bookmarks
+    * 
     * @throws org.eclipse.stardust.common.error.InvalidArgumentException
     *            if the given set contains more than one element with the same
     *            Identifiable#id.
-    *
-    * @param bookmarks
     */
    void setBookmarks(Set<PageBookmark> bookmarks);
 
    /**
     * Adds the given set of bookmarks to the stored ones.<br>
     *
+    * @param bookmarks
+    * 
     * @throws org.eclipse.stardust.common.error.InvalidArgumentException
     *            if the given set contains more than one element with the same
     *            Identifiable#id.<br>
     * @throws org.eclipse.stardust.common.error.InvalidArgumentException
     *            if the given set contains at least one bookmark with the same
     *            Identifiable#id as a stored bookmark.
-    *
-    * @param bookmarks
     */
    void addAllBookmarks(Set<PageBookmark> bookmarks);
 

@@ -39,7 +39,7 @@ public class ProcessDefinitionFilter implements FilterCriterion
     * <code>processID</code>.
     *
     * @param processID The ID of the process definition to filter for.
-    * @param includingSubProcesses Flag indicating if subprocesses should be included.
+    * @param includingSubprocesses Flag indicating if subprocesses should be included.
     *
     * @see #ProcessDefinitionFilter(String)
     */

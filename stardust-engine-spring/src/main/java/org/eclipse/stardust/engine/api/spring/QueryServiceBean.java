@@ -4,8 +4,11 @@
 package org.eclipse.stardust.engine.api.spring;
 
 /**
- * to set {@link SessionProperties.DS_NAME_READ_ONLY}
- * used in {@link DataValueBean}
+ * to set {@link
+ * org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties#DS_NAME_READ_ONLY
+ * SessionProperties.DS_NAME_READ_ONLY}
+ * used in {@link org.eclipse.stardust.engine.core.runtime.beans.DataValueBean
+ * DataValueBean}
  *
  */
 public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IQueryService

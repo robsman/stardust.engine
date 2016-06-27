@@ -32,12 +32,15 @@ public class CriticalProcessingTimePolicy extends AbstractStoplightDurationPolic
    /**
     * PIs are considered critical if their processing exceeds a certain limit. Limits can be
     * defined per priority.
-    *
-    * @param lowPriorityCriticalPct The percentage of the "target processing time" parameter a process with priority LOW must exceed to be considered critical.
-    * @param normalPriorityCriticalPct The percentage of the "target processing time" parameter a process with priority NORMAL must exceed to be considered critical.
-    * @param highPriorityCriticalPct The percentage of the "target processing time" parameter a process with priority HIGH must exceed to be considered critical.
-    *
-    * @return
+    * 
+    * @param yellowPct
+    *           The percentage of the "target processing time" parameter a process with
+    *           priority LOW must exceed to be considered critical.
+    * @param redPct
+    *           The percentage of the "target processing time" parameter a process with
+    *           priority HIGH must exceed to be considered critical.
+
+    * @return Instance of {@link CriticalProcessingTimePolicy} with the given thresholds
     */
    public static CriticalProcessingTimePolicy criticalityByDuration(float yellowPct,
          float redPct)

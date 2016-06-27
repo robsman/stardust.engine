@@ -165,7 +165,7 @@ public final class DeployedModelQuery extends Query
    /**
     * Creates a query for finding all models used by the specified model.
     *
-    * @param modelId The model oid of the model.
+    * @param modelOid The model oid of the model.
     * @return The configured query.
     */
    public static DeployedModelQuery findUsedBy(long modelOid)
@@ -178,7 +178,7 @@ public final class DeployedModelQuery extends Query
    /**
     * Creates a query for finding all models using the specified model.
     *
-    * @param modelId The model oid of the model.
+    * @param modelOid The model oid of the model.
     * @return The configured query.
     */
    public static DeployedModelQuery findUsing(long modelOid)

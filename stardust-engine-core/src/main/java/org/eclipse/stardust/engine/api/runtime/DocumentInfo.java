@@ -38,18 +38,22 @@ public interface DocumentInfo extends ResourceInfo
    void setContentType(String type);
 
    /**
-    * @return
+    * Returns the meta data structure of a document
+    * 
+    * @return the meta data structure of a document 
     */
    DocumentType getDocumentType();
 
    /**
-    * @param documentType
+    * Sets the meta data structure of a document
+    * 
+    * @param documentType the meta data structure of a document
     */
    void setDocumentType(DocumentType documentType);
 
 
    /**
-    * @return
+    * @return document annotations
     */
    DocumentAnnotations getDocumentAnnotations();
 

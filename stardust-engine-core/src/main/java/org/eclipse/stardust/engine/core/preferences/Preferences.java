@@ -175,7 +175,7 @@ public class Preferences implements Serializable
    /**
     * Returns the userId if valid for the PreferencesScope.
     *
-    * @return
+    * @return Id of the user
     */
    public String getUserId()
    {
@@ -186,7 +186,7 @@ public class Preferences implements Serializable
     * Sets the userId. Only valid in USER PreferencesScope.
     * Changing this value is restricted to administrators.
     *
-    * @param userId
+    * @param userId Id of the user
     */
    public void setUserId(String userId)
    {
@@ -196,7 +196,7 @@ public class Preferences implements Serializable
    /**
     * Holds information for cache synchronization.
     *
-    * @return
+    * @return Preference cache information
     */
    public PreferenceCacheHint getPreferenceCacheHint()
    {

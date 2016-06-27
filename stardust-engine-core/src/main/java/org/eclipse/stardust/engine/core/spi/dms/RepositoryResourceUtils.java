@@ -48,7 +48,7 @@ public class RepositoryResourceUtils
     * <p>
     * <b>Important Note on IDs</b><br>
     * Ensuring a good performance the id of the document should be shorter than 100 Bytes
-    * and a significant identifier that cannot be guessed. The best example is an generated {@link UUID}.
+    * and a significant identifier that cannot be guessed. The best example is an generated {@link java.util.UUID UUID}.
     * <pre>
     * Example: b9a2d44b-2e29-469a-9bfb-4464f86faf38
     * </pre>
@@ -74,7 +74,7 @@ public class RepositoryResourceUtils
     * <p>
     * <b>Important Note on IDs</b><br>
     * Ensuring a good performance the id of the document should be shorter than 100 Bytes
-    * and a significant identifier that cannot be guessed. The best example is an generated {@link UUID}.
+    * and a significant identifier that cannot be guessed. The best example is an generated {@link java.util.UUID UUID}.
     * <pre>
     * Example: b9a2d44b-2e29-469a-9bfb-4464f86faf38
     * </pre>
@@ -87,7 +87,6 @@ public class RepositoryResourceUtils
     * @param encoding The encoding of the content.
     * @param dateCreated The date the document was created
     * @param dateLastModified The date the document was modified last.
-    * @param revisionId The id of this document's version. It can be the same as the document id.
     * @return The new document instance.
     */
    public static Document createDocument(String id, String path, long size, String encoding, Date dateCreated, Date dateLastModified)
@@ -121,7 +120,7 @@ public class RepositoryResourceUtils
     * <p>
     * <b>Important Note on IDs</b><br>
     * Ensuring a good performance the id of the document should be shorter than 100 Bytes
-    * and a significant identifier that cannot be guessed. The best example is an generated {@link UUID}.
+    * and a significant identifier that cannot be guessed. The best example is an generated {@link java.util.UUID UUID}.
     * <pre>
     * Example: b9a2d44b-2e29-469a-9bfb-4464f86faf38
     * </pre>
@@ -172,7 +171,7 @@ public class RepositoryResourceUtils
     * <p>
     * <b>Important Note on IDs</b><br>
     * Ensuring a good performance the id of the folder should be shorter than 100 Bytes
-    * and a significant identifier that cannot be guessed. The best example is an generated {@link UUID}.
+    * and a significant identifier that cannot be guessed. The best example is an generated {@link java.util.UUID UUID}.
     * <pre>
     * Example: b9a2d44b-2e29-469a-9bfb-4464f86faf38
     * </pre>

@@ -39,7 +39,7 @@ public class CriticalCostPerExecutionPolicy extends AbstractStoplightCostPolicy
     *           The percentage of the "target processing time" parameter a process with
     *           priority HIGH must exceed to be considered critical.
     *
-    * @return
+    * @return Instance of {@link CriticalCostPerExecutionPolicy} with the given thresholds
     */
    public static CriticalCostPerExecutionPolicy criticalityByCost(float yellowPct,
          float redPct)

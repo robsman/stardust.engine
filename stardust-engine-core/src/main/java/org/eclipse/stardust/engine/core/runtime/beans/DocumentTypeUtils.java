@@ -264,7 +264,7 @@ public final class DocumentTypeUtils
     * considered invalid.
     *
     * @param documentInfo
-    * @return
+    * @return returns <code>true</code> for valid document types
     */
    public static boolean isValidForDeployment(DocumentInfo documentInfo)
    {
@@ -355,7 +355,7 @@ public final class DocumentTypeUtils
     * For internal use only.
     *
     * @param data
-    * @return
+    * @return document type of the data if it is available
     */
    public static DocumentType inferDocumentType(IData data)
    {
@@ -388,8 +388,8 @@ public final class DocumentTypeUtils
     *
     * @param data
     * @param document
-    * @param documentManagementService
-    * @return
+    * @param dms
+    * @return document type of the data if it is available
     *
     * @throws InvalidValueException if a incompatible document type is set on the document.
     */
@@ -605,7 +605,10 @@ public final class DocumentTypeUtils
          {
             ParametersFacade.popLayer();
          }
-         sf.close();
+         if(sf != null)
+         {
+            sf.close();
+         }
       }
    }
 
@@ -873,7 +876,7 @@ public final class DocumentTypeUtils
     *
     * @param model
     * @param dataList
-    * @return
+    * @return Set of {@link DocumentType DocumentType's} of the data's
     */
    public static Set<DocumentType> getDocumentTypesFromData(Model model,
          List<Data> dataList)
@@ -897,7 +900,7 @@ public final class DocumentTypeUtils
     *
     * @param model
     * @param data
-    * @return
+    * @return {@link DocumentType} of the data
     */
    public static DocumentType getDocumentTypeFromData(Model model, Data data)
    {
@@ -923,7 +926,7 @@ public final class DocumentTypeUtils
     * Document Type ID
     *
     * @param documentTypeId
-    * @return
+    * @return the path for the document type ID
     */
    public static String getUnversionedInfoPath(String documentTypeId)
    {
@@ -936,7 +939,7 @@ public final class DocumentTypeUtils
     *
     * @param documentTypeId
     * @param schemaLocation
-    * @return
+    * @return the path for the document type ID
     */
    public static String getVersionedInfoPath(String documentTypeId, String schemaLocation)
    {
@@ -946,7 +949,7 @@ public final class DocumentTypeUtils
    /**
     * The document name all xsd schemas are stored and retrieved with.
     *
-    * @return
+    * @return The XSD document name 
     */
    public static String getXsdDocumentName()
    {
@@ -955,7 +958,7 @@ public final class DocumentTypeUtils
 
    /**
     * @param schemaLocation
-    * @return
+    * @return path of the schema location and the XSD document in the repository
     */
    public static String getXsdDocumentPath(String schemaLocation)
    {
@@ -964,7 +967,7 @@ public final class DocumentTypeUtils
 
    /**
     * @param schemaLocation
-    * @return
+    * @return path of the schema location in the repository
     */
    public static String getXsdFolderPath(String schemaLocation)
    {

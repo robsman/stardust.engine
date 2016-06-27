@@ -70,7 +70,7 @@ public class ParticipantWorklist extends Worklist
     * Retrieves the owning participant of this worklist.
     * 
     * @return The owning participant, either an
-    *         {@link org.eclipse.stardust.engine.api.model.UserGroupInfo UserGroupInfo} or a
+    *         {@link org.eclipse.stardust.engine.api.runtime.UserGroupInfo UserGroupInfo} or a
     *         {@link org.eclipse.stardust.engine.api.model.OrganizationInfo Organization} or a
     *         {@link org.eclipse.stardust.engine.api.model.RoleInfo Role}. May be <code>null</code>.
     */

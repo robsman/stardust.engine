@@ -36,14 +36,14 @@ public abstract class DynamicParticipantSynchronizationProvider
     * @param account The identity of the external user.
     * @return A (probably snapshot) of the users attributes.
     * 
-    * @see #provideUserConfiguration(String realm, String account)
+    * @see #provideUserConfiguration(String realm, String account, Map properties)
     */
    public abstract ExternalUserConfiguration provideUserConfiguration(String account);
    
    /**
     * wrapper to catch and log possible exceptions.
     * 
-    * {@link provideUserConfiguration(String account)}
+    * {@link #provideUserConfiguration(String account)}
     */      
    public final ExternalUserConfiguration provideUserConfigurationLogAware(String account)
    {

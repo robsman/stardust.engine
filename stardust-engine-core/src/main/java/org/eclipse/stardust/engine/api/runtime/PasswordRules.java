@@ -29,7 +29,8 @@ public interface PasswordRules extends Serializable
     * Set unique password flag.
     * The flag is the super flag if to compare passwords with previous passwords.
     * 
-    * @param true or false
+    * @param uniquePassword 
+    *    <code>true</code> for unique passwords, otherwise <code>false</code>
     */
    void setUniquePassword(boolean uniquePassword);
 
@@ -44,7 +45,8 @@ public interface PasswordRules extends Serializable
     * Set force password change flag.
     * The flag is the super flag if passwords will expire.
     * 
-    * @param true or false
+    * @param forcePasswordChange <code>true</code> to force password changes, 
+    *    otherwise <code>false</code>
     */
    void setForcePasswordChange(boolean forcePasswordChange);
 
@@ -59,7 +61,8 @@ public interface PasswordRules extends Serializable
     * Set strong password flag.
     * The flag is the super flag if to follow password rules.
     * 
-    * @param true or false
+    * @param strongPassword <code>true</code> to force strong passwords that applies
+    *    to a given rule, otherwise <code>false</code>
     */
    void setStrongPassword(boolean strongPassword);
       
@@ -84,7 +87,7 @@ public interface PasswordRules extends Serializable
     * If password tracking is enabled store a number of previous passwords.
     * The new password should not be one of the stored previous passwords. 
     * 
-    * @param days Number of old passwords to store.
+    * @param number Number of old passwords to store.
     */
    void setPasswordTracking(int number);
    
@@ -99,7 +102,7 @@ public interface PasswordRules extends Serializable
    /**
     * Sets the days a new password will be valid.
     * 
-    * @param Number of days.
+    * @param days Number of days.
     */
    void setExpirationTime(int days); 
    
@@ -114,7 +117,7 @@ public interface PasswordRules extends Serializable
    /**
     * Sets the days after the user will be disabled (after password expired).
     * 
-    * @param Number of days (-1 will never disable the user).
+    * @param days Number of days (-1 will never disable the user).
     */
    void setDisableUserTime(int days);
    

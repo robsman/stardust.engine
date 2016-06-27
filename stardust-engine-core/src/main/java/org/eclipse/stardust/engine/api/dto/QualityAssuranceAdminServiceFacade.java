@@ -49,7 +49,7 @@ public class QualityAssuranceAdminServiceFacade
    /**
     * Set the probability set for all user
     * This value will be taken when new user are created.
-    * @param the (default) value for all user - if null , this value
+    * @param probability the (default) value for all user - if null , this value
     * will not be saved
     */
    public void setQualityAssuranceUserDefaultProbability(Integer probability)

@@ -44,8 +44,8 @@ public class BridgeObject
     * @param ap The access point to be dereferenced.
     * @param path The path expression to be used for dereferencing. Path analysis may hint
     *             on the data flow direction of the resulting bridge.
-    * @param direction The data flow direction, either {@link Direction#In}if a LHS bridge
-    *             is requested or {@link Direction#Out}if a RHS bridge is requested.
+    * @param direction The data flow direction, either {@link Direction#IN}if a LHS bridge
+    *             is requested or {@link Direction#OUT}if a RHS bridge is requested.
     *
     * @return The bridge representing the dereference result.
     */
@@ -90,7 +90,7 @@ public class BridgeObject
 
    /**
     * Retrieves the data flow direction of the represented data. May be
-    * {@link Direction#In} for a data sink or {@link Direction#Out} for a data source.
+    * {@link Direction#IN} for a data sink or {@link Direction#OUT} for a data source.
     *
     * @return The data flow direction of this bridge.
     */

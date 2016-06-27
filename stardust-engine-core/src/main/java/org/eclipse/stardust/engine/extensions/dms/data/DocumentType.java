@@ -18,9 +18,9 @@ import org.eclipse.stardust.engine.core.runtime.beans.DocumentTypeUtils;
 
 /**
  * Describes the meta data structure of a document which can be set by using
- * {@link Document#setProperties(java.util.Map) and retrieved by using
+ * {@link Document#setProperties(java.util.Map)} and retrieved by using
  * {@link Document#getProperties()}<br>
- * The prefered way of retrieving DocumentTypes should be by usage of
+ * The preferred way of retrieving DocumentTypes should be by usage of
  * {@link DocumentTypeUtils}
  * 
  */

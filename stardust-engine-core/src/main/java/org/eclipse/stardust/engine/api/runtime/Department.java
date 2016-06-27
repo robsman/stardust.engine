@@ -104,7 +104,7 @@ public interface Department extends DepartmentInfo
    /**
     * Creates a client side model participant bound to this department.
     * 
-    * @param The participant.
+    * @param participant The participant.
     * @return The bound participant info.
     * @throws InvalidArgumentException if the organization is not directly
     *         or indirectly part of the organization to which the department

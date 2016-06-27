@@ -27,7 +27,7 @@ public interface AccessPoint extends AttributeHolder, Typeable
 {
    /**
     * Gets the data flow direction of this access point, may be either
-    * {@link Direction#In}, {@link Direction#Out} or {@link Direction#InOut}.
+    * {@link Direction#IN}, {@link Direction#OUT} or {@link Direction#IN_OUT}.
     *
     * @return The data flow direction.
     */

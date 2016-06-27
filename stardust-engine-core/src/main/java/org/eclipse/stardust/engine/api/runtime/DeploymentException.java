@@ -35,16 +35,16 @@ public class DeploymentException extends PublicException
     * @param message the error message.
     * @param info the deployment information.
     */
-   public DeploymentException(String message, DeploymentInfo infos)
+   public DeploymentException(String message, DeploymentInfo info)
    {
-      this(message, Collections.singletonList(infos));
+      this(message, Collections.singletonList(info));
    }
 
    /**
     * Creates a DeploymentException with a message and the corresponding deployment information.
     *
     * @param message the error message.
-    * @param info the deployment information.
+    * @param infos the deployment information.
     */
    public DeploymentException(String message, List<DeploymentInfo> infos)
    {

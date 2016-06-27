@@ -25,8 +25,8 @@ public interface HistoricalEventDescription extends Serializable
     * @param idx Index for historical event description aspect.
     * @return Historical event description aspect.
     * 
-    * @see: HistoricalEventDescriptionDelegation
-    * @see: HistoricalEventDescriptionStateChange
+    * @see org.eclipse.stardust.engine.api.runtime.HistoricalEventDescriptionDelegation
+    * @see org.eclipse.stardust.engine.api.runtime.HistoricalEventDescriptionStateChange
     */
    Serializable getItem(int idx);
 }

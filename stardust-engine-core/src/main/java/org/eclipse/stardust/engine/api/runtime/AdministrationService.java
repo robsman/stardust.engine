@@ -67,7 +67,7 @@ public interface AdministrationService extends Service
    /**
     * Set password rule.
     *
-    * @param The rules or null.
+    * @param rules The rules or null.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail)
    void setPasswordRules(PasswordRules rules);
@@ -88,7 +88,7 @@ public interface AdministrationService extends Service
     *                         of <code>0</code> indicates an absent predecessor.
     *
     * @return deployment information, including possible errors or warnings.
-    * @throws DeploymentException
+    * @throws org.eclipse.stardust.engine.api.runtime.DeploymentException
     * @deprecated since 6.0, predecessorOID is ignored.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.deployProcessModel)
@@ -102,7 +102,7 @@ public interface AdministrationService extends Service
     * @param modelOID   the model to be overwritten.
     *
     * @return deployment information, including possible errors or warnings.
-    * @throws DeploymentException
+    * @throws org.eclipse.stardust.engine.api.runtime.DeploymentException
     * @deprecated since 6.0
     */
    @ExecutionPermission(id=ExecutionPermission.Id.deployProcessModel)
@@ -144,7 +144,7 @@ public interface AdministrationService extends Service
     * @param ignoreWarnings   specifies that the deployment should continue if only warnings were issued.
     *
     * @return deployment information, including possible errors or warnings.
-    * @throws DeploymentException
+    * @throws org.eclipse.stardust.engine.api.runtime.DeploymentException
     * @deprecated since 6.0, configuration, validFrom, validTo and disabled are ignored.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.deployProcessModel)
@@ -160,7 +160,7 @@ public interface AdministrationService extends Service
     * @param modelOID         The modelOID of the model to be overwritten.
     * @param options          The deployment options. Can be null, in which case default deployment options will be used.
     * @return depoymentInfo   Deployment information information, including possible errors or warning
-    * @throws DeploymentException   Exception if the overwrite operation could not be performed.
+    * @throws org.eclipse.stardust.engine.api.runtime.DeploymentException Exception if the overwrite operation could not be performed.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.deployProcessModel)
    DeploymentInfo overwriteModel(DeploymentElement deploymentElement, int modelOID, DeploymentOptions options) throws DeploymentException;
@@ -177,9 +177,9 @@ public interface AdministrationService extends Service
     * @param deploymentElements The models to be deployed. Each model in the set must have a unique ID.
     * @param options            The deployment options. Can be null, in which case default deployment options will be used.
     * @return Deployment information, including possible errors or warnings, one DeploymentInfo per DeploymentElement.
-    * @throws DeploymentException if the deployment operation could not be performed.
-    * @throws InvalidArgumentException if the deploymentElements argument is null.
-    * @throws ConcurrencyException if the multiple transactions trying to deploy models at the same time.
+    * @throws org.eclipse.stardust.engine.api.runtime.DeploymentException if the deployment operation could not be performed.
+    * @throws org.eclipse.stardust.common.error.InvalidArgumentException if the deploymentElements argument is null.
+    * @throws org.eclipse.stardust.common.error.ConcurrencyException if the multiple transactions trying to deploy models at the same time.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.deployProcessModel)
    List<DeploymentInfo> deployModel(List<DeploymentElement> deploymentElements, DeploymentOptions options)
@@ -202,7 +202,7 @@ public interface AdministrationService extends Service
     * @param implementationModelId The ID of the model providing the implementation.
     * @param options The linking comments.
     * @return Deployment information, including possible errors or warnings.
-    * @throws DeploymentException if the linking operation could not be performed.
+    * @throws org.eclipse.stardust.engine.api.runtime.DeploymentException if the linking operation could not be performed.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.deployProcessModel)
    DeploymentInfo setPrimaryImplementation(long interfaceModelOid, String processId, String implementationModelId,
@@ -214,7 +214,7 @@ public interface AdministrationService extends Service
     * @param modelOID the model to be deleted.
     *
     * @return deployment information, including possible errors or warnings.
-    * @throws DeploymentException
+    * @throws org.eclipse.stardust.engine.api.runtime.DeploymentException
     */
    @ExecutionPermission(id=ExecutionPermission.Id.deployProcessModel)
    DeploymentInfo deleteModel(long modelOID)
@@ -229,7 +229,7 @@ public interface AdministrationService extends Service
     *
     * @param piOids A list with OIDs of the root process instance to be deleted.
     *
-    * @throws IllegalOperationException Raised if non-root or non-terminated process
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException Raised if non-root or non-terminated process
     *    instances are to be deleted.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail, changeable=false)
@@ -272,7 +272,7 @@ public interface AdministrationService extends Service
     *
     * @return the process instance that was changed.
     *
-    * @throws ObjectNotFoundException if there is no process instance with the specified oid.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the specified oid.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.modifyProcessInstances,
          scope=ExecutionPermission.Scope.processDefinition)
@@ -288,7 +288,7 @@ public interface AdministrationService extends Service
     *
     * @return the process instance that was changed.
     *
-    * @throws ObjectNotFoundException if there is no process instance with the specified oid.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the specified oid.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.modifyProcessInstances,
          scope=ExecutionPermission.Scope.processDefinition)
@@ -316,8 +316,8 @@ public interface AdministrationService extends Service
     *
     * @return the process instance that was aborted.
     *
-    * @throws ObjectNotFoundException if there is no process instance with the specified oid.
-    * @throws IllegalOperationException if the oid references a case process instance.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the specified oid.
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the oid references a case process instance.
     *
     * @see WorkflowService#abortActivityInstance(long)
     */
@@ -339,7 +339,7 @@ public interface AdministrationService extends Service
     *
     * @return the process instance that was recovered.
     *
-    * @throws ObjectNotFoundException if there is no process instance with the specified oid.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the specified oid.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.runRecovery)
    ProcessInstance recoverProcessInstance(long oid)
@@ -356,7 +356,7 @@ public interface AdministrationService extends Service
     *
     * @param oids the list of OID of the process instance to be recovered.
     *
-    * @throws ObjectNotFoundException if there is no process instance for one of the specified oids.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance for one of the specified oids.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.runRecovery)
    void recoverProcessInstances(List<Long> oids)
@@ -380,7 +380,7 @@ public interface AdministrationService extends Service
     * @param acknowledge whether to acknowledge the daemon information
     * @return daemon information.
     *
-    * @throws ObjectNotFoundException if there is no daemon with the specified type.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no daemon with the specified type.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.manageDaemons)
    Daemon getDaemon(String daemonType, boolean acknowledge)
@@ -401,7 +401,7 @@ public interface AdministrationService extends Service
     * @param acknowledge whether to acknowledge the stop operation.
     * @return daemon information.
     *
-    * @throws ObjectNotFoundException if there is no daemon with the specified type.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no daemon with the specified type.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.manageDaemons)
    Daemon stopDaemon(String daemonType, boolean acknowledge)
@@ -422,7 +422,7 @@ public interface AdministrationService extends Service
     * @param acknowledge whether to acknowledge the start operation
     * @return daemon information.
     *
-    * @throws ObjectNotFoundException if there is no daemon with the specified type.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no daemon with the specified type.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.manageDaemons)
    Daemon startDaemon(String daemonType, boolean acknowledge)
@@ -492,7 +492,7 @@ public interface AdministrationService extends Service
     *
     * @return the {@link ProcessInstance} that was started.
     *
-    * @throws ObjectNotFoundException if there is no process with the specified ID in the
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process with the specified ID in the
     *         specified model or if the model does not exist.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail, changeable=false)
@@ -524,14 +524,14 @@ public interface AdministrationService extends Service
     *
     * @return the completed {@link ActivityInstance}.
     *
-    * @throws ObjectNotFoundException if there is no activity with the specified OID.
-    * @throws ConcurrencyException if the activity instance is exclusively locked by another thread.
-    * @throws IllegalStateChangeException if the activity is already completed or aborted.
-    * @throws InvalidValueException if one of the <code>outData</object> values to
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity with the specified OID.
+    * @throws org.eclipse.stardust.common.error.ConcurrencyException if the activity instance is exclusively locked by another thread.
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException if the activity is already completed or aborted.
+    * @throws org.eclipse.stardust.common.error.InvalidValueException if one of the <code>outData</code> values to
     *         be written is invalid, most probably as of a type conflict in case of
     *         statically typed data.
-    * @throws AccessForbiddenException if the current user is not an administrator.
-    * @throws IllegalOperationException if the activity instance is interactive.
+    * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not an administrator.
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the activity instance is interactive.
     *
     * @see #forceSuspendToDefaultPerformer(long)
     */
@@ -565,12 +565,12 @@ public interface AdministrationService extends Service
     *
     * @return the {@link ActivityInstance} that was suspended.
     *
-    * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
-    * @throws ConcurrencyException if the activity instance is exclusively locked by another thread.
-    * @throws IllegalStateChangeException if the activity is already completed or aborted.
-    * @throws AccessForbiddenException if the current user does not have the required privilege.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the specified OID.
+    * @throws org.eclipse.stardust.common.error.ConcurrencyException if the activity instance is exclusively locked by another thread.
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException if the activity is already completed or aborted.
+    * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user does not have the required privilege.
     *
-    * @see #forceCompletion(long, Map)
+    * @see #forceCompletion(long, java.util.Map)
     */
    @ExecutionPermission(id=ExecutionPermission.Id.forceSuspend)
    ActivityInstance forceSuspendToDefaultPerformer(long activityInstanceOID)
@@ -628,7 +628,7 @@ public interface AdministrationService extends Service
     * @param message any message that should be logged
     * @param throwable any exception (or null) that should be appended to the message
     *
-    * @exception ObjectNotFoundException if there is no runtime object with the specified OID
+    * @exception org.eclipse.stardust.common.error.ObjectNotFoundException if there is no runtime object with the specified OID
     */
    @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrailStatistics)
    void writeLogEntry(LogType logType, ContextKind contextType, long contextOid,
@@ -643,18 +643,18 @@ public interface AdministrationService extends Service
     * @param parent the parent scope. Can be null if the department will be a top level department.
     * @param organization the organization to which this department is assigned. Must not be null.
     * @return the created department.
-    * @throws DepartmentExistsException
+    * @throws org.eclipse.stardust.engine.api.runtime.DepartmentExistsException
     *       if a department with the same id already exists in the parent scope.
-    * @throws ObjectNotFoundException
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
     *       if either the parent or the organization could not be resolved.
-    * @throws InvalidArgumentException <br>
+    * @throws org.eclipse.stardust.common.error.InvalidArgumentException <br>
     *       - if either the id or the name is null or an empty string or<br>
     *       - if the organization is null or<br>
     *       - if the organization does not resolve to an actual organization in the model
     *       (i.e. resolves to a role or conditional performer) or<br>
     *       - if the organization is not directly part of the organization to which
     *         the parent department is assigned (invalid hierarchy).
-    * @throws IllegalOperationException - if the user was external authentified
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException - if the user was external authentified
     */
    @ExecutionPermission(id=ExecutionPermission.Id.modifyDepartments)
    Department createDepartment(String id, String name, String description, DepartmentInfo parent, OrganizationInfo organization)
@@ -665,7 +665,7 @@ public interface AdministrationService extends Service
     *
     * @param oid the unique identifier of the department.
     * @return the modified department.
-    * @throws ObjectNotFoundException
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
     *       if there is no department with the specified oid.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.readDepartments,
@@ -679,11 +679,11 @@ public interface AdministrationService extends Service
     * @param name the new name of the department.
     * @param description the new description.
     * @return the modified department.
-    * @throws ObjectNotFoundException
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
     *       if there is no department with the specified oid.
-    * @throws InvalidArgumentException
+    * @throws org.eclipse.stardust.common.error.InvalidArgumentException
     *       if the name is null or an empty string
-    * @throws IllegalOperationException - if the user was external authentified
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException - if the user was external authentified
     */
    @ExecutionPermission(id=ExecutionPermission.Id.modifyDepartments)
    Department modifyDepartment(long oid, String name, String description) throws ObjectNotFoundException, InvalidArgumentException, IllegalOperationException;
@@ -692,11 +692,11 @@ public interface AdministrationService extends Service
     * Removes the department having the specified oid, all his children and all user grants associated with the department.
     *
     * @param oid the unique identifier of the department.
-    * @throws ObjectNotFoundException
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
     *       if there is no department with the specified oid.
-    * @throws InvalidArgumentException
+    * @throws org.eclipse.stardust.common.error.InvalidArgumentException
     *       if there are work items currently associated with the department or any child of the department.
-    * @throws IllegalOperationException - if the user was external authentified
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException - if the user was external authentified
     */
    @ExecutionPermission(id = ExecutionPermission.Id.modifyDepartments)
    void removeDepartment(long oid) throws ObjectNotFoundException,
@@ -710,7 +710,7 @@ public interface AdministrationService extends Service
     * @param preferencesId the id of the preferences
     * @return a preferences object.
     *
-    * @throws PublicException if <tt>scope</tt> is null.
+    * @throws org.eclipse.stardust.common.error.PublicException if <tt>scope</tt> is null.
     */
    @ExecutionPermission
    @PublicPermission(evaluator = PreferencesPermissionEvaluator.class, assumptions = {
@@ -722,11 +722,11 @@ public interface AdministrationService extends Service
     *
     * @param preferences an preferences object to be saved.
     *
-    * @throws AccessForbiddenException if the current user does not have the required privilege.
-    * @throws InvalidArgumentException if <tt>preferences</tt> is null.
-    * @throws InvalidArgumentException if preferences property <tt>preferences</tt> is null.
-    * @throws InvalidArgumentException if preferences property <tt>moduleId</tt> is null or empty.
-    * @throws InvalidArgumentException if preferences property <tt>preferencesId</tt> is null or empty.
+    * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user does not have the required privilege.
+    * @throws org.eclipse.stardust.common.error.InvalidArgumentException if <tt>preferences</tt> is null.
+    * @throws org.eclipse.stardust.common.error.InvalidArgumentException if preferences property <tt>preferences</tt> is null.
+    * @throws org.eclipse.stardust.common.error.InvalidArgumentException if preferences property <tt>moduleId</tt> is null or empty.
+    * @throws org.eclipse.stardust.common.error.InvalidArgumentException if preferences property <tt>preferencesId</tt> is null or empty.
     */
    @ExecutionPermission(id = ExecutionPermission.Id.saveOwnUserScopePreferences,
          defaults = {ExecutionPermission.Default.ALL})
@@ -737,10 +737,10 @@ public interface AdministrationService extends Service
     *
     * @param preferences a list of preferences to be saved.
     *
-    * @throws AccessForbiddenException if the current user does not have the required privilege.
-    * @throws InvalidArgumentException if <tt>preferences</tt> is null.
-    * @throws InvalidArgumentException if preferences property <tt>moduleId</tt> is null or empty.
-    * @throws InvalidArgumentException if preferences property <tt>preferencesId</tt> is null or empty.
+    * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user does not have the required privilege.
+    * @throws org.eclipse.stardust.common.error.InvalidArgumentException if <tt>preferences</tt> is null.
+    * @throws org.eclipse.stardust.common.error.InvalidArgumentException if preferences property <tt>moduleId</tt> is null or empty.
+    * @throws org.eclipse.stardust.common.error.InvalidArgumentException if preferences property <tt>preferencesId</tt> is null or empty.
     */
    @ExecutionPermission(id = ExecutionPermission.Id.saveOwnUserScopePreferences,
          defaults = {ExecutionPermission.Default.ALL})
@@ -754,7 +754,7 @@ public interface AdministrationService extends Service
     * @param modelId The modelId of the model(s) to retrieve the configuration variables from.
     * @return A ConfigurationVariables object containing the merged configuration variables from all model versions.
     *
-    * @throws InvalidArgumentException if <tt>modelId</tt> is null or empty.
+    * @throws org.eclipse.stardust.common.error.InvalidArgumentException if <tt>modelId</tt> is null or empty.
     */
    @ExecutionPermission
    ConfigurationVariables getConfigurationVariables(String modelId);
@@ -767,7 +767,7 @@ public interface AdministrationService extends Service
     * @param all Indicates if to fetch all configuration variables, including Password type.
     * @return A ConfigurationVariables object containing the merged configuration variables from all model versions.
     *
-    * @throws InvalidArgumentException if <tt>modelId</tt> is null or empty.
+    * @throws org.eclipse.stardust.common.error.InvalidArgumentException if <tt>modelId</tt> is null or empty.
     */
    @ExecutionPermission
    ConfigurationVariables getConfigurationVariables(String modelId, boolean all);
@@ -779,7 +779,7 @@ public interface AdministrationService extends Service
     * @param modelIds The modelId of the model(s) to retrieve the configuration variables from.
     * @return A List of ConfigurationVariables objects containing the merged configuration variables from all model versions.
     *
-    * @throws InvalidArgumentException if <tt>modelIds</tt> is null or contains an modelId which is null or empty.
+    * @throws org.eclipse.stardust.common.error.InvalidArgumentException if <tt>modelIds</tt> is null or contains an modelId which is null or empty.
     */
    @ExecutionPermission
    List<ConfigurationVariables> getConfigurationVariables(List<String> modelIds);
@@ -790,7 +790,7 @@ public interface AdministrationService extends Service
     * @param model The model xml representation in byte array form.
     * @return A ConfigurationVariables object containing only the configuration variables from the given model.
     *
-    * @throws InvalidArgumentException if <tt>model</tt> is null.
+    * @throws org.eclipse.stardust.common.error.InvalidArgumentException if <tt>model</tt> is null.
     */
    @ExecutionPermission
    ConfigurationVariables getConfigurationVariables(byte[] model);
@@ -803,8 +803,8 @@ public interface AdministrationService extends Service
     *
     * @return model reconfiguration information, including possible errors or warnings.
     *
-    * @throws AccessForbiddenException if the current user does not have the required privilege.
-    * @throws InvalidArgumentException if <tt>configurationVariables</tt> is null.
+    * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user does not have the required privilege.
+    * @throws org.eclipse.stardust.common.error.InvalidArgumentException if <tt>configurationVariables</tt> is null.
     */
    @ExecutionPermission(id = ExecutionPermission.Id.saveOwnPartitionScopePreferences)
    List<ModelReconfigurationInfo> saveConfigurationVariables(ConfigurationVariables configurationVariables, boolean force) throws AccessForbiddenException;
@@ -826,9 +826,9 @@ public interface AdministrationService extends Service
     *
     * @param permissions the modified permissions
     *
-    * @throws AccessForbiddenException if the current user does not have the required privilege.
-    * @throws InvalidArgumentException if <tt>permissions</tt> is null.
-    * @throws ValidationException if changed grants are not valid in the active model.
+    * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user does not have the required privilege.
+    * @throws org.eclipse.stardust.common.error.InvalidArgumentException if <tt>permissions</tt> is null.
+    * @throws org.eclipse.stardust.common.error.ValidationException if changed grants are not valid in the active model.
     */
    @ExecutionPermission(id = ExecutionPermission.Id.saveOwnPartitionScopePreferences)
    public void setGlobalPermissions(RuntimePermissions permissions) throws AccessForbiddenException;
@@ -853,7 +853,7 @@ public interface AdministrationService extends Service
     * @param runtimeArtifact The new artifact.
     * @return The updated artifact.
     *
-    * @throws ObjectNotFoundException if there is no runtime artifact with the specified oid.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no runtime artifact with the specified oid.
     */
    @ExecutionPermission(id = ExecutionPermission.Id.deployRuntimeArtifact)
    public DeployedRuntimeArtifact overwriteRuntimeArtifact(long oid, RuntimeArtifact runtimeArtifact) throws ObjectNotFoundException;
@@ -863,7 +863,7 @@ public interface AdministrationService extends Service
     *
     * @param oid The oid of the artifact
     *
-    * @throws ObjectNotFoundException if there is no runtime artifact with the specified oid.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no runtime artifact with the specified oid.
     */
    @ExecutionPermission(id = ExecutionPermission.Id.deployRuntimeArtifact)
    public void deleteRuntimeArtifact(long oid) throws ObjectNotFoundException;
@@ -872,7 +872,7 @@ public interface AdministrationService extends Service
     * Retrieves the artifact by the unique oid.
     *
     * @param oid The oid of the artifact.
-    * @return The artifact or <code>null<code> if it does not exist.
+    * @return The artifact or <code>null</code> if it does not exist.
     */
    @ExecutionPermission(id = ExecutionPermission.Id.readRuntimeArtifact, defaults={ExecutionPermission.Default.ALL})
    public RuntimeArtifact getRuntimeArtifact(long oid);
@@ -881,8 +881,9 @@ public interface AdministrationService extends Service
     * Returns a list of supported artifact types.
     * <p>
     *
-    * The {@link ArtifactType#getId()} is used to identify the {@link ArtifactType} for a
-    * {@link RuntimeArtifact}.
+    * The {@link org.eclipse.stardust.engine.api.runtime.ArtifactType#getId() ArtifactType.getId()}
+    * is used to identify the {@link org.eclipse.stardust.engine.api.runtime.ArtifactType ArtifactType} for a
+    * {@link org.eclipse.stardust.engine.api.runtime.RuntimeArtifact RuntimeArtifact}.
     *
     * @return The supported artifact types.
     */
@@ -897,7 +898,7 @@ public interface AdministrationService extends Service
     *
     * @return the newly created process instance link type.
     *
-    * @throws ObjectExistsException if another link type with the same id already exists.
+    * @throws org.eclipse.stardust.common.error.ObjectExistsException if another link type with the same id already exists.
     */
    // TODO: (fh) clarify permission
    @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail)
@@ -911,7 +912,7 @@ public interface AdministrationService extends Service
     *
     * @param id the id of the link type to delete.
     *
-    * @throws ObjectNotFoundException if there is no link type with the specified id,
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no link type with the specified id,
     *       or the id identifies one of the predefined link types.
     */
    // TODO: (fh) clarify permission

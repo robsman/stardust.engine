@@ -14,16 +14,13 @@ import java.util.List;
 import java.util.Locale;
 
 import org.eclipse.stardust.common.error.AccessForbiddenException;
-import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.model.OrganizationInfo;
 import org.eclipse.stardust.engine.api.model.Participant;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.query.*;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 import org.eclipse.stardust.engine.core.runtime.utils.TransientState;
 
@@ -43,8 +40,8 @@ import org.eclipse.stardust.engine.core.runtime.utils.TransientState;
  * @version $Revision$
  */
 /**
- * to set {@link SessionProperties.DS_NAME_READ_ONLY}
- * used in {@link DataValueBean}
+ * to set {@link org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties#DS_NAME_READ_ONLY SessionProperties.DS_NAME_READ_ONLY}
+ * used in {@link org.eclipse.stardust.engine.core.runtime.beans.DataValueBean DataValueBean}
  */
 @TransientState
 public interface QueryService extends Service
@@ -82,13 +79,13 @@ public interface QueryService extends Service
     *
     * @return the process instance count.
     *
-    * @throws IllegalOperationException if no attributeName
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if no attributeName
     *    (XPath) is specified in a DataFilter for queries on a structured data
-    * @throws IllegalOperationException if attributeName
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
     *    (XPath) is specified in a DataFilter for queries on a non-structured data
-    * @throws IllegalOperationException if attributeName
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
     *    (XPath) specified in a DataFilter contains an invalid XPath
-    * @throws IllegalOperationException if PerformingOnBehalfOfFilter is used
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if PerformingOnBehalfOfFilter is used
     *    but activity instance history is disabled.
     */
    @ExecutionPermission(
@@ -106,13 +103,13 @@ public interface QueryService extends Service
     *
     * @return the activity instance count.
     *
-    * @throws IllegalOperationException if no attributeName
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if no attributeName
     *    (XPath) is specified in a DataFilter for queries on a structured data
-    * @throws IllegalOperationException if attributeName
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
     *    (XPath) is specified in a DataFilter for queries on a non-structured data
-    * @throws IllegalOperationException if attributeName
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
     *    (XPath) specified in a DataFilter contains an invalid XPath
-    * @throws IllegalOperationException if PerformingOnBehalfOfFilter is used
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if PerformingOnBehalfOfFilter is used
     *    but activity instance history is disabled.
     */
    @ExecutionPermission(
@@ -151,7 +148,7 @@ public interface QueryService extends Service
     *
     * @param query the user group query.
     *
-    * @return A list of {@link UserGroup} objects.
+    * @return A list of {@link org.eclipse.stardust.engine.api.runtime.UserGroup UserGroup} objects.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readUserData,
@@ -166,13 +163,13 @@ public interface QueryService extends Service
     *
     * @return a List of ProcessInstance objects.
     *
-    * @throws IllegalOperationException if no attributeName
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if no attributeName
     *     (XPath) is specified in a DataFilter for queries on a structured data
-    * @throws IllegalOperationException if attributeName
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
     *     (XPath) is specified in a DataFilter for queries on a non-structured data
-    * @throws IllegalOperationException if attributeName
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
     *    (XPath) specified in a DataFilter contains an invalid XPath
-    * @throws IllegalOperationException if PerformingOnBehalfOfFilter is used
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if PerformingOnBehalfOfFilter is used
     *    but activity instance history is disabled.
     */
    @ExecutionPermission(
@@ -190,13 +187,13 @@ public interface QueryService extends Service
     *
     * @return a List of ActivityInstance objects.
     *
-    * @throws IllegalOperationException if no attributeName
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if no attributeName
     *     (XPath) is specified in a DataFilter for queries on a structured data
-    * @throws IllegalOperationException if attributeName
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
     *     (XPath) is specified in a DataFilter for queries on a non-structured data
-    * @throws IllegalOperationException if attributeName
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
     *    (XPath) specified in a DataFilter contains an invalid XPath
-    * @throws IllegalOperationException if PerformingOnBehalfOfFilter is used
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if PerformingOnBehalfOfFilter is used
     *    but activity instance history is disabled.
     */
    @ExecutionPermission(
@@ -226,7 +223,7 @@ public interface QueryService extends Service
     *
     * @return the first matching user.
     *
-    * @throws ObjectNotFoundException if no matching user is found.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if no matching user is found.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readUserData,
@@ -242,7 +239,7 @@ public interface QueryService extends Service
     *
     * @return the first matching user group.
     *
-    * @throws ObjectNotFoundException if no matching user group is found.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if no matching user group is found.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readUserData,
@@ -258,15 +255,15 @@ public interface QueryService extends Service
     *
     * @return the first matching process instance.
     *
-    * @throws ObjectNotFoundException
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
     *    if no matching process instance is found.
-    * @throws IllegalOperationException if no attributeName
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if no attributeName
     *    (XPath) is specified in a DataFilter for queries on a structured data
-    * @throws IllegalOperationException if attributeName
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
     *    (XPath) is specified in a DataFilter for queries on a non-structured data
-    * @throws IllegalOperationException if attributeName
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
     *    (XPath) specified in a DataFilter contains an invalid XPath
-    * @throws IllegalOperationException if PerformingOnBehalfOfFilter is used
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if PerformingOnBehalfOfFilter is used
     *    but activity instance history is disabled.
     */
    @ExecutionPermission(
@@ -286,15 +283,15 @@ public interface QueryService extends Service
     *
     * @return the first matching activity instance.
     *
-    * @throws ObjectNotFoundException
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
     *    if no matching activity instance is found.
-    * @throws IllegalOperationException if no attributeName
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if no attributeName
     *    (XPath) is specified in a DataFilter for queries on a structured data
-    * @throws IllegalOperationException if attributeName
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
     *    (XPath) is specified in a DataFilter for queries on a non-structured data
-    * @throws IllegalOperationException if attributeName
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
     *    (XPath) specified in a DataFilter contains an invalid XPath
-    * @throws IllegalOperationException if PerformingOnBehalfOfFilter is used
+    * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if PerformingOnBehalfOfFilter is used
     *    but activity instance history is disabled.
     */
    @ExecutionPermission(
@@ -314,7 +311,7 @@ public interface QueryService extends Service
     *
     * @return the first matching log entry.
     *
-    * @throws ObjectNotFoundException if no matching log entry is found.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if no matching log entry is found.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.readAuditTrailStatistics)
    LogEntry findFirstLogEntry(LogEntryQuery query)
@@ -325,9 +322,9 @@ public interface QueryService extends Service
     *
     * @param processInstanceOID the OID of the process instance from where we retrieve the audit trail.
     *
-    * @return a List of {@link ActivityInstance} objects.
+    * @return a List of {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance ActivityInstance} objects.
     *
-    * @throws ObjectNotFoundException if there is no process instance with the specified OID.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the specified OID.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readActivityInstanceData,
@@ -354,8 +351,8 @@ public interface QueryService extends Service
    /**
     * Retrieves the list of model descriptions for all deployed models.
     *
-    * @return a List of {@link DeployedModelDescription} objects.
-    * @deprecated Use {@link Models getModels(DeployedModelQuery.findAll())}.
+    * @return a List of {@link org.eclipse.stardust.engine.api.runtime.DeployedModelDescription DeployedModelDescription} objects.
+    * @deprecated Use {@link #getModels(org.eclipse.stardust.engine.api.query.DeployedModelQuery) getModels(DeployedModelQuery.findAll())}.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readModelData,
@@ -367,8 +364,8 @@ public interface QueryService extends Service
     * are models with non-completed and non-aborted processes plus the
     * active model.
     *
-    * @return a List of {@link DeployedModelDescription} objects.
-    * @deprecated Use {@link Models getModels(DeployedModelQuery.findInState(DeployedModelQuery.ALIVE))}.
+    * @return a List of {@link org.eclipse.stardust.engine.api.runtime.DeployedModelDescription} objects.
+    * @deprecated Use {@link #getModels(org.eclipse.stardust.engine.api.query.DeployedModelQuery) getModels(DeployedModelQuery.findInState(DeployedModelQuery.ALIVE))}.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readModelData,
@@ -380,9 +377,11 @@ public interface QueryService extends Service
     *
     * @return the description of the active model.
     *
-    * @throws ObjectNotFoundException if there is no active model.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no active model.
+    * 
     * @deprecated This method returns the description of the active model with the highest priority.
-    *   Use {@link Models getModels(DeployedModelQuery.findActive())} to retrieve all active models.
+    *   Use {@link #getModels(org.eclipse.stardust.engine.api.query.DeployedModelQuery)
+    *   getModels(DeployedModelQuery.findActive())} to retrieve all active models.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readModelData,
@@ -421,7 +420,7 @@ public interface QueryService extends Service
     *
     * @return the description of the specified model.
     *
-    * @throws ObjectNotFoundException if there is no model with the specified OID.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no model with the specified OID.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readModelData,
@@ -450,7 +449,7 @@ public interface QueryService extends Service
     *
     * @return the specified model.
     *
-    * @throws ObjectNotFoundException if there is no model with the specified OID.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no model with the specified OID.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readModelData,
@@ -466,7 +465,7 @@ public interface QueryService extends Service
     *
     * @return the specified model.
     *
-    * @throws ObjectNotFoundException if there is no model with the specified OID.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no model with the specified OID.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readModelData,
@@ -479,9 +478,11 @@ public interface QueryService extends Service
     *
     * @return the active model.
     *
-    * @throws ObjectNotFoundException if there is no active model.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no active model.
+    * 
     * @deprecated This method returns the active model with the highest priority.
-    *   Use {@link Models getModels(DeployedModelQuery.findActive())} to retrieve all active models.
+    *   Use {@link #getModels(org.eclipse.stardust.engine.api.query.DeployedModelQuery)
+    *   getModels(DeployedModelQuery.findActive())} to retrieve all active models.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readModelData,
@@ -496,7 +497,7 @@ public interface QueryService extends Service
     *
     * @return A string containing the XML representation of the model.
     *
-    * @throws ObjectNotFoundException if there is no model with the specified OID.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no model with the specified OID.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readModelData,
@@ -509,9 +510,9 @@ public interface QueryService extends Service
     *
     * @param modelOID the oid of the model.
     *
-    * @return a List of {@link ProcessDefinition} objects.
+    * @return a List of {@link org.eclipse.stardust.engine.api.model.ProcessDefinition ProcessDefinition} objects.
     *
-    * @throws ObjectNotFoundException if there is no model with the specified OID.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no model with the specified OID.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readModelData,
@@ -527,7 +528,7 @@ public interface QueryService extends Service
     *
     * @return the process definition.
     *
-    * @throws ObjectNotFoundException
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
     *       if there is no model with the specified OID or there is no process
     *       definition with the specified id in the model.
     */
@@ -540,9 +541,9 @@ public interface QueryService extends Service
    /**
     * Retrieves all process definitions for the active model.
     *
-    * @return a List of {@link ProcessDefinition} objects.
+    * @return a List of {@link org.eclipse.stardust.engine.api.model.ProcessDefinition ProcessDefinition} objects.
     *
-    * @throws ObjectNotFoundException if there is no active model.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no active model.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readModelData,
@@ -557,7 +558,7 @@ public interface QueryService extends Service
     *
     * @return the process definition.
     *
-    * @throws ObjectNotFoundException if there is no active model or if the active model
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no active model or if the active model
     *         does not contain the requested process definition.
     */
    @ExecutionPermission(
@@ -588,9 +589,9 @@ public interface QueryService extends Service
     *
     * @param modelOID the oid of the model.
     *
-    * @return a List of {@link Participant} objects.
+    * @return a List of {@link org.eclipse.stardust.engine.api.model.Participant Participant} objects.
     *
-    * @throws ObjectNotFoundException if there is no model with the specified oid.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no model with the specified oid.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readModelData,
@@ -606,7 +607,7 @@ public interface QueryService extends Service
     *
     * @return the participant.
     *
-    * @throws ObjectNotFoundException
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
     *       if there is no model with the specified oid, or the model does not
     *       contains the requested participant.
     */
@@ -619,9 +620,9 @@ public interface QueryService extends Service
    /**
     * Retrieves all the participants from the active model.
     *
-    * @return a List of {@link Participant} objects.
+    * @return a List of {@link org.eclipse.stardust.engine.api.model.Participant Participant} objects.
     *
-    * @throws ObjectNotFoundException if there is no active model.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no active model.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readModelData,
@@ -636,7 +637,7 @@ public interface QueryService extends Service
     *
     * @return the participant.
     *
-    * @throws ObjectNotFoundException
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
     *       if there is no active model, or if the active model does not contain
     *       the requested participant.
     */
@@ -661,7 +662,7 @@ public interface QueryService extends Service
     * @param modelOID           the oid of the model.
     * @param typeDeclarationId  the id of the type declaration.
     * @return XSD schema of this type declaration
-    * @throws ObjectNotFoundException
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
     *       if there is no active model, or if the active model does not contain the
     *       requested type declaration.
     */
@@ -697,7 +698,7 @@ public interface QueryService extends Service
     *           the organization to which the retrieved departments are assigned.
     * @return the list of departments. The list can be empty if no departments are
     *         matching the search criteria.
-    * @throws ObjectNotFoundException
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
     *            if either the parent or the organization could not be resolved.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.readDepartments,
@@ -713,7 +714,7 @@ public interface QueryService extends Service
     *       is the top level.
     * @param id the id of the department. Must not be null or empty.
     * @return the department having the specified id.
-    * @throws ObjectNotFoundException
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
     *       if the parent could not be resolved or if the specified id is null or empty
     *       or if there is no department with the specified id in the parent scope.
     */
@@ -734,10 +735,10 @@ public interface QueryService extends Service
     *           top level.
     * @param id
     *           the id of the department. Must not be null or empty.
-    * @param organization
+    * @param info
     *           the organization to which the retrieved departments are assigned.
     * @return the department having the specified id.
-    * @throws ObjectNotFoundException
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
     *            if the parent could not be resolved or if the specified id is null or
     *            empty or if there is no department with the specified id in the parent
     *            scope.
@@ -755,8 +756,10 @@ public interface QueryService extends Service
     *
     * @return the first matching document.
     *
-    * @throws ObjectNotFoundException if no matching document is found.
-    * @deprecated since 8.0 use {@link DocumentManagementService#findDocuments(DocumentQuery)}.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if no matching document is found.
+    * @deprecated since 8.0 use {@link
+    *    org.eclipse.stardust.engine.api.runtime.DocumentManagementService#findDocuments(org.eclipse.stardust.engine.api.query.DocumentQuery)
+    *    DocumentManagementService.findDocuments(DocumentQuery)}.
     */
    @ExecutionPermission
    @Deprecated
@@ -768,7 +771,9 @@ public interface QueryService extends Service
     * @param query the document query.
     *
     * @return a List of Document objects.
-    * @deprecated since 8.0 use {@link DocumentManagementService#findDocuments(DocumentQuery)}.
+    * @deprecated since 8.0 use {@link
+    * org.eclipse.stardust.engine.api.runtime.DocumentManagementService#findDocuments(org.eclipse.stardust.engine.api.query.DocumentQuery)
+    * DocumentManagementService.findDocuments(DocumentQuery)}.
     */
    @ExecutionPermission
    @Deprecated
@@ -782,7 +787,7 @@ public interface QueryService extends Service
     * @param preferencesId the id of the preferences.
     * @return a preferences object.
     *
-    * @throws PublicException if <tt>scope</tt> is null.
+    * @throws org.eclipse.stardust.common.error.PublicException if <tt>scope</tt> is null.
     */
    @ExecutionPermission
    Preferences getPreferences(PreferenceScope scope, String moduleId, String preferencesId);
@@ -793,9 +798,9 @@ public interface QueryService extends Service
     * @param preferenceQuery the preference query.
     * @return a list of preferences.
     *
-    * @throws PublicException if querying is not supported for the specified PreferenceScope.
-    * @throws UnsupportedOperationException if the PreferenceQuery contains unsupported terms or operations.
-    * @throws InvalidArgumentException if <tt>preferencesQuery</tt> is null.
+    * @throws org.eclipse.stardust.common.error.PublicException if querying is not supported for the specified PreferenceScope.
+    * @throws java.lang.UnsupportedOperationException if the PreferenceQuery contains unsupported terms or operations.
+    * @throws org.eclipse.stardust.common.error.InvalidArgumentException if <tt>preferencesQuery</tt> is null.
     */
    @ExecutionPermission
    List<Preferences> getAllPreferences(PreferenceQuery preferenceQuery);
@@ -823,7 +828,7 @@ public interface QueryService extends Service
     * Retrieves the artifact by the unique oid.
     *
     * @param oid The oid of the artifact.
-    * @return The artifact or <code>null<code> if it does not exist.
+    * @return The artifact or <code>null</code> if it does not exist.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.readRuntimeArtifact, defaults={ExecutionPermission.Default.ALL})
    public RuntimeArtifact getRuntimeArtifact(long oid);
@@ -843,7 +848,7 @@ public interface QueryService extends Service
     * @param id the in of the process instance link type.
     * @return the process instance link type.
     *
-    * @throws ObjectNotFoundException if there is no process instance link type with the specified id.
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance link type with the specified id.
     */
    @ExecutionPermission
    public ProcessInstanceLinkType getProcessInstanceLinkType(String id);

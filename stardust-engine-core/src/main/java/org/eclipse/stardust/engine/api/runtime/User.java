@@ -41,9 +41,9 @@ public interface User extends DynamicParticipant, UserInfo
    
    /**
     * Set the probability for quality assurance.
-    * The current is not allowed to change his own probability. 
+    * The current is not allowed to change his own probability.
     * 
-    * @param propability
+    * @param probability The probability for the user
     */
    void setQualityAssuranceProbability(Integer probability) throws InvalidValueException;
    

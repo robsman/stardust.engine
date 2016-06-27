@@ -57,7 +57,7 @@ public class ConfigurationVariables implements Serializable
    /**
     * Retrieves a List of <code>ConfigurationVariable</code> belonging to the modelId <code>getModelId()</code>.
     * 
-    * @return
+    * @return list of configuration variables
     */
    public List<ConfigurationVariable> getConfigurationVariables()
    {

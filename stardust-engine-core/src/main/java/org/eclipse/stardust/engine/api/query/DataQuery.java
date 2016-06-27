@@ -53,8 +53,8 @@ public class DataQuery extends Query
     * <b>Please Note: </b>Currently only supports one single Operator.isEqual(modelOid) term to
     * filter for exactly one modelOid.
     *
-    * @see {@link #findAllForModel(long)}
-    * @see {@link #findUsedInProcess(long, String)}
+    * @see #findAllForModel(long)
+    * @see #findUsedInProcess(long, String)
     *
     */
    public static final FilterableAttribute MODEL_OID = new FilterableAttributeImpl(

@@ -17,10 +17,10 @@ public interface StampAware
    /**
     * Adds the Stamp.
     *
+    * @param stamp
+    * 
     * @throws org.eclipse.stardust.common.error.InvalidArgumentException
     *            if the id of the Stamp already exists.
-    *
-    * @param highlight
     */
    void addStamp(Stamp stamp);
 
@@ -33,25 +33,25 @@ public interface StampAware
    /**
     * Replaces the stored stamps with the given set.<br>
     *
+    * @param stamps
+    * 
     * @throws org.eclipse.stardust.common.error.InvalidArgumentException
     *            if the given set contains more than one element with the same
     *            Identifiable#id.
-    *
-    * @param stamps
     */
    void setStamps(Set<Stamp> stamps);
 
    /**
     * Adds the given set of stamps to the stored ones.<br>
     *
+    * @param stamps
+    * 
     * @throws org.eclipse.stardust.common.error.InvalidArgumentException
     *            if the given set contains more than one element with the same
     *            Identifiable#id.<br>
     * @throws org.eclipse.stardust.common.error.InvalidArgumentException
     *            if the set contains at least one stamp with the same Identifiable#id as a
     *            stored stamp.
-    *
-    * @param stamps
     */
    void addAllStamps(Set<Stamp> stamps);
 

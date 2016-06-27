@@ -42,13 +42,15 @@ public interface Note extends Serializable
    
    /**
     * @return the oid of the user who created the note.
-    * @deprecated Use {@link #getUser().getOID()} instead.
+    * @deprecated Use <code>getUser().getOID()</code>
+    * 
+    * @see org.eclipse.stardust.engine.api.runtime.User#getOID() User.getOID()
     */
    long getUserOid();
    
    /**
     * @return the user who created the note. The user will be initialized with details
-    *         level {@link UserDetailsLevelUser#CORE}. May be null if no user is
+    *         level {@link UserDetailsLevel#CORE}. May be null if no user is
     *         specified.
     */
    User getUser();

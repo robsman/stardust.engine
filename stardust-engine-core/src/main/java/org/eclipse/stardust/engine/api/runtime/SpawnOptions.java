@@ -70,7 +70,7 @@ public class SpawnOptions implements Serializable
     * @param comment a comment describing the operation. May be null.
     * @param dataCopyOptions instructions on how the data should be transferred from the
     *        originating process instance to the spawned process instance. If null, then
-    *        {@link DataCopyOptions.DEFAULT} is used.
+    *        {@link DataCopyOptions#DEFAULT} is used.
     * @deprecated use {@link #SpawnOptions(String, SpawnMode, String, DataCopyOptions)}
     */
    @Deprecated
@@ -85,11 +85,11 @@ public class SpawnOptions implements Serializable
     *
     * @param startActivity the activity from which the spawned process instance should start.
     *        If null, the spawned process instance will start from the default start activity.
-    * @param spawnMode specifies what action to take with the originating process instance. {@link SpawnMode#Keep}, {@link SpawnMode#ABORT} or {@link SpawnMode#HALT}.
+    * @param spawnMode specifies what action to take with the originating process instance. {@link SpawnMode#KEEP}, {@link SpawnMode#ABORT} or {@link SpawnMode#HALT}.
     * @param comment a comment describing the operation. May be null.
     * @param dataCopyOptions instructions on how the data should be transferred from the
     *        originating process instance to the spawned process instance. If null, then
-    *        {@link DataCopyOptions.DEFAULT} is used.
+    *        {@link DataCopyOptions#DEFAULT} is used.
     */
    public SpawnOptions(String startActivity, SpawnMode spawnMode, String comment,
          DataCopyOptions dataCopyOptions)

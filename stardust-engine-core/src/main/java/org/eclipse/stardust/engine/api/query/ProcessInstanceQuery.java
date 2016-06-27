@@ -578,7 +578,7 @@ public class ProcessInstanceQuery extends Query
    /**
     * Creates a query for finding process instances the given process instance is linked to via the given link type(s) and direction.
     *
-    * @param piOid The OID of the process instance the query should be executed for
+    * @param processInstanceOid The OID of the process instance the query should be executed for
     * @param direction The direction of the links that should be taken into account when determining the linked process instances
     * @param linkType The link types that should be taken into account when determining the linked process instances
     * @return The readily configured query.
@@ -595,7 +595,7 @@ public class ProcessInstanceQuery extends Query
    /**
     * Creates a query for finding process instances the given process instance is linked to via the given link type(s) and direction.
     *
-    * @param piOid The OID of the process instance the query should be executed for
+    * @param processInstanceOid The OID of the process instance the query should be executed for
     * @param direction The direction of the links that should be taken into account when determining the linked process instances
     * @param linkType The link types that should be taken into account when determining the linked process instances
     * @return The readily configured query.

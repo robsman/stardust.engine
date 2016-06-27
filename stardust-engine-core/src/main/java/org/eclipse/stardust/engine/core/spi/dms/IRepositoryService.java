@@ -207,8 +207,6 @@ public interface IRepositoryService
     * @param encoding encoding of the new document content.
     * @return the new document.
     * @throws DocumentManagementServiceException on DMS specific errors
-    *
-    * @see #requestDocumentContentUpload(String)
     */
    Document createDocument(String folderId, DocumentInfo document, byte[] content,
          String encoding) throws DocumentManagementServiceException;
@@ -371,7 +369,7 @@ public interface IRepositoryService
     * <p> Implementation is needed if {@link IRepositoryCapabilities#isAccessControlPolicySupported()} is true.
     *
     * @param resourceId absolute path or ID of a file or folder
-    * @return
+    * @return the privileges of the given resource
     */
    Set<Privilege> getPrivileges(String resourceId);
 
@@ -385,7 +383,7 @@ public interface IRepositoryService
     * effective policies.
     *
     * @param resourceId absolute path or ID of a file or folder
-    * @return
+    * @return the effective access control policies of the given resource
     */
    Set<AccessControlPolicy> getEffectivePolicies(String resourceId);
 
@@ -399,7 +397,7 @@ public interface IRepositoryService
     * setPolicy()
     *
     * @param resourceId absolute path or ID of a file or folder
-    * @return
+    * @return the access control policies of the given resource
     */
    Set<AccessControlPolicy> getPolicies(String resourceId);
 
@@ -413,7 +411,7 @@ public interface IRepositoryService
     * setPolicy() in order to add a new policy.
     *
     * @param resourceId absolute path or ID of a file or folder
-    * @return
+    * @return the access control policies that are applicable for the given resource
     */
    Set<AccessControlPolicy> getApplicablePolicies(String resourceId);
 

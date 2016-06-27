@@ -15,7 +15,6 @@ import java.util.Set;
 
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.query.DocumentQuery;
-import org.eclipse.stardust.engine.api.web.dms.DmsContentServlet;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstanceInfo;
@@ -49,7 +48,7 @@ public interface DocumentManagementService extends Service
     *
     * @param documentId the ID or path of the document.
     * @return the document or null if no document with such ID (or path) exists.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission
    Document getDocument(String documentId) throws DocumentManagementServiceException;
@@ -59,7 +58,7 @@ public interface DocumentManagementService extends Service
     *
     * @param documentId the ID (any version) or path of the document.
     * @return list of document versions found.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission
    List<Document> getDocumentVersions(String documentId) throws DocumentManagementServiceException;
@@ -69,7 +68,7 @@ public interface DocumentManagementService extends Service
     *
     * @param documentIds list of document IDs or paths.
     * @return list of documents found.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission
    List<Document> getDocuments(List<String> documentIds) throws DocumentManagementServiceException;
@@ -79,7 +78,7 @@ public interface DocumentManagementService extends Service
     *
     * @param namePattern the name pattern to search for.
     * @return list of documents found.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission
    @Deprecated
@@ -90,7 +89,7 @@ public interface DocumentManagementService extends Service
     *
     * @param xpathQuery the XPath query.
     * @return list of documents found.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission
    @Deprecated
@@ -112,12 +111,15 @@ public interface DocumentManagementService extends Service
     * Warning: this method should only be used for documents of reasonable size as the
     * full content will be materialized in memory both on the server as well as on the
     * client. It is recommended to us the facilities provided by
-    * {@link DmsContentServlet} for memory efficient content access.
+    * {@link org.eclipse.stardust.engine.api.web.dms.DmsContentServlet DmsContentServlet}
+    * for memory efficient content access.
     *
     * @param documentId The ID or path of the document content should be retrieved for.
     * @return A byte array containing the document content. This byte array will be
-    *       encoded according to the document's {@link Document#getEncoding()} attribute.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    *       encoded according to the document's {@link
+    *       org.eclipse.stardust.engine.api.runtime.Document#getEncoding()
+    *       Document.getEncoding()} attribute.
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     *
     * @see #requestDocumentContentDownload(String)
     */
@@ -125,13 +127,13 @@ public interface DocumentManagementService extends Service
    byte[] retrieveDocumentContent(String documentId) throws DocumentManagementServiceException;
 
    /**
-    * Initiates document content download via {@link DmsContentServlet}. The
+    * Initiates document content download via {@link org.eclipse.stardust.engine.api.web.dms.DmsContentServlet DmsContentServlet}. The
     * returned token should be used as relative URI for the content Servlet and will be
     * valid as long as the session associated with this service is alive.
     *
     * @param documentId The ID or path of the document content should be retrieved for.
     * @return A download token valid for the lifetime of this service's session.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission
    String requestDocumentContentDownload(String documentId) throws DocumentManagementServiceException;
@@ -145,7 +147,7 @@ public interface DocumentManagementService extends Service
     *
     * @param folderId The ID or path expression identifying the folder to be retrieved.
     * @return The resolved folder if no folder with such ID (or path) exists.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     *
     * @see Folder#LOD_LIST_MEMBERS
     */
@@ -160,7 +162,7 @@ public interface DocumentManagementService extends Service
     * @param levelOfDetail one of <code>Folder.LOD_NO_MEMBERS</code>, <code>Folder.LOD_LIST_MEMBERS</code>
     * or <code>Folder.LOD_LIST_MEMBERS_OF_MEMBERS</code>.
     * @return the folder or null if no folder with such ID (or path) exists.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     *
     * @see Folder#LOD_LIST_MEMBERS
     */
@@ -174,7 +176,7 @@ public interface DocumentManagementService extends Service
     * @param levelOfDetail one of <code>Folder.LOD_NO_MEMBERS</code>, <code>Folder.LOD_LIST_MEMBERS</code>
     * or <code>Folder.LOD_LIST_MEMBERS_OF_MEMBERS</code>.
     * @return list of folders found.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission
    List<Folder> getFolders(List<String> folderIds, int levelOfDetail) throws DocumentManagementServiceException;
@@ -186,7 +188,7 @@ public interface DocumentManagementService extends Service
     * @param levelOfDetail one of <code>Folder.LOD_NO_MEMBERS</code>, <code>Folder.LOD_LIST_MEMBERS</code>
     * or <code>Folder.LOD_LIST_MEMBERS_OF_MEMBERS</code>.
     * @return list of folders found.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission
    @Deprecated
@@ -199,7 +201,7 @@ public interface DocumentManagementService extends Service
     * @param levelOfDetail one of <code>Folder.LOD_NO_MEMBERS</code>, <code>Folder.LOD_LIST_MEMBERS</code>
     * or <code>Folder.LOD_LIST_MEMBERS_OF_MEMBERS</code>.
     * @return list of folders found.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission
    @Deprecated
@@ -217,7 +219,7 @@ public interface DocumentManagementService extends Service
     * designates the top-level folder.
     * @param document an instance of <code>DocumentInfo</code> that describs the document.
     * @return the new document.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.modifyDmsData,
@@ -235,7 +237,7 @@ public interface DocumentManagementService extends Service
     * Warning: this method should only be used for documents of reasonable size as the
     * full content will be materialized in memory both on the server as well as on the
     * client. It is recommended to us the facilities provided by
-    * {@link DmsContentServlet} for memory efficient content access.
+    * {@link org.eclipse.stardust.engine.api.web.dms.DmsContentServlet DmsContentServlet} for memory efficient content access.
     *
     * @param folderId ID or path of the folder to create the document in. Value "/"
     * designates the top-level folder
@@ -243,7 +245,7 @@ public interface DocumentManagementService extends Service
     * @param content the content of the new document.
     * @param encoding encoding of the new document content.
     * @return the new document.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     *
     * @see #requestDocumentContentUpload(String)
     */
@@ -259,7 +261,7 @@ public interface DocumentManagementService extends Service
     * @param documentId ID or path of the document to be versioned
     * @param versionLabel label for the new revision. The label must be unique per document.
     * @return document describing the new document version
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     * @deprecated since 7.0 use {@link #versionDocument(String, String, String)}
     */
    @Deprecated
@@ -275,7 +277,7 @@ public interface DocumentManagementService extends Service
     * @param versionComment comment for the new revision
     * @param versionLabel label for the new revision. The label must be unique per document.
     * @return document describing the new document version
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.modifyDmsData,
@@ -285,14 +287,14 @@ public interface DocumentManagementService extends Service
    /**
     * Removes a version of a document. At least one version has to remain.<br>
     * A call to remove the last remaining version leads to a
-    * {@link DocumentManagementServiceException}.<br>
+    * {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException DocumentManagementServiceException}.<br>
     * If the document exists but the documentRevisionId cannot be resolved to a version of
-    * the document a {@link DocumentManagementServiceException} will be thrown.<br>
-    * An invalid <code>documentId</code> will lead to a {@link DocumentManagementServiceException}.
+    * the document a {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException DocumentManagementServiceException} will be thrown.<br>
+    * An invalid <code>documentId</code> will lead to a {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException DocumentManagementServiceException}.
     *
     * @param documentId ID or path of the document.
     * @param documentRevisionId The revisionId of the document version to be removed.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.modifyDmsData,
@@ -308,7 +310,7 @@ public interface DocumentManagementService extends Service
     * @param documentId The document to be moved.
     * @param targetPath The path or folderId to move the document to.
     * @return The moved Document.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.modifyDmsData,
@@ -323,8 +325,10 @@ public interface DocumentManagementService extends Service
     * @param versionLabel if createNewRevision is true, the new revision will be labeled with this label. The label must be unique per document.
     * @param keepLocked if true, the document will be kept locked after update.
     * @return the updated document
-    * @throws DocumentManagementServiceException on DMS specific errors
-    * @deprecated since 7.0 use {@link #updateDocument(Document, boolean, String, String, boolean)}
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
+    * @deprecated since 7.0 use {@link
+    *    #updateDocument(org.eclipse.stardust.engine.api.runtime.Document, boolean, String, String, boolean)
+    *    updateDocument(Document, boolean, String, String, boolean)}
     */
    @Deprecated
    @ExecutionPermission(
@@ -341,7 +345,7 @@ public interface DocumentManagementService extends Service
     * @param versionLabel if createNewRevision is true, the new revision will be labeled with this label. The label must be unique per document.
     * @param keepLocked if true, the document will be kept locked after update.
     * @return the updated document
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.modifyDmsData,
@@ -356,7 +360,7 @@ public interface DocumentManagementService extends Service
     * Warning: this method should only be used for documents of reasonable size as the
     * full content will be materialized in memory both on the server as well as on the
     * client. It is recommended to us the facilities provided by
-    * {@link DmsContentServlet} for memory efficient content access.
+    * {@link org.eclipse.stardust.engine.api.web.dms.DmsContentServlet DmsContentServlet} for memory efficient content access.
 
     * @param document document to update.
     * @param content new document content.
@@ -365,10 +369,12 @@ public interface DocumentManagementService extends Service
     * @param versionLabel if createNewRevision is true, the new revision will be labeled with this label. The label must be unique per document.
     * @param keepLocked if true, the document will be kept locked after update.
     * @return the updated document
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     *
     * @see #requestDocumentContentUpload(String)
-    * @deprecated since 7.0 use {@link #updateDocument(Document, byte[], String, boolean, String, String, boolean)}
+    * @deprecated since 7.0 use {@link
+    *    #updateDocument(org.eclipse.stardust.engine.api.runtime.Document, byte[], String, boolean, String, String, boolean)
+    *    updateDocument(Document, byte[], String, boolean, String, String, boolean)}
     */
    @Deprecated
    @ExecutionPermission(
@@ -384,7 +390,7 @@ public interface DocumentManagementService extends Service
     * Warning: this method should only be used for documents of reasonable size as the
     * full content will be materialized in memory both on the server as well as on the
     * client. It is recommended to us the facilities provided by
-    * {@link DmsContentServlet} for memory efficient content access.
+    * {@link org.eclipse.stardust.engine.api.web.dms.DmsContentServlet DmsContentServlet} for memory efficient content access.
 
     * @param document document to update.
     * @param content new document content.
@@ -394,7 +400,7 @@ public interface DocumentManagementService extends Service
     * @param versionLabel if createNewRevision is true, the new revision will be labeled with this label. The label must be unique per document.
     * @param keepLocked if true, the document will be kept locked after update.
     * @return the updated document
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     *
     * @see #requestDocumentContentUpload(String)
     */
@@ -406,13 +412,13 @@ public interface DocumentManagementService extends Service
 
 
    /**
-    * Initiates document content upload via {@link DmsContentServlet}. The
+    * Initiates document content upload via {@link org.eclipse.stardust.engine.api.web.dms.DmsContentServlet DmsContentServlet}. The
     * returned token should be used as relative URI for the content Servlet and will be
     * valid as long as the session associated with this service is alive.
     *
     * @param documentId The ID/path of the document content should be retrieved for.
     * @return An upload token valid for the lifetime of this service's session.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.modifyDmsData,
@@ -423,7 +429,7 @@ public interface DocumentManagementService extends Service
     * Removes document.
     *
     * @param documentId ID or path of the document to remove.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.modifyDmsData,
@@ -442,7 +448,7 @@ public interface DocumentManagementService extends Service
     * designates the top-level folder.
     * @param folder an instance of <code>FolderInfo</code> that describs the folder.
     * @return the new folder.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.modifyDmsData,
@@ -454,7 +460,7 @@ public interface DocumentManagementService extends Service
     *
     * @param folder folder to be updated.
     * @return the updated folder.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.modifyDmsData,
@@ -467,7 +473,7 @@ public interface DocumentManagementService extends Service
     * @param folderId ID or path of the folder to remove.
     * @param recursive if true, documents and subfolders will be removed also
     * (applies to all the children). If false, only the folder itself will be removed.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.modifyDmsData,
@@ -483,7 +489,6 @@ public interface DocumentManagementService extends Service
     * resourceId, which must exist.
     *
     * @param resourceId absolute path or ID of a file or folder
-    * @return
     */
    @ExecutionPermission
    Set<Privilege> getPrivileges(String resourceId);
@@ -496,7 +501,6 @@ public interface DocumentManagementService extends Service
     * effective policies.
     *
     * @param resourceId absolute path or ID of a file or folder
-    * @return
     */
    @ExecutionPermission
    Set<AccessControlPolicy> getEffectivePolicies(String resourceId);
@@ -509,7 +513,6 @@ public interface DocumentManagementService extends Service
     * setPolicy()
     *
     * @param resourceId absolute path or ID of a file or folder
-    * @return
     */
    @ExecutionPermission
    Set<AccessControlPolicy> getPolicies(String resourceId);
@@ -522,7 +525,6 @@ public interface DocumentManagementService extends Service
     * setPolicy() in order to add a new policy.
     *
     * @param resourceId absolute path or ID of a file or folder
-    * @return
     */
    @ExecutionPermission
    Set<AccessControlPolicy> getApplicablePolicies(String resourceId);
@@ -562,10 +564,13 @@ public interface DocumentManagementService extends Service
     * The MigrationReport returned by each call contains information about: Total resources that need migration to the next version,
     * resources already migrated, current version, next version and target version of the repository structure.
     * <p>There are two different versions, internal versions are migrated first.
-    * <br>The vfs internal version called <code>repositoryVersion</code>.
-    * {@link RepositoryMigrationReport#getTargetRepositoryVersion()}
-    * <br>The engine's structure version called <code>repositoryStructureVersion</code>.
-    * {@link RepositoryMigrationReport#getTargetRepositoryStructureVersion()}
+    * <br>The vfs internal version called <code>repositoryVersion</code>. {@link
+    * org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport#getTargetRepositoryVersion()
+    * RepositoryMigrationReport.getTargetRepositoryVersion()}<br>
+    * The engine's structure version called <code>repositoryStructureVersion</code>.
+    * {@link
+    * org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport#getTargetRepositoryStructureVersion()
+    * RepositoryMigrationReport.getTargetRepositoryStructureVersion()}
     *
     * @param batchSize
     *           count of resources to be migrated in this call. A value of 0 will return a
@@ -575,7 +580,8 @@ public interface DocumentManagementService extends Service
     *           migration step is evaluated. Setting this parameter to <code>false</code> saves
     *           performance.
     * @return a report containing information about the migration batch execution.
-    * @throws DocumentManagementServiceException if there are problems in repository access or the user is not an administrator.
+    * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException
+    *   if there are problems in repository access or the user is not an administrator.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.modifyDmsData,
@@ -589,7 +595,7 @@ public interface DocumentManagementService extends Service
     * @param schemaLocation
     *           the document type's schema location
     * @return XSD schema of this document type
-    * @throws ObjectNotFoundException
+    * @throws org.eclipse.stardust.common.error.ObjectNotFoundException
     *            if the specified schema location cannot be found
     */
    @ExecutionPermission
@@ -602,13 +608,20 @@ public interface DocumentManagementService extends Service
    /**
     * Binds a new repository instance.
     * <p>
-    * The repository id supplied via {@link IRepositoryConfiguration#REPOSITORY_ID} can be
-    * freely chosen but has to differ from currently bound repository ids. <br>
-    * The provider id supplied via {@link IRepositoryConfiguration#PROVIDER_ID} has to
-    * match a registered repository provider.
-    * <p>
-    * A template {@link IRepositoryConfiguration} can be retrieved from
-    * {@link IRepositoryProviderInfo#getConfigurationTemplate()}.<br>
+    * The repository id supplied via {@link
+    * org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration#REPOSITORY_ID
+    * IRepositoryConfiguration.REPOSITORY_ID} can be freely chosen but has to differ from
+    * currently bound repository ids. <br>
+    * The provider id supplied via {@link
+    * org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration#PROVIDER_ID
+    * IRepositoryConfiguration.PROVIDER_ID} has to match a registered repository provider.
+    * </p>
+    * A template {@link
+    * org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration
+    * IRepositoryConfiguration} can be retrieved from {@link
+    * org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo#getConfigurationTemplate()
+    * IRepositoryProviderInfo.getConfigurationTemplate()}.
+    * <br>
     * This template contains keys and template values that are required for the
     * configuration of an new repository instance.
     *
@@ -637,9 +650,13 @@ public interface DocumentManagementService extends Service
    /**
     * Provides information about all available repository providers.
     * <p>
-    * The {@link IRepositoryProviderInfo#getProviderId()} is used to select a repository
+    * The {@link
+    * org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo#getProviderId()
+    * IRepositoryProviderInfo.getProviderId()} is used to select a repository
     * provider when binding a new repository instance with
-    * {@link #bindRepository(IRepositoryConfiguration)}.
+    * {@link
+    * #bindRepository(org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration)
+    * bindRepository(IRepositoryConfiguration)}.
     *
     * @return Repository provider information.
     */
@@ -647,9 +664,11 @@ public interface DocumentManagementService extends Service
    List<IRepositoryProviderInfo> getRepositoryProviderInfos();
 
    /**
-    * Allows to set a bound repository as default repository.
     * <p>
-    * Path based access targets the default repository. <br>
+    * Allows to set a bound repository as default repository.
+    * </p>
+    * Path based access targets the default repository.<br>
+    * 
     * Id based access targets the repository contained in the id. An id provided by the
     * system is always prefixed with a repository id. If the id is not provided by the
     * system and is not prefixed with a repository id the default repository is targeted.

@@ -83,29 +83,29 @@ public interface UserGroup extends DynamicParticipant, UserGroupInfo
     */
    void setAttribute(String name, Serializable value);
 
-   /**
-    * Sets a custom property. The actual propertY will not be changed until
-    * {@link UserService#modifyUserGroup(UserGroup)} is invoked.
-    *
-    * @param name
-    *           the name of the property.
-    * @param value
-    *           the value of the property.
-    *
-    * @see UserService#modifyUserGroup(UserGroup)
-    */
+//   /**
+//    * Sets a custom property. The actual propertY will not be changed until
+//    * {@link UserService#modifyUserGroup(UserGroup)} is invoked.
+//    *
+//    * @param name
+//    *           the name of the property.
+//    * @param value
+//    *           the value of the property.
+//    *
+//    * @see UserService#modifyUserGroup(UserGroup)
+//    */
    // void setProperty(String name, Serializable value);
 
-   /**
-    * Sets all the custom properties of the user group. This method will clear any
-    * previous custom properties the user group may have. The actual properties will not
-    * be changed until {@link UserService#modifyUserGroup(UserGroup)} is invoked.
-    *
-    * @param properties
-    *           a Map containing name-value pair of custom properties.
-    *
-    * @see UserService#modifyUserGroup(UserGroup)
-    */
+//   /**
+//    * Sets all the custom properties of the user group. This method will clear any
+//    * previous custom properties the user group may have. The actual properties will not
+//    * be changed until {@link UserService#modifyUserGroup(UserGroup)} is invoked.
+//    *
+//    * @param properties
+//    *           a Map containing name-value pair of custom properties.
+//    *
+//    * @see UserService#modifyUserGroup(UserGroup)
+//    */
    // void setAllProperties(Map properties);
 
    public UserGroupDetailsLevel getDetailsLevel();

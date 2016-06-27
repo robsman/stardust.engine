@@ -41,7 +41,7 @@ public interface QualityAssuranceInfo extends Serializable
     * Get the {@link ActivityInstance} which was in state {@link QualityAssuranceState#QUALITY_ASSURANCE_TRIGGERED}
     * or {@link QualityAssuranceState#IS_REVISED}, null otherwise
     * 
-    * @return
+    * @return The monitored activity instance
     */
    ActivityInstance getMonitoredInstance();
 }

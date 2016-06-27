@@ -29,14 +29,14 @@ public abstract class DynamicParticipantSynchronizationStrategy
     * Checks if this user needs to be synchronized.
     * 
     * @param user the user to be checked.
-    * @return 
+    * @return returns <code>true</code> if the user must be synchronized
     */
    public abstract boolean isDirty(IUser user);
    
    /**
     * wrapper to catch and log possible exceptions.
     * 
-    * {@link isDirty(IUserGroup userGroup)}
+    * {@link #isDirty(IUserGroup userGroup)}
     */   
    public final boolean isDirtyLogAware(IUser user)
    {
@@ -55,7 +55,7 @@ public abstract class DynamicParticipantSynchronizationStrategy
 
    /**
     * Callback method to inform the SynchronizationStrategy that the user have been
-    * successfuly synchronized.
+    * successfully synchronized.
     * 
     * @param user the user that has been synchronized.
     */
@@ -64,7 +64,7 @@ public abstract class DynamicParticipantSynchronizationStrategy
    /**
     * wrapper to catch and log possible exceptions.
     * 
-    * {@link setSynchronized(IUser user))}
+    * {@link #setSynchronized(IUser user)}
     */      
    public final void setSynchronizedLogAware(IUser user)
    {
@@ -88,7 +88,7 @@ public abstract class DynamicParticipantSynchronizationStrategy
     * 
     * @param userGroup
     *           the user group to be checked.
-    * @return
+    * @return returns <code>true</code> if the user group must be synchronized
     */
    public boolean isDirty(IUserGroup userGroup)
    {
@@ -115,7 +115,7 @@ public abstract class DynamicParticipantSynchronizationStrategy
     *
     * @param department
     *           the department to be checked.
-    * @return
+    * @return returns <code>true</code> if the department must be synchronized
     */
    public boolean isDirty(IDepartment department)
    {

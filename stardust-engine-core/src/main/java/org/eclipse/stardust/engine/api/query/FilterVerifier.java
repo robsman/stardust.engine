@@ -35,7 +35,7 @@ public interface FilterVerifier extends Serializable
     * Template method for customization of the set of valid filter conditions.
     *
     * @param filter
-    * @return
+    * @return An instance of {@link VerificationKey} that marks the filter verification
     */
    VerificationKey verifyFilter(FilterCriterion filter);
 

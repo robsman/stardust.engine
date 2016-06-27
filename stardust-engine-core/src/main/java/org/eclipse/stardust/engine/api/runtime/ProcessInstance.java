@@ -44,8 +44,6 @@ public interface ProcessInstance extends RuntimeObject, IDescriptorProvider
     * Gets ID of this process instance's definition. Same as {@link #getModelElementID()}.
     *
     * @return The process ID.
-    *
-    * @see #getProcessId()
     */
    String getProcessID();
 
@@ -67,7 +65,7 @@ public interface ProcessInstance extends RuntimeObject, IDescriptorProvider
    long getRootProcessInstanceOID();
 
    /**
-    * Gets the name of the ultimate root process instance. Same as {@link #getName()} for
+    * Gets the name of the ultimate root process instance. Same as {@link #getProcessName()} for
     * top-level processes.
     *
     * @return The name of the ultimate root process instance of this process instance.
@@ -144,7 +142,7 @@ public interface ProcessInstance extends RuntimeObject, IDescriptorProvider
    /**
     * Retrieves extended attributes. Can return null when details level  is not appropriate.
     *
-    * @return
+    * @return Attributes of the process instance
     */
    ProcessInstanceAttributes getAttributes();
 

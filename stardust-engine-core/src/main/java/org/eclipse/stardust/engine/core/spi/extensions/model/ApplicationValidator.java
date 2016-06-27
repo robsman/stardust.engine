@@ -24,7 +24,6 @@ import java.util.Map;
  * @author ubirkemeyer
  * @version $Revision$
  *
- * @see org.eclipse.stardust.engine.core.compatibility.spi.model.gui.ApplicationPropertiesPanel
  */
 public interface ApplicationValidator
 {
@@ -35,13 +34,10 @@ public interface ApplicationValidator
     *
     * @param attributes Implementation specific context attributes.
     * @param typeAttributes Implementation specific application type attributes
-    * @param accessPoints Implemenatation specific {@link AccessPoint}s.
+    * @param accessPoints Implementation specific {@link AccessPoint}s.
     *
     * @return The list of found {@link org.eclipse.stardust.engine.api.model.Inconsistency} instances.
     *
-    * @see org.eclipse.stardust.engine.core.compatibility.spi.model.gui.ApplicationPropertiesPanel#getAttributes()
-    * @see org.eclipse.stardust.engine.core.compatibility.spi.model.gui.ApplicationPropertiesPanel#setTypeAttributes(java.util.Map)
-    * @see org.eclipse.stardust.engine.core.compatibility.spi.model.gui.ApplicationPropertiesPanel#createAccessPoints(org.eclipse.stardust.engine.api.model.IApplication)
     */
    List validate(Map attributes, Map typeAttributes, Iterator accessPoints);
 }

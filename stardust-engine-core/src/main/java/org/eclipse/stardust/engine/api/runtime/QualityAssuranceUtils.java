@@ -226,8 +226,8 @@ public class QualityAssuranceUtils
     * Performs an Algorithm to decide if an activity instance should go under quality
     * assurance
     * 
-    * @param probability - the probability in percentage (0-100), borders inclusive
-    * @return if the activity instance should go under quality
+    * @param activityInstance - the activity instance which should be considered
+    * @return <code>true</code> if the activity instance should go under quality
     */
    public static boolean shouldQualityAssuranceBePerformed(IActivityInstance activityInstance)
    {   

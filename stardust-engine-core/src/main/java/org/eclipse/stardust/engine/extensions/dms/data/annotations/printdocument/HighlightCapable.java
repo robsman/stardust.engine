@@ -17,10 +17,11 @@ public interface HighlightCapable
    /**
     * Adds the Highlight.
     *
+    * @param highlight
+    *
     * @throws org.eclipse.stardust.common.error.InvalidArgumentException
     *            if the id of the Highlight already exists.
     *
-    * @param highlight
     */
    void addHighlight(Highlight highlight);
 
@@ -33,11 +34,11 @@ public interface HighlightCapable
    /**
     * Replaces the stored highlights with the given set.<br>
     *
+    * @param hightlights
+    *
     * @throws org.eclipse.stardust.common.error.InvalidArgumentException
     *            if the given set contains more than one element with the same
     *            Identifiable#id.
-    *
-    * @param hightlights
     */
    void setHighlights(Set<Highlight> hightlights);
 
@@ -45,14 +46,14 @@ public interface HighlightCapable
     *
     * Adds the given set of highlights to the stored ones.<br>
     *
+    * @param highlights
+    * 
     * @throws org.eclipse.stardust.common.error.InvalidArgumentException
     *            if the given set contains more than one element with the same
     *            Identifiable#id.<br>
     * @throws org.eclipse.stardust.common.error.InvalidArgumentException
     *            if the set contains at least one highlight with the same Identifiable#id
     *            as a stored highlight.
-    *
-    * @param hightlights
     */
    void addAllHighlights(Set<Highlight> highlights);
 

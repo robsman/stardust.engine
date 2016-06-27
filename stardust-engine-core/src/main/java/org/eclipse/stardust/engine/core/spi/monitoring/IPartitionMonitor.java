@@ -69,7 +69,7 @@ public interface IPartitionMonitor
     * Client can check if arguments are valid and otherwise throw an DeploymentException.
     * This is called before deployment/overwrite of all models given models is performed.
     * 
-    * @param model
+    * @param models
     * @param isOverwrite
     * @throws DeploymentException
     */
@@ -80,7 +80,7 @@ public interface IPartitionMonitor
     * This is called after deployment/overwrite of all models given models is performed. Still
     *
     *
-    * @param model
+    * @param models
     * @param isOverwrite
     * @throws DeploymentException
     */

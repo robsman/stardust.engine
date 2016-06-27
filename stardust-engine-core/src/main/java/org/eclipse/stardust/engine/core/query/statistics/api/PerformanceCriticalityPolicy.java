@@ -55,7 +55,6 @@ public class PerformanceCriticalityPolicy implements EvaluationPolicy
     * @param normalPriorityCriticalPct The percentage of the "target execution time" parameter a process with priority NORMAL must exceed to be considered critical.
     * @param highPriorityCriticalPct The percentage of the "target execution time" parameter a process with priority HIGH must exceed to be considered critical.
     *
-    * @return
     */
    public static PerformanceCriticalityPolicy criticalityByDuration(
          float lowPriorityCriticalPct, float normalPriorityCriticalPct,

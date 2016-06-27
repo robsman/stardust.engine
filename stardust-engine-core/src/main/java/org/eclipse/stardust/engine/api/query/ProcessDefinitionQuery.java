@@ -81,7 +81,7 @@ public class ProcessDefinitionQuery extends Query
     * @param modelOID specifies the model to retrieve manually startable processes from.
     * @return The configured query.
     *
-    * @see #findStartable(Strinzg triggerType)
+    * @see #findStartable(String triggerType)
     */
    public static ProcessDefinitionQuery findStartable(long modelOID)
    {

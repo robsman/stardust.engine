@@ -37,7 +37,7 @@ public class CriticalExecutionTimePolicy extends AbstractCriticalDurationPolicy
     * @param normalPriorityCriticalPct The percentage of the "target execution time" parameter a process with priority NORMAL must exceed to be considered critical.
     * @param highPriorityCriticalPct The percentage of the "target execution time" parameter a process with priority HIGH must exceed to be considered critical.
     *
-    * @return
+    * @return Instance of {@link CriticalExecutionTimePolicy} with the given thresholds
     */
    public static CriticalExecutionTimePolicy criticalityByDuration(
          float lowPriorityCriticalPct, float normalPriorityCriticalPct,

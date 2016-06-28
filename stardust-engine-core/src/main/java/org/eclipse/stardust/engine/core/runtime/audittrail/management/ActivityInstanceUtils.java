@@ -102,9 +102,7 @@ public class ActivityInstanceUtils
 
       if (AbortScope.RootHierarchy == abortScope)
       {
-         IProcessInstance processInstance = ai.getProcessInstance();
-         ProcessInstanceUtils.abortProcessInstance(ProcessInstanceUtils.getActualRootPI(processInstance));
-
+         ProcessInstanceUtils.abortProcessInstance(ProcessInstanceUtils.getActualRootPI(pi));
       }
       else if (AbortScope.SubHierarchy == abortScope)
       {

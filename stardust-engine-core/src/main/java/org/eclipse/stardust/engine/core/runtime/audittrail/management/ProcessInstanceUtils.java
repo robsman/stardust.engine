@@ -542,6 +542,22 @@ public class ProcessInstanceUtils
          }
       }
    }
+   
+   private static void lockAndReloadState(IProcessInstance pi)
+   {
+      if (pi.getPersistenceController() != null && !pi.getPersistenceController().isLocked())
+      {
+         pi.lock();
+         try
+         {
+            ((PersistentBean) pi).reloadAttribute(ProcessInstanceBean.FIELD__STATE);
+         }
+         catch (PhantomException e)
+         {
+            throw new InternalException(e);
+         }
+      }
+   }
 
    public static int deleteProcessInstances(List<Long> piOids, Session session)
    {
@@ -1093,6 +1109,7 @@ public class ProcessInstanceUtils
       if (process.getStartingActivityInstance() == null)
       {
          IProcessInstance root = process.getRootProcessInstance();
+         lockAndReloadState(root);
          if (!root.isTerminated() && !root.isAborting() && root.isCaseProcessInstance())
          {
             List<IProcessInstance> members = ProcessInstanceHierarchyBean.findChildren(root);
@@ -1106,6 +1123,11 @@ public class ProcessInstanceUtils
                {
                   if (!member.isTerminated())
                   {
+                     if(trace.isDebugEnabled())
+                     {
+                        trace.debug("Member: " + member 
+                              + " is not terminated, keep default case activities alive");
+                     }
                      return;
                   }
                }

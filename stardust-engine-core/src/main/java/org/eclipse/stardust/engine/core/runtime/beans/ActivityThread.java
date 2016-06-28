@@ -282,10 +282,9 @@ public class ActivityThread implements Runnable
       }
 
       // TODO: (fh) verify this
-      if (isInHaltingPiHierarchyAndHaltable())
+      /*if (isInHaltingPiHierarchyAndHaltable())
       {
-         Long oid = (Long) processInstance
-               .getPropertyValue(ProcessInstanceBean.HALTING_USER_OID);
+         Long oid = (Long) processInstance.getPropertyValue(ProcessInstanceBean.HALTING_USER_OID);
          if (oid == null)
          {
             oid = Long.valueOf(0);
@@ -305,7 +304,7 @@ public class ActivityThread implements Runnable
          ProcessHaltJanitor.schedule(processInstance.getOID(), oid);
          //throw new IllegalOperationException(error);
          return;
-      }
+      }*/
 
       if (trace.isDebugEnabled())
       {

@@ -461,6 +461,20 @@ public class SpawnPeerInsertProcessTest
       assertActivityInstanceExists(pi.getOID(), "Activity_1", ActivityInstanceState.HIBERNATED);
    }
 
+   //@Test
+   public void repeatedTestActivityStateChangeEvent() throws TimeoutException, InterruptedException
+   {
+      for (int i = 0; i < 10; i++)
+      {
+         sf.getAdministrationService().cleanupRuntime(true);
+         ProcessInstanceStateBarrier.instance().cleanUp();
+         ActivityInstanceStateBarrier.instance().cleanUp();
+
+         System.err.println("*** " + (i + 1) + " ***");
+         testActivityStateChangeEvent();
+      }
+   }
+
    @Test
    public void testActivityStateChangeEvent() throws TimeoutException, InterruptedException
    {
@@ -503,6 +517,10 @@ public class SpawnPeerInsertProcessTest
       assertActivityInstanceExists(pi.getOID(), "SuspendedtoHalted", ActivityInstanceState.SUSPENDED);
       assertActivityInstanceExists(pi.getOID(), "HaltedtoNA", ActivityInstanceState.SUSPENDED);
       assertActivityInstanceExists(pi.getOID(), "HaltedtoSuspended", ActivityInstanceState.SUSPENDED);
+
+      // The barrier gets triggered before the database is actually committed.
+      doWait(2000);
+
       assertActivityInstanceCount("ShowDoc", "DisplayDocData", 4, ActivityInstanceState.SUSPENDED);
    }
 
@@ -618,6 +636,16 @@ public class SpawnPeerInsertProcessTest
 
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
       assertActivityInstanceExists(pi.getOID(), "Activity_1", ActivityInstanceState.INTERRUPTED);
+   }
+
+   //@Test
+   public void repeatedTestSubProcessWorksAfterApplicationStateAICompleted() throws TimeoutException, InterruptedException
+   {
+      for (int i = 0; i < 10; i++)
+      {
+         System.err.println("*** Test # " + (i + 1) + " ***");
+         testSubProcessWorksAfterApplicationStateAICompleted();
+      }
    }
 
    @Test

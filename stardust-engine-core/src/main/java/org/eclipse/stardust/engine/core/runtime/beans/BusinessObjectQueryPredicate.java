@@ -227,5 +227,10 @@ public class BusinessObjectQueryPredicate extends ModelAwareQueryPredicate<IData
       {
          return null;
       }
+      
+      public Object visit(DescriptorFilter filter, Object context)
+      {
+         return null;
+      }
    }
 }

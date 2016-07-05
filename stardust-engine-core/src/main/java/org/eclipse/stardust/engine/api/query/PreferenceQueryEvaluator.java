@@ -248,6 +248,12 @@ public class PreferenceQueryEvaluator implements FilterEvaluationVisitor
       // TODO Auto-generated method stub
       throw new UnsupportedOperationException();
    }
+   
+   public Object visit(DescriptorFilter filter, Object context)
+   {
+      // TODO Auto-generated method stub
+      throw new UnsupportedOperationException();
+   }
 
    public PreferenceScope getScope()
    {

@@ -87,7 +87,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
 
       final ModelManager modelManager = ModelManagerFactory.getCurrent();
 
-      int cnt = 0;
+      int cnt = dataFilterExtensionContext.getJoins() == null ? 0 : dataFilterExtensionContext.getJoins().size();
       Iterator<List<AbstractDataFilter>> iter = new FilteringIterator(dataFilterExtensionContext
             .getDataFiltersByDataId().values().iterator(), new Predicate()
       {

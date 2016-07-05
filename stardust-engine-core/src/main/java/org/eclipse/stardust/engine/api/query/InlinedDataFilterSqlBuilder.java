@@ -11,18 +11,25 @@
 package org.eclipse.stardust.engine.api.query;
 
 import java.text.MessageFormat;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.io.Serializable;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IDataPath;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.Operator.Binary;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensionContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
-
 
 /**
  * @author rsauer
@@ -37,8 +44,9 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
    protected static final String FIELD_GLUE_ROOT_PROCESS_INSTANCE = ProcessInstanceScopeBean.FIELD__ROOT_PROCESS_INSTANCE;
 
    /**
-    * Has to be the same value as {@link ProcessInstanceBean#FIELD__SCOPE_PROCESS_INSTANCE}
-    * and {@link ProcessInstanceScopeBean#FIELD__SCOPE_PROCESS_INSTANCE}
+    * Has to be the same value as
+    * {@link ProcessInstanceBean#FIELD__SCOPE_PROCESS_INSTANCE} and
+    * {@link ProcessInstanceScopeBean#FIELD__SCOPE_PROCESS_INSTANCE}
     */
    protected static final String FIELD_GLUE_SCOPE_PROCESS_INSTANCE = ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE;
 
@@ -66,22 +74,24 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
       // join will eventually be reused by successive DataFilters targeting the same
       // dataID (especially needed for ORed predicate to prevent combinatorial explosion)
 
-      Pair joinKey = new Pair(Integer.valueOf(filter.getFilterMode()), new DataAttributeKey(filter));
+      Pair joinKey = new Pair(Integer.valueOf(filter.getFilterMode()),
+            new DataAttributeKey(filter));
       Join dvJoin = (Join) dataJoinMapping.get(joinKey);
 
       // collect qualifying data OIDs
       Map<Long, IData> dataMap = findAllDataRtOids(filter.getDataID(), context
             .getEvaluationContext().getModelManager());
-      DataFilterExtension dataFilterExtension = SpiUtils.createDataFilterExtension(
-            dataMap);
+      DataFilterExtension dataFilterExtension = SpiUtils
+            .createDataFilterExtension(dataMap);
 
-      final DataFilterExtensionContext dataFilterExtensionContext = context.getDataFilterExtensionContext();
+      final DataFilterExtensionContext dataFilterExtensionContext = context
+            .getDataFilterExtensionContext();
       if (null == dvJoin || isNotAnyOfFilter)
       {
          // first use of this specific dataID, setup join
          // a dummy queryDescriptor needed here
-         QueryDescriptor queryDescriptor = QueryDescriptor.from(ProcessInstanceBean.class)
-               .select(ProcessInstanceBean.FIELD__OID,
+         QueryDescriptor queryDescriptor = QueryDescriptor
+               .from(ProcessInstanceBean.class).select(ProcessInstanceBean.FIELD__OID,
                      ProcessInstanceBean.FIELD__SCOPE_PROCESS_INSTANCE);
 
          JoinFactory joinFactory = new JoinFactory(context);
@@ -93,19 +103,18 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
          // use INNER JOIN if all predicates are true
          // otherwise use LEFT OUTER JOIN
          // @formatter:off
-         dvJoin.setRequired(isFilterUsedInAndTerm
-               && !isPrefetchHint
-               && !isIsNullFilter
+         dvJoin.setRequired(isFilterUsedInAndTerm && !isPrefetchHint && !isIsNullFilter
                && !isNotAnyOfFilter);
 
          // TODO: check if useDistinct has to be always set for isNotAnyOfFilter
-         final boolean useDistinct = isNotAnyOfFilter || dataFilterExtensionContext.useDistinct();
+         final boolean useDistinct = isNotAnyOfFilter
+               || dataFilterExtensionContext.useDistinct();
          if (useDistinct)
          {
             context.useDistinct(useDistinct);
          }
 
-         if(isNotAnyOfFilter)
+         if (isNotAnyOfFilter)
          {
             // this shall never match with other key - use the join itself as key
             dataJoinMapping.put(dvJoin, dvJoin);
@@ -128,9 +137,7 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
          // then force join to be an INNER JOIN
          // otherwise leave it as it is
          // @formatter:off
-         if (isFilterUsedInAndTerm
-               && !isPrefetchHint
-               && !isIsNullFilter
+         if (isFilterUsedInAndTerm && !isPrefetchHint && !isIsNullFilter
                && !isNotAnyOfFilter)
          {
             dvJoin.setRequired(true);
@@ -146,17 +153,112 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
       }
       else
       {
-         PredicateTerm predicateTerm = dataFilterExtension.createPredicateTerm(dvJoin, filter, dataMap,
-               dataFilterExtensionContext);
+         PredicateTerm predicateTerm = dataFilterExtension.createPredicateTerm(dvJoin,
+               filter, dataMap, dataFilterExtensionContext);
 
          return predicateTerm;
       }
    }
 
+   public Object visit(DescriptorFilter filter, Object rawContext)
+   {
+      VisitationContext context = (VisitationContext) rawContext;
+      if (DataValueBean.isLargeValue(filter.getOperand()))
+      {
+         throw new InternalException(
+               "Inlined data filter evaluation is not supported for big data values.");
+      }
+      
+      String descriptorID = filter.getDescriptorID();
+      OrTerm orTerm = new OrTerm();
+      List<AbstractDataFilter> dataFilters = CollectionUtils.newList();
+      Map<String, String> dataAccessPath = getDescriptorDataAccessPathMap(descriptorID,
+            context.getEvaluationContext().getModelManager());
+      for (Map.Entry<String, String> entry : dataAccessPath.entrySet())
+      {
+         String dataID = entry.getKey();
+         String attributeName = entry.getValue();
+         if (filter.getOperator() instanceof Binary)
+         {
+            dataFilters.add(new DataFilter(dataID, attributeName,
+                  (Operator.Binary) filter.getOperator(), filter.getOperand(), filter
+                        .getFilterMode()));
+         }
+         else
+         {
+            dataFilters.add(new DataFilter(dataID, attributeName,
+                  (Operator.Ternary) filter.getOperator(), (Serializable) ((Pair) filter
+                        .getOperand()).getFirst(), (Serializable) ((Pair) filter
+                        .getOperand()).getSecond(), filter.getFilterMode()));
+         }
+      }
+      DataFilterExtensionContext ctx = new DataFilterExtensionContext(dataFilters);
+      DataFilterExtensionContext dataFilterExtensionContext = context
+            .getDataFilterExtensionContext();
+      dataFilterExtensionContext.setContent(null);
+      Map<String, List<AbstractDataFilter>> dataFiltersByDataId = ctx
+            .getDataFiltersByDataId();
+      for (Map.Entry<String, List<AbstractDataFilter>> entry : dataFiltersByDataId
+            .entrySet())
+      {
+         dataFilterExtensionContext.getDataFiltersByDataId().put(entry.getKey(),
+               entry.getValue());
+      }
+      for (AbstractDataFilter dataFilter : dataFilters)
+      {
+         if (context != null)
+         {
+            context.pushFilterKind(FilterTerm.OR);
+         }
+         PredicateTerm predicate = (PredicateTerm) visit(dataFilter, rawContext);
+         orTerm.add(predicate);
+      }
+      return orTerm;
+   }
+
+   protected static Map<String, String> getDescriptorDataAccessPathMap(String descriptorID,
+         ModelManager modelManager)
+   {
+      Map<String, String> dataAccessPath = CollectionUtils.newMap();
+      List<IDataPath> descriptors = getAllDescriptors(descriptorID, modelManager);
+      for (IDataPath descriptor : descriptors)
+      {
+         String accessPath = descriptor.getAccessPath();
+         IData data = descriptor.getData();
+         dataAccessPath.put(data.getId(), accessPath);
+      }
+      return dataAccessPath;
+   }
+
+   protected static List<IDataPath> getAllDescriptors(String descriptorID,
+         ModelManager modelManager)
+   {
+      List<IDataPath> descriptors = CollectionUtils.newList();
+      for (IModel model : modelManager.getModels())
+      {
+         ModelElementList<IProcessDefinition> processDefinitions = model
+               .getProcessDefinitions();
+         for (IProcessDefinition pd : processDefinitions)
+         {
+            for (Iterator iterator = pd.getAllDescriptors(); iterator.hasNext();)
+            {
+               IDataPath descriptor = (IDataPath) iterator.next();
+               if (descriptorID.equals(descriptor.getId()))
+               {
+                  descriptors.add(descriptor);
+               }
+            }
+         }
+      }
+      return descriptors;
+   }
+
    protected class JoinFactory implements IJoinFactory
    {
       private final VisitationContext context;
+
       protected final boolean isProcInstQuery;
+
       protected final boolean isAiQueryUsingWorkItem;
 
       public JoinFactory(VisitationContext context)
@@ -168,13 +270,15 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
                .getType());
       }
 
-      public Join createDataFilterJoins(int dataFilterMode, int idx, Class dvClass, FieldRef dvProcessInstanceField)
+      public Join createDataFilterJoins(int dataFilterMode, int idx, Class dvClass,
+            FieldRef dvProcessInstanceField)
       {
          final Join dvJoin;
 
          final String pisAlias;
          final String pihAlias = "PR_PIH" + idx;
-         final String dvAlias = "PR_"+ dvProcessInstanceField.getType().getTableAlias() + idx;
+         final String dvAlias = "PR_" + dvProcessInstanceField.getType().getTableAlias()
+               + idx;
 
          if (AbstractDataFilter.MODE_ALL_FROM_SCOPE == dataFilterMode)
          {
@@ -190,7 +294,7 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
          else if (AbstractDataFilter.MODE_SUBPROCESSES == dataFilterMode)
          {
             // TODO (peekaboo): Improve detection whether distinct is needed.
-            //incSubProcModeCounter();
+            // incSubProcModeCounter();
             context.useDistinct(true);
 
             FieldRef lhsFieldRef;
@@ -211,11 +315,13 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
                   .on(lhsFieldRef,
                         ProcessInstanceHierarchyBean.FIELD__SUB_PROCESS_INSTANCE);
 
-            dataJoinMapping.put(new Pair(
-                  Integer.valueOf(AbstractDataFilter.MODE_SUBPROCESSES), pihAlias), hierJoin);
+            dataJoinMapping.put(
+                  new Pair(Integer.valueOf(AbstractDataFilter.MODE_SUBPROCESSES),
+                        pihAlias), hierJoin);
 
             dvJoin = new Join(dvClass, dvAlias)//
-                  .on(hierJoin.fieldRef(ProcessInstanceHierarchyBean.FIELD__PROCESS_INSTANCE),
+                  .on(hierJoin
+                        .fieldRef(ProcessInstanceHierarchyBean.FIELD__PROCESS_INSTANCE),
                         dvProcessInstanceField.fieldName);
 
             dvJoin.setDependency(hierJoin);
@@ -223,14 +329,15 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
          else if (AbstractDataFilter.MODE_ALL_FROM_HIERARCHY == dataFilterMode)
          {
             // TODO (peekaboo): Improve detection whether distinct is needed.
-            //incAllFromHierModeCounter();
+            // incAllFromHierModeCounter();
             context.useDistinct(true);
 
             Join pisJoin;
             pisAlias = "PR_PIS" + idx;
 
             pisJoin = new Join(ProcessInstanceScopeBean.class, pisAlias)//
-                  .on(getRootPiFieldRef(), ProcessInstanceScopeBean.FIELD__ROOT_PROCESS_INSTANCE);
+                  .on(getRootPiFieldRef(),
+                        ProcessInstanceScopeBean.FIELD__ROOT_PROCESS_INSTANCE);
 
             Join rootPiGlueJoin = getGlueJoin();
             if (null != rootPiGlueJoin)
@@ -238,11 +345,14 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
                pisJoin.setDependency(rootPiGlueJoin);
             }
 
-            dataJoinMapping.put(new Pair(Integer.valueOf(
-                  AbstractDataFilter.MODE_ALL_FROM_HIERARCHY), pisAlias), pisJoin);
+            dataJoinMapping.put(
+                  new Pair(Integer.valueOf(AbstractDataFilter.MODE_ALL_FROM_HIERARCHY),
+                        pisAlias), pisJoin);
 
-            dvJoin = new Join(dvClass, dvAlias)//
-                  .on(pisJoin.fieldRef(ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE),
+            dvJoin = new Join(dvClass, dvAlias)
+                  //
+                  .on(pisJoin
+                        .fieldRef(ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE),
                         dvProcessInstanceField.fieldName);
 
             dvJoin.setDependency(pisJoin);
@@ -250,7 +360,8 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
          else
          {
             throw new InternalException(MessageFormat.format(
-                  "Invalid DataFilter mode: {0}.", new Object[] { Integer.valueOf(dataFilterMode) }));
+                  "Invalid DataFilter mode: {0}.",
+                  new Object[] {Integer.valueOf(dataFilterMode)}));
          }
 
          return dvJoin;

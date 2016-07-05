@@ -173,4 +173,9 @@ public class FilterCopier implements FilterEvaluationVisitor
    {
       return filter;
    }
+   
+   public Object visit(DescriptorFilter filter, Object context)
+   {
+      return filter;
+   }
 }

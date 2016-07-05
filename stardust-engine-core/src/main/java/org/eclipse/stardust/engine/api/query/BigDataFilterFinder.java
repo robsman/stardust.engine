@@ -142,4 +142,9 @@ public class BigDataFilterFinder implements FilterEvaluationVisitor
    {
       return Boolean.FALSE;
    }
+   
+   public Object visit(DescriptorFilter filter, Object context)
+   {
+      return Boolean.FALSE;
+   }
 }

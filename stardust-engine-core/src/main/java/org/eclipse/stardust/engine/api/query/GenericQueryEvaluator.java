@@ -899,4 +899,9 @@ public final class GenericQueryEvaluator implements FilterEvaluationVisitor
    {
       return NOTHING;
    }
+   
+   public Object visit(DescriptorFilter filter, Object context)
+   {
+      return NOTHING;
+   }
 }

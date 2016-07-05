@@ -305,6 +305,11 @@ public class ProcessHierarchyPreprocessor implements FilterEvaluationVisitor
    {
       return new Node(filter);
    }
+   
+   public Object visit(DescriptorFilter filter, Object context)
+   {
+      return new Node(filter);
+   }
 
    protected static Set intersection(Set lhs, Set rhs)
    {

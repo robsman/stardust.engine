@@ -343,5 +343,10 @@ public abstract class AbstractQueryPredicate<T> implements Predicate<T>
       {
          throw new IllegalArgumentException("Unsupported filter: " + filter.getClass());
       }
+      
+      public Object visit(DescriptorFilter filter, Object context)
+      {
+         throw new IllegalArgumentException("Unsupported filter: " + filter.getClass());
+      }
    };
 }

@@ -1605,6 +1605,13 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
 
       return NOTHING;
    }
+   
+   public Object visit(DescriptorFilter filter, Object rawContext)
+   {
+      Assert.lineNeverReached("DataFilter should be removed during preprocessing");
+
+      return NOTHING;
+   }
 
    public Object visit(DocumentFilter filter, Object rawContext)
    {

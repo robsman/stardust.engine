@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.query.SqlBuilderBase.VisitationContext;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.persistence.*;
@@ -231,6 +232,105 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
          resultTerm = (PredicateTerm) super.visit(filter, rawContext);
       }
 
+      return resultTerm;
+   }
+   
+   public Object visit(DescriptorFilter filter, Object rawContext)
+   {
+      ClusteredDataVisitationContext context = (ClusteredDataVisitationContext) rawContext;
+      if (DataValueBean.isLargeValue(filter.getOperand()))
+      {
+         throw new InternalException(
+               "Inlined data filter evaluation is not supported for big data values.");
+      }
+      
+      String descriptorID = filter.getDescriptorID();
+      PredicateTerm resultTerm = null;
+      final Integer dataFilterMode = Integer.valueOf(filter.getFilterMode());
+      Map<String, String> dataAccessPath = getDescriptorDataAccessPathMap(descriptorID,
+            context.getEvaluationContext().getModelManager());
+      for (Map.Entry<String, String> entry : dataAccessPath.entrySet())
+      {
+         String dataID = entry.getKey();
+         String attributeName = entry.getValue();
+         final DataAttributeKey filterKey;
+         IData data = findCorrespondingData(dataID, context.getEvaluationContext().getModelManager());
+         if(data != null)
+         {
+            filterKey = new DataAttributeKey(data, attributeName);
+         }
+         else
+         {
+            filterKey = new DataAttributeKey(dataID, attributeName);
+         }
+         
+//         Set<DataCluster> boundClusters = context.getClusterBindings().get(filterKey);
+//         if (null != boundClusters
+//               // Clusters can only be used for this data scope mode (default mode).
+//               && AbstractDataFilter.MODE_ALL_FROM_SCOPE == dataFilterMode.intValue())
+//         {
+//            resultTerm = new AndTerm();
+//
+//            JoinFactory joinFactory = new JoinFactory(cntxt);
+//
+//            for (DataCluster cluster : boundClusters)
+//            {
+//               DescriptorSlot slot = cluster.getSlot(filterKey.getDataId(), filterKey.getAttributeName());
+//               if (null == slot)
+//               {
+//                  throw new InternalException("Invalid cluster binding for data ID "
+//                        + filterKey.getDataId() + " and cluster " + cluster.getTableName());
+//               }
+//
+//               boolean ignorePreparedStatements = slot.isIgnorePreparedStatements();
+//               Pair joinKey = new Pair(dataFilterMode, cluster);
+//               Join clusterJoin = (Join) cntxt.clusterJoins.get(joinKey);
+//               if (null == clusterJoin)
+//               {
+//                  // first use of this specific cluster, setup join
+//                  final int idx = cntxt.clusterJoins.size() + 1;
+//                  final String clusterAlias = "PR_DVCL" + idx;
+//
+//                  clusterJoin = new Join(cluster, clusterAlias) //
+//                        .on(joinFactory.getScopePiFieldRef(), cluster.getProcessInstanceColumn());
+//
+//                  Join scopePiGlueJoin = joinFactory.getGlueJoin();
+//                  if (null != scopePiGlueJoin)
+//                  {
+//                     clusterJoin.setDependency(scopePiGlueJoin);
+//                  }
+//
+//                  cntxt.clusterJoins.put(joinKey, clusterJoin);
+//               }
+//
+//               if (isPrefetchHint)
+//               {
+//                  final List<FieldRef> selectExtension = cntxt.getSelectExtension();
+//
+//                  selectExtension.add(clusterJoin.fieldRef(slot.getTypeColumn(), ignorePreparedStatements));
+//                  selectExtension.add(clusterJoin.fieldRef(slot.getSValueColumn(), ignorePreparedStatements));
+//                  // Workaround: cluster column count needs to be dividable by 3,
+//                  // third column can be any number as nValueColumns are never prefetched
+//                  selectExtension.add(clusterJoin.fieldRef(slot.getTypeColumn(), ignorePreparedStatements));
+//
+//                  return NOTHING;
+//               }
+//               else
+//               {
+//                  IEvaluationOptionProvider evalProvider = filter;
+//                  ((AndTerm) resultTerm).add(matchDataInstancesPredicate(ignorePreparedStatements, filter
+//                        .getOperator(), filter.getOperand(), clusterJoin, slot
+//                        .getTypeColumn(), slot.getNValueColumn(), slot.getSValueColumn(),
+//                        evalProvider));
+//               }
+//            }
+//         }
+//         else
+//         {
+//            resultTerm = (PredicateTerm) super.visit(filter, rawContext);
+//         }
+
+      }
       return resultTerm;
    }
 
@@ -909,6 +1009,11 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
       }
 
       public Object visit(DocumentFilter filter, Object context)
+      {
+         return null;
+      }
+
+      public Object visit(DescriptorFilter filter, Object context)
       {
          return null;
       }

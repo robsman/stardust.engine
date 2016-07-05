@@ -205,5 +205,11 @@ public class DocumentXPathQueryFilterEvaluator implements FilterEvaluationVisito
       // TODO Auto-generated method stub
       throw new UnsupportedOperationException();
    }
+   
+   public Object visit(DescriptorFilter filter, Object context)
+   {
+      // TODO Auto-generated method stub
+      throw new UnsupportedOperationException();
+   }
 
 }

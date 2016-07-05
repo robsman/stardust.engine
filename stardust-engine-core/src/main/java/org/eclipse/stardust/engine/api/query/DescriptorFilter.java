@@ -16,19 +16,10 @@ import java.util.*;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IDataPath;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-import org.eclipse.stardust.engine.core.persistence.EvaluationOption;
-import org.eclipse.stardust.engine.core.persistence.IEvaluationOptionProvider;
-import org.eclipse.stardust.engine.core.persistence.Operator;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.Operator.Binary;
 import org.eclipse.stardust.engine.core.persistence.Operator.Ternary;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 
 public class DescriptorFilter implements FilterCriterion, IEvaluationOptionProvider
 {
@@ -312,56 +303,6 @@ public class DescriptorFilter implements FilterCriterion, IEvaluationOptionProvi
 
       return new DescriptorFilter(descriptorID, Operator.NOT_IN, new ArrayList(values),
             MODE_ALL_FROM_SCOPE);
-   }
-
-   private static Map<String, String> getDescriptorDataAccessPathMap(String descriptorID)
-   {
-      Map<String, String> dataAccessPath = CollectionUtils.newMap();
-      List<IDataPath> descriptors = getAllDescriptors(descriptorID);
-      for (IDataPath descriptor : descriptors)
-      {
-         String accessPath = descriptor.getAccessPath();
-         IData data = descriptor.getData();
-         dataAccessPath.put(data.getId(), accessPath);
-      }
-      return dataAccessPath;
-   }
-
-   private static List<IDataPath> getAllDescriptors(String descriptorID)
-   {
-      List<IDataPath> descriptors = CollectionUtils.newList();
-      ModelManager modelManager = ModelManagerFactory.getCurrent();
-      for (IModel model : modelManager.getModels())
-      {
-         ModelElementList<IProcessDefinition> processDefinitions = model
-               .getProcessDefinitions();
-         for (IProcessDefinition pd : processDefinitions)
-         {
-            for (Iterator iterator = pd.getAllDescriptors(); iterator.hasNext();)
-            {
-               IDataPath descriptor = (IDataPath) iterator.next();
-               if (descriptorID.equals(descriptor.getId()))
-               {
-                  descriptors.add(descriptor);
-               }
-            }
-         }
-      }
-      // IModel activeModel = modelManager.findActiveModel();
-      // ModelElementList<IProcessDefinition> processDefinitions = activeModel
-      // .getProcessDefinitions();
-      // for (IProcessDefinition pd : processDefinitions)
-      // {
-      // for (Iterator iterator = pd.getAllDescriptors(); iterator.hasNext();)
-      // {
-      // IDataPath descriptor = (IDataPath) iterator.next();
-      // if (descriptorID.equals(descriptor.getId()))
-      // {
-      // descriptors.add(descriptor);
-      // }
-      // }
-      // }
-      return descriptors;
    }
 
    public String getDescriptorID()

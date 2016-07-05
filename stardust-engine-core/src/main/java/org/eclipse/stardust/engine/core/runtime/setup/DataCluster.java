@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,11 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.setup;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
@@ -23,29 +19,32 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.TableDescriptor;
 
 
 /**
- * 
+ *
  * @author rsauer
  * @version $Revision$
  */
 public class DataCluster extends TableDescriptor
 {
    private final String tableName;
-
    private final String processInstanceColumn;
 
-   private final List<DataSlot> slots;
+   private final List<DataSlot> dataSlots;
+   private final Map<String, Map<String, DataSlot>> dataSlotsByDataAndAttribute;
+
+   private final List<DescriptorSlot> descriptorSlots;
+   private final Map<String, DescriptorSlot> descriptorSlotsByDescriptorId;
+
    private final Map<String, DataClusterIndex> indexes;
-   private final Map<String, Map<String, DataSlot>> slotsByDataAndAttribute;
    private final Set<DataClusterEnableState> enableStates;
-   
+
    public enum DataClusterEnableState {
-      ALL(ProcessInstanceState.Created, ProcessInstanceState.Active, 
+      ALL(ProcessInstanceState.Created, ProcessInstanceState.Active,
           ProcessInstanceState.Aborting, ProcessInstanceState.Aborted,
           ProcessInstanceState.Interrupted, ProcessInstanceState.Completed),  
-      ALIVE(ProcessInstanceState.Created, ProcessInstanceState.Active, 
+      ALIVE(ProcessInstanceState.Created, ProcessInstanceState.Active,
             ProcessInstanceState.Aborting, ProcessInstanceState.Interrupted),  
-      CREATED(ProcessInstanceState.Created),      
-      ACTIVE(ProcessInstanceState.Active),   
+      CREATED(ProcessInstanceState.Created),
+      ACTIVE(ProcessInstanceState.Active),
       ABORTING(ProcessInstanceState.Aborting),
       ABORTED(ProcessInstanceState.Aborted),
       INTERRUPTED(ProcessInstanceState.Interrupted),
@@ -62,33 +61,47 @@ public class DataCluster extends TableDescriptor
          return piStates;
       }
    }
-   
-   public DataCluster(String schemaName, String tableName, String processInstanceColumn, DataSlot[] slots,
+
+   public DataCluster(String schemaName, String tableName, String processInstanceColumn,
+         DataSlot[] dataSlots, DescriptorSlot[] descriptorSlots,
          DataClusterIndex[] indexes, Set<DataClusterEnableState> enableStates)
    {
       super(schemaName);
-      
+
       this.tableName = tableName;
       this.processInstanceColumn = processInstanceColumn;
       this.enableStates = enableStates;
-      this.slots = new LinkedList();
-      this.slotsByDataAndAttribute = CollectionUtils.newHashMap();
-      for (int i = 0; i < slots.length; i++ )
+
+      // init data slot storage
+      this.dataSlots = CollectionUtils.newArrayList(dataSlots.length);
+      this.dataSlotsByDataAndAttribute = CollectionUtils.newHashMap(dataSlots.length);
+
+      for (int i = 0; i < dataSlots.length; i++ )
       {
-         DataSlot slot = slots[i];
-         slot.setParent(this);
-         
-         this.slots.add(slot);
-         
-         Map<String, DataSlot> slotsByAttribute = this.slotsByDataAndAttribute.get(slot.getQualifiedDataId());
+         DataSlot dataSlot = dataSlots[i];
+         dataSlot.setParent(this);
+
+         this.dataSlots.add(dataSlot);
+
+         Map<String, DataSlot> slotsByAttribute = this.dataSlotsByDataAndAttribute.get(dataSlot.getQualifiedDataId());
          if (slotsByAttribute == null)
          {
             slotsByAttribute = CollectionUtils.newHashMap();
-            this.slotsByDataAndAttribute.put(slot.getQualifiedDataId(), slotsByAttribute);
+            this.dataSlotsByDataAndAttribute.put(dataSlot.getQualifiedDataId(), slotsByAttribute);
          }
-         slotsByAttribute.put(slot.getAttributeName(), slot);
+         slotsByAttribute.put(dataSlot.getAttributeName(), dataSlot);
       }
 
+      // init descriptor slot storage
+      this.descriptorSlots = Arrays.asList(descriptorSlots);
+      this.descriptorSlotsByDescriptorId = CollectionUtils.newHashMap(descriptorSlots.length);
+      for (DescriptorSlot descriptorSlot : descriptorSlots)
+      {
+         descriptorSlot.setParent(this);
+         descriptorSlotsByDescriptorId.put(descriptorSlot.getDescriptorId(), descriptorSlot);
+      }
+
+      // init index storage
       this.indexes = CollectionUtils.newHashMap(indexes.length);
       for (int i = 0; i < indexes.length; i++ )
       {
@@ -101,7 +114,7 @@ public class DataCluster extends TableDescriptor
    {
       return tableName;
    }
-   
+
    public String getQualifiedTableName()
    {
       StringBuffer fullTableName = new StringBuffer();
@@ -111,10 +124,10 @@ public class DataCluster extends TableDescriptor
          fullTableName.append(".");
       }
       fullTableName.append(tableName);
-      
+
       return fullTableName.toString();
    }
-   
+
    public String getTableAlias()
    {
       return null;
@@ -127,22 +140,22 @@ public class DataCluster extends TableDescriptor
 
    public List<DataSlot> getAllSlots()
    {
-      return Collections.unmodifiableList(slots);
+      return Collections.unmodifiableList(dataSlots);
    }
-   
+
    public Map<String, DataSlot> getSlots(String fqDataId)
    {
-      Map<String, DataSlot> slotsByAttribute = this.slotsByDataAndAttribute.get(fqDataId);
+      Map<String, DataSlot> slotsByAttribute = this.dataSlotsByDataAndAttribute.get(fqDataId);
       if (slotsByAttribute == null)
       {
          return Collections.emptyMap();
       }
       return Collections.unmodifiableMap(slotsByAttribute);
    }
-   
+
    public DataSlot getSlot(String fqDataId, String attributeName)
    {
-      Map<String, DataSlot> slotsByAttribute = this.slotsByDataAndAttribute.get(fqDataId);
+      Map<String, DataSlot> slotsByAttribute = this.dataSlotsByDataAndAttribute.get(fqDataId);
       if (slotsByAttribute == null)
       {
          return null;
@@ -154,11 +167,21 @@ public class DataCluster extends TableDescriptor
       return slotsByAttribute.get(attributeName);
    }
 
+   public List<DescriptorSlot> getDescriptorSlots()
+   {
+      return Collections.unmodifiableList(descriptorSlots);
+   }
+
+   public DescriptorSlot getDescriptorSlot(String descriptorId)
+   {
+      return descriptorSlotsByDescriptorId.get(descriptorId);
+   }
+
    public Map<String, DataClusterIndex> getIndexes()
    {
       return Collections.unmodifiableMap(indexes);
    }
-   
+
    public boolean isEnabledFor(ProcessInstanceState piState)
    {
       for(DataClusterEnableState enableState: enableStates)
@@ -171,10 +194,10 @@ public class DataCluster extends TableDescriptor
             }
          }
       }
-      
+
       return false;
    }
-   
+
    public boolean isEnabledFor(Set<ProcessInstanceState> piStates)
    {
       if(!piStates.isEmpty())
@@ -184,13 +207,13 @@ public class DataCluster extends TableDescriptor
          {
             enabled &= isEnabledFor(piState);
          }
-         
+
          return enabled;
       }
-            
+
       return true;
    }
-   
+
    public Set<DataClusterEnableState> getEnableStates()
    {
       return enableStates;

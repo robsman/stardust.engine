@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
@@ -233,6 +234,20 @@ public class DataPathBean extends IdentifiableElementBean
                      {
                         BpmValidationError error = BpmValidationError.ACCESSPATH_INVALID_FOR_DATAPATH.raise(accessPath, getId());
                         inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                        e.printStackTrace();
+                     }
+                     else
+                     {
+                        throw e;
+                     }
+                  }
+                  catch(InvalidArgumentException e)
+                  {
+                     if(BpmRuntimeError.MDL_UNKNOWN_XPATH.getErrorCode().equals(e.getError().getId()))
+                     {
+                        BpmValidationError error = BpmValidationError.ACCESSPATH_INVALID_FOR_DATAPATH.raise(accessPath, getId());
+                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                        e.printStackTrace();
                      }
                      else
                      {

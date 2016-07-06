@@ -376,8 +376,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
             }
             else
             {
-               throw new ObjectNotFoundException(
-                     BpmRuntimeError.MDL_UNKNOWN_DATA_ID.raise(dataId), dataId);
+               trace.warn(BpmRuntimeError.MDL_UNKNOWN_DATA_ID.raise(dataId).toString());
             }
 
             if (trace.isDebugEnabled())

@@ -12,12 +12,7 @@ package org.eclipse.stardust.test.security;
 
 import static java.util.Collections.emptyMap;
 import static org.eclipse.stardust.engine.api.model.PredefinedConstants.DEFAULT_PARTITION_ID;
-import static org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties.AUTHENTICATION_MODE_INTERNAL;
-import static org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties.AUTHENTICATION_MODE_PRINCIPAL;
-import static org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties.AUTHENTICATION_MODE_PROPERTY;
-import static org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties.AUTHORIZATION_SYNC_CLASS_PROPERTY;
-import static org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties.PRINCIPAL_VALIDATOR_DEFAULT_VALUE;
-import static org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties.PRINCIPAL_VALIDATOR_PROPERTY;
+import static org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties.*;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -26,6 +21,12 @@ import static org.junit.Assert.fail;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.Map;
+
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 
 import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.GlobalParameters;
@@ -46,11 +47,6 @@ import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
 
 /**
  * <p>
@@ -100,9 +96,11 @@ public class SpringPrincipalAuthenticationTest extends AbstractSpringAuthenticat
 
       /* ... and execute a service call, which should return the user 'motu' */
       final User user = userService.getUser();
+      userService.getUser();
       assertThat(user.getAccount(), equalTo(MOTU));
 
       setAuthModeToInternal();
+
    }
 
    /**
@@ -152,6 +150,7 @@ public class SpringPrincipalAuthenticationTest extends AbstractSpringAuthenticat
 
       final GlobalParameters params = GlobalParameters.globals();
       params.set(AUTHENTICATION_MODE_PROPERTY, AUTHENTICATION_MODE_PRINCIPAL);
+      params.set(AUTHORIZATION_MODE_PROPERTY, AUTHORIZATION_MODE_INTERNAL);
       params.set(AUTHORIZATION_SYNC_CLASS_PROPERTY, DummySyncProvider.class.getName());
    }
 

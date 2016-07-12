@@ -367,6 +367,35 @@ public class AdministrationServiceImpl extends org.eclipse.stardust.engine.api.e
     }
 
    /**
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#cleanupRuntime(boolean keepUsers, boolean keepBO)
+    */
+   public void cleanupRuntime(
+         boolean keepUsers, boolean keepBO,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext
+         __tunneledContext)throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      java.util.Map<?, ?> __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            service).cleanupRuntime(keepUsers, keepBO);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
+   /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#cleanupRuntime(boolean keepUsers)
     */
    public void cleanupRuntime(

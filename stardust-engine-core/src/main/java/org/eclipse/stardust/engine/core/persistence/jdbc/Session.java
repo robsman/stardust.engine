@@ -2635,22 +2635,23 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
    public ResultSet executeQuery(QueryDescriptor queryDescr, int timeout)
    {
-      List bindValueList = isUsingPreparedStatements(queryDescr.getType()) ? new ArrayList() : null;
       ResultSet  resultSet = null;
 
       try
       {
+         List bindValueList = isUsingPreparedStatements(queryDescr.getType()) ? new ArrayList() : null;
+
          DmlManager dmlManager = getDMLManager(queryDescr.getType());
          String sqlString = dmlManager.prepareSelectStatement(queryDescr, true,
                bindValueList, isUsingMixedPreparedStatements());
+
+         startSqlExecution(sqlString);
 
          final TimeMeasure timer = new TimeMeasure();
 
          if (isUsingPreparedStatements(queryDescr.getType()))
          {
-            PreparedStatement stmt = createAndBindPreparedStatement(sqlString,
-                  bindValueList);
-
+            PreparedStatement stmt = createAndBindPreparedStatement(sqlString, bindValueList);
             try
             {
                if (timeout > NO_TIMEOUT)
@@ -2664,8 +2665,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             }
             catch (SQLException e)
             {
-               RuntimeLog.SQL.warn(MessageFormat.format("Failed query: {0}",
-                     new Object[] { sqlString }));
+               RuntimeLog.SQL.warn(MessageFormat.format("Failed query: {0}", sqlString));
                trace.warn("Failed executing query.", e);
                QueryUtils.closeStatement(stmt);
                throw new PublicException(e);
@@ -2674,7 +2674,6 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          else
          {
             Statement stmt = getConnection().createStatement();
-
             try
             {
                if (timeout > NO_TIMEOUT)
@@ -2683,14 +2682,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                }
 
                timer.start();
-
                resultSet = StatementClosingResultSet.createManagedResultSet(stmt, stmt.executeQuery(sqlString));
                timer.stop();
             }
             catch (SQLException e)
             {
-               RuntimeLog.SQL.warn(MessageFormat.format("Failed query: {0}",
-                     new Object[] { sqlString }));
+               RuntimeLog.SQL.warn(MessageFormat.format("Failed query: {0}", sqlString));
                trace.warn("Failed executing query.", e);
                QueryUtils.closeStatement(stmt);
                throw new PublicException(e);
@@ -2699,11 +2696,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
          monitorSqlExecution(sqlString, timer);
       }
-      catch (SQLException e)
+      catch (Throwable e)
       {
+         RuntimeLogUtils.getSqlTimeRecorder(params).start("Unexpected exception " + e.getClass() + ": " + e.getMessage());
          trace.warn("Failed executing query.", e);
          QueryUtils.closeResultSet(resultSet);
-         throw new PublicException(e);
+         throw e instanceof PublicException ? (PublicException) e : new PublicException(e);
       }
 
       return resultSet;
@@ -4058,6 +4056,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          trace.warn("Slow query: " + diffTime + "ms\n" + sqlString);
       }
+   }
+
+   public void startSqlExecution(String sqlString)
+   {
+      RuntimeLogUtils.getSqlTimeRecorder(params).start(sqlString);
    }
 
    private void updateWorkItems(Map aiCache)

@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.runtime.setup;
 import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.SplicingIterator;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TableDescriptor;
@@ -33,6 +34,7 @@ public class DataCluster extends TableDescriptor
 
    private final List<DescriptorSlot> descriptorSlots;
    private final Map<String, DescriptorSlot> descriptorSlotsByDescriptorId;
+   private final Map<String, Map<String, DescriptorSlot>> descriptorSlotsByDataAndAttribute;
 
    private final Map<String, DataClusterIndex> indexes;
    private final Set<DataClusterEnableState> enableStates;
@@ -72,7 +74,7 @@ public class DataCluster extends TableDescriptor
       this.processInstanceColumn = processInstanceColumn;
       this.enableStates = enableStates;
 
-      // init data slot storage
+      // initialize data slot storage
       this.dataSlots = CollectionUtils.newArrayList(dataSlots.length);
       this.dataSlotsByDataAndAttribute = CollectionUtils.newHashMap(dataSlots.length);
 
@@ -92,13 +94,25 @@ public class DataCluster extends TableDescriptor
          slotsByAttribute.put(dataSlot.getAttributeName(), dataSlot);
       }
 
-      // init descriptor slot storage
+      // initialize descriptor slot storage
       this.descriptorSlots = Arrays.asList(descriptorSlots);
       this.descriptorSlotsByDescriptorId = CollectionUtils.newHashMap(descriptorSlots.length);
+      this.descriptorSlotsByDataAndAttribute = CollectionUtils.newHashMap(descriptorSlots.length * 3); // assuming 3 data per descriptor
       for (DescriptorSlot descriptorSlot : descriptorSlots)
       {
          descriptorSlot.setParent(this);
          descriptorSlotsByDescriptorId.put(descriptorSlot.getDescriptorId(), descriptorSlot);
+
+         for (ClusterSlotData slotData : descriptorSlot.getClusterSlotDatas())
+         {
+            Map<String, DescriptorSlot> slotsByAttribute = this.descriptorSlotsByDataAndAttribute.get(slotData.getQualifiedDataId());
+            if(slotsByAttribute == null)
+            {
+               slotsByAttribute = CollectionUtils.newHashMap();
+               this.descriptorSlotsByDataAndAttribute.put(slotData.getQualifiedDataId(), slotsByAttribute);
+            }
+            slotsByAttribute.put(slotData.getAttributeName(), descriptorSlot);
+         }
       }
 
       // init index storage
@@ -138,12 +152,20 @@ public class DataCluster extends TableDescriptor
       return processInstanceColumn;
    }
 
-   public List<DataSlot> getAllSlots()
+   public List<AbstractDataClusterSlot> getAllSlots()
+   {
+      return Collections.unmodifiableList(CollectionUtils.newListFromIterator(
+            new SplicingIterator<AbstractDataClusterSlot>(
+                  dataSlots.iterator(),
+                  descriptorSlots.iterator())));
+   }
+
+   public List<DataSlot> getAllDataSlots()
    {
       return Collections.unmodifiableList(dataSlots);
    }
 
-   public Map<String, DataSlot> getSlots(String fqDataId)
+   public Map<String, DataSlot> getDataSlots(String fqDataId)
    {
       Map<String, DataSlot> slotsByAttribute = this.dataSlotsByDataAndAttribute.get(fqDataId);
       if (slotsByAttribute == null)
@@ -153,7 +175,7 @@ public class DataCluster extends TableDescriptor
       return Collections.unmodifiableMap(slotsByAttribute);
    }
 
-   public DataSlot getSlot(String fqDataId, String attributeName)
+   public DataSlot getDataSlot(String fqDataId, String attributeName)
    {
       Map<String, DataSlot> slotsByAttribute = this.dataSlotsByDataAndAttribute.get(fqDataId);
       if (slotsByAttribute == null)
@@ -175,6 +197,16 @@ public class DataCluster extends TableDescriptor
    public DescriptorSlot getDescriptorSlot(String descriptorId)
    {
       return descriptorSlotsByDescriptorId.get(descriptorId);
+   }
+
+   public Map<String, DescriptorSlot> getDescriptorSlotsByDataId(String fqDataId)
+   {
+      Map<String, DescriptorSlot> slotsByAttribute = this.descriptorSlotsByDataAndAttribute.get(fqDataId);
+      if (slotsByAttribute == null)
+      {
+         return Collections.emptyMap();
+      }
+      return Collections.unmodifiableMap(slotsByAttribute);
    }
 
    public Map<String, DataClusterIndex> getIndexes()

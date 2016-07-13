@@ -4,34 +4,34 @@
  */
 package org.eclipse.stardust.engine.core.runtime.setup;
 
-import org.eclipse.stardust.engine.core.runtime.setup.DataSlotFieldInfo.SLOT_TYPE;
+import org.eclipse.stardust.engine.core.runtime.setup.ClusterSlotFieldInfo.SLOT_TYPE;
 
 
 public class DataSlotFieldInfoKey extends FieldInfoKey
 {
-   private final DataSlotFieldInfo dataSlotFieldInfo;
+   private final ClusterSlotFieldInfo clusterSlotFieldInfo;
    private DataSlotKey key;
    private SLOT_TYPE slotType;
 
-   public DataSlotFieldInfoKey(DataSlotFieldInfo dataSlotFieldInfo)
+   public DataSlotFieldInfoKey(ClusterSlotFieldInfo clusterSlotFieldInfo)
    {
-      super(dataSlotFieldInfo);
-      this.dataSlotFieldInfo = dataSlotFieldInfo;
-      
-      if(dataSlotFieldInfo != null)
+      super(clusterSlotFieldInfo);
+      this.clusterSlotFieldInfo = clusterSlotFieldInfo;
+
+      if(clusterSlotFieldInfo != null)
       {
-         key = new DataSlotKey(dataSlotFieldInfo.getDataSlot());
-         slotType = dataSlotFieldInfo.getSlotType();
+         key = new DataSlotKey(clusterSlotFieldInfo.getClusterSlot());
+         slotType = clusterSlotFieldInfo.getSlotType();
       }
    }
 
-   public DataSlot getDataSlot()
+   public AbstractDataClusterSlot getDataSlot()
    {
-      if(dataSlotFieldInfo != null)
+      if(clusterSlotFieldInfo != null)
       {
-         return dataSlotFieldInfo.getDataSlot();
+         return clusterSlotFieldInfo.getClusterSlot();
       }
-      
+
       return null;
    }
 

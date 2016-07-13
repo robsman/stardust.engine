@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,9 +28,9 @@ import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.runtime.setup.ClusterSlotData;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
-import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
 
 
 /**
@@ -83,7 +83,7 @@ public class DataValueBean extends IdentifiablePersistentBean
          FIELD__DATA, FIELD__PROCESS_INSTANCE};
 
    // @todo in the end, COLUMN_LENGTH should be the metadata and not COLUMN_TYPE
-   private static final int string_value_COLUMN_LENGTH = 128;
+   public static final int string_value_COLUMN_LENGTH = 128;
 
    @ForeignKey (modelElement=ModelBean.class)
    public long model;
@@ -505,7 +505,7 @@ public class DataValueBean extends IdentifiablePersistentBean
                org.eclipse.stardust.engine.core.persistence.jdbc.Session jdbcSession = (org.eclipse.stardust.engine.core.persistence.jdbc.Session) session;
                if (jdbcSession.isUsingDataClusters())
                {
-                  Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, DataSlot>>> piToDv = CollectionUtils
+                  Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, ClusterSlotData>>> piToDv = CollectionUtils
                         .newHashMap();
                   DataClusterHelper.prepareDataValueUpdate(getPersistenceController(),
                         piToDv, null, true);

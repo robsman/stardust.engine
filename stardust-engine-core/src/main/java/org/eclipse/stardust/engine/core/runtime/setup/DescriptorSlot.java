@@ -29,7 +29,12 @@ public class DescriptorSlot extends AbstractDataClusterSlot
       super(oidColumn, typeColumn, nValueColumn, sValueColumn, dValueColumn,
             ignorePreparedStatements);
       this.descriptorId = descriptorId;
+
       this.clusterSlotDatas = clusterSlotDatas;
+      for (ClusterSlotData clusterSlotData : clusterSlotDatas)
+      {
+         clusterSlotData.setParent(this);
+      }
    }
 
    public Set<ClusterSlotData> getClusterSlotDatas()
@@ -40,5 +45,31 @@ public class DescriptorSlot extends AbstractDataClusterSlot
    public String getDescriptorId()
    {
       return descriptorId;
+   }
+
+   @Override
+   public boolean hasPrimitiveData()
+   {
+      for (ClusterSlotData clusterSlotData : clusterSlotDatas)
+      {
+         if(clusterSlotData.isPrimitiveData())
+         {
+            return true;
+         }
+      }
+      return false;
+   }
+
+   @Override
+   public boolean hasStructuredData()
+   {
+      for (ClusterSlotData clusterSlotData : clusterSlotDatas)
+      {
+         if(!clusterSlotData.isPrimitiveData())
+         {
+            return true;
+         }
+      }
+      return false;
    }
 }

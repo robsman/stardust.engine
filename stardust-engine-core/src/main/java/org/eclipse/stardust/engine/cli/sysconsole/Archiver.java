@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2773,7 +2773,7 @@ public class Archiver
          stmt = session.getConnection().createStatement();
          // TODO (ab) in the case of structured data, several DataSlots can exist for one data,
          // it would be more efficient to make one update for all DataSlots of one data
-         for (DataSlot dataSlot : dataCluster.getAllSlots())
+         for (DataSlot dataSlot : dataCluster.getAllDataSlots())
          {
             if (ids.contains(dataSlot.getQualifiedDataId()))
             {
@@ -3123,9 +3123,9 @@ public class Archiver
 
 
             // synchronizing slot values
-            for (DataSlot dataSlot : dCluster.getAllSlots())
+            for (DataSlot dataSlot : dCluster.getAllDataSlots())
             {
-               Collection<DataSlotFieldInfo> dataSlotColumnsToSynch = DataClusterMetaInfoRetriever
+               Collection<ClusterSlotFieldInfo> dataSlotColumnsToSynch = DataClusterMetaInfoRetriever
                      .getDataSlotFields(dataSlot);
                if(dataSlotColumnsToSynch.size() != 0)
                {
@@ -3195,10 +3195,10 @@ public class Archiver
                      updBuffer.append("(");
 
                      // which field need to be updated in the cluster table
-                     Iterator<DataSlotFieldInfo> i = dataSlotColumnsToSynch.iterator();
+                     Iterator<ClusterSlotFieldInfo> i = dataSlotColumnsToSynch.iterator();
                      while (i.hasNext())
                      {
-                        DataSlotFieldInfo dataSlotColumn = i.next();
+                        ClusterSlotFieldInfo dataSlotColumn = i.next();
                         updBuffer.append(dataSlotColumn.getName());
                         if (i.hasNext())
                         {
@@ -3214,10 +3214,10 @@ public class Archiver
                   }
                   else
                   {
-                     Iterator<DataSlotFieldInfo> i = dataSlotColumnsToSynch.iterator();
+                     Iterator<ClusterSlotFieldInfo> i = dataSlotColumnsToSynch.iterator();
                      while (i.hasNext())
                      {
-                        DataSlotFieldInfo dataSlotColumn = i.next();
+                        ClusterSlotFieldInfo dataSlotColumn = i.next();
                         String updateColumnValueStmt = DDLManager.getColumnValueSelect(
                               dataSlotColumn, dataValuePrefix, subselectSql);
                         updBuffer.append(updateColumnValueStmt);

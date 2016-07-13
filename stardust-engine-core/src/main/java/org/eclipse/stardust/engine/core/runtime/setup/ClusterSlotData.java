@@ -12,6 +12,8 @@ package org.eclipse.stardust.engine.core.runtime.setup;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.stardust.common.StringUtils;
+
 /**
 *
 * @author stephan.born
@@ -19,6 +21,7 @@ import javax.xml.namespace.QName;
 {
    private final QName fqDataId;
    private final String attributeName;
+   private AbstractDataClusterSlot parent;
 
    public ClusterSlotData(String modelId, String dataId, String attributeName)
    {
@@ -55,6 +58,21 @@ import javax.xml.namespace.QName;
    public String getAttributeName()
    {
       return attributeName;
+   }
+
+   public void setParent(AbstractDataClusterSlot parent)
+   {
+      this.parent = parent;
+   }
+
+   public AbstractDataClusterSlot getParent()
+   {
+      return parent;
+   }
+
+   public boolean isPrimitiveData()
+   {
+      return StringUtils.isEmpty(getAttributeName());
    }
 
    /**

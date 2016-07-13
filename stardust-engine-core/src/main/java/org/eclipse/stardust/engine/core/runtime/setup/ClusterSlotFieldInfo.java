@@ -12,21 +12,21 @@ package org.eclipse.stardust.engine.core.runtime.setup;
 
 import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
 
-public class DataSlotFieldInfo extends FieldInfo
+public class ClusterSlotFieldInfo extends FieldInfo
 {
-   private final DataSlotFieldInfo.SLOT_TYPE slotType;
-   private final DataSlot dataSlot;
+   private final ClusterSlotFieldInfo.SLOT_TYPE slotType;
+   private final AbstractDataClusterSlot clusterSlot;
 
-   public DataSlotFieldInfo(String name, Class type, DataSlotFieldInfo.SLOT_TYPE slotType, DataSlot dataSlot)
+   public ClusterSlotFieldInfo(String name, Class type, ClusterSlotFieldInfo.SLOT_TYPE slotType, AbstractDataClusterSlot clusterSlot)
    {
-      this(name, type, slotType, dataSlot, 0);
+      this(name, type, slotType, clusterSlot, 0);
    }
 
-   public DataSlotFieldInfo(String name, Class type, DataSlotFieldInfo.SLOT_TYPE slotType, DataSlot dataSlot, int size)
+   public ClusterSlotFieldInfo(String name, Class type, ClusterSlotFieldInfo.SLOT_TYPE slotType, AbstractDataClusterSlot clusterSlot, int size)
    {
       super(name, type, size);
       this.slotType = slotType;
-      this.dataSlot = dataSlot;
+      this.clusterSlot = clusterSlot;
    }
 
    public enum SLOT_TYPE {
@@ -68,13 +68,13 @@ public class DataSlotFieldInfo extends FieldInfo
       return this.slotType == SLOT_TYPE.INDEX;
    }
 
-   public DataSlotFieldInfo.SLOT_TYPE getSlotType()
+   public ClusterSlotFieldInfo.SLOT_TYPE getSlotType()
    {
       return slotType;
    }
 
-   public DataSlot getDataSlot()
+   public AbstractDataClusterSlot getClusterSlot()
    {
-      return dataSlot;
+      return clusterSlot;
    }
 }

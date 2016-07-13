@@ -1707,7 +1707,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          }
 
 
-         Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, DataSlot>>> piToDv = isUsingDataClusters()
+         Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, ClusterSlotData>>> piToDv = isUsingDataClusters()
                ? CollectionUtils.newMap()
                : Collections.EMPTY_MAP;
 
@@ -4301,7 +4301,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             ModelManager modelManager = ModelManagerFactory.getCurrent();
 
             int usedSlotCnt = 0;
-            for (DataSlot slot : cluster.getAllSlots())
+            for (DataSlot slot : cluster.getAllDataSlots())
             {
                // only apply slots for this cluster if it is not for structured data values
                if (StringUtils.isEmpty(slot.getAttributeName()))

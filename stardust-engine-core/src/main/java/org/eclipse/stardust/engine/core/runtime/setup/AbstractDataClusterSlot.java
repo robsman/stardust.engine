@@ -14,9 +14,8 @@ package org.eclipse.stardust.engine.core.runtime.setup;
 *
 * @author stephan.born
 */
-public class AbstractDataClusterSlot
+public abstract class AbstractDataClusterSlot
 {
-
    private DataCluster parent;
    private final String oidColumn;
    private final String typeColumn;
@@ -76,5 +75,9 @@ public class AbstractDataClusterSlot
    {
       this.parent = parent;
    }
+
+   public abstract boolean hasPrimitiveData();
+
+   public abstract boolean hasStructuredData();
 
 }

@@ -97,7 +97,7 @@ public class Archiver
 
    private static final ComparisonTerm PT_STRING_DATA_IS_DATA_VALUE_RECORD = Predicates.isEqual(
          LargeStringHolder.FR__DATA_TYPE, TypeDescriptor.getTableName(DataValueBean.class));
-   
+
    private static final ComparisonTerm PT_STRING_DATA_IS_DATA_VALUE_HISTORY_RECORD = Predicates.isEqual(
          LargeStringHolder.FR__DATA_TYPE, TypeDescriptor.getTableName(DataValueHistoryBean.class));
 
@@ -1445,12 +1445,12 @@ public class Archiver
 
          deleteDvParts(piOids, LargeStringHolder.class, LargeStringHolder.FR__OBJECTID,
                PT_STRING_DATA_IS_DATA_VALUE_RECORD);
-         
+
          deleteDvHistoryParts(piOids, LargeStringHolder.class, LargeStringHolder.FR__OBJECTID,
                PT_STRING_DATA_IS_DATA_VALUE_HISTORY_RECORD);
 
          deletePiParts(piOids, DataValueBean.class, DataValueBean.FR__PROCESS_INSTANCE);
-         
+
          deletePiParts(piOids, DataValueHistoryBean.class, DataValueHistoryBean.FR__PROCESS_INSTANCE);
 
          deletePiParts(piOids, ProcessInstanceHierarchyBean.class,
@@ -1620,9 +1620,9 @@ public class Archiver
 
       backupDvParts(piOids, LargeStringHolder.class, LargeStringHolder.FIELD__OBJECTID,
             PT_STRING_DATA_IS_DATA_VALUE_RECORD);
-      
+
       backupPiParts(piOids, DataValueHistoryBean.class, DataValueHistoryBean.FIELD__PROCESS_INSTANCE);
-      
+
       backupDvHistoryParts(piOids, LargeStringHolder.class, LargeStringHolder.FIELD__OBJECTID,
             PT_STRING_DATA_IS_DATA_VALUE_HISTORY_RECORD);
 
@@ -1837,7 +1837,7 @@ public class Archiver
       try
       {
          nData = archiveDataValue(modelId, ids, fqIds, tsBefore);
-         
+
          nDataHistory = archiveDataValueHistory(modelId, ids, fqIds, tsBefore);
 
          commit();
@@ -1970,7 +1970,7 @@ public class Archiver
 // ???? call to referencing models
       return nData;
    }
-   
+
    private int archiveDataValueHistory(String modelId, List<String> ids, String[] fqIds,
          long tsBefore)
    {
@@ -2671,12 +2671,12 @@ public class Archiver
 
       deleteDvParts(piOids, LargeStringHolder.class, LargeStringHolder.FR__OBJECTID,
             PT_STRING_DATA_IS_DATA_VALUE_RECORD);
-      
+
       deleteDvHistoryParts(piOids, LargeStringHolder.class, LargeStringHolder.FR__OBJECTID,
             PT_STRING_DATA_IS_DATA_VALUE_HISTORY_RECORD);
 
       deletePiParts(piOids, DataValueBean.class, DataValueBean.FR__PROCESS_INSTANCE);
-      
+
       deletePiParts(piOids, DataValueHistoryBean.class, DataValueHistoryBean.FR__PROCESS_INSTANCE);
 
       deletePiParts(piOids, LogEntryBean.class, LogEntryBean.FR__PROCESS_INSTANCE);
@@ -2900,7 +2900,7 @@ public class Archiver
          stmt = session.getConnection().createStatement();
          // TODO (ab) in the case of structured data, several DataSlots can exist for one data,
          // it would be more efficient to make one update for all DataSlots of one data
-         for (DataSlot dataSlot : dataCluster.getAllSlots())
+         for (DataSlot dataSlot : dataCluster.getAllDataSlots())
          {
             if (ids.contains(dataSlot.getQualifiedDataId()))
             {
@@ -3024,7 +3024,7 @@ public class Archiver
       delete2ndLevelPiParts(piOids, partType, fkDvField, DataValueBean.class,
             DataValueBean.FR__PROCESS_INSTANCE, restriction);
    }
-   
+
    private void deleteDvHistoryParts(List piOids, Class partType, FieldRef fkDvField,
          PredicateTerm restriction)
    {
@@ -3196,7 +3196,7 @@ public class Archiver
       backup2ndLevelPiParts(piOids, targetType, fkPiPartFieldName, DataValueBean.class,
             ActivityInstanceBean.FIELD__PROCESS_INSTANCE, restriction);
    }
-   
+
    private void backupDvHistoryParts(List piOids, Class targetType, String fkPiPartFieldName,
          PredicateTerm restriction)
    {
@@ -3264,9 +3264,9 @@ public class Archiver
 
 
             // synchronizing slot values
-            for (DataSlot dataSlot : dCluster.getAllSlots())
+            for (DataSlot dataSlot : dCluster.getAllDataSlots())
             {
-               Collection<DataSlotFieldInfo> dataSlotColumnsToSynch = DataClusterMetaInfoRetriever
+               Collection<ClusterSlotFieldInfo> dataSlotColumnsToSynch = DataClusterMetaInfoRetriever
                      .getDataSlotFields(dataSlot);
                if(dataSlotColumnsToSynch.size() != 0)
                {
@@ -3336,10 +3336,10 @@ public class Archiver
                      updBuffer.append("(");
 
                      // which field need to be updated in the cluster table
-                     Iterator<DataSlotFieldInfo> i = dataSlotColumnsToSynch.iterator();
+                     Iterator<ClusterSlotFieldInfo> i = dataSlotColumnsToSynch.iterator();
                      while (i.hasNext())
                      {
-                        DataSlotFieldInfo dataSlotColumn = i.next();
+                        ClusterSlotFieldInfo dataSlotColumn = i.next();
                         updBuffer.append(dataSlotColumn.getName());
                         if (i.hasNext())
                         {
@@ -3355,10 +3355,10 @@ public class Archiver
                   }
                   else
                   {
-                     Iterator<DataSlotFieldInfo> i = dataSlotColumnsToSynch.iterator();
+                     Iterator<ClusterSlotFieldInfo> i = dataSlotColumnsToSynch.iterator();
                      while (i.hasNext())
                      {
-                        DataSlotFieldInfo dataSlotColumn = i.next();
+                        ClusterSlotFieldInfo dataSlotColumn = i.next();
                         String updateColumnValueStmt = DDLManager.getColumnValueSelect(
                               dataSlotColumn, dataValuePrefix, subselectSql);
                         updBuffer.append(updateColumnValueStmt);

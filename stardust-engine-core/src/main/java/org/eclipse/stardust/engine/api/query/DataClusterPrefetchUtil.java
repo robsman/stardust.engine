@@ -188,7 +188,7 @@ public class DataClusterPrefetchUtil
       String fullDataId = getFullQualifiedId(structuredData);
       for(DataCluster dc: clusters)
       {
-         DataSlot ds = dc.getSlot(fullDataId, typedXPath.getXPath());
+         DataSlot ds = dc.getDataSlot(fullDataId, typedXPath.getXPath());
          if(ds != null)
          {
             Pair<DataCluster, DataSlot> pair = new Pair<DataCluster, DataSlot>(dc, ds);

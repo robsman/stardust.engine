@@ -25,6 +25,7 @@ public class DataSlot extends AbstractDataClusterSlot
       super(oidColumn, typeColumn, nValueColumn, sValueColumn, dValueColumn,
             ignorePreparedStatements);
       this.clusterSlotData = clusterSlotData;
+      clusterSlotData.setParent(this);
    }
 
    public ClusterSlotData getClusterSlotData()
@@ -54,5 +55,17 @@ public class DataSlot extends AbstractDataClusterSlot
    public String getAttributeName()
    {
       return clusterSlotData.getAttributeName();
+   }
+
+   @Override
+   public boolean hasPrimitiveData()
+   {
+      return clusterSlotData.isPrimitiveData();
+   }
+
+   @Override
+   public boolean hasStructuredData()
+   {
+      return !clusterSlotData.isPrimitiveData();
    }
 }

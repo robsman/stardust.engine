@@ -891,7 +891,7 @@ public class ModelManagerBean implements ModelManager
             // from carnot.properties.
             boolean archive = PropertyPersistor.findByName(Constants.CARNOT_ARCHIVE_AUDITTRAIL) != null;
             Parameters.instance().setBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL, archive);
-            
+
             boolean upgrade = isUpgrade();
 
             // Load predefined model only if it does not exist.

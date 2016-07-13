@@ -177,7 +177,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
 
          for (DataCluster cluster : boundClusters)
          {
-            DataSlot slot = cluster.getSlot(filterKey.getDataId(), filterKey.getAttributeName());
+            DataSlot slot = cluster.getDataSlot(filterKey.getDataId(), filterKey.getAttributeName());
             if (null == slot)
             {
                throw new InternalException("Invalid cluster binding for data ID "
@@ -350,7 +350,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
          JoinFactory joinFactory = new JoinFactory(cntxt);
          for (DataCluster cluster : boundClusters)
          {
-            DataSlot slot = (DataSlot) cluster.getSlot(orderKey.getDataId(), orderKey.getAttributeName());
+            DataSlot slot = (DataSlot) cluster.getDataSlot(orderKey.getDataId(), orderKey.getAttributeName());
             if (null == slot)
             {
                throw new InternalException("Invalid cluster binding for data ID "
@@ -411,7 +411,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
             DataCluster cluster = (DataCluster) joinKey.getSecond();
             Join join = (Join) entry.getValue();
 
-            DataSlot slot = (DataSlot) cluster.getSlot(orderKey.getDataId(), orderKey.getAttributeName());
+            DataSlot slot = (DataSlot) cluster.getDataSlot(orderKey.getDataId(), orderKey.getAttributeName());
 
             if ((null != join)
                   && (null != slot)
@@ -855,7 +855,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
             Set<DataAttributeKey> referencedSlots = context.clusterCandidates.get(cluster);
             for (DataAttributeKey slotCandidate : context.slotCandidates)
             {
-               DataSlot slot = (DataSlot) cluster.getSlot(slotCandidate.getDataId(),
+               DataSlot slot = (DataSlot) cluster.getDataSlot(slotCandidate.getDataId(),
                      slotCandidate.getAttributeName());
 
                if (null != slot)
@@ -941,7 +941,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
             Set<DataAttributeKey> referencedSlots = context.clusterCandidates.get(cluster);
             for (DataAttributeKey key : context.slotCandidates)
             {
-               DataSlot slot = cluster.getSlot(key.getDataId(), key.getAttributeName());
+               DataSlot slot = cluster.getDataSlot(key.getDataId(), key.getAttributeName());
 
                if (null != slot)
                {

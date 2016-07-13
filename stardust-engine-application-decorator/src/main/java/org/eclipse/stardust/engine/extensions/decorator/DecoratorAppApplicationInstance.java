@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
@@ -19,17 +18,17 @@ import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
+import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityThread;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.WorkflowServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SynchronousApplicationInstance;
 import org.eclipse.stardust.engine.extensions.decorator.wrappers.ActivityInstanceWrapper;
@@ -53,6 +52,7 @@ public class DecoratorAppApplicationInstance implements SynchronousApplicationIn
    private SynchronousApplicationInstance decoratedApplicationInstance;
 
    private Map<String, Object> inAccessPointValues = CollectionUtils.newMap();
+   private WorkflowService workflowService;
 
    private String getElementType(Application decoratorApplication)
    {
@@ -93,6 +93,7 @@ public class DecoratorAppApplicationInstance implements SynchronousApplicationIn
    private String eltId;  
    public void bootstrap(ActivityInstance activityInstance)
    {
+      this.workflowService=new WorkflowServiceImpl();
       this.activityInstance = activityInstance;
       this.decoratorApplication = activityInstance.getActivity().getApplication();
       ModelManager modelManager = ModelManagerFactory.getCurrent();
@@ -210,25 +211,16 @@ public class DecoratorAppApplicationInstance implements SynchronousApplicationIn
       }
       else
       {
-         boolean synchronous = true;
          String runtimeBinding=processElementId(this.eltId);
-         
          IProcessDefinition processDefinition = ModelUtils.getProcessDefinition(runtimeBinding);
-         IProcessInstance pi=ProcessInstanceBean.findByOID(this.activityInstance.getProcessInstanceOID());
-         
-         ProcessInstanceBean instance = ProcessInstanceBean.createInstance(processDefinition,pi,
-               SecurityProperties.getUser(), Collections.EMPTY_MAP);
-         
+         ProcessInstance pi=workflowService.startProcess(runtimeBinding, Collections.EMPTY_MAP, true);
+         ProcessInstanceBean instance = ProcessInstanceBean.findByOID(pi.getOID());
          for (String key:inAccessPointValues.keySet())
          {
             Object bridgeObject=inAccessPointValues.get(key);
             IData subProcessData =ModelUtils.getMappedData(processDefinition, key);
             instance.setOutDataValue(subProcessData, null, bridgeObject);
          }
-         
-         ActivityThread.schedule(instance, instance.getProcessDefinition()
-               .getRootActivity(), null, synchronous, null, Collections.EMPTY_MAP,
-               synchronous);
 
          //Process Out DataMappings
          Map<String, Object> outDataMappings =  new HashMap<String, Object>();

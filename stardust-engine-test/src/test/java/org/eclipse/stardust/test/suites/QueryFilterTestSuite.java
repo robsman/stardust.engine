@@ -14,7 +14,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import org.eclipse.stardust.test.query.filter.DescriptorFilterTest;
 import org.eclipse.stardust.test.query.filter.QueryFilterTest;
+import org.eclipse.stardust.test.query.order.DescriptorOrderTest;
 import org.eclipse.stardust.test.query.order.QueryOrderTest;
 
 /**
@@ -26,9 +28,8 @@ import org.eclipse.stardust.test.query.order.QueryOrderTest;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-   QueryFilterTest.class,
-   QueryOrderTest.class
-             })
+      QueryFilterTest.class, QueryOrderTest.class, DescriptorFilterTest.class,
+      DescriptorOrderTest.class})
 public class QueryFilterTestSuite
 {
 }

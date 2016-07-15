@@ -11,7 +11,6 @@
 package org.eclipse.stardust.engine.api.query;
 
 import java.text.MessageFormat;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.io.Serializable;
@@ -20,10 +19,6 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IDataPath;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.Operator.Binary;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
@@ -172,7 +167,7 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
       String descriptorID = filter.getDescriptorID();
       OrTerm orTerm = new OrTerm();
       List<AbstractDataFilter> dataFilters = CollectionUtils.newList();
-      Map<String, String> dataAccessPath = getDescriptorDataAccessPathMap(descriptorID,
+      Map<String, String> dataAccessPath = SqlBuilderBase.getDescriptorDataAccessPathMap(descriptorID,
             context.getEvaluationContext().getModelManager());
       for (Map.Entry<String, String> entry : dataAccessPath.entrySet())
       {
@@ -214,43 +209,6 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
          orTerm.add(predicate);
       }
       return orTerm;
-   }
-
-   protected static Map<String, String> getDescriptorDataAccessPathMap(String descriptorID,
-         ModelManager modelManager)
-   {
-      Map<String, String> dataAccessPath = CollectionUtils.newMap();
-      List<IDataPath> descriptors = getAllDescriptors(descriptorID, modelManager);
-      for (IDataPath descriptor : descriptors)
-      {
-         String accessPath = descriptor.getAccessPath();
-         IData data = descriptor.getData();
-         dataAccessPath.put(data.getId(), accessPath);
-      }
-      return dataAccessPath;
-   }
-
-   protected static List<IDataPath> getAllDescriptors(String descriptorID,
-         ModelManager modelManager)
-   {
-      List<IDataPath> descriptors = CollectionUtils.newList();
-      for (IModel model : modelManager.getModels())
-      {
-         ModelElementList<IProcessDefinition> processDefinitions = model
-               .getProcessDefinitions();
-         for (IProcessDefinition pd : processDefinitions)
-         {
-            for (Iterator iterator = pd.getAllDescriptors(); iterator.hasNext();)
-            {
-               IDataPath descriptor = (IDataPath) iterator.next();
-               if (descriptorID.equals(descriptor.getId()))
-               {
-                  descriptors.add(descriptor);
-               }
-            }
-         }
-      }
-      return descriptors;
    }
 
    protected class JoinFactory implements IJoinFactory

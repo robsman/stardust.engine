@@ -1,14 +1,14 @@
-/**********************************************************************************
- * Copyright (c) 2015 SunGard CSA LLC and others.
+/*******************************************************************************
+ * Copyright (c) 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    SunGard CSA LLC - initial API and implementation and/or initial documentation
- **********************************************************************************/
-package org.eclipse.stardust.test.query.filter;
+ *    Antje.Fuhrmann (SunGard CSA LLC) - initial API and implementation and/or initial documentation
+ *******************************************************************************/
+package org.eclipse.stardust.test.datacluster;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.junit.Assert.assertEquals;
@@ -20,25 +20,18 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
-import org.eclipse.stardust.test.api.setup.TestClassSetup;
+import org.eclipse.stardust.test.api.setup.DataClusterTestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
-/**
- * <p>
- * This class contains functional tests for using DescriptorFilter.
- * </p>
- * 
- * @author Antje.Fuhrmann
- * @version $Revision$
- */
-public class DescriptorFilterTest
+public class DescriptorFilterDataClusterTest
 {
    public static final String MODEL_NAME = "DescriptorFilterModel";
 
@@ -51,15 +44,14 @@ public class DescriptorFilterTest
    private final TestServiceFactory serviceFactory = new TestServiceFactory(
          ADMIN_USER_PWD_PAIR);
 
-   // @ClassRule
-   // public static final DataClusterTestClassSetup testClassSetup = new
-   // DataClusterTestClassSetup(
-   // "descriptor-data-cluster.xml", ADMIN_USER_PWD_PAIR,
-   // ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
-
    @ClassRule
-   public static final TestClassSetup testClassSetup = new TestClassSetup(
-         ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
+   public static final DataClusterTestClassSetup testClassSetup = new DataClusterTestClassSetup(
+         "descriptor-filter-data-cluster.xml", ADMIN_USER_PWD_PAIR,
+         ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
+
+   // @ClassRule
+   // public static final TestClassSetup testClassSetup = new TestClassSetup(
+   // ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
 
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(
@@ -72,6 +64,8 @@ public class DescriptorFilterTest
    @Before
    public void before() throws Exception
    {
+      GlobalParameters.globals().set("Carnot.Engine.Tuning.Query.EvaluationProfile",
+            "dataClusters");
       wfService = serviceFactory.getWorkflowService();
       queryService = serviceFactory.getQueryService();
    }
@@ -128,7 +122,7 @@ public class DescriptorFilterTest
       wfService.setOutDataPath(processA1.getOID(), "PrimitiveOutA", "Test10-1");
 
       ProcessInstance processB1 = wfService.startProcess("ProcessPrimitiveB", null, true);
-      wfService.setOutDataPath(processB1.getOID(), "PrimitiveOutA", "Test10-2");
+      wfService.setOutDataPath(processB1.getOID(), "PrimitiveOutA", "Test10-1");
 
       ProcessInstanceQuery query = ProcessInstanceQuery.findAlive();
       query.setPolicy(DescriptorPolicy.WITH_DESCRIPTORS);
@@ -232,7 +226,7 @@ public class DescriptorFilterTest
 
       ProcessInstance processB1 = wfService
             .startProcess("ProcessDefinitionB", null, true);
-      wfService.setOutDataPath(processB1.getOID(), "OutA", "Test10-1");
+      wfService.setOutDataPath(processB1.getOID(), "OutA", "Test10-2");
 
       ProcessInstance processB2 = wfService
             .startProcess("ProcessDefinitionB", null, true);
@@ -257,7 +251,7 @@ public class DescriptorFilterTest
       addOrTerm.add(DescriptorFilter.isEqual("A", "Test10-1", false));
       addOrTerm.add(DescriptorFilter.isEqual("B", "Test11-2", false));
       processInstances = queryService.getAllProcessInstances(query);
-      assertEquals(4, processInstances.getSize());
+      assertEquals(3, processInstances.getSize());
    }
 
    @Test

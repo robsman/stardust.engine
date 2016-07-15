@@ -130,6 +130,12 @@ public class DocumentXPathQueryOrderEvaluator implements OrderEvaluationVisitor
       // TODO Auto-generated method stub
       throw new UnsupportedOperationException();
    }
+   
+   public String visit(DescriptorOrder order, Object context)
+   {
+      // TODO Auto-generated method stub
+      throw new UnsupportedOperationException();
+   }
 
    public String visit(CustomOrderCriterion order, Object context)
    {

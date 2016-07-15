@@ -39,6 +39,10 @@ import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensionContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
+import org.eclipse.stardust.engine.core.struct.DataXPathMap;
+import org.eclipse.stardust.engine.core.struct.IXPathMap;
+import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
+import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
@@ -541,7 +545,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       FieldRef fieldRef = processAttributedScopedFilter(filter, context);
       return new ComparisonTerm(fieldRef, filter.getOperator(), filter.getValue());
    }
-
+   
    public Object visit(ProcessDefinitionFilter filter, Object rawContext)
    {
       VisitationContext context = (VisitationContext) rawContext;
@@ -552,11 +556,11 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       final boolean isAiQuery = ActivityInstanceBean.class.equals(context.getType());
       final boolean isAiQueryOnWorkItem = WorkItemBean.class.equals(context.getType());
 
-         ++appliedProcDefFilterJoinCounter;
+      ++appliedProcDefFilterJoinCounter;
       if (appliedProcDefFilterJoinCounter > 1)
-         {
-            context.useDistinct(true);
-         }
+      {
+         context.useDistinct(true);
+      }
 
       ProcessDefinitionFilterJoinKey piJoinKey;
       ProcessDefinitionFilterJoinKey pihJoinKey;
@@ -608,7 +612,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
             piJoin.setDependency(pihJoin);
 
                context.getPredicateJoins().put(piJoinKey, piJoin);
-         }
+            }
          }
          else
          {
@@ -1731,7 +1735,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          for (Iterator itr = order.getCriteria().iterator(); itr.hasNext();)
          {
             OrderCriterion part = (OrderCriterion) itr.next();
-
+            
             org.eclipse.stardust.engine.core.persistence.OrderCriteria innerResult = (org.eclipse.stardust.engine.core.persistence.OrderCriteria) part
                   .accept(this, context);
             if (null != innerResult)
@@ -1875,6 +1879,40 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
                + "'");
       }
 
+      return orderCriteria;
+   }
+   
+   public Object visit(DescriptorOrder order, Object rawContext)
+   {
+      final VisitationContext context = (VisitationContext) rawContext;
+      org.eclipse.stardust.engine.core.persistence.OrderCriteria orderCriteria = new org.eclipse.stardust.engine.core.persistence.OrderCriteria();
+      List<IDataPath> descriptors = getAllDescriptors(order.getDescriptorId(), context
+            .getEvaluationContext().getModelManager());
+      for (IDataPath dataPath : descriptors)
+      {
+         IData data = dataPath.getData();
+         if (StructuredTypeRtUtils.isStructuredType(data))
+         {
+            IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
+            String xpath = dataPath.getAccessPath();
+            if (!StructuredDataXPathUtils.canReturnList(xpath, xPathMap))
+            {
+               orderCriteria
+                     .add((org.eclipse.stardust.engine.core.persistence.OrderCriteria) visit(
+                           new DataOrder(data.getId(), xpath, order.isAscending()),
+                           rawContext));
+               break;
+            }
+         }
+         else
+         {
+            orderCriteria
+                  .add((org.eclipse.stardust.engine.core.persistence.OrderCriteria) visit(
+                        new DataOrder(data.getId(), null, order.isAscending()),
+                        rawContext));
+            break;
+         }
+      }
       return orderCriteria;
    }
 
@@ -2218,6 +2256,43 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       }
 
       return resultTerm;
+   }
+   
+   protected static Map<String, String> getDescriptorDataAccessPathMap(String descriptorID,
+         ModelManager modelManager)
+   {
+      Map<String, String> dataAccessPath = CollectionUtils.newMap();
+      List<IDataPath> descriptors = getAllDescriptors(descriptorID, modelManager);
+      for (IDataPath descriptor : descriptors)
+      {
+         String accessPath = descriptor.getAccessPath();
+         IData data = descriptor.getData();
+         dataAccessPath.put(data.getId(), accessPath);
+      }
+      return dataAccessPath;
+   }
+
+   protected static List<IDataPath> getAllDescriptors(String descriptorID,
+         ModelManager modelManager)
+   {
+      List<IDataPath> descriptors = CollectionUtils.newList();
+      for (IModel model : modelManager.getModels())
+      {
+         ModelElementList<IProcessDefinition> processDefinitions = model
+               .getProcessDefinitions();
+         for (IProcessDefinition pd : processDefinitions)
+         {
+            for (Iterator iterator = pd.getAllDescriptors(); iterator.hasNext();)
+            {
+               IDataPath descriptor = (IDataPath) iterator.next();
+               if (descriptorID.equals(descriptor.getId()))
+               {
+                  descriptors.add(descriptor);
+               }
+            }
+         }
+      }
+      return descriptors;
    }
 
    protected static boolean isAndTerm(VisitationContext context)

@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.model.utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.Map.Entry;
 
 import javax.xml.namespace.QName;
 
@@ -320,7 +321,25 @@ public class ModelUtils
       }
       return null;
    }
+   
+   public static void validateData(IModel iModel, Map<String, ? > data)
+   {
+      if ((null != data) && !data.isEmpty())
+      {
+         for (Iterator< ? > iterator = data.entrySet().iterator(); iterator.hasNext(); )
+         {
+            Map.Entry<String, ? > entry = (Entry<String, ? >) iterator.next();
 
+            String dataId = entry.getKey();
+            IData idata = iModel.findData(dataId);
+            if (idata == null)
+            {
+               throw new ObjectNotFoundException(BpmRuntimeError.MDL_UNKNOWN_DATA_ID.raise(dataId), dataId);
+            }
+         }
+      }      
+   }
+   
    private static boolean isUsing(IReference ref, IProcessDefinition process)
    {
       return ref != null && ref.getExternalPackage().getReferencedModel() == process.getModel()

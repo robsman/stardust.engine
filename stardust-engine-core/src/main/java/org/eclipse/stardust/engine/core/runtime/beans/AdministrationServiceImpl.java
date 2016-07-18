@@ -1417,6 +1417,8 @@ public class AdministrationServiceImpl
                BpmRuntimeError.MDL_UNKNOWN_MODEL_OID.raise(modelOID), modelOID);
       }
 
+      ModelUtils.validateData(model, data);
+      
       ModelManagerFactory.getCurrent().reanimate(model);
       IProcessDefinition processDefinition = model.findProcessDefinition(id);
 

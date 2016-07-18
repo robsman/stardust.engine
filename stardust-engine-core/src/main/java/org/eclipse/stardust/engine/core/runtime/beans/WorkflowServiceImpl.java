@@ -89,6 +89,9 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       boolean synchronously = options.isSynchronously();
 
       Map<String, Object> values = (Map<String, Object>) inputData;
+      
+      ModelUtils.validateData((IModel) processDefinition.getModel(), values);
+      
       if (processDefinition.getDeclaresInterface())
       {
          processDefinition = ModelRefBean.getPrimaryImplementation(processDefinition,

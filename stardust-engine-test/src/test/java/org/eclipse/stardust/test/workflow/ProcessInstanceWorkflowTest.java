@@ -158,6 +158,23 @@ public class ProcessInstanceWorkflowTest
 
    /**
     * <p>
+    * Tests whether start process failed because of invalid data id.
+    * </p>
+    */
+   @Test(expected = ObjectNotFoundException.class)
+   public void testStartProcessPassInvalidData()
+   {
+      final String originalString = "a string";
+      final int originalInt = 81;
+      final Map<String, Object> data = CollectionUtils.newHashMap();
+      data.put(MY_STRING_DATA_ID + "invalid", originalString);
+      data.put(MY_INT_DATA_ID, originalInt);
+
+      userSf.getWorkflowService().startProcess(PD_1_ID, data, true);
+   }
+      
+   /**
+    * <p>
     * Tests whether the appropriate exception is thrown when the process definition
     * cannot be found.
     * </p>

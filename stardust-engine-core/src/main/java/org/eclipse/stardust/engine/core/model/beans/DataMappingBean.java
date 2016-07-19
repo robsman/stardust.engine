@@ -244,8 +244,13 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
          }
          else
          {
+            boolean isConstant = data == null 
+                  && StringUtils.isNotEmpty(dataPath) 
+                  && dataPath.startsWith("(")
+                  && StringUtils.isEmpty(applicationAccessPointId);
             if (ImplementationType.SubProcess == activity.getImplementationType()
-                  && activity.getExternalReference() != null)
+                  && activity.getExternalReference() != null
+                  && !isConstant)
             {
                BpmValidationError error = BpmValidationError.DATA_FORMAL_PARAMETER_NOT_RESOLVABLE_FOR_DATAMAPPING.raise(
                      applicationAccessPointId, getErrorName());
@@ -273,13 +278,11 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                         inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
                      }
                   }
-                  else
+                  else if(!isConstant)
                   {
-                     {
-                        BpmValidationError error = BpmValidationError.DATA_NO_APPLICATION_ACCESS_POINT_SET_FOR_DATAMAPPING.raise(getErrorName());
-                        inconsistencies.add(new Inconsistency(error,
-                              this, Inconsistency.WARNING));
-                     }
+                     BpmValidationError error = BpmValidationError.DATA_NO_APPLICATION_ACCESS_POINT_SET_FOR_DATAMAPPING.raise(getErrorName());
+                     inconsistencies.add(new Inconsistency(error,
+                           this, Inconsistency.WARNING));
                   }
                }
                else

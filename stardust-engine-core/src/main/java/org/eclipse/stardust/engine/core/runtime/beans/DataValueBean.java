@@ -21,6 +21,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.model.beans.DataBean;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
@@ -539,7 +540,7 @@ public class DataValueBean extends IdentifiablePersistentBean
       fetch();
       return ModelManagerFactory.getCurrent().findData(model, data);
    }
-   
+
    public void triggerSerialization()
    {
       if (dataHandler instanceof LazilyPersistingBigDataHandler)
@@ -559,7 +560,7 @@ public class DataValueBean extends IdentifiablePersistentBean
     */
    public Object getValue()
    {
-      return dataHandler.read();
+      return fromPersistedValue(getData().getId(), dataHandler.read());
    }
 
    // @todo (france, ub): how the forceRefresh semantics precisely works
@@ -571,8 +572,7 @@ public class DataValueBean extends IdentifiablePersistentBean
    public void setValue(Object value, boolean forceRefresh)
    {
       lock();
-
-      dataHandler.write(value, forceRefresh);
+      dataHandler.write(toPersistedValue(getData().getId(), value), forceRefresh);
    }
 
    public double getDoubleValue()
@@ -602,7 +602,7 @@ public class DataValueBean extends IdentifiablePersistentBean
     */
    public Serializable getSerializedValue()
    {
-      return (Serializable) dataHandler.read();
+      return (Serializable) getValue();
    }
 
    // BigData interface implementation
@@ -670,6 +670,41 @@ public class DataValueBean extends IdentifiablePersistentBean
    public void refresh()
    {
       dataHandler.refresh();
+   }
+
+   public static Object fromPersistedValue(String dataId, Object value)
+   {
+      if (PredefinedConstants.BUSINESS_DATE.equals(dataId))
+      {
+         if (value instanceof Long)
+         {
+            value = DateUtils.timestampToBusinessDate((Long) value);
+         }
+      }
+      return value;
+   }
+
+   public static Object toPersistedValue(String dataId, Object value)
+   {
+      if (PredefinedConstants.BUSINESS_DATE.equals(dataId))
+      {
+         if (value instanceof Calendar)
+         {
+            value = DateUtils.businessDateToTimestamp((Calendar) value);
+         }
+         else if (value instanceof Pair<?, ?>)
+         {
+            Object first = ((Pair<?, ?>) value).getFirst();
+            Object second = ((Pair<?, ?>) value).getSecond();
+            if (first instanceof Calendar || second instanceof Calendar)
+            {
+               value = new Pair(
+                     first instanceof Calendar ? DateUtils.businessDateToTimestamp((Calendar) first) : first,
+                     second instanceof Calendar ? DateUtils.businessDateToTimestamp((Calendar) second) : second);
+            }
+         }
+      }
+      return value;
    }
 
    private static final Object getInlineComparisonValue(Object value,

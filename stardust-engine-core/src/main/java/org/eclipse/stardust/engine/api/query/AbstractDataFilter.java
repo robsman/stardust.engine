@@ -62,6 +62,16 @@ public abstract class AbstractDataFilter
       this.filterMode = filterMode;
    }
 
+   public AbstractDataFilter(AbstractDataFilter dataFilter, Serializable operand)
+   {
+      this.operator = dataFilter.getOperator();
+      this.dataID = dataFilter.getDataID();
+      this.attributeName = dataFilter.getAttributeName();
+      this.operand = operand;
+      this.filterMode = dataFilter.getFilterMode();
+      this.options = dataFilter.getOptions();
+   }
+
    public Operator getOperator()
    {
       return operator;
@@ -119,6 +129,11 @@ public abstract class AbstractDataFilter
    public Serializable getOption(EvaluationOption option)
    {
       return (null != options) ? (Serializable) options.get(option) : null;
+   }
+
+   protected Map getOptions()
+   {
+      return options;
    }
 
    protected Serializable setOption(EvaluationOption option, Serializable value)

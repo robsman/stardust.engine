@@ -91,7 +91,7 @@ public class ProcessHierarchyPreprocessor implements FilterEvaluationVisitor
             }
             else
             {
-               filterStates = getFullActivityStateSet();
+               filterStates = getFullProcessStateSet();
                filterStates.removeAll(Arrays.asList(stateFilter.getStates()));
             }
 
@@ -212,7 +212,7 @@ public class ProcessHierarchyPreprocessor implements FilterEvaluationVisitor
    {
       return new Node(filter);
    }
-      
+
    public Object visit(ProcessDefinitionFilter filter, Object rawContext)
    {
       return new Node(filter);

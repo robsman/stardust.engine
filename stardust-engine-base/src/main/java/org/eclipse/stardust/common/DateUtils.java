@@ -12,14 +12,16 @@ package org.eclipse.stardust.common;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * This utility class provides convenience methods for date / time related
  * conversions and checks.
- * 
+ *
  * @author ubirkemeyer
  * @version $Revision$
  */
@@ -28,7 +30,7 @@ public class DateUtils
    static private final String DEFAULT_HOUR_SIGN = " h";
    static private final char LEADING_NULL_SIGN = '0';
    static private final char DEFAULT_DURATION_SEPARATOR = ':';
-   
+
    private static final String YEARS_REGEXP = "[1-9]{1}[0-9]{3}";
    private static final String MONTHS_REGEXP = "([0]{0,1}[1-9]|10|11|12)";
    private static final String DAYS_REGEXP = "(([1-2]{1,1}[0-9])|([0-2]{0,1}[1-9])|([3][0-1]))";
@@ -45,12 +47,12 @@ public class DateUtils
    /**
     * Factory which creates a SimpleDateFormat instance which can be used to
     * format Dates to strings with pattern "yyyy/MM/dd hh:mm:ss:SSS".
-    * 
+    *
     * @return the SimpleDateFormat instance
-    * 
+    *
     * @see SimpleDateFormat
     */
-   public static SimpleDateFormat getNoninteractiveDateFormat() 
+   public static SimpleDateFormat getNoninteractiveDateFormat()
    {
       return new SimpleDateFormat("yyyy/MM/dd hh:mm:ss:SSS");
    }
@@ -58,12 +60,12 @@ public class DateUtils
    /**
     * Factory which creates a SimpleDateFormat instance which can be used to
     * format Dates to strings with pattern "yyyy/MM/dd hh:mm:ss".
-    * 
+    *
     * @return the SimpleDateFormat instance
-    * 
+    *
     * @see SimpleDateFormat
     */
-   public static SimpleDateFormat getInteractiveDateFormat() 
+   public static SimpleDateFormat getInteractiveDateFormat()
    {
       return new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
    }
@@ -72,11 +74,11 @@ public class DateUtils
     * Returns number of milliseconds since January 1, 1970, 00:00:00 GMT
     * represented by given Date object. If Date object is null the default value
     * will be returned.
-    * 
+    *
     * @param date the Date object.
     * @param def the default value used if Date object is null.
     * @return number of milliseconds since January 1, 1970, 00:00:00 GMT.
-    * 
+    *
     * @see Date#getTime()
     */
    public static long getTimestamp(Date date, long def)
@@ -88,13 +90,13 @@ public class DateUtils
     * Returns a String representation for given Date object. The String is a
     * concatenation of date formatter and time formatter separated by single
     * space, both using default style for default locale.
-    * 
+    *
     * @param date
     *           the Date object.
     * @return String representation for Date object using default style for
     *         default locale. For null Date object an empty String will be
     *         returned.
-    * 
+    *
     * @see DateFormat#getDateInstance()
     * @see DateFormat#getTimeInstance()
     */
@@ -107,13 +109,13 @@ public class DateUtils
    /**
     * Returns a String representation for given Date object using date formatter
     * with default style for default locale.
-    * 
+    *
     * @param date
     *           the Date object.
     * @return String representation of date component for Date object using default style for
     *         default locale. For null Date object an empty String will be
     *         returned.
-    * 
+    *
     * @see DateFormat#getDateInstance()
     */
    public static String formatDate(Date date)
@@ -124,13 +126,13 @@ public class DateUtils
    /**
     * Returns a String representation for given Date object using time formatter
     * with default style for default locale.
-    * 
+    *
     * @param date
     *           the Date object.
     * @return String representation of time component for Date object using default style for
     *         default locale. For null Date object an empty String will be
     *         returned.
-    * 
+    *
     * @see DateFormat#getTimeInstance()
     */
    public static String formatTime(Date date)
@@ -142,7 +144,7 @@ public class DateUtils
     * Returns the given duration in hours as formatted string.</br>
     * Format is: hours:minutes:seconds h</br>
     * Example  : 1:05:20 h
-    * 
+    *
     * @param durationInHours the duration in hours.
     * @return String representation of duration.
     */
@@ -180,11 +182,11 @@ public class DateUtils
 
       return _durationString.toString();
    }
-   
+
    /**
     * Checks if the input date conforms to an ISO date pattern (e.g. yyyy-MM-dd
     * HH:mm:ss:SSS).
-    * 
+    *
     * @param date
     *           String representation of date.
     * @return <code>true</code> if the date conforms to an ISO date pattern,
@@ -199,7 +201,7 @@ public class DateUtils
    /**
     * Checks if the input date conforms to the non-interactive date format
     * yyyy/MM/dd hh:mm:ss:SSS.
-    * 
+    *
     * @param date
     *           String representation of date.
     * @return <code>true</code> if the date conforms to this pattern,
@@ -209,5 +211,69 @@ public class DateUtils
    {
       Matcher dateMatcher = NON_INTERACTIVE_DATE_PATTERN.matcher(date);
       return date != null ? dateMatcher.find() : false;
+   }
+
+   public static void resetTimeComponent(Calendar calendar)
+   {
+      calendar.add(Calendar.MILLISECOND, -calendar.get(Calendar.MILLISECOND));
+      calendar.add(Calendar.SECOND, -calendar.get(Calendar.SECOND));
+      calendar.add(Calendar.MINUTE, -calendar.get(Calendar.MINUTE));
+      calendar.add(Calendar.HOUR_OF_DAY, -calendar.get(Calendar.HOUR_OF_DAY));
+   }
+
+   public static long businessDateToTimestamp(Calendar cal)
+   {
+      Calendar calendar = (Calendar) cal.clone();
+      resetTimeComponent(calendar);
+      return calendar.getTimeInMillis();
+   }
+
+   public static Date businessDateToDate(Calendar cal)
+   {
+      Calendar calendar = (Calendar) cal.clone();
+      resetTimeComponent(calendar);
+      return calendar.getTime();
+   }
+
+   public static Calendar dateToBusinessDate(Date businessDate)
+   {
+      return timestampToBusinessDate(businessDate.getTime());
+   }
+
+   public static Calendar timestampToBusinessDate(long timestamp)
+   {
+      Calendar calendar = Calendar.getInstance();
+      calendar.setTimeInMillis(timestamp);
+      long seconds = getSeconds(calendar);
+      if (seconds > 0)
+      {
+         TimeZone tz = calendar.getTimeZone();
+         for (String id : TimeZone.getAvailableIDs())
+         {
+            TimeZone zone = TimeZone.getTimeZone(id);
+            calendar.setTimeZone(zone);
+            long temp = getSeconds(calendar);
+            if (temp == 0)
+            {
+               tz = zone;
+               break;
+            }
+            else if (temp < seconds)
+            {
+               tz = zone;
+               seconds = temp;
+            }
+         }
+         calendar.setTimeZone(tz);
+      }
+      DateUtils.resetTimeComponent(calendar);
+      return calendar;
+   }
+
+   private static long getSeconds(Calendar calendar)
+   {
+      return calendar.get(Calendar.HOUR_OF_DAY) * 3600
+            + calendar.get(Calendar.MINUTE) * 60
+            + calendar.get(Calendar.SECOND);
    }
 }

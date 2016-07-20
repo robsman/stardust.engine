@@ -37,6 +37,11 @@ public class DataFilter extends AbstractDataFilter
       super(dataID, attributeName, operator, value1, value2, filterMode);
    }
 
+   private DataFilter(AbstractDataFilter dataFilter, Serializable operand)
+   {
+      super(dataFilter, operand);
+   }
+
    /**
     * Creates a filter matching workflow data being equal with the given
     * <code>value</code>.
@@ -467,10 +472,10 @@ public class DataFilter extends AbstractDataFilter
    {
       if (!lowerBound.getClass().equals(upperBound.getClass()))
       {
-			throw new PublicException(
-					BpmRuntimeError.QUERY_TYPES_OF_LOWER_AND_UPPER_BOUND_ARE_INHOMOGENEOUS
-							.raise(lowerBound.getClass().getName(), upperBound
-									.getClass().getName()));
+         throw new PublicException(
+               BpmRuntimeError.QUERY_TYPES_OF_LOWER_AND_UPPER_BOUND_ARE_INHOMOGENEOUS
+                     .raise(lowerBound.getClass().getName(), upperBound
+                           .getClass().getName()));
       }
 
       return new DataFilter(dataID, attributeName, Operator.BETWEEN, lowerBound, upperBound,
@@ -601,4 +606,9 @@ public class DataFilter extends AbstractDataFilter
       return true;
    }
 
+   public static AbstractDataFilter copy(AbstractDataFilter dataFilter,
+         Serializable operand)
+   {
+      return new DataFilter(dataFilter, operand);
+   }
 }

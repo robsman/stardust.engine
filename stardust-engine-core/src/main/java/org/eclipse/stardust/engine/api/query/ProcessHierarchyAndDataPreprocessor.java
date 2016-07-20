@@ -13,22 +13,12 @@ package org.eclipse.stardust.engine.api.query;
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.CompareHelper;
-import org.eclipse.stardust.common.Pair;
-import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.ValueProvider;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
@@ -36,28 +26,14 @@ import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.core.persistence.AndTerm;
-import org.eclipse.stardust.engine.core.persistence.EvaluationOptions;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.Operator;
-import org.eclipse.stardust.engine.core.persistence.OrTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensionContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
-
 
 /**
  * @author rsauer
@@ -68,14 +44,14 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
    protected Node performTermLevelPreprocessing(FilterTerm filter,
          VisitationContext context)
    {
-      List dataFilters = new ArrayList(filter.getParts().size());
+      ArrayList<AbstractDataFilter> dataFilters = new ArrayList(filter.getParts().size());
 
       for (Iterator itr = filter.getParts().iterator(); itr.hasNext();)
       {
          FilterCriterion criterion = (FilterCriterion) itr.next();
          if (criterion instanceof AbstractDataFilter)
          {
-            dataFilters.add(criterion);
+            dataFilters.add((AbstractDataFilter) criterion);
          }
       }
 
@@ -91,27 +67,23 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
          {
             // for OR-Terms the evaluation is done per filter scope mode
             // (simulating SQL-union).
-            Map filtersByMode = new HashMap();
-            for (Iterator iter = dataFilters.iterator(); iter.hasNext();)
+            Map<Integer, ArrayList<AbstractDataFilter>> filtersByMode = new HashMap<Integer, ArrayList<AbstractDataFilter>>();
+            for (AbstractDataFilter dataFilter : dataFilters)
             {
-               AbstractDataFilter dataFilter = (AbstractDataFilter) iter.next();
-               Integer currentScopeMode = new Integer(dataFilter
-                                    .getFilterMode());
-
-               List filters = (List) filtersByMode.get(currentScopeMode);
+               Integer currentScopeMode = new Integer(dataFilter.getFilterMode());
+               ArrayList<AbstractDataFilter> filters = filtersByMode.get(currentScopeMode);
                if (null == filters)
                {
-                  filters = new ArrayList();
+                  filters = new ArrayList<AbstractDataFilter>();
                   filtersByMode.put(currentScopeMode, filters);
                }
-
                filters.add(dataFilter);
             }
 
             result = new Node(null, new HashSet());
-            for (Iterator iter = filtersByMode.keySet().iterator(); iter.hasNext();)
+            for (Integer mode : filtersByMode.keySet())
             {
-               List filters = (List) filtersByMode.get(iter.next());
+               ArrayList<AbstractDataFilter> filters = filtersByMode.get(mode);
                Node resultByMode = evaluateDataFilters(filters, isAndTerm, context);
                result.getProcessOIDs().addAll(resultByMode.getProcessOIDs());
             }
@@ -132,7 +104,7 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
       return new Node(null);
    }
 
-   private Node evaluateDataFilters(List dataFilters, boolean isAndTerm,
+   private Node evaluateDataFilters(ArrayList<AbstractDataFilter> dataFilters, boolean isAndTerm,
          VisitationContext context)
    {
       // TODO
@@ -147,6 +119,17 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
 
       final Set processStateRestriction = context.getProcessStateRestriction();
 
+      for (int i = 0; i < dataFilters.size(); i++)
+      {
+         AbstractDataFilter dataFilter = dataFilters.get(i);
+         Serializable operand = (Serializable) DataValueBean.toPersistedValue(dataFilter.getDataID(), dataFilter.getOperand());
+         if (operand != dataFilter.getOperand())
+         {
+            dataFilter = DataFilter.copy(dataFilter, operand);
+         }
+         dataFilters.set(i, dataFilter);
+      }
+
       DataFilterExtensionContext dataFilterContext = new DataFilterExtensionContext(dataFilters);
       AndTerm predicateTerm;
       IJoinFactory joinFactory = new JoinFactory(query);
@@ -155,18 +138,16 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
          predicateTerm = new AndTerm();
 
          int idx = 1;
-         for (Iterator filterItr = dataFilters.iterator(); filterItr.hasNext(); ++idx)
+         for (AbstractDataFilter dataFilter : dataFilters)
          {
-            AbstractDataFilter dataFilter = (AbstractDataFilter) filterItr.next();
-            Map /*<Long,IData>*/ dataMap = this.findAllDataRtOids(dataFilter.getDataID(), modelManager);
+            Map<Long, IData> dataMap = findAllDataRtOids(dataFilter.getDataID(), modelManager);
             DataFilterExtension dataFilterExtension = SpiUtils.createDataFilterExtension(dataMap);
             Join dvJoin = dataFilterExtension.createDvJoin(query, dataFilter, idx, dataFilterContext, true, joinFactory);
-
 
             if (dataMap.isEmpty())
             {
                trace.warn("Invalid data ID used for data filter predicate: " + dataFilter.getDataID() + ".");
-               dataFilterExtension.appendDataIdTerm(predicateTerm, Collections.EMPTY_MAP, dvJoin, dataFilter);
+               dataFilterExtension.appendDataIdTerm(predicateTerm, Collections.<Long, IData>emptyMap(), dvJoin, dataFilter);
             }
             else
             {
@@ -175,54 +156,54 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
                dataFilterTerm.add(dataFilterExtension.createPredicateTerm(dvJoin, dataFilter, dataMap, dataFilterContext));
                predicateTerm.add(dataFilterTerm);
             }
+            idx++;
          }
 
          // TODO reintroduce "hint"
       }
       else
       {
-    	 Map /*<String, Join>*/ dataFilterExtensions = new HashMap /*<String, Join> */();
+         Map<String, Join> dataFilterExtensions = new HashMap<String, Join>();
 
          OrTerm dataPredicates = new OrTerm();
          int idx = 1;
-         for (Iterator filtersByDataIdItr = dataFilterContext.getDataFiltersByDataId().entrySet().iterator(); filtersByDataIdItr.hasNext(); )
+         for (Entry<String, List<AbstractDataFilter>> e : dataFilterContext.getDataFiltersByDataId().entrySet())
          {
-            Entry e = (Entry) filtersByDataIdItr.next();
-            String dataId = (String)e.getKey();
-            List /*<AbstractDataFilter>*/ filtersForDataId = (List) e.getValue();
+            String dataId = e.getKey();
+            List<AbstractDataFilter> filtersForDataId = e.getValue();
 
             AndTerm dataTerm = null;
             OrTerm dvPredicateTerm = null;
-            Map /*<Long,IData>*/ dataMap = findAllDataRtOids(dataId, modelManager);
-            for (Iterator filterItr = filtersForDataId.iterator(); filterItr.hasNext(); idx++)
+            Map<Long, IData> dataMap = findAllDataRtOids(dataId, modelManager);
+            for (AbstractDataFilter dataFilter : filtersForDataId)
             {
-                  AbstractDataFilter dataFilter = (AbstractDataFilter) filterItr.next();
-                  DataFilterExtension dataFilterExtension = SpiUtils.createDataFilterExtension(findAllDataRtOids(dataFilter.getDataID(), modelManager));
-                  String extensionName = dataFilterExtension.getClass().getName();
+               DataFilterExtension dataFilterExtension = SpiUtils.createDataFilterExtension(findAllDataRtOids(dataFilter.getDataID(), modelManager));
+               String extensionName = dataFilterExtension.getClass().getName();
 
-                  Join dvJoin = (Join) dataFilterExtensions.get(extensionName);
-                  if(dvJoin == null)
+               Join dvJoin = (Join) dataFilterExtensions.get(extensionName);
+               if (dvJoin == null)
+               {
+                  dvJoin = dataFilterExtension.createDvJoin(query, dataFilter, idx, dataFilterContext, false, joinFactory);
+                  dvJoin.setRequired(false);
+                  dataFilterExtensions.put(extensionName, dvJoin);
+               }
+
+               if (null == dataTerm)
+               {
+                  if (dataMap.isEmpty())
                   {
-                	  dvJoin = dataFilterExtension.createDvJoin(query, dataFilter, idx, dataFilterContext, false, joinFactory);
-                	  dvJoin.setRequired(false);
-                	  dataFilterExtensions.put(extensionName, dvJoin);
+                     trace.warn("Invalid data ID used for data filter predicate: "
+                           + dataFilter.getDataID() + ".");
                   }
 
-                  if (null == dataTerm)
-                  {
-                     if (dataMap.isEmpty())
-                     {
-                        trace.warn("Invalid data ID used for data filter predicate: "
-                              + dataFilter.getDataID() + ".");
-                     }
+                  dvPredicateTerm = new OrTerm();
+                  dataTerm = new AndTerm();
+                  dataFilterExtension.appendDataIdTerm(dataTerm, dataMap, dvJoin, dataFilter);
+                  dataTerm.add(dvPredicateTerm);
+               }
 
-                     dvPredicateTerm = new OrTerm();
-                     dataTerm = new AndTerm();
-                     dataFilterExtension.appendDataIdTerm(dataTerm, dataMap, dvJoin, dataFilter);
-                     dataTerm.add(dvPredicateTerm);
-                  }
-
-                  dvPredicateTerm.add(dataFilterExtension.createPredicateTerm(dvJoin, dataFilter, dataMap, dataFilterContext));
+               dvPredicateTerm.add(dataFilterExtension.createPredicateTerm(dvJoin, dataFilter, dataMap, dataFilterContext));
+               idx++;
             }
 
             if (null != dataTerm)
@@ -243,7 +224,7 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
             modelManager);
 
       // optionally reduce working set by leveraging state filters
-      if ( !processStateRestriction.isEmpty()
+      if (!processStateRestriction.isEmpty()
             && !processStateRestriction.equals(getFullProcessStateSet()))
       {
          List states = new ArrayList(processStateRestriction.size());
@@ -262,9 +243,8 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
       }
 
       List largeDataFilters = new ArrayList(dataFilters.size());
-      for (Iterator i = dataFilters.iterator(); i.hasNext();)
+      for (AbstractDataFilter dataFilter : dataFilters)
       {
-         AbstractDataFilter dataFilter = (AbstractDataFilter) i.next();
          if (DataValueBean.isLargeValue(dataFilter.getOperand()))
          {
             largeDataFilters.add(dataFilter);
@@ -321,9 +301,9 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
       return new Node(null, processOIDs);
    }
 
-   private Map /*<Long,IData>*/ findAllDataRtOids(String dataID, ModelManager modelManager)
+   private Map<Long, IData> findAllDataRtOids(String dataID, ModelManager modelManager)
    {
-      Map /*<Long,IData>*/ dataMap = new HashMap();
+      Map<Long, IData> dataMap = new HashMap();
 
       String namespace = null;
       if (dataID.startsWith("{"))

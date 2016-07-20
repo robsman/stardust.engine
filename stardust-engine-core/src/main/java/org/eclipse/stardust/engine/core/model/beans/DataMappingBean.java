@@ -244,10 +244,17 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
          }
          else
          {
+            String constantsDataPath = null;
+            if(StringUtils.isNotEmpty(dataPath))
+            {
+               constantsDataPath = dataPath.trim();
+            }            
+            constantsDataPath = dataPath;            
             boolean isConstant = data == null 
-                  && StringUtils.isNotEmpty(dataPath) 
-                  && dataPath.startsWith("(")
+                  && StringUtils.isNotEmpty(constantsDataPath) 
+                  && constantsDataPath.startsWith("(")
                   && StringUtils.isEmpty(applicationAccessPointId);
+            
             if (ImplementationType.SubProcess == activity.getImplementationType()
                   && activity.getExternalReference() != null
                   && !isConstant)

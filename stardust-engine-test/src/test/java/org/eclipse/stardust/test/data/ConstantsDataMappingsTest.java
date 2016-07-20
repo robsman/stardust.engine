@@ -53,7 +53,7 @@ public class ConstantsDataMappingsTest
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    
    @ClassRule
-   public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, CONSTANT_MODEL_NAME);
+   public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, CONSTANT_MODEL_NAME, ENUM_MODEL_NAME);
    
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)

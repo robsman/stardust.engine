@@ -232,6 +232,7 @@
    <WorkflowProcesses>
       <WorkflowProcess Id="ProcessDefinition1" Name="Process Definition 1" AccessLevel="PRIVATE">
          <ProcessHeader/>
+         <xpdl:FormalParameters xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1"/>
          <Activities>
             <Activity Id="ManualActivity1" Name="Manual Activity 1">
                <Implementation>
@@ -285,6 +286,19 @@
                   <carnot:Triggers/>
                   <carnot:DataPaths/>
                   <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.modifyAttributes" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.readProcessInstanceData" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:processDefinition.startProcesses" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:processDefinition.manageEventHandlers[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                     <carnot:Attribute Name="carnot:pwh:overdueThreshold" Value="0"/>
+                  </carnot:Attributes>
                   <carnot:Diagrams>
                      <carnot:Diagram Oid="52" Name="Default" Orientation="Vertical" Mode="MODE_4_0_0">
                         <carnot:Symbols>
@@ -301,6 +315,7 @@
                         <carnot:Connections/>
                      </carnot:Diagram>
                   </carnot:Diagrams>
+                  <carnot:FormalParameterMappings xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1"/>
                </carnot:WorkflowProcess>
             </ExtendedAttribute>
          </ExtendedAttributes>

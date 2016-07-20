@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="TestConstant" Name="TestConstant">
+<?xml version="1.0" encoding="UTF-8"?><Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="TestConstant" Name="TestConstant">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
       <Vendor>Eclipse.org, Eclipse Process Manager</Vendor>       
@@ -11,6 +10,13 @@
    </RedefinableHeader>
    <ConformanceClass GraphConformance="NON_BLOCKED"/>
    <xpdl:Script xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Type="text/ecmascript"/>
+   <xpdl:ExternalPackages xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1">
+      <xpdl:ExternalPackage Id="EnumDataModel" Name="EnumDataModel" href="EnumDataModel">
+         <xpdl:ExtendedAttributes>
+            <xpdl:ExtendedAttribute Name="carnot:connection:uri" Value="cnx://file/"/>
+         </xpdl:ExtendedAttributes>
+      </xpdl:ExternalPackage>
+   </xpdl:ExternalPackages>
    <TypeDeclarations/>
    <Participants>
       <Participant Id="Administrator" Name="Administrator">
@@ -231,7 +237,7 @@
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="767" Id="DefaultBoolean" Name="DefaultBoolean" Direction="IN" Context="default">
                               <carnot:DataRef Expression=" (boolean)   true  "/>
-                              <carnot:AccessPointRef/> 
+                              <carnot:AccessPointRef/>
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="768" Id="DefaultByte" Name="DefaultByte" Direction="IN" Context="default">
                               <carnot:DataRef Expression="(byte)  8 "/>
@@ -304,6 +310,75 @@
                   </ExtendedAttribute>
                </ExtendedAttributes>
             </Activity>
+            <Activity Id="SubprocessActivity1" Name="Process Definition 1">
+               <Implementation>
+                  <SubFlow Id="ProcessDefinition1" PackageRef="EnumDataModel" Execution="SYNCHR"/>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="1775" Implementation="Subprocess" SubProcessMode="sync_separate">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="3764" Id="DefaultString" Name="DefaultString" Direction="IN" Context="default">
+                              <carnot:DataRef Expression="(String)   Hansdampf"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="3765" Id="DefaultCalendar" Name="DefaultCalendar" Direction="IN" Context="default">
+                              <carnot:DataRef Expression="(Calendar) 2012/04/19 00:00:00:000"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="3766" Id="DefaultTimestamp" Name="DefaultTimestamp" Direction="IN" Context="default">
+                              <carnot:DataRef Expression="(Timestamp) 2012/04/19 00:00:00:000"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="3767" Id="DefaultBoolean" Name="DefaultBoolean" Direction="IN" Context="default">
+                              <carnot:DataRef Expression=" (boolean)   true  "/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="3768" Id="DefaultByte" Name="DefaultByte" Direction="IN" Context="default">
+                              <carnot:DataRef Expression="(byte)  8 "/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="3769" Id="DefaultChar" Name="DefaultChar" Direction="IN" Context="default">
+                              <carnot:DataRef Expression="(char) x"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="3770" Id="DefaultDouble" Name="DefaultDouble" Direction="IN" Context="default">
+                              <carnot:DataRef Expression="(double) 81.18"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="3771" Id="DefaultFloat" Name="DefaultFloat" Direction="IN" Context="default">
+                              <carnot:DataRef Expression=" (float) 18.81"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="3772" Id="DefaultInt" Name="DefaultInt" Direction="IN" Context="default">
+                              <carnot:DataRef Expression="(int) 81"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="3773" Id="DefaultLong" Name="DefaultLong" Direction="IN" Context="default">
+                              <carnot:DataRef Expression="(long) 818"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="3774" Id="DefaultShort" Name="DefaultShort" Direction="IN" Context="default">
+                              <carnot:DataRef Expression="     (short) 18"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:connection:uri" Value="cnx://file/processDefinition/ProcessDefinition1"/>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
          </Activities>
          <Transitions>
             <Transition Id="Transition1" Name="Transition 1" From="ManualActivity1" To="ManualActivity2">
@@ -311,6 +386,14 @@
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
                      <carnot:Transition Oid="667"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="Transition2" Name="Transition 2" From="ManualActivity2" To="SubprocessActivity1">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="1777"/>
                   </ExtendedAttribute>
                </ExtendedAttributes>
             </Transition>
@@ -329,11 +412,13 @@
                                  <carnot:Symbol Kind="ACTIVITY" Oid="55" X="130" Y="205" Width="180" Height="50" ModelElement="ManualActivity1"/>
                                  <carnot:Symbol Kind="ROLE" Oid="56" X="460" Y="65" Width="90" Height="40" ModelElement="Administrator"/>
                                  <carnot:Symbol Kind="ACTIVITY" Oid="666" X="490" Y="265" Width="180" Height="50" ModelElement="ManualActivity2"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="1776" X="75" Y="290" Width="180" Height="50" ModelElement="SubprocessActivity1"/>
                               </carnot:Symbols>
                               <carnot:Connections>
                                  <carnot:Connection Kind="PERFORMS" Oid="61" SourceSymbol="56" TargetSymbol="55"/>
                                  <carnot:Connection Kind="TRANSITION" Oid="668" ModelElement="Transition1" SourceSymbol="55" TargetSymbol="666" SourceAnchor="center" TargetAnchor="center"/>
                                  <carnot:Connection Kind="PERFORMS" Oid="669" SourceSymbol="56" TargetSymbol="666"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="1778" ModelElement="Transition2" SourceSymbol="666" TargetSymbol="1776" SourceAnchor="left" TargetAnchor="right"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>
@@ -667,6 +752,11 @@
                <carnot:Attribute Name="ipp:variables[6]:name" Value="MHigh" Type="String"/>
                <carnot:Attribute Name="ipp:variables[6]:defaultValue" Value="10" Type="String"/>
                <carnot:Attribute Name="ipp:variables[6]:description" Value="Multiple of target execution time (High)" Type="String"/>
+               <carnot:Attribute Name="carnot:connection:1:id" Value="file"/>
+               <carnot:Attribute Name="carnot:connection:1:name" Value="File Connection"/>
+               <carnot:Attribute Name="carnot:connection:1:type" Value="file"/>
+               <carnot:Attribute Name="carnot:connection:1:attribute:importByReference" Value="true"/>
+               <carnot:Attribute Name="carnot:connection:1:attribute:filename" Value="EnumDataModel.xpdl"/>
             </carnot:Attributes>
          </carnot:Package>
       </ExtendedAttribute>

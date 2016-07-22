@@ -28,6 +28,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
                ActivityInstanceWorkflowTest.class,
                ProcessInstanceWorkflowTest.class,
+               ProcessInterfaceTest.class,
                EmbeddedServiceFactoryTest.class,
                RollbackOnErrorTest.class,
                TransientUsersWorkflowTest.class,

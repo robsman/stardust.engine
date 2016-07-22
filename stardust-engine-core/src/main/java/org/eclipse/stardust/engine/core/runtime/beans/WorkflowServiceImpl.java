@@ -89,9 +89,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       boolean synchronously = options.isSynchronously();
 
       Map<String, Object> values = (Map<String, Object>) inputData;
-      
-      ModelUtils.validateData((IModel) processDefinition.getModel(), values);
-      
+
       if (processDefinition.getDeclaresInterface())
       {
          processDefinition = ModelRefBean.getPrimaryImplementation(processDefinition,
@@ -107,6 +105,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
             }
          }
       }
+
+      ModelUtils.validateData((IModel) processDefinition.getModel(), values);
 
       IProcessInstance processInstance = ProcessInstanceBean.createInstance(
             processDefinition, SecurityProperties.getUser(), values);
@@ -1330,15 +1330,15 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       ForkingServiceFactory factory = (ForkingServiceFactory)
             Parameters.instance().get(EngineProperties.FORKING_SERVICE_HOME);
       ForkingService forkingService = factory.get();
-      
+
       return (Worklist) forkingService.isolate(new Action()
             {
                public Object execute()
                {
                   return new WorklistQueryEvaluator(query, new EvaluationContext(
-                        ModelManagerFactory.getCurrent(), SecurityProperties.getUser())).buildWorklist();                  
-               }         
-            });      
+                        ModelManagerFactory.getCurrent(), SecurityProperties.getUser())).buildWorklist();
+               }
+            });
    }
 
    public ActivityInstance activateNextActivityInstance(WorklistQuery query)
@@ -1348,10 +1348,10 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       boolean loop = false;
 
       ActivityInstance result = null;
-      
+
       EmbeddedServiceFactory sf = new EmbeddedServiceFactory();
       WorkflowService embeddedWorkflowService = sf.getService(WorkflowService.class);
-      
+
       Worklist wl = embeddedWorkflowService.getWorklist(query);
       int cumulatedSize = wl.getCumulatedSize();
 

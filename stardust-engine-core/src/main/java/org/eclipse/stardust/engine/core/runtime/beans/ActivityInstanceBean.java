@@ -2071,9 +2071,18 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             {
                bridgeObject = getMIBridgeObject(mapping, bridgeObject);
             }
-            IData subProcessData = PredefinedConstants.PROCESSINTERFACE_CONTEXT.equals(context)
+            IData subProcessData = null;
+            if(accessPointId == null && mapping.getData() == null && mapping.getDataPath().startsWith("("))
+            {
+               // Use data of the referenced model if constant has no data
+               subProcessData = ModelUtils.getMappedData(processDefinition, mapping.getId());
+            }
+            else
+            {
+               subProcessData = PredefinedConstants.PROCESSINTERFACE_CONTEXT.equals(context)
                   ? ModelUtils.getMappedData(processDefinition, accessPointId)
                   : ModelUtils.getData(processDefinition, accessPointId);
+            }
 
             String subProcessDataPath = mapping.getActivityPath();
             subProcessInstance.setOutDataValue(subProcessData, subProcessDataPath, bridgeObject);
@@ -2189,8 +2198,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    }
 
    /**
-    * @param applicationOutAccessPointValues
-    *           a map of (accesspoint, value) pairs
+    * @param apValues
+    *           a map of (activityAccessPointId, value) pairs
     */
    public void processRouteOutDataMappings(IActivity activity, Map apValues)
    {

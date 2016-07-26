@@ -402,7 +402,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return processInstance;
    }
 
-   private static Map<String, ? > initializeDefaultData(final Map<String, Object> data, IModel iModel, IProcessInstance processInstance)
+   private static Map<String, ?> initializeDefaultData(final Map<String, Object> data, IModel iModel, IProcessInstance processInstance)
    {
       Map<String, Object> dataMap = null;
       if (data != null)
@@ -418,8 +418,9 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       if (iModel.findData(PredefinedConstants.BUSINESS_DATE) != null
             && !dataMap.containsKey(PredefinedConstants.BUSINESS_DATE))
       {
-         dataMap.put(PredefinedConstants.BUSINESS_DATE,
-               processInstance.getRootProcessInstance().getStartTime().getTime());
+         Calendar businessDate = Calendar.getInstance();
+         businessDate.setTime(processInstance.getRootProcessInstance().getStartTime());
+         dataMap.put(PredefinedConstants.BUSINESS_DATE, businessDate);
       }
       if (iModel.findData(PredefinedConstants.DUE_DATE) != null
             && !dataMap.containsKey(PredefinedConstants.DUE_DATE))

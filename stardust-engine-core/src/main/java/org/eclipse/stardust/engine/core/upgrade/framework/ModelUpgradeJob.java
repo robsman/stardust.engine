@@ -106,6 +106,16 @@ public abstract class ModelUpgradeJob extends UpgradeJob
       insertInRuntime(modelItem, id, name, DATA_TABLE_NAME);
    }
 
+   protected void changePrimitiveDataType(ModelUpgradeInfo info, ModelItem modelItem, String id, Type type)
+   {
+      if (info.hasData(id))
+      {
+         FileModel modifier = FileModel.create(modelItem.getModel());
+         modifier.setPrimitiveDataType(id, type);
+         modelItem.setModel(modifier.toString());
+      }
+   }
+
    private void insertRoleInModel(ModelUpgradeInfo info, ModelItem modelItem, String id,
          String name)
    {
@@ -309,6 +319,10 @@ public abstract class ModelUpgradeJob extends UpgradeJob
    private String getXpdlBasicType(Type type)
    {
       if (Type.Timestamp == type)
+      {
+         return "DATETIME";
+      }
+      else if (Type.Calendar == type)
       {
          return "DATETIME";
       }

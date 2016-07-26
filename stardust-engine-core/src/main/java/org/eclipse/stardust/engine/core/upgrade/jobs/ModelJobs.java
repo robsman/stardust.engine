@@ -37,6 +37,7 @@ public class ModelJobs
       else
       {
          jobs.add(new M9_0_0from7_0_0ModelJob());
+         jobs.add(new M9_2_0from9_0_0ModelJob());
       }
 
       return jobs;

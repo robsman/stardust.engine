@@ -47,7 +47,7 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private static final String PROCESS_INSTANCE_LINK_TYPE_FIELD_PARTITION = "partition";
 
-   private static final Version VERSION = Version.createFixedVersion(9, 2, 0);
+   static final Version VERSION = Version.createFixedVersion(9, 2, 0);
 
    private static final String DATA_VALUE_HISTORY_TABLE_NAME = "data_value_history";
 

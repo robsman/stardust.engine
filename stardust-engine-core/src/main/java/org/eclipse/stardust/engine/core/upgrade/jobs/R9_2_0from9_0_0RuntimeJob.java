@@ -7,10 +7,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Set;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.DateUtils;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.Version;
@@ -79,9 +81,23 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private static final String DATA_VALUE_HISTORY_LCK_IDX = "data_value_history_lck_idx";
 
+   private static final String selectBusinessDateStatement =
+         "SELECT dv.oid,dv.number_value "
+         + "FROM data_value dv "
+         + "INNER JOIN data dd "
+           + "ON dv.data = dd.oid AND dv.model = dd.model "
+         + "WHERE dd.id = 'BUSINESS_DATE'";
+
+   private static final String updateBusinessDateStatement =
+         "UPDATE data_value dv "
+         + "SET dv.number_value = ? "
+         + "WHERE dv.oid = ?";
 
    private R9_2_0from9_0_0RuntimeJob runtimeJob;
 
+   private int batchSize;
+
+   @SuppressWarnings("deprecation")
    R9_2_0from9_0_0RuntimeJob()
    {
       super(new DBMSKey[] {
@@ -90,6 +106,11 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
             DBMSKey.MYSQL_SEQ});
       runtimeJob = this;
       initUpgradeTasks();
+      String bs = Parameters.instance().getString(RuntimeUpgrader.UPGRADE_BATCH_SIZE);
+      if (bs != null)
+      {
+         batchSize = Integer.parseInt(bs);
+      }
    }
 
    private void initUpgradeTasks()
@@ -105,6 +126,28 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
             try
             {
                insertRelatedLinkType();
+            }
+            catch (SQLException sqle)
+            {
+               reportExeption(sqle,
+                     "Failed migrating runtime item tables (nested exception).");
+            }
+         }
+
+         @Override
+         public void printInfo()
+         {
+         }
+      });
+
+      upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
+      {
+         @Override
+         public void execute()
+         {
+            try
+            {
+               migrateBusinessDates();
             }
             catch (SQLException sqle)
             {
@@ -165,6 +208,63 @@ public class R9_2_0from9_0_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
 
       });
+   }
+
+   private void migrateBusinessDates() throws SQLException
+   {
+      try
+      {
+         PreparedStatement updateStmnt = item.getConnection().prepareStatement(updateBusinessDateStatement);
+
+         ResultSet resultSet = null;
+         try
+         {
+            resultSet = DatabaseHelper.executeQuery(item, selectBusinessDateStatement);
+
+            Calendar cal = Calendar.getInstance();
+            int batchCounter = 0;
+            while (resultSet.next())
+            {
+               long oid = resultSet.getLong(1);
+               long value = resultSet.getLong(2);
+
+               if (!resultSet.wasNull())
+               {
+                  cal.setTimeInMillis(value);
+                  long newValue = DateUtils.businessDateToTimestamp(cal);
+
+                  updateStmnt.setLong(1, newValue);
+                  updateStmnt.setLong(2, oid);
+
+                  updateStmnt.addBatch();
+                  ++batchCounter;
+
+                  if (batchCounter >= batchSize)
+                  {
+                     batchCounter = 0;
+                     updateStmnt.executeBatch();
+                  }
+
+               }
+            }
+
+            // As it might be expensive to check for resultSet.isLast()
+            // the batch is being executed last time once the loop has been left
+            if (batchCounter != 0)
+            {
+               updateStmnt.executeBatch();
+            }
+         }
+         finally
+         {
+            resultSet.close();
+            updateStmnt.close();
+         }
+      }
+      catch (SQLException e)
+      {
+         reportExeption(e, "Could not update long value.");
+      }
    }
 
    private void insertRelatedLinkType() throws SQLException

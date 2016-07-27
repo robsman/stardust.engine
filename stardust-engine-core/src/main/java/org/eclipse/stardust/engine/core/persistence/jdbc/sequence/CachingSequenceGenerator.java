@@ -17,13 +17,17 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
+import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
 
 /**
@@ -50,7 +54,7 @@ public class CachingSequenceGenerator implements SequenceGenerator
       this.sequenceBatchSize = Parameters.instance().getInteger(
             KernelTweakingProperties.SEQUENCE_BATCH_SIZE, 100);
    }
-   
+
    public void init(DBDescriptor dbDescriptor, SqlUtils sqlUtils)
    {
       if ( !dbDescriptor.supportsSequences())
@@ -61,7 +65,7 @@ public class CachingSequenceGenerator implements SequenceGenerator
       this.sqlUtils = sqlUtils;
    }
 
-   public long getNextSequence(TypeDescriptor typeDescriptor, Session session)
+   public long getNextSequence(final TypeDescriptor typeDescriptor, final Session session)
    {
       // check if there is an id in the cache
       ConcurrentLinkedQueue cachedIds = (ConcurrentLinkedQueue) this.typeDescriptorToIdCache.get(typeDescriptor);
@@ -72,7 +76,7 @@ public class CachingSequenceGenerator implements SequenceGenerator
 
          cachedIds = (ConcurrentLinkedQueue) this.typeDescriptorToIdCache.get(typeDescriptor);
       }
-      
+
       Number cachedId = (Number) cachedIds.poll();
       if (cachedId == null)
       {
@@ -81,9 +85,28 @@ public class CachingSequenceGenerator implements SequenceGenerator
             cachedId = (Number) cachedIds.poll();
             if (cachedId == null)
             {
-               List newIds = this.getNextSequenceImpl(typeDescriptor, session);
+               List< ? > newIds = null;
+
+               // MYSQL_SEQ needs isolated transaction to prevent sequence rollback.
+               if (dbDescriptor instanceof MySqlSeqDbDescriptor)
+               {
+                  newIds = runIsolateAction(new Action<List< ? >>()
+                  {
+
+                     @Override
+                     public List< ? > execute()
+                     {
+                        List newIds = getNextSequenceImpl(typeDescriptor, session);
+                        return newIds;
+                     }
+                  });
+               }
+               else
+               {
+                  newIds =  getNextSequenceImpl(typeDescriptor, session);
+               }
                Assert.condition(0 < newIds.size());
-               
+
                // reserve first for own use
                cachedId = (Number) newIds.remove(0);
                cachedIds.addAll(newIds);
@@ -95,7 +118,7 @@ public class CachingSequenceGenerator implements SequenceGenerator
       {
          trace.debug("returning unique ID: " + cachedId.longValue());
       }
-      
+
       return cachedId.longValue();
    }
 
@@ -167,6 +190,26 @@ public class CachingSequenceGenerator implements SequenceGenerator
          finally
          {
             QueryUtils.closeStatement(pkStmt);
+         }
+      }
+   }
+
+   private static <T extends Object> T runIsolateAction(Action<T> action)
+   {
+      ForkingServiceFactory factory = null;
+      ForkingService service = null;
+      try
+      {
+         factory = (ForkingServiceFactory) Parameters.instance().get(
+               EngineProperties.FORKING_SERVICE_HOME);
+         service = factory.get();
+         return (T) service.isolate(action);
+      }
+      finally
+      {
+         if (null != factory)
+         {
+            factory.release(service);
          }
       }
    }

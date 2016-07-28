@@ -738,10 +738,10 @@ public class ModelBean extends RootElementBean
          id = id.substring(0, ix);
       }
       T item = (T) list.findById(id);
-      if (uuid != null)
+      if (uuid != null && item != null)
       {
          String elementUUID = item.getStringAttribute("carnot:model:uuid");
-         if (item == null || !uuid.equals(elementUUID))
+         if (!uuid.equals(elementUUID))
          {
             for (Iterator iterator = list.iterator(); iterator.hasNext();)
             {

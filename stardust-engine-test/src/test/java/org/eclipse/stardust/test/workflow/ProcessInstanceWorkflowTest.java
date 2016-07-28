@@ -35,10 +35,8 @@ import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.api.runtime.SpawnOptions;
+import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.TestClassSetup;
@@ -156,6 +154,42 @@ public class ProcessInstanceWorkflowTest
       assertThat(actualInt, equalTo(originalInt));
    }
 
+   /**
+    * <p>
+    * Tests whether start process failed because of invalid data id.
+    * </p>
+    */
+   @Test(expected = ObjectNotFoundException.class)
+   public void testStartProcessPassInvalidData1()
+   {
+      final String originalString = "a string";
+      final int originalInt = 81;
+      final Map<String, Object> data = CollectionUtils.newHashMap();
+      data.put(MY_STRING_DATA_ID + "invalid", originalString);
+      data.put(MY_INT_DATA_ID, originalInt);
+
+      userSf.getWorkflowService().startProcess(PD_1_ID, data, true);
+   }
+
+   /**
+    * <p>
+    * Tests whether start process failed because of invalid data id.
+    * </p>
+    */
+   @Test(expected = ObjectNotFoundException.class)
+   public void testStartProcessPassInvalidData2()
+   {
+      final String originalString = "a string";
+      final int originalInt = 81;
+      final Map<String, Object> data = CollectionUtils.newHashMap();
+      data.put(MY_STRING_DATA_ID + "invalid", originalString);
+      data.put(MY_INT_DATA_ID, originalInt);
+      
+      DeployedModel activeModel = userSf.getQueryService().getActiveModel();
+      
+      adminSf.getAdministrationService().startProcess(activeModel.getModelOID(), PD_1_ID, data, true);
+   }
+      
    /**
     * <p>
     * Tests whether the appropriate exception is thrown when the process definition

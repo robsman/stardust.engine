@@ -1426,6 +1426,10 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                   {
                      subProcess.setOutDataValue(srcData, "", srcValue.getSerializedValue());
                   }
+                  else
+                  {
+                     trace.warn(BpmRuntimeError.MDL_UNKNOWN_DATA_ID.raise(srcData.getId()).toString());
+                  }
                }
             }
             if (!synchronous && RootPIUtils.isRootProcessAttachmentAttributeEnabled(DmsConstants.DATA_ID_ATTACHMENTS, getProcessInstance()))

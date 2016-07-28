@@ -12,7 +12,7 @@ package org.eclipse.stardust.engine.core.runtime.logging;
 
 /**
  * This SQL recorder implementation does nothing.
- * 
+ *
  * @author born
  * @version $Revision: $
  *
@@ -31,10 +31,15 @@ public final class NullSqlTimeRecorder implements ISqlTimeRecorder
    {
       // left empty by intention.
    }
-   
+
    public String getUniqueIdentifier()
    {
       // TODO Auto-generated method stub
       return "";
+   }
+
+   public void start(String sql)
+   {
+      // left empty by intention.
    }
 }

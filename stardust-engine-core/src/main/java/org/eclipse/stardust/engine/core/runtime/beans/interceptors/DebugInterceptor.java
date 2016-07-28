@@ -35,7 +35,7 @@ import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 public class DebugInterceptor implements MethodInterceptor
 {
    private static final long serialVersionUID = 2L;
-   
+
    public static final Logger trace = LogManager.getLogger(DebugInterceptor.class);
    private static final ThreadLocalSqlTimeRecorder sqlTimeRecorder = new ThreadLocalSqlTimeRecorder();
 
@@ -50,7 +50,7 @@ public class DebugInterceptor implements MethodInterceptor
       final TimeMeasure timer = new TimeMeasure();
       final Parameters parameters = Parameters.instance();
       parameters.set(ISqlTimeRecorder.PRP_SQL_TIME_RECORDER, sqlTimeRecorder);
-      
+
       try
       {
          return invocation.proceed();
@@ -66,38 +66,45 @@ public class DebugInterceptor implements MethodInterceptor
             final long cumulatedSqlTime = sqlTimeRecorder.getCumulatedSqlExecutionTime();
             final long fetchingTime = sqlTimeRecorder.getCumulatedFetchTime();
             final String uniqueIdentifier = sqlTimeRecorder.getUniqueIdentifier();
-            
+
             RuntimeLog.PERFORMANCE.info("Service call: " + diffTime + " ms for '"
                   + fqMethodName + "'. (call ID: " + uniqueIdentifier + "; total SQL: "
                   + cumulatedSqlTime + " ms, total fetching time: " + fetchingTime
                   + " ms)");
-            if ( !sqlTimeRecorder.getSqlExcecutionTimes().isEmpty())
+            List<Pair<String, Long>> sqlExcecutionTimes = sqlTimeRecorder.getSqlExcecutionTimes();
+            if (!sqlExcecutionTimes.isEmpty())
             {
-               RuntimeLog.PERFORMANCE
-                     .info("List of recorded SQL statements for this service call:");
-               for (Iterator iter = sqlTimeRecorder.getSqlExcecutionTimes().iterator(); iter
-                     .hasNext();)
+               RuntimeLog.PERFORMANCE.info(/*"List of "*/"" + sqlExcecutionTimes.size() + " recorded SQL statements for this service call:");
+               for (Pair<String, Long> pair : sqlExcecutionTimes)
                {
-                  Pair pair = (Pair) iter.next();
-                  RuntimeLog.PERFORMANCE.info("\tcall ID: " + uniqueIdentifier + "; "
-                        + pair.getSecond() + " ms: " + pair.getFirst());
+                  String sql = pair.getFirst();
+                  Long time = pair.getSecond();
+                  if (time == null)
+                  {
+                     RuntimeLog.PERFORMANCE.info("FAILED call ID: " + uniqueIdentifier + "; " + sql);
+                  }
+                  else
+                  {
+                     RuntimeLog.PERFORMANCE.info("\tcall ID: " + uniqueIdentifier + "; "
+                        + pair.getSecond() + " ms: " + sql);
+                  }
                }
             }
-            
+
          }
-         
+
          parameters.set(ISqlTimeRecorder.PRP_SQL_TIME_RECORDER, null);
          sqlTimeRecorder.reset();
 
          trace.info("<-- " + methodName);
       }
    }
-   
+
    public static void addSqlExecutionTime(String sql, long time)
    {
       sqlTimeRecorder.record(sql, time);
    }
-   
+
    private static final class RecorderData
    {
       private List<Long> fetchTimes;
@@ -106,20 +113,19 @@ public class DebugInterceptor implements MethodInterceptor
 
       public RecorderData()
       {
-         super();
          this.fetchTimes = CollectionUtils.newArrayList();
          this.sqlExcecutionTimes = CollectionUtils.newArrayList();
          this.uniqueIdentifier = UUID.randomUUID().toString();
       }
    }
-   
+
    /**
     * This SQL recorder is thread local and will be used to store all executed SQL statements
     * with their execution duration during a service call.
-    * 
+    *
     * @author born
     * @version $Revision$
-    * 
+    *
     */
    private static final class ThreadLocalSqlTimeRecorder extends
          ThreadLocal<RecorderData> implements ISqlTimeRecorder
@@ -135,15 +141,23 @@ public class DebugInterceptor implements MethodInterceptor
       public void record(String sql, long time)
       {
          final List<Pair<String, Long>> sqlList = getSqlExcecutionTimes();
+         if (!sqlList.isEmpty())
+         {
+            Pair<String, Long> last = sqlList.get(sqlList.size() - 1);
+            if (last.getSecond() == null && sql.equals(last.getFirst()))
+            {
+               sqlList.remove(sqlList.size() - 1);
+            }
+         }
          sqlList.add(new Pair(sql, new Long(time)));
       }
-      
+
       public void record(long duration)
       {
          final List<Long> otherSqlList = getFetchTimes();
          otherSqlList.add(new Long(duration));
       }
-      
+
       public String getUniqueIdentifier()
       {
          return get().uniqueIdentifier;
@@ -156,15 +170,15 @@ public class DebugInterceptor implements MethodInterceptor
       {
          return new RecorderData();
       }
-      
+
       /**
-       * @return a correctly casted version of the stored object retrieved from {@link #get()}. 
+       * @return a correctly casted version of the stored object retrieved from {@link #get()}.
        */
       private List<Pair<String, Long>> getSqlExcecutionTimes()
       {
          return get().sqlExcecutionTimes;
       }
-      
+
       private List<Long> getFetchTimes()
       {
          return get().fetchTimes;
@@ -178,12 +192,15 @@ public class DebugInterceptor implements MethodInterceptor
          long cumulatedTime = 0;
          for (Pair<String, Long> sqlExecutionTime : getSqlExcecutionTimes())
          {
-            cumulatedTime += sqlExecutionTime.getSecond();
+            if (sqlExecutionTime.getSecond() != null)
+            {
+               cumulatedTime += sqlExecutionTime.getSecond();
+            }
          }
-         
+
          return cumulatedTime;
       }
-      
+
       private long getCumulatedFetchTime()
       {
          long cumulatedTime = 0;
@@ -191,18 +208,22 @@ public class DebugInterceptor implements MethodInterceptor
          {
             cumulatedTime += fetchTime;
          }
-         
+
          return cumulatedTime;
       }
 
       /**
-       * Reset the thread local instance. 
+       * Reset the thread local instance.
        */
       private void reset()
       {
          set(initialValue());
       }
 
+      public void start(String sql)
+      {
+         final List<Pair<String, Long>> sqlList = getSqlExcecutionTimes();
+         sqlList.add(new Pair(sql, null));
+      }
    }
-
 }

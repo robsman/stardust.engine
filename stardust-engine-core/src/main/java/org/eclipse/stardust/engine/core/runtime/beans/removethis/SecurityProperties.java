@@ -178,6 +178,7 @@ public final class SecurityProperties
 
    public static final String PRINCIPAL_VALIDATOR_DEFAULT_VALUE = "org.eclipse.stardust.engine.core.spi.security.AlwaysValidPrincipalValidator";
 
+   /**
    public static boolean isInternalAuthentication()
    {
 
@@ -195,6 +196,62 @@ public final class SecurityProperties
 
       return AUTHORIZATION_MODE_INTERNAL.equalsIgnoreCase(authorizationMode);
    }
+   **/
+   
+   public static boolean isInternalAuthentication()
+   {
+
+      String authenticationMode = Parameters.instance().getString(
+            AUTHENTICATION_MODE_PROPERTY, null);
+      
+      if (authenticationMode == null){
+        if (isInternalAuthenticationLegacy()){
+           authenticationMode = AUTHENTICATION_MODE_INTERNAL;
+        }   
+      }
+
+      return AUTHENTICATION_MODE_INTERNAL.equalsIgnoreCase(authenticationMode);
+
+   }
+  
+   public static boolean isInternalAuthorization()
+   {
+      String authorizationMode = Parameters.instance().getString(
+            AUTHORIZATION_MODE_PROPERTY, null);
+      
+      if (authorizationMode == null){
+        if (isInternalAuthorizationLegacy()){
+           authorizationMode = AUTHORIZATION_MODE_INTERNAL;
+        }   
+      }
+
+      return AUTHORIZATION_MODE_INTERNAL.equalsIgnoreCase(authorizationMode);
+   }
+   
+   public static boolean isInternalAuthenticationLegacy()
+   {
+      final String syncProviderClassName = Parameters.instance().getString(
+            AUTHORIZATION_SYNC_CLASS_PROPERTY);
+      if ( !isEmpty(syncProviderClassName)
+            && "None".equalsIgnoreCase(syncProviderClassName))
+      {
+         return true;
+      }
+      else
+      {
+         return null == SynchronizationService.getSynchronizationProvider();
+      }
+   }
+
+   public static boolean isInternalAuthorizationLegacy()
+   {
+      final String authorizationMode = Parameters.instance().getString(
+            AUTHORIZATION_MODE_PROPERTY);
+
+      return isInternalAuthenticationLegacy()
+            || AUTHORIZATION_MODE_INTERNAL.equals(authorizationMode);
+   }
+   
 
    public static boolean isPrincipalBasedLogin()
    {

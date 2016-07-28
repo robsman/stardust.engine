@@ -200,7 +200,7 @@ public class BenchmarkStatisticsTest
             Integer.valueOf(1))));
 
       Map<String, Serializable> processData = CollectionUtils.newMap();
-      processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance().getTimeInMillis());
+      processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance());
       processData.put("BaseData", (Serializable)businessObjectData);
 
       startOptions_withBenchmark = new StartOptions(processData, true, BENCHMARK_REF);
@@ -216,7 +216,7 @@ public class BenchmarkStatisticsTest
             Integer.valueOf(1))));
 
       processData = CollectionUtils.newMap();
-      processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance().getTimeInMillis());
+      processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance());
       processData.put("BaseData", (Serializable)businessObjectData);
 
       startOptions_withBenchmark = new StartOptions(processData, true, BENCHMARK_REF);
@@ -232,7 +232,7 @@ public class BenchmarkStatisticsTest
             Integer.valueOf(2))));
 
       processData = CollectionUtils.newMap();
-      processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance().getTimeInMillis());
+      processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance());
       processData.put("BaseData", (Serializable)businessObjectData);
 
       startOptions_withBenchmark = new StartOptions(processData, true, BENCHMARK_REF);
@@ -245,7 +245,7 @@ public class BenchmarkStatisticsTest
             Integer.valueOf(111))));
 
       processData = CollectionUtils.newMap();
-      processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance().getTimeInMillis());
+      processData.put(PredefinedConstants.BUSINESS_DATE, Calendar.getInstance());
       processData.put("BaseWithoutNameData", (Serializable)businessObjectData);
 
       startOptions_withBenchmark = new StartOptions(processData, true, BENCHMARK_REF);

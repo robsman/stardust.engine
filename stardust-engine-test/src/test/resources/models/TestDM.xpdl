@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="TestDM" Name="TestDM">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
-      <Vendor>Eclipse.org, Eclipse Process Manager</Vendor>       
+      <Vendor>Eclipse.org, Eclipse Process Manager</Vendor>
       <Created>Wed Apr 13 14:49:06 CEST 2016</Created>
    </PackageHeader>
    <RedefinableHeader PublicationStatus="UNDER_REVISION">
@@ -156,7 +156,7 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:DataField Oid="47" Type="primitive" IsPredefined="true">
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:type" Value="Timestamp" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="Calendar" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -276,7 +276,7 @@
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="77" Id="PrimitiveData2" Name="PrimitiveData2" Direction="IN" Context="default">
                               <carnot:DataRef Id="PrimitiveData2"/>
-                              <carnot:AccessPointRef/>                              
+                              <carnot:AccessPointRef/>
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="79" Id="PrimitiveData3" Name="PrimitiveData3" Direction="IN" Context="default">
                               <carnot:DataRef Id="PrimitiveData3"/>
@@ -290,8 +290,8 @@
                               <carnot:DataRef Id="PrimitiveData2"/>
                               <carnot:AccessPointRef/>
                               <carnot:Attributes>
-                     			   <carnot:Attribute Name="carnot:engine:mandatoryDataMapping" Value="true" Type="boolean"/>                  
-                              </carnot:Attributes>                              
+                                 <carnot:Attribute Name="carnot:engine:mandatoryDataMapping" Value="true" Type="boolean"/>
+                              </carnot:Attributes>
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="83" Id="PrimitiveData3" Name="PrimitiveData3" Direction="OUT" Context="default">
                               <carnot:DataRef Id="PrimitiveData3"/>
@@ -350,11 +350,11 @@
                               <carnot:AccessPointRef/>
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="85" Id="PrimitiveData2" Name="PrimitiveData2" Direction="OUT" Context="default">
-                              <carnot:DataRef Id="PrimitiveData2"/>                              
+                              <carnot:DataRef Id="PrimitiveData2"/>
                               <carnot:AccessPointRef/>
                               <carnot:Attributes>
-                                 <carnot:Attribute Name="carnot:engine:mandatoryDataMapping" Value="true" Type="boolean"/>                  
-                              </carnot:Attributes>                                                            
+                                 <carnot:Attribute Name="carnot:engine:mandatoryDataMapping" Value="true" Type="boolean"/>
+                              </carnot:Attributes>
                            </carnot:DataFlow>
                            <carnot:DataFlow Oid="86" Id="PrimitiveData3" Name="PrimitiveData3" Direction="OUT" Context="default">
                               <carnot:DataRef Id="PrimitiveData3"/>

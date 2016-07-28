@@ -233,7 +233,7 @@
 <carnot:DataField Oid="89" Type="primitive" IsPredefined="true">
 <carnot:Attributes>
 <carnot:Attribute Name="carnot:model:uuid" Value="27796d30-a4f6-43a0-8a66-f442c90ef321"/>
-<carnot:Attribute Name="carnot:engine:type" Value="Timestamp" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+<carnot:Attribute Name="carnot:engine:type" Value="Calendar" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
 </carnot:Attributes>
 </carnot:DataField>
 </ExtendedAttribute>

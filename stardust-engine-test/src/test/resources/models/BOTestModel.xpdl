@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><Package xmlns:x1="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="BOTestModel" Name="BO test Model">
 <PackageHeader>
 <XPDLVersion>2.1</XPDLVersion>
-      <Vendor>Eclipse.org, Eclipse Process Manager</Vendor>       
+      <Vendor>Eclipse.org, Eclipse Process Manager</Vendor>
 <Created>Fri Nov 13 13:28:13 EST 2015</Created>
 </PackageHeader>
 <RedefinableHeader PublicationStatus="UNDER_REVISION">
@@ -286,7 +286,7 @@
 <carnot:DataField Oid="30" Type="primitive" IsPredefined="true">
 <carnot:Attributes>
 <carnot:Attribute Name="carnot:model:uuid" Value="054613a1-4391-4469-8e27-1389fdcacee3"/>
-<carnot:Attribute Name="carnot:engine:type" Value="Timestamp" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
+<carnot:Attribute Name="carnot:engine:type" Value="Calendar" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
 </carnot:Attributes>
 </carnot:DataField>
 </ExtendedAttribute>

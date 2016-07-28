@@ -6,7 +6,7 @@
    Id="CompositeDescriptorModel" Name="Composite Descriptor Model">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
-      <Vendor>Eclipse.org, Eclipse Process Manager</Vendor>       
+      <Vendor>Eclipse.org, Eclipse Process Manager</Vendor>
       <Created>Wed Feb 10 10:14:49 EST 2016</Created>
    </PackageHeader>
    <RedefinableHeader PublicationStatus="UNDER_REVISION">
@@ -241,7 +241,7 @@
                   IsPredefined="true">
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:type"
-                        Value="Timestamp" Type="org.eclipse.stardust.engine.core.pojo.data.Type" />
+                        Value="Calendar" Type="org.eclipse.stardust.engine.core.pojo.data.Type" />
                      <carnot:Attribute Name="carnot:model:uuid"
                         Value="e21c9f93-0e20-4146-9b73-e381b99863b9" />
                   </carnot:Attributes>

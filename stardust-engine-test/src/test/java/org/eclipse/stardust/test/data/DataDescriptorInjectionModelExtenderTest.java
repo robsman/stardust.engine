@@ -3,6 +3,7 @@ package org.eclipse.stardust.test.data;
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,7 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
  * <p>
  * Tests whether in simple modeler descriptors for BUSINESS_DATE will be injected correctly.
  * </p>
- * 
+ *
  * @author Barry.Grotjahn
  * @version $Revision$
  */
@@ -43,7 +44,7 @@ public class DataDescriptorInjectionModelExtenderTest
    public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(serviceFactory);
 
    private Map<String, Object> processData;
-   
+
    private static String PROCESS1 = "{SimpleModeler}ExtendDescriptorProcessDefinition_1";
    private static String PROCESS2 = "{SimpleModeler}ExtendDescriptorProcessDefinition_2";
 
@@ -52,8 +53,8 @@ public class DataDescriptorInjectionModelExtenderTest
    {
       processData = CollectionUtils.newHashMap();
 
-      Date date = new Date();
-      date.setYear(2000);      
+      Calendar date = Calendar.getInstance();
+      date.set(Calendar.YEAR, 2000);
       processData.put(PredefinedConstants.BUSINESS_DATE, date);
    }
 
@@ -62,15 +63,15 @@ public class DataDescriptorInjectionModelExtenderTest
    {
       Date value = null;
       DataPath path = null;
-      
+
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
             PROCESS1, this.processData, true);
-      
-      
+
+
       List<ProcessDefinition> allProcessDefinitions = serviceFactory.getQueryService().getAllProcessDefinitions(pi.getModelOID());
       for(ProcessDefinition pd : allProcessDefinitions)
       {
-         List<DataPath> paths = pd.getAllDataPaths();   
+         List<DataPath> paths = pd.getAllDataPaths();
          for (DataPath p : paths)
          {
             if (p.getId().equals("BusinessDate_2") && pd.getQualifiedId().equals(PROCESS1))
@@ -81,12 +82,12 @@ public class DataDescriptorInjectionModelExtenderTest
             }
          }
       }
-         
+
       if (value != null && path != null)
       {
          Assert.assertTrue(path.isDescriptor());
-         assertEquals(path.getData(), PredefinedConstants.BUSINESS_DATE);            
-         assertEquals(path.getName(), "Business Date");                     
+         assertEquals(path.getData(), PredefinedConstants.BUSINESS_DATE);
+         assertEquals(path.getName(), "Business Date");
          assertEquals(value.getYear(), 2000);
       }
       else
@@ -94,20 +95,20 @@ public class DataDescriptorInjectionModelExtenderTest
          Assert.fail("No Descriptor has been found at all!");
       }
    }
-      
+
    @Test
    public void testExtendDescriptorsProcessDefinition_2()
    {
       Date value = null;
       DataPath path = null;
-      
+
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
             PROCESS2, this.processData, true);
-            
+
       List<ProcessDefinition> allProcessDefinitions = serviceFactory.getQueryService().getAllProcessDefinitions(pi.getModelOID());
       for(ProcessDefinition pd : allProcessDefinitions)
       {
-         List<DataPath> paths = pd.getAllDataPaths();   
+         List<DataPath> paths = pd.getAllDataPaths();
          for (DataPath p : paths)
          {
             if (p.getId().equals("BusinessDate_1") && pd.getQualifiedId().equals(PROCESS2))
@@ -118,17 +119,17 @@ public class DataDescriptorInjectionModelExtenderTest
             }
          }
       }
-         
+
       if (value != null && path != null)
       {
          Assert.assertTrue(path.isDescriptor());
-         assertEquals(path.getData(), PredefinedConstants.BUSINESS_DATE);       
-         assertEquals(path.getName(), "Business Date");                              
+         assertEquals(path.getData(), PredefinedConstants.BUSINESS_DATE);
+         assertEquals(path.getName(), "Business Date");
          assertEquals(value.getYear(), 2000);
       }
       else
       {
          Assert.fail("No Descriptor has been found at all!");
       }
-   }   
+   }
 }

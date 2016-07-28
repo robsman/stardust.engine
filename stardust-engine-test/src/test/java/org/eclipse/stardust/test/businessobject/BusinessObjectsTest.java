@@ -489,10 +489,6 @@ public class BusinessObjectsTest
          bo = bos.get(i);
          values = bo.getValues();
          Assert.assertEquals("Values", bo.getModelOid() == model1.getModelOID() ? COUNT : 2 * COUNT + 1, values.size());
-         for (Value value : values)
-         {
-            System.err.println(value.getValue());
-         }
       }
 
       query = BusinessObjectQuery.findWithPrimaryKey(model1.getModelOID(), businessObjectQualifiedId1, "3xk.3");
@@ -540,10 +536,6 @@ public class BusinessObjectsTest
          bo = bos.get(i);
          values = bo.getValues();
          Assert.assertEquals("Values", 1, values.size());
-         for (Value value : values)
-         {
-            System.err.println(value.getValue());
-         }
          if (bo.getModelOid() == model1.getModelOID())
          {
             checkValue(values, true, "account", 3L);

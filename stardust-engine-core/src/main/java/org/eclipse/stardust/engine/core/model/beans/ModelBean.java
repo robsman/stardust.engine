@@ -27,6 +27,7 @@ import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.compatibility.diagram.*;
 import org.eclipse.stardust.engine.core.model.utils.*;
+import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableDefinition;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableScope;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
@@ -211,6 +212,11 @@ public class ModelBean extends RootElementBean
          for (IData data : getData())
          {
             data.checkConsistency(inconsistencies);
+            if (PredefinedConstants.BUSINESS_DATE.equals(data.getId())
+                  && !Type.Calendar.equals(data.getAttribute("carnot:engine:type")))
+            {
+               inconsistencies.add(new Inconsistency(BpmValidationError.DATA_PRIMITIVE_TYPE_CHANGED.raise(), data, Inconsistency.ERROR));
+            }
          }
 
          for (Iterator i = getAllApplications();i.hasNext();)

@@ -113,7 +113,7 @@ public class BpmValidationError extends ErrorCase
    public static final Args ACTY_NO_LOOP_INPUT_DATA = new Args("ACTY01016");
    public static final Args ACTY_SUBPROCESSMODE_RUNTIMEBINDING_NO_DATA_SET = new Args("ACTY01017");
    public static final Args ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING = new Args("ACTY01018");
-   
+
    //Conditions related
    public static final Args COND_NOT_AN_EXCEPTION_CLASS = new Args("COND01001");
    public static final Args COND_NO_CONDITION_SPECIFIED = new Args("COND01002");
@@ -219,7 +219,7 @@ public class BpmValidationError extends ErrorCase
    public static final Args DATA_UNSPECIFIED_TYPE_FOR_PRIMITIVE_DATA = new Args("DATA01026");
    public static final Args DATA_NO_SCHEMA_FOUND_FOR_STRUCTURED_DATA = new Args("DATA01027");
    public static final Args ACCESSPATH_INVALID_FOR_DATAPATH = new Args("DATA01028");
-   
+
    public static final Args REFERENCED_DESCRIPTOR_DOES_NOT_EXIST = new Args("DATA01029");
    public static final Args REFERENCED_DATAPTH_IS_A_CIRCULAR_DEPENDENCY = new Args("DATA01030");
    public static final Args REFERENCED_DESCRIPTOR_NO_DATAPATH = new Args("DATA01031");
@@ -228,7 +228,8 @@ public class BpmValidationError extends ErrorCase
    public static final Args DATAPATH_VARIABLE_ONLY_ALLOWED_FOR_COMPOSITE_LINK_DESCRIPTORS = new Args("DATA01034");
    public static final Args LINK_DESCRIPTOR_INVALID_URL = new Args("DATA01035");
 
-     
+   public static final Args DATA_PRIMITIVE_TYPE_CHANGED = new Args("DATA01050");
+
    //Event related
    public static final Args EVEN_DUPLICATE_ID_FOR_EVENT_HANDLER = new Args("EVEN01000");
    public static final Args EVEN_ID_FOR_EVENT_HANDLER_EXCEEDS_MAXIMUM_LENGTH_OF_CHARACTERS = new Args("EVEN01001");

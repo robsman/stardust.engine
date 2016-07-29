@@ -119,7 +119,7 @@ public class BenchmarkStatisticsTest
       BenchmarkTestUtils.deployBenchmark("benchmarksTest.benchmark", setupServiceFactory);
 
       StartOptions startOptions_withBenchmark = new StartOptions(Collections.singletonMap(
-            PredefinedConstants.BUSINESS_DATE, Calendar.getInstance().getTimeInMillis()), true, BENCHMARK_REF);
+            PredefinedConstants.BUSINESS_DATE, Calendar.getInstance()), true, BENCHMARK_REF);
       StartOptions startOptions_withoutBenchmark = new StartOptions(null, true);
 
       // 2 with benchmark

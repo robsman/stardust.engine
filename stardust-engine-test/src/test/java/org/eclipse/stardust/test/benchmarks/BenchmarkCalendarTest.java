@@ -208,10 +208,10 @@ public class BenchmarkCalendarTest
    {
       Map<String, Object> data = CollectionUtils.newHashMap();
 
-      Map sdMap = CollectionUtils.newHashMap();
+      Map<String, Object> sdMap = CollectionUtils.newHashMap();
       sdMap.put("TheDate", new Date());
 
-      data.put("BUSINESS_DATE", Calendar.getInstance().getTimeInMillis());
+      data.put("BUSINESS_DATE", Calendar.getInstance());
       data.put("DateSD", sdMap);
       return data;
    }

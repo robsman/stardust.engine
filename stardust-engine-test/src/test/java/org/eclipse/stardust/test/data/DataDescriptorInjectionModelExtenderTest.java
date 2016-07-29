@@ -61,7 +61,7 @@ public class DataDescriptorInjectionModelExtenderTest
    @Test
    public void testExtendDescriptorsProcessDefinition_1()
    {
-      Date value = null;
+      Calendar value = null;
       DataPath path = null;
 
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
@@ -76,7 +76,7 @@ public class DataDescriptorInjectionModelExtenderTest
          {
             if (p.getId().equals("BusinessDate_2") && pd.getQualifiedId().equals(PROCESS1))
             {
-               value = (Date) serviceFactory.getWorkflowService().getInDataPath(pi.getOID(), p.getId());
+               value = (Calendar) serviceFactory.getWorkflowService().getInDataPath(pi.getOID(), p.getId());
                path = p;
                break;
             }
@@ -88,7 +88,7 @@ public class DataDescriptorInjectionModelExtenderTest
          Assert.assertTrue(path.isDescriptor());
          assertEquals(path.getData(), PredefinedConstants.BUSINESS_DATE);
          assertEquals(path.getName(), "Business Date");
-         assertEquals(value.getYear(), 2000);
+         assertEquals(value.get(Calendar.YEAR), 2000);
       }
       else
       {
@@ -99,7 +99,7 @@ public class DataDescriptorInjectionModelExtenderTest
    @Test
    public void testExtendDescriptorsProcessDefinition_2()
    {
-      Date value = null;
+      Calendar value = null;
       DataPath path = null;
 
       ProcessInstance pi = serviceFactory.getWorkflowService().startProcess(
@@ -113,7 +113,7 @@ public class DataDescriptorInjectionModelExtenderTest
          {
             if (p.getId().equals("BusinessDate_1") && pd.getQualifiedId().equals(PROCESS2))
             {
-               value = (Date) serviceFactory.getWorkflowService().getInDataPath(pi.getOID(), p.getId());
+               value = (Calendar) serviceFactory.getWorkflowService().getInDataPath(pi.getOID(), p.getId());
                path = p;
                break;
             }
@@ -125,7 +125,7 @@ public class DataDescriptorInjectionModelExtenderTest
          Assert.assertTrue(path.isDescriptor());
          assertEquals(path.getData(), PredefinedConstants.BUSINESS_DATE);
          assertEquals(path.getName(), "Business Date");
-         assertEquals(value.getYear(), 2000);
+         assertEquals(value.get(Calendar.YEAR), 2000);
       }
       else
       {

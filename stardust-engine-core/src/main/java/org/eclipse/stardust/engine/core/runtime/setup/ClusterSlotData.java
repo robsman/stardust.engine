@@ -10,9 +10,18 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.setup;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import javax.xml.namespace.QName;
 
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 
 /**
 *
@@ -75,6 +84,52 @@ import org.eclipse.stardust.common.StringUtils;
       return StringUtils.isEmpty(getAttributeName());
    }
 
+   public Map<Long, IData> findAllPrimitiveDataRtOids()
+   {
+      Map<Long, IData> dataRtOids = new HashMap();
+
+      if (isPrimitiveData())
+      {
+         ModelManager modelManager = ModelManagerFactory.getCurrent();
+
+         Iterator modelItr = modelManager.getAllModelsForId(getModelId());
+
+         while (modelItr.hasNext())
+         {
+            IModel model = (IModel) modelItr.next();
+            IData data = model.findData(getDataId());
+            if (null != data)
+            {
+               dataRtOids.put(new Long(modelManager.getRuntimeOid(data)), data);
+            }
+         }
+      }
+      return dataRtOids;
+   }
+
+   public Map<Long, Pair<IData, String>> findAllStructuredDataRtOids()
+   {
+      Map<Long, Pair<IData, String>> dataRtOids = new HashMap();
+
+      if (!isPrimitiveData())
+      {
+         ModelManager modelManager = ModelManagerFactory.getCurrent();
+
+         Iterator modelItr = modelManager.getAllModelsForId(getModelId());
+
+         while (modelItr.hasNext())
+         {
+            IModel model = (IModel) modelItr.next();
+            IData data = model.findData(getDataId());
+            if (null != data)
+            {
+               dataRtOids.put(new Long(modelManager.getRuntimeOid(data, attributeName)), new Pair(data, attributeName));
+            }
+         }
+      }
+      return dataRtOids;
+   }
+
    /**
     * Compares for equality with another ClusterSlotData. Instances of ClusterSlotData are equal if both
     * values are equal.
@@ -117,5 +172,10 @@ import org.eclipse.stardust.common.StringUtils;
    public String toString()
    {
       return "(" + fqDataId + "," + attributeName + ")";
+   }
+
+   public String qualifiedDataToString()
+   {
+      return getQualifiedDataId() + "' attributeName '" + getAttributeName();
    }
 }

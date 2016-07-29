@@ -72,4 +72,26 @@ public class DescriptorSlot extends AbstractDataClusterSlot
       }
       return false;
    }
+
+   @Override
+   public boolean isSingleDataSlot()
+   {
+      return clusterSlotDatas.size() == 1;
+   }
+
+   @Override
+   public String qualifiedDataToString()
+   {
+      StringBuilder buffer = new StringBuilder(100);
+
+      String delimiter = "";
+      for (ClusterSlotData clusterSlotData : clusterSlotDatas)
+      {
+         buffer.append(delimiter);
+         buffer.append(clusterSlotData.qualifiedDataToString());
+         delimiter = ", ";
+      }
+
+      return buffer.toString();
+   }
 }

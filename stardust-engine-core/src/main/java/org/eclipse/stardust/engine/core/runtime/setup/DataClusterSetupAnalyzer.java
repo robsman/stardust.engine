@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2015 SunGard CSA LLC and others.
+ * Copyright (c) 2013, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -519,7 +519,7 @@ public class DataClusterSetupAnalyzer
 
          Map<DataClusterKey, Set<AbstractDataClusterSlot>> clusterToSlotMapping
             = CollectionUtils.newHashMap();
-         Map<DataSlotKey, Set<ClusterSlotFieldInfo>> slotToColumnMapping
+         Map<DataSlotKey, Map<ClusterSlotFieldInfo.SLOT_TYPE, ClusterSlotFieldInfo>> slotToColumnMapping
             = CollectionUtils.newHashMap();
 
          for(ClusterSlotFieldInfo slotColumn: slotColumnsToSynchronize)
@@ -537,13 +537,13 @@ public class DataClusterSetupAnalyzer
             }
             dataSlots.add(ds);
 
-            Set<ClusterSlotFieldInfo> dataSlotColumns = slotToColumnMapping.get(dsKey);
+            Map<ClusterSlotFieldInfo.SLOT_TYPE, ClusterSlotFieldInfo> dataSlotColumns = slotToColumnMapping.get(dsKey);
             if(dataSlotColumns == null)
             {
-               dataSlotColumns = new HashSet<ClusterSlotFieldInfo>();
+               dataSlotColumns = new HashMap<ClusterSlotFieldInfo.SLOT_TYPE, ClusterSlotFieldInfo>();
                slotToColumnMapping.put(dsKey, dataSlotColumns);
             }
-            dataSlotColumns.add(slotColumn);
+            dataSlotColumns.put(slotColumn.getSlotType(), slotColumn);
          }
 
          return new DataClusterSynchronizationInfo(clusterToSlotMapping, slotToColumnMapping, columnRenames);
@@ -571,7 +571,7 @@ public class DataClusterSetupAnalyzer
 
    public static class DataClusterMetaInfoRetriever
    {
-      public static List<ClusterSlotFieldInfo> getDataSlotFields(DataSlot dataSlot)
+      public static List<ClusterSlotFieldInfo> getDataSlotFields(AbstractDataClusterSlot dataSlot)
       {
          List<ClusterSlotFieldInfo> fields = new ArrayList<ClusterSlotFieldInfo>();
 
@@ -712,11 +712,14 @@ public class DataClusterSetupAnalyzer
    {
       private final Map<DataClusterKey, Set<AbstractDataClusterSlot>> clusterToSlotMapping;
       private final Map<String, Map<FieldInfo, FieldInfo>> columnRenames;
-      private final Map<DataSlotKey, Set<ClusterSlotFieldInfo>> slotToColumnMapping;
+      private final Map<DataSlotKey, Map<ClusterSlotFieldInfo.SLOT_TYPE, ClusterSlotFieldInfo>> slotToColumnMapping;
+
+      private long scopePiOid = 0;
+      private boolean performClusterVerification = true;
 
       public DataClusterSynchronizationInfo(
             Map<DataClusterKey, Set<AbstractDataClusterSlot>> clusterToSlotMapping,
-            Map<DataSlotKey, Set<ClusterSlotFieldInfo>> slotToColumnMapping,
+            Map<DataSlotKey, Map<ClusterSlotFieldInfo.SLOT_TYPE, ClusterSlotFieldInfo>> slotToColumnMapping,
             Map<String, Map<FieldInfo, FieldInfo>> columnRenames)
       {
          this.clusterToSlotMapping = clusterToSlotMapping;
@@ -748,7 +751,7 @@ public class DataClusterSetupAnalyzer
          }
       }
 
-      public Collection<ClusterSlotFieldInfo> getDataSlotColumns(DataSlot dataSlot)
+      public Map<SLOT_TYPE, ClusterSlotFieldInfo> getDataSlotColumns(AbstractDataClusterSlot dataSlot)
       {
          DataSlotKey key = new DataSlotKey(dataSlot);
          if(slotToColumnMapping.containsKey(key))
@@ -757,8 +760,28 @@ public class DataClusterSetupAnalyzer
          }
          else
          {
-            return new HashSet<ClusterSlotFieldInfo>();
+            return new HashMap<SLOT_TYPE, ClusterSlotFieldInfo>();
          }
+      }
+
+      public void setPerformClusterVerification(boolean performClusterVerification)
+      {
+         this.performClusterVerification = performClusterVerification;
+      }
+
+      public boolean getPerformClusterVerification()
+      {
+         return performClusterVerification;
+      }
+
+      public void setScopePiOid(long scopePiOid)
+      {
+         this.scopePiOid = scopePiOid;
+      }
+
+      public long getScopePiOid()
+      {
+         return scopePiOid;
       }
 
       public Map<String, Map<FieldInfo, FieldInfo>> getColumnRenames()

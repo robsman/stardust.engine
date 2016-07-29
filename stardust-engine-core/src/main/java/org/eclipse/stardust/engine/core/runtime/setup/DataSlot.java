@@ -68,4 +68,16 @@ public class DataSlot extends AbstractDataClusterSlot
    {
       return !clusterSlotData.isPrimitiveData();
    }
+
+   @Override
+   public boolean isSingleDataSlot()
+   {
+      return true;
+   }
+
+   @Override
+   public String qualifiedDataToString()
+   {
+      return clusterSlotData.qualifiedDataToString();
+   }
 }

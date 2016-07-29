@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,12 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
@@ -55,6 +50,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.PropertyPersistor;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler.Representation;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.setup.ClusterSlotFieldInfo.SLOT_TYPE;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterMetaInfoRetriever;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterSynchronizationInfo;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
@@ -274,6 +270,8 @@ public class DataClusterHelper
                      // update that entry with the data values
                      DataClusterSynchronizationInfo syncInfo = getDataClusterSynchronizationInfo(
                            dc, scopeProcessInstance);
+                     syncInfo.setPerformClusterVerification(false);
+                     syncInfo.setScopePiOid(scopePiOid);
                      synchronizeDataCluster(syncInfo, jdbcSession);
                   }
                }
@@ -291,10 +289,10 @@ public class DataClusterHelper
          IProcessInstance scopeProcessInstance)
    {
       Map<DataClusterKey, Set<AbstractDataClusterSlot>> clusterToSlotMapping = CollectionUtils.newHashMap();
-      Map<DataSlotKey, Set<ClusterSlotFieldInfo>> slotToColumnMapping = new HashMap<DataSlotKey, Set<ClusterSlotFieldInfo>>();
+      Map<DataSlotKey, Map<ClusterSlotFieldInfo.SLOT_TYPE, ClusterSlotFieldInfo>> slotToColumnMapping = CollectionUtils.newHashMap();
 
       DataClusterKey clusterKey = new DataClusterKey(clusterToSynchronize);
-      for (DataSlot ds : clusterToSynchronize.getAllDataSlots())
+      for (AbstractDataClusterSlot ds : clusterToSynchronize.getAllSlots())
       {
          DataSlotKey slotKey = new DataSlotKey(ds);
          Set<AbstractDataClusterSlot> slots = clusterToSlotMapping.get(clusterKey);
@@ -307,7 +305,13 @@ public class DataClusterHelper
 
          List<ClusterSlotFieldInfo> slotColumnFields = DataClusterMetaInfoRetriever
                .getDataSlotFields(ds);
-         slotToColumnMapping.put(slotKey, new HashSet<ClusterSlotFieldInfo>(slotColumnFields));
+         HashMap<SLOT_TYPE, ClusterSlotFieldInfo> typeToFieldMap = CollectionUtils.newHashMap(slotColumnFields.size());
+         for (ClusterSlotFieldInfo fieldInfo : DataClusterMetaInfoRetriever
+               .getDataSlotFields(ds))
+         {
+            typeToFieldMap.put(fieldInfo.getSlotType(), fieldInfo);
+         }
+         slotToColumnMapping.put(slotKey, typeToFieldMap);
       }
 
       DataClusterSynchronizationInfo syncInfo = new DataClusterSynchronizationInfo(
@@ -719,6 +723,48 @@ public class DataClusterHelper
          Session jdbcSession)
    {
       completeDataValueModification(piToDv, jdbcSession, true);
+   }
+
+   public static Map<Long, IData> findAllPrimitiveDataRtOids(AbstractDataClusterSlot slot)
+   {
+      if (slot instanceof DataSlot)
+      {
+         DataSlot dataSlot = (DataSlot) slot;
+         return dataSlot.getClusterSlotData().findAllPrimitiveDataRtOids();
+      }
+      else if (slot instanceof DescriptorSlot)
+      {
+         Map<Long, IData> result = CollectionUtils.newHashMap();
+         DescriptorSlot descriptorSlot = (DescriptorSlot) slot;
+         for (ClusterSlotData slotData : descriptorSlot.getClusterSlotDatas())
+         {
+            result.putAll(slotData.findAllPrimitiveDataRtOids());
+         }
+         return result;
+      }
+
+      return Collections.emptyMap();
+   }
+
+   public static Map<Long, Pair<IData, String>> findAllStructuredDataRtOids(AbstractDataClusterSlot slot)
+   {
+      if (slot instanceof DataSlot)
+      {
+         DataSlot dataSlot = (DataSlot) slot;
+         return dataSlot.getClusterSlotData().findAllStructuredDataRtOids();
+      }
+      else if (slot instanceof DescriptorSlot)
+      {
+         Map<Long, Pair<IData, String>> result = CollectionUtils.newHashMap();
+         DescriptorSlot descriptorSlot = (DescriptorSlot) slot;
+         for (ClusterSlotData slotData : descriptorSlot.getClusterSlotDatas())
+         {
+            result.putAll(slotData.findAllStructuredDataRtOids());
+         }
+         return result;
+      }
+
+      return Collections.emptyMap();
    }
 
    private static Representation getRepresentationForDataValue(DataValueBean dataValue,

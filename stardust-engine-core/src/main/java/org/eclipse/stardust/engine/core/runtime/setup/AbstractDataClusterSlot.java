@@ -80,4 +80,7 @@ public abstract class AbstractDataClusterSlot
 
    public abstract boolean hasStructuredData();
 
+   public abstract boolean isSingleDataSlot();
+
+   public abstract String qualifiedDataToString();
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,8 @@ import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.CurrentVersion;
 import org.eclipse.stardust.common.config.Parameters;
@@ -33,6 +35,8 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
+import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils;
+import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils.InitOptions;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
@@ -59,6 +63,10 @@ public class SchemaHelper
    private static final Logger trace = LogManager.getLogger(SchemaHelper.class);
 
    public static final String DEFAULT_STATEMENT_DELIMITER = null;
+
+   protected static final String SELECT = "SELECT ";
+   protected static final String FROM = " FROM ";
+   protected static final String COMMA = ",";
 
    public static final Collection getPersistentClasses(DBDescriptor schemaManager)
    {
@@ -1299,112 +1307,141 @@ public class SchemaHelper
          String configFileName, boolean upgrade, boolean skipDdl, boolean skipDml, PrintStream spoolFile,
          String statementDelimiter) throws SQLException
    {
-      Session consoleSession = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
-
-      Map locals = new HashMap();
-      locals.put(SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SESSION_SUFFIX, consoleSession);
-
       try
       {
-         ParametersFacade.pushLayer(locals);
-
-         verifySysopPassword(consoleSession, sysconPassword);
-
-         DBDescriptor dbDescriptor = consoleSession.getDBDescriptor();
-         DDLManager ddlManager = new DDLManager(dbDescriptor);
-         IClusterChangeObserver changeObserver = null;
-         if ( !StringUtils.isEmpty(configFileName))
+         Set<Pair<Long, String>> partitionInfos = fetchListOfPartitionInfo();
+         for (Pair<Long, String> partitionInfo : partitionInfos)
          {
-            DataCluster[] oldSetup = RuntimeSetup.instance().getDataClusterSetup();
-            if(oldSetup != null && oldSetup.length > 0 && !upgrade)
+            String partitionId = partitionInfo.getSecond();
+            Utils.initCarnotEngine(partitionId, InitOptions.NO_FLUSH_BEFORE_INIT);
+
+            try
             {
-               throw new PublicException(
-                     BpmRuntimeError.ATDB_CLUSTER_CONFIGURATION_ALREADY_EXIST_USE_OPTION_DROP_OR_UPDATEDATACLUSTERS_FIRST
+               Session consoleSession = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+               verifySysopPassword(consoleSession, sysconPassword);
+
+               DBDescriptor dbDescriptor = consoleSession.getDBDescriptor();
+               DDLManager ddlManager = new DDLManager(dbDescriptor);
+               IClusterChangeObserver changeObserver = null;
+               if ( !StringUtils.isEmpty(configFileName))
+               {
+                  DataCluster[] oldSetup = RuntimeSetup.instance().getDataClusterSetup();
+                  if(oldSetup != null && oldSetup.length > 0 && !upgrade)
+                  {
+                     throw new PublicException(
+                           BpmRuntimeError.ATDB_CLUSTER_CONFIGURATION_ALREADY_EXIST_USE_OPTION_DROP_OR_UPDATEDATACLUSTERS_FIRST
                            .raise());
-            }
+                  }
 
-            TransientRuntimeSetup transientSetup = getTransientRuntimeSetup(configFileName);
-            DataCluster[] newSetup = transientSetup.getDataClusterSetup();
+                  TransientRuntimeSetup transientSetup = getTransientRuntimeSetup(configFileName);
+                  DataCluster[] newSetup = transientSetup.getDataClusterSetup();
 
-            DataClusterSetupAnalyzer analyzer = new DataClusterSetupAnalyzer();
-            changeObserver = analyzer.analyzeChanges(oldSetup, newSetup);
+                  DataClusterSetupAnalyzer analyzer = new DataClusterSetupAnalyzer();
+                  changeObserver = analyzer.analyzeChanges(oldSetup, newSetup);
 
-            if(!skipDdl)
-            {
-               applyClusterChanges(consoleSession, changeObserver, transientSetup, spoolFile);
-            }
-         }
-         else
-         {
-            throw new PublicException(
-                  BpmRuntimeError.ATDB_CLUSTER_CONFIGURATION_DOES_NOT_EXIST_PROVIDE_VALID_CONFIGURATION_FILE
+                  if(!skipDdl)
+                  {
+                     applyClusterChanges(consoleSession, changeObserver, transientSetup, spoolFile);
+                  }
+               }
+               else
+               {
+                  throw new PublicException(
+                        BpmRuntimeError.ATDB_CLUSTER_CONFIGURATION_DOES_NOT_EXIST_PROVIDE_VALID_CONFIGURATION_FILE
                         .raise());
-         }
+               }
 
 
-         final String schemaName = Parameters.instance().getString(
-               SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX,
-               Parameters.instance().getString(
-                     SessionFactory.AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX));
-         if ( !skipDml)
-         {
-            if (null != spoolFile)
-            {
-               spoolFile.println();
-               spoolFile
+               final String schemaName = Parameters.instance().getString(
+                     SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX,
+                     Parameters.instance().getString(
+                           SessionFactory.AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX));
+               if ( !skipDml)
+               {
+                  if (null != spoolFile)
+                  {
+                     spoolFile.println();
+                     spoolFile
                      .println("/* DML-statements for synchronization of cluster tables */");
+                  }
+
+                  ddlManager.synchronizeDataCluster(true, changeObserver.getDataClusterSynchronizationInfo(), consoleSession.getConnection(), schemaName, spoolFile, statementDelimiter, null);
+               }
+
+               if (null != spoolFile)
+               {
+                  spoolFile.println();
+                  spoolFile.println("commit;");
+               }
+
+               consoleSession.save();
             }
-
-            ddlManager.synchronizeDataCluster(true, changeObserver.getDataClusterSynchronizationInfo(), consoleSession.getConnection(), schemaName, spoolFile, statementDelimiter, null);
+            finally
+            {
+               ParametersFacade.popLayer();
+            }
          }
-
-         if (null != spoolFile)
-         {
-            spoolFile.println();
-            spoolFile.println("commit;");
-         }
-
-         consoleSession.save();
+      }
+      catch (SQLException e)
+      {
+         trace.warn("", e);
+         throw new PublicException(
+               BpmRuntimeError.CLI_SQL_EXCEPTION_OCCURED.raise(e.getMessage()));
       }
       finally
       {
-         ParametersFacade.popLayer();
+
       }
    }
 
    public static void alterAuditTrailVerifyDataClusterTables(String sysconPassword, PrintStream consoleLog)
          throws SQLException
    {
-      Session session = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
-      Map locals = new HashMap();
-      locals.put(SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SESSION_SUFFIX, session);
-
       try
       {
-         ParametersFacade.pushLayer(locals);
-
-         verifySysopPassword(session, sysconPassword);
-
-         DBDescriptor dbDescriptor = session.getDBDescriptor();
-         DDLManager ddlManager = new DDLManager(dbDescriptor);
-
-         DataCluster[] cluster = RuntimeSetup.instance().getDataClusterSetup();
-
-         final String schemaName = Parameters.instance().getString(
-               SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX,
-               Parameters.instance().getString(
-                     SessionFactory.AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX));
-
-         for (int idx = 0; idx < cluster.length; ++idx)
+         Set<Pair<Long, String>> partitionInfos = fetchListOfPartitionInfo();
+         for (Pair<Long, String> partitionInfo : partitionInfos)
          {
-            ddlManager.verifyClusterTable(cluster[idx], session.getConnection(), schemaName, consoleLog);
-         }
+            String partitionId = partitionInfo.getSecond();
+            Utils.initCarnotEngine(partitionId, InitOptions.NO_FLUSH_BEFORE_INIT);
 
-         session.save();
+            try
+            {
+               Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+               verifySysopPassword(session, sysconPassword);
+
+               DBDescriptor dbDescriptor = session.getDBDescriptor();
+               DDLManager ddlManager = new DDLManager(dbDescriptor);
+
+               DataCluster[] cluster = RuntimeSetup.instance().getDataClusterSetup();
+
+               final String schemaName = Parameters.instance().getString(
+                     SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX,
+                     Parameters.instance().getString(
+                           SessionFactory.AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX));
+
+               for (int idx = 0; idx < cluster.length; ++idx)
+               {
+                  ddlManager.verifyClusterTable(cluster[idx], session.getConnection(), schemaName, consoleLog);
+               }
+
+               session.save();
+            }
+            finally
+            {
+               ParametersFacade.popLayer();
+            }
+         }
+      }
+      catch (SQLException e)
+      {
+         trace.warn("", e);
+         throw new PublicException(
+               BpmRuntimeError.CLI_SQL_EXCEPTION_OCCURED.raise(e.getMessage()));
       }
       finally
       {
-         ParametersFacade.popLayer();
+
       }
    }
 
@@ -1616,6 +1653,55 @@ public class SchemaHelper
          ParametersFacade.popLayer();
       }
    }
+
+   /**
+    * TODO: refactor as this code is being duplicated / adapted from class R6_0_0from5_2_0RuntimeJob
+    * @return
+    * @throws SQLException
+    */
+   private static Set<Pair<Long, String>> fetchListOfPartitionInfo() throws SQLException
+   {
+      Set<Pair<Long, String>> partitionInfo = CollectionUtils.newSet();
+      PreparedStatement selectRowsStmt = null;
+      Session session = null;
+      try
+      {
+         // @formatter:off
+         StringBuffer selectCmd = new StringBuffer()
+               .append(SELECT).append(AuditTrailPartitionBean.FIELD__OID)
+               .append(COMMA).append(AuditTrailPartitionBean.FIELD__ID)
+               .append(FROM).append(DatabaseHelper.getQualifiedName(AuditTrailPartitionBean.TABLE_NAME));
+         // @formatter:on
+
+         session = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
+         Connection connection = session.getConnection();
+         selectRowsStmt = DatabaseHelper.prepareLoggingStatement(connection, selectCmd.toString());
+
+         ResultSet pendingRows = null;
+         try
+         {
+            pendingRows = selectRowsStmt.executeQuery();
+            while (pendingRows.next())
+            {
+               Long oid = pendingRows.getLong(AuditTrailPartitionBean.FIELD__OID);
+               String id = pendingRows.getString(AuditTrailPartitionBean.FIELD__ID);
+               partitionInfo.add(new Pair(oid, id));
+            }
+         }
+         finally
+         {
+            QueryUtils.closeResultSet(pendingRows);
+         }
+      }
+      finally
+      {
+         QueryUtils.closeStatement(selectRowsStmt);
+         QueryUtils.disconnectSession(session);
+      }
+
+      return partitionInfo;
+   }
+
 
    private static class ErrorAwareObserver implements UpgradeObserver
    {

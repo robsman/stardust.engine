@@ -146,7 +146,7 @@ public class Period implements Serializable
       result.add(Calendar.YEAR, -periods[0]);
       result.add(Calendar.MONTH, -periods[1]);
       result.add(Calendar.DAY_OF_MONTH, -periods[2]);
-      result.add(Calendar.HOUR, -periods[3]);
+      result.add(Calendar.HOUR_OF_DAY, -periods[3]);
       result.add(Calendar.MINUTE, -periods[4]);
       result.add(Calendar.SECOND, -periods[5]);
       return result;

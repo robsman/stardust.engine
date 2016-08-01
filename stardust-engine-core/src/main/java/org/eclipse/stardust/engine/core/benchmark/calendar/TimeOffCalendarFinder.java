@@ -137,7 +137,7 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
 
          Calendar now = getCalendar(executionDate);
          now.set(Calendar.MINUTE, 0);
-         now.set(Calendar.HOUR, 0);
+         now.set(Calendar.HOUR_OF_DAY, 0);
          sc.setDate(now.getTime());
 
          // Get schedule for current day by searching next schedule from last day.
@@ -241,7 +241,7 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
          Date time = new Date(Long.parseLong(value));
          Calendar ref = getCalendar(time);
          Calendar now = getCalendar(when);
-         now.set(Calendar.HOUR, ref.get(Calendar.HOUR));
+         now.set(Calendar.HOUR_OF_DAY, ref.get(Calendar.HOUR_OF_DAY));
          now.set(Calendar.MINUTE, ref.get(Calendar.MINUTE));
          return now.getTime();
       }

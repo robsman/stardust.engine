@@ -85,7 +85,7 @@ public class ScheduledCalendarFinder extends ScheduledDocumentFinder<ScheduledCa
          SchedulingRecurrence sc = SchedulingFactory.getScheduler(scheduleJson);
          Calendar now = getCalendar(executionDate);
          now.set(Calendar.MINUTE, 0);
-         now.set(Calendar.HOUR, 0);
+         now.set(Calendar.HOUR_OF_DAY, 0);
          sc.setDate(now.getTime());
          Date processSchedule = sc.processSchedule(scheduleJson, true);
          if (processSchedule != null)
@@ -124,7 +124,7 @@ public class ScheduledCalendarFinder extends ScheduledDocumentFinder<ScheduledCa
          Date time = new Date(Long.parseLong(value));
          Calendar ref = getCalendar(time);
          Calendar now = getCalendar(when);
-         now.set(Calendar.HOUR, ref.get(Calendar.HOUR));
+         now.set(Calendar.HOUR_OF_DAY, ref.get(Calendar.HOUR_OF_DAY));
          now.set(Calendar.MINUTE, ref.get(Calendar.MINUTE));
          return now.getTime();
       }

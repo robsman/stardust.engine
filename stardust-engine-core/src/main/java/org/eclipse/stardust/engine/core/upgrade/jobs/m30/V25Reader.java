@@ -1139,7 +1139,7 @@ public class V25Reader
       else
       {
          Calendar res = TimestampProviderUtils.getCalendar(new Date(time));
-         v = (res.get(Calendar.DAY_OF_MONTH) -1) + ":" + (res.get(Calendar.HOUR) -1)
+         v = (res.get(Calendar.DAY_OF_MONTH) -1) + ":" + (res.get(Calendar.HOUR_OF_DAY) -1)
               + ":" + res.get(Calendar.MINUTE) + ":" + res.get(Calendar.SECOND);
       }
       return yearTO + ":" + monthTO + ":" + v;

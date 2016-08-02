@@ -297,8 +297,9 @@ public class BenchmarkStatisticsTest
             .isEqual(getDeployedBenchmarkOid(serviceFactory)));
 
       // Only for BUSINESS_DATE today.
-      query.where(DataFilter.between(qualifiedBusinessDateId, getCurrentDayStart(),
-            getCurrentDayEnd()));
+      //query.where(DataFilter.between(qualifiedBusinessDateId, getCurrentDayStart(),
+      //      getCurrentDayEnd()));
+      query.where(DataFilter.isEqual(qualifiedBusinessDateId, Calendar.getInstance()));
 
       BenchmarkProcessStatistics stats = (BenchmarkProcessStatistics) serviceFactory
             .getQueryService().getAllProcessInstances(query);
@@ -1091,7 +1092,7 @@ public class BenchmarkStatisticsTest
       return 0L;
    }
 
-   private static Serializable getCurrentDayEnd()
+   /*private static Serializable getCurrentDayEnd()
    {
       Calendar now = Calendar.getInstance();
 
@@ -1099,10 +1100,10 @@ public class BenchmarkStatisticsTest
       now.set(Calendar.MINUTE, 59);
       now.set(Calendar.MILLISECOND, 0);
 
-      return now.getTime();// .getTime();//.getTime();
-   }
+      return now;
+   }*/
 
-   private static Serializable getCurrentDayStart()
+   /*private static Serializable getCurrentDayStart()
    {
       Calendar now = Calendar.getInstance();
 
@@ -1110,8 +1111,8 @@ public class BenchmarkStatisticsTest
       now.set(Calendar.MINUTE, 0);
       now.set(Calendar.MILLISECOND, 0);
 
-      return now.getTime();// .getTime();//.getTime();
-   }
+      return now;
+   }*/
 
    private void attachDefaultProcessBenchmarkCondition(BenchmarkProcessStatisticsQuery query)
    {
@@ -1120,8 +1121,9 @@ public class BenchmarkStatisticsTest
             .isEqual(getDeployedBenchmarkOid(serviceFactory)));
 
       // Only for BUSINESS_DATE today.
-      query.where(DataFilter.between(qualifiedBusinessDateId, getCurrentDayStart(),
-            getCurrentDayEnd()));
+      //query.where(DataFilter.between(qualifiedBusinessDateId, getCurrentDayStart(),
+      //      getCurrentDayEnd()));
+      query.where(DataFilter.isEqual(qualifiedBusinessDateId, Calendar.getInstance()));
    }
 
    private void attachDefaultActivityBenchmarkCondition(BenchmarkActivityStatisticsQuery query)
@@ -1131,7 +1133,8 @@ public class BenchmarkStatisticsTest
             .isEqual(getDeployedBenchmarkOid(serviceFactory)));
 
       // Only for BUSINESS_DATE today.
-      query.where(DataFilter.between(qualifiedBusinessDateId, getCurrentDayStart(),
-            getCurrentDayEnd()));
+      //query.where(DataFilter.between(qualifiedBusinessDateId, getCurrentDayStart(),
+      //      getCurrentDayEnd()));
+      query.where(DataFilter.isEqual(qualifiedBusinessDateId, Calendar.getInstance()));
    }
 }

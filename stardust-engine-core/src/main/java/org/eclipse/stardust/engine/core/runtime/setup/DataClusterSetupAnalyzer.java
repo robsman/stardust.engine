@@ -230,7 +230,7 @@ public class DataClusterSetupAnalyzer
 
    private Map<String, DataClusterIndex> getIndexes(DataCluster dataCluster)
    {
-      if(dataCluster != null)
+      if (dataCluster != null)
       {
          return dataCluster.getIndexes();
       }
@@ -240,7 +240,7 @@ public class DataClusterSetupAnalyzer
 
    private List<DataSlot> getDataSlots(DataCluster dataCluster)
    {
-      if(dataCluster != null)
+      if (dataCluster != null)
       {
          return dataCluster.getAllDataSlots();
       }
@@ -250,7 +250,7 @@ public class DataClusterSetupAnalyzer
 
    private List<DescriptorSlot> getDescriptorSlots(DataCluster dataCluster)
    {
-      if(dataCluster != null)
+      if (dataCluster != null)
       {
          return dataCluster.getDescriptorSlots();
       }
@@ -571,41 +571,36 @@ public class DataClusterSetupAnalyzer
 
    public static class DataClusterMetaInfoRetriever
    {
-      public static List<ClusterSlotFieldInfo> getDataSlotFields(AbstractDataClusterSlot dataSlot)
+      public static HashMap<SLOT_TYPE, ClusterSlotFieldInfo> getDataSlotFields(AbstractDataClusterSlot dataSlot)
       {
-         List<ClusterSlotFieldInfo> fields = new ArrayList<ClusterSlotFieldInfo>();
+         HashMap<SLOT_TYPE, ClusterSlotFieldInfo> fields = CollectionUtils
+               .newHashMap(SLOT_TYPE.values().length);
 
          ClusterSlotFieldInfo oidColumn = getOidColumn(dataSlot);
-         if (oidColumn != null)
-         {
-            fields.add(oidColumn);
-         }
+         putSafely(fields, oidColumn);
 
          ClusterSlotFieldInfo typeColumn = getTypeColumn(dataSlot);
-         if (typeColumn != null)
-         {
-            fields.add(typeColumn);
-         }
+         putSafely(fields, typeColumn);
 
          ClusterSlotFieldInfo nValueColumn = getNValueColumn(dataSlot);
-         if (nValueColumn != null)
-         {
-            fields.add(nValueColumn);
-         }
+         putSafely(fields, nValueColumn);
 
          ClusterSlotFieldInfo dValueColumn = getDValueColumn(dataSlot);
-         if (dValueColumn != null)
-         {
-            fields.add(dValueColumn);
-         }
+         putSafely(fields, dValueColumn);
 
          ClusterSlotFieldInfo sValueColumn = getSValueColumn(dataSlot);
-         if (sValueColumn != null)
-         {
-            fields.add(sValueColumn);
-         }
+         putSafely(fields, sValueColumn);
 
          return fields;
+      }
+
+      private static void putSafely(HashMap<SLOT_TYPE, ClusterSlotFieldInfo> fields,
+            ClusterSlotFieldInfo column)
+      {
+         if (column != null)
+         {
+            fields.put(column.getSlotType(), column);
+         }
       }
 
       public static List<IndexInfo> getIndexes(DataCluster cluster)

@@ -4301,6 +4301,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             ModelManager modelManager = ModelManagerFactory.getCurrent();
 
             int usedSlotCnt = 0;
+            // Currently DescriptorSlots are not supported:
+            // - this code is called only if deprecated property KernelTweakingProperties.DESCRIPTOR_PREFETCH_REUSE_FILTER_JOINS is set (default false)
+            // - if DescriptorSlots make sense still need to be analyzed
             for (DataSlot slot : cluster.getAllDataSlots())
             {
                // only apply slots for this cluster if it is not for structured data values

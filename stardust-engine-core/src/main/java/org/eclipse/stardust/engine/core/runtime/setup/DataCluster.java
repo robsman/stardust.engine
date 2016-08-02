@@ -42,9 +42,9 @@ public class DataCluster extends TableDescriptor
    public enum DataClusterEnableState {
       ALL(ProcessInstanceState.Created, ProcessInstanceState.Active,
           ProcessInstanceState.Aborting, ProcessInstanceState.Aborted,
-          ProcessInstanceState.Interrupted, ProcessInstanceState.Completed),  
+          ProcessInstanceState.Interrupted, ProcessInstanceState.Completed),
       ALIVE(ProcessInstanceState.Created, ProcessInstanceState.Active,
-            ProcessInstanceState.Aborting, ProcessInstanceState.Interrupted),  
+            ProcessInstanceState.Aborting, ProcessInstanceState.Interrupted),
       CREATED(ProcessInstanceState.Created),
       ACTIVE(ProcessInstanceState.Active),
       ABORTING(ProcessInstanceState.Aborting),

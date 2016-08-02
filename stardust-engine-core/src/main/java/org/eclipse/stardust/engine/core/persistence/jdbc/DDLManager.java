@@ -2093,7 +2093,7 @@ public class DDLManager
       }
    }
 
-   public static String getColumnValuesSelect(Collection<ClusterSlotFieldInfo> columns, String dataValuePrefix, String dataValueSelect)
+   public static String getColumnValuesSelect(Collection<ClusterSlotFieldInfo> columns, final String dataValuePrefix, String dataValueSelect)
    {
       StringBuilder builder = new StringBuilder();
       builder.append("SELECT ");
@@ -2319,18 +2319,19 @@ public class DDLManager
 
                if (clusterSlot.hasPrimitiveData())
                {
+                  // primitive data
                   Map<Long, IData> primitiveDataRtOids = DataClusterHelper
                         .findAllPrimitiveDataRtOids(clusterSlot);
-                  // primitive data
+
                   String subSelectSql = MessageFormat.format(
-                              " FROM {2} dv"
-                              + " WHERE dv." + DataValueBean.FIELD__OID + " = ("
-                              + "   SELECT MIN(idv." + DataValueBean.FIELD__OID + ") oid"
-                              + "   FROM {2} idv"
-                              + "   WHERE idv." + DataValueBean.FIELD__DATA + " IN (" + StringUtils.join(primitiveDataRtOids.keySet().iterator(), ",") + ")"
-                              + "     AND {0}.{1} = idv." + DataValueBean.FIELD__PROCESS_INSTANCE
-                              + "   GROUP BY idv." + DataValueBean.FIELD__PROCESS_INSTANCE + ")"
-                              + " AND  {0}.{1} = dv." + DataValueBean.FIELD__PROCESS_INSTANCE
+                        " FROM {2} dv"
+                        + " WHERE dv." + DataValueBean.FIELD__OID + " = ("
+                        + "   SELECT MIN(idv." + DataValueBean.FIELD__OID + ") oid"
+                        + "   FROM {2} idv"
+                        + "   WHERE idv." + DataValueBean.FIELD__DATA + " IN (" + StringUtils.join(primitiveDataRtOids.keySet().iterator(), ",") + ")"
+                        + "     AND {0}.{1} = idv." + DataValueBean.FIELD__PROCESS_INSTANCE
+                        + "   GROUP BY idv." + DataValueBean.FIELD__PROCESS_INSTANCE + ")"
+                        + " AND  {0}.{1} = dv." + DataValueBean.FIELD__PROCESS_INSTANCE
                         , new Object[] {
                               clusterTable, // 0
                               dataCluster.getProcessInstanceColumn(), // 1
@@ -2341,9 +2342,10 @@ public class DDLManager
 
                if (clusterSlot.hasStructuredData())
                {
+                  // structured data
                   Map<Long, Pair<IData, String>> structuredDataRtOids = DataClusterHelper
                         .findAllStructuredDataRtOids(clusterSlot);
-                  // structured data
+
                   String subSelectSql = MessageFormat.format(
                         " FROM {2} sdv"
                         + " WHERE sdv." + StructuredDataValueBean.FIELD__OID + " = ("
@@ -2371,11 +2373,12 @@ public class DDLManager
                   {
                      StringBuilder buffer = new StringBuilder(1000);
                      buffer.append("UPDATE ").append(clusterTable)
-                     .append(" SET ");
+                           .append(" SET ");
 
                      if (dbDescriptor.supportsMultiColumnUpdates())
                      {
                         buffer.append("(");
+
                         // which field needs to be updated in the cluster table
                         TransformingIterator<ClusterSlotFieldInfo, String> iter = new TransformingIterator<ClusterSlotFieldInfo, String>(
                               dataSlotColumnsToSynch.values().iterator(),
@@ -2399,16 +2402,18 @@ public class DDLManager
                      }
                      else
                      {
-                        Iterator<ClusterSlotFieldInfo> i = dataSlotColumnsToSynch.values().iterator();
-                        while(i.hasNext())
+                        String delimiter = "";
+                        for (ClusterSlotFieldInfo dataSlotColumn : dataSlotColumnsToSynch.values())
                         {
-                           ClusterSlotFieldInfo dataSlotColumn = i.next();
-                           String updateColumnValueStmt = getColumnValueSelect(dataSlotColumn, subSelect.getDataValuePrefix(), subSelect.getSubSelectSql());
+                           buffer.append(delimiter);
+
+                           String updateColumnValueStmt = getColumnValueSelect(
+                                 dataSlotColumn,
+                                 subSelect.getDataValuePrefix(),
+                                 subSelect.getSubSelectSql());
                            buffer.append(updateColumnValueStmt);
-                           if(i.hasNext())
-                           {
-                              buffer.append(", ");
-                           }
+
+                           delimiter = ", ";
                         }
                      }
 
@@ -2416,7 +2421,7 @@ public class DDLManager
                      if (syncInfo.getScopePiOid() != 0 || mixedSlots)
                      {
                         // if scope PI is specified then reduce DC slot update to that scope PI
-                        if(syncInfo.getScopePiOid() != 0)
+                        if (syncInfo.getScopePiOid() != 0)
                         {
                            buffer.append(delimiter);
 
@@ -2431,7 +2436,8 @@ public class DDLManager
                         }
 
                         // if slot contains primitive and structured data then perform 2nd update
-                        // on null columns only
+                        // on null columns only. Other values than null would mean that 1st update
+                        // already set valid values
                         if (mixedSlots)
                         {
                            buffer.append(delimiter);
@@ -2676,47 +2682,39 @@ public class DDLManager
                countInconsistencyGroups++;
             }
 
-            for (DataSlot dataSlot : dataCluster.getAllDataSlots())
+            for (AbstractDataClusterSlot clusterSlot : dataCluster.getAllSlots())
             {
-               if (existsReferencedDVsByDCNotMatching(verifyStmt, dataSlot, dataCluster,
+               if (existsReferencedDVsByDCNotMatching(verifyStmt, clusterSlot, dataCluster,
                      schemaName))
                {
                   String message = "Cluster table "
                         + clusterTable
                         + " is not consistent: referenced data values by cluster entry for slot '"
-                        + dataSlot.getQualifiedDataId() + "' attributeName '"
-                        + dataSlot.getAttributeName() + "' are not matching.";
+                        + clusterSlot.qualifiedDataToString()
+                        + "' are not matching.";
 
                   printLogMessage(message, consoleLog);
                   countInconsistencyGroups++;
                }
-            }
 
-            for (DataSlot dataSlot : dataCluster.getAllDataSlots())
-            {
-               if (existsEmptyDCEntryNotNull(verifyStmt, dataSlot, dataCluster,
+               if (existsEmptyDCEntryNotNull(verifyStmt, clusterSlot, dataCluster,
                      schemaName))
                {
                   String message = "Cluster table " + clusterTable
                         + " is not consistent: empty cluster entries for slot '"
-                        + dataSlot.getQualifiedDataId() + "' attributeName '"
-                        + dataSlot.getAttributeName()
+                        + clusterSlot.qualifiedDataToString()
                         + "' are not completely set to null.";
 
                   printLogMessage(message, consoleLog);
                   countInconsistencyGroups++;
                }
-            }
 
-            for (DataSlot dataSlot : dataCluster.getAllDataSlots())
-            {
                if (existsExistingDvsNotRefByDC(dataCluster, schemaName, verifyStmt,
-                     dataSlot))
+                     clusterSlot))
                {
                   String message = "Cluster table " + clusterTable
                         + " is not consistent: existing data values for slot '"
-                        + dataSlot.getDataId() + "' attributeName '"
-                        + dataSlot.getAttributeName()
+                        + clusterSlot.qualifiedDataToString()
                         + "' are not referenced by cluster entry.";
 
                   printLogMessage(message, consoleLog);
@@ -2729,8 +2727,9 @@ public class DDLManager
          {
             StringBuilder message = new StringBuilder();
             message.append("The data cluster is invalid. ");
-            message.append(countInconsistencyGroups == 1 ? "There is 1 inconsistency." : "There are "
-                  + countInconsistencyGroups + " inconsistencies.");
+            message.append(countInconsistencyGroups == 1
+                  ? "There is 1 inconsistency."
+                  : "There are " + countInconsistencyGroups + " inconsistencies.");
             printLogMessage(message.toString(), consoleLog != null
                   ? consoleLog
                   : System.out);
@@ -3429,7 +3428,7 @@ public class DDLManager
       return result;
    }
 
-   private static class SubSelectDescriptor
+   public static class SubSelectDescriptor
    {
       private final String subSelectSql;
       private final String dataValuePrefix;

@@ -40,9 +40,11 @@ import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DDLManager.SubSelectDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.*;
+import org.eclipse.stardust.engine.core.runtime.setup.ClusterSlotFieldInfo.SLOT_TYPE;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterMetaInfoRetriever;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
@@ -2755,11 +2757,11 @@ public class Archiver
    {
       final String dcTableName = getSrcObjName(dataCluster.getTableName());
 
-      TypeDescriptor dvType = TypeDescriptor.get(DataValueBean.class);
+      final TypeDescriptor dvType = TypeDescriptor.get(DataValueBean.class);
       final String dvTableName = getSrcObjName(dvType.getTableName());
       final String pkDV = dvType.getPkFields()[PK_OID].getName();
 
-      TypeDescriptor mType = TypeDescriptor.get(ModelPersistorBean.class);
+      final TypeDescriptor mType = TypeDescriptor.get(ModelPersistorBean.class);
       final String mTableName = getSrcObjName(mType.getTableName());
 
       Statement stmt = null;
@@ -2777,7 +2779,7 @@ public class Archiver
          {
             if (ids.contains(dataSlot.getQualifiedDataId()))
             {
-               StringBuffer buffer = new StringBuffer(400);
+               StringBuilder buffer = new StringBuilder(400);
                buffer.append("UPDATE ").append(dcTableName)
                      .append(" SET ")
                      .append(dataSlot.getOidColumn()).append("=NULL")
@@ -2812,6 +2814,14 @@ public class Archiver
                }
                stmt.executeUpdate(buffer.toString());
             }
+         }
+
+         final String sdvTableName = getSrcObjName(TypeDescriptor.get(StructuredDataValueBean.class).getTableName());
+
+         for (DescriptorSlot descriptorSlot : dataCluster.getDescriptorSlots())
+         {
+            synchronizeClusterSlot(descriptorSlot, stmt, dcTableName, dvTableName, sdvTableName,
+                  null);
          }
       }
       catch (SQLException x)
@@ -3070,20 +3080,15 @@ public class Archiver
       DBDescriptor dbDescriptor = session.getDBDescriptor();
       final DataCluster[] dClusters = getDataClusterSetup(true);
 
-      for (int idx = 0; idx < dClusters.length; ++idx)
+      for (DataCluster dCluster : dClusters)
       {
-         final DataCluster dCluster = dClusters[idx];
-
          Statement stmt = null;
 
          final String clusterTable = getArchiveObjName(dbDescriptor.quoteIdentifier(dCluster.getTableName()));
          final String piTable = getArchiveObjName(TypeDescriptor.get(ProcessInstanceBean.class).getTableName());
          final String pisTable = getArchiveObjName(TypeDescriptor.get(ProcessInstanceScopeBean.class).getTableName());
-         final String dataTable = getArchiveObjName(TypeDescriptor.get(AuditTrailDataBean.class).getTableName());
          final String dvTable = getArchiveObjName(TypeDescriptor.get(DataValueBean.class).getTableName());
-         final String structDataTable = getArchiveObjName(TypeDescriptor.get(StructuredDataBean.class).getTableName());
          final String structDvTable = getArchiveObjName(TypeDescriptor.get(StructuredDataValueBean.class).getTableName());
-         final String modelTable = getArchiveObjName(TypeDescriptor.get(ModelPersistorBean.class).getTableName());
 
          try
          {
@@ -3122,122 +3127,10 @@ public class Archiver
             stmt.executeUpdate(syncInsSql);
 
 
-            // synchronizing slot values
-            for (DataSlot dataSlot : dCluster.getAllDataSlots())
+            for (AbstractDataClusterSlot clusterSlot : dCluster.getAllSlots())
             {
-               Collection<ClusterSlotFieldInfo> dataSlotColumnsToSynch = DataClusterMetaInfoRetriever
-                     .getDataSlotFields(dataSlot);
-               if(dataSlotColumnsToSynch.size() != 0)
-               {
-                  String subselectSql;
-                  String dataValuePrefix;
-
-                  if (StringUtils.isEmpty(dataSlot.getAttributeName()))
-                  {
-                     // primitive data
-                     subselectSql = MessageFormat.format(
-                           "  FROM {3} dv, {4} d, {5} m"
-                                 + " WHERE {0}.{1} = dv." + DataValueBean.FIELD__PROCESS_INSTANCE
-                                 + "   AND dv." + DataValueBean.FIELD__DATA + " = d." + AuditTrailDataBean.FIELD__OID
-                                 + "   AND dv." + DataValueBean.FIELD__MODEL + " = d." + AuditTrailDataBean.FIELD__MODEL
-                                 + "   AND d." + AuditTrailDataBean.FIELD__MODEL + " = m." + ModelPersistorBean.FIELD__OID
-                                 + "   AND d." + AuditTrailDataBean.FIELD__ID + " = ''{2}''"
-                                 + "   AND m." + ModelPersistorBean.FIELD__ID + " = ''{6}''"
-                                 ,
-                                 new Object[] {
-                                       clusterTable, // 0
-                                       dCluster.getProcessInstanceColumn(), // 1
-                                       dataSlot.getDataId(), // 2
-                                       dvTable, // 3
-                                       dataTable, // 4
-                                       modelTable, // 5
-                                       dataSlot.getModelId() // 6
-                                 });
-                     dataValuePrefix = "dv";
-                  }
-                  else
-                  {
-                     // structured data
-                     subselectSql = MessageFormat.format(
-                           "  FROM {3} d, {4} sd, {5} sdv, {6} p, {8} m"
-                                 + " WHERE {0}.{1} = sdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
-                                 + "   AND sdv." + StructuredDataValueBean.FIELD__XPATH + " = sd." + StructuredDataBean.FIELD__OID
-                                 + "   AND sd." + DataValueBean.FIELD__DATA + " = d." + AuditTrailDataBean.FIELD__OID
-                                 + "   AND sd." + DataValueBean.FIELD__MODEL + " = d." + AuditTrailDataBean.FIELD__MODEL
-                                 + "   AND p." + ProcessInstanceBean.FIELD__OID + " = sdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
-                                 + "   AND p." + ProcessInstanceBean.FIELD__MODEL + " = d." + DataValueBean.FIELD__MODEL
-                                 + "   AND sd." + StructuredDataBean.FIELD__XPATH + " = ''{7}'' "
-                                 + "   AND d." + AuditTrailDataBean.FIELD__ID + " = ''{2}''"
-                                 + "   AND d."+ DataValueBean.FIELD__MODEL + " = m." + ModelPersistorBean.FIELD__OID
-                                 + "   AND m." + ModelPersistorBean.FIELD__ID + " = ''{9}''"
-                                 ,
-                                 new Object[] {
-                                       clusterTable,
-                                       dCluster.getProcessInstanceColumn(),
-                                       dataSlot.getDataId(),
-                                       dataTable, // 3
-                                       structDataTable, // 4
-                                       structDvTable, // 5
-                                       piTable, // 6
-                                       dataSlot.getAttributeName(), // 7
-                                       modelTable, // 8
-                                       dataSlot.getModelId() // 9
-                                 });
-                     dataValuePrefix = "sdv";
-                  }
-
-                  StringBuffer updBuffer = new StringBuffer(1000);
-                  updBuffer.append("UPDATE ").append(clusterTable)
-                  .append(" SET ");
-
-                  if (dbDescriptor.supportsMultiColumnUpdates())
-                  {
-                     updBuffer.append("(");
-
-                     // which field need to be updated in the cluster table
-                     Iterator<ClusterSlotFieldInfo> i = dataSlotColumnsToSynch.iterator();
-                     while (i.hasNext())
-                     {
-                        ClusterSlotFieldInfo dataSlotColumn = i.next();
-                        updBuffer.append(dataSlotColumn.getName());
-                        if (i.hasNext())
-                        {
-                           updBuffer.append(", ");
-                        }
-                     }
-                     updBuffer.append(")");
-                     updBuffer.append(" = ");
-                     updBuffer.append("(");
-                     updBuffer.append(DDLManager.getColumnValuesSelect(dataSlotColumnsToSynch,
-                           dataValuePrefix, subselectSql));
-                     updBuffer.append(")");
-                  }
-                  else
-                  {
-                     Iterator<ClusterSlotFieldInfo> i = dataSlotColumnsToSynch.iterator();
-                     while (i.hasNext())
-                     {
-                        ClusterSlotFieldInfo dataSlotColumn = i.next();
-                        String updateColumnValueStmt = DDLManager.getColumnValueSelect(
-                              dataSlotColumn, dataValuePrefix, subselectSql);
-                        updBuffer.append(updateColumnValueStmt);
-                        if (i.hasNext())
-                        {
-                           updBuffer.append(", ");
-                        }
-                     }
-                  }
-                  updBuffer.append(" WHERE ")
-                     .append(getPiOidInListPredicateSQLFragment(piOids, clusterTable,
-                              dCluster.getProcessInstanceColumn()));
-
-                  String syncUpdSql = updBuffer.toString();
-                  if (trace.isDebugEnabled())
-                  {
-                     trace.debug(syncUpdSql);
-                  }
-                  stmt.executeUpdate(syncUpdSql);
-               }
+               synchronizeClusterSlot(clusterSlot, stmt, clusterTable, dvTable,
+                     structDvTable, piOids);
             }
          }
          catch (SQLException e)
@@ -3249,6 +3142,155 @@ public class Archiver
          finally
          {
             QueryUtils.closeStatement(stmt);
+         }
+      }
+   }
+
+   private void synchronizeClusterSlot(AbstractDataClusterSlot clusterSlot, Statement stmt,
+         final String clusterTable, final String dvTable, final String structDvTable,
+         List piOids) throws SQLException
+   {
+      DataCluster dCluster = clusterSlot.getParent();
+      DBDescriptor dbDescriptor = session.getDBDescriptor();
+
+      // In case of single typed slot data (primitive or structured data) update only once based on corresponding data type.
+      // In case of slots with mixed typed slot data (primitive and structured data) the idea is to update twice:
+      // 1. update based on primitive data.
+      // 2. update based on structured data IF the update before resulted in null
+      List<SubSelectDescriptor> slotSubSelects = CollectionUtils.newArrayList(2);
+
+      HashMap<SLOT_TYPE, ClusterSlotFieldInfo> dataSlotColumnsToSynch = DataClusterMetaInfoRetriever
+            .getDataSlotFields(clusterSlot);
+      if (dataSlotColumnsToSynch.size() != 0)
+      {
+         if (clusterSlot.hasPrimitiveData())
+         {
+            // primitive data
+            Map<Long, IData> primitiveDataRtOids = DataClusterHelper
+                  .findAllPrimitiveDataRtOids(clusterSlot);
+
+            String subSelectSql = MessageFormat.format(
+                  " FROM {2} dv"
+                  + " WHERE dv." + DataValueBean.FIELD__OID + " = ("
+                  + "   SELECT MIN(idv." + DataValueBean.FIELD__OID + ") oid"
+                  + "   FROM {2} idv"
+                  + "   WHERE idv." + DataValueBean.FIELD__DATA + " IN (" + StringUtils.join(primitiveDataRtOids.keySet().iterator(), ",") + ")"
+                  + "     AND {0}.{1} = idv." + DataValueBean.FIELD__PROCESS_INSTANCE
+                  + "   GROUP BY idv." + DataValueBean.FIELD__PROCESS_INSTANCE + ")"
+                  + " AND  {0}.{1} = dv." + DataValueBean.FIELD__PROCESS_INSTANCE
+                  ,
+                  new Object[] {
+                        clusterTable, // 0
+                        dCluster.getProcessInstanceColumn(), // 1
+                        dvTable // 2
+                  });
+            slotSubSelects.add(new SubSelectDescriptor(subSelectSql, "dv"));
+         }
+
+         if (clusterSlot.hasStructuredData())
+         {
+            // structured data
+            Map<Long, Pair<IData, String>> structuredDataRtOids = DataClusterHelper
+                  .findAllStructuredDataRtOids(clusterSlot);
+
+            String subSelectSql = MessageFormat.format(
+                  " FROM {2} sdv"
+                  + " WHERE sdv." + StructuredDataValueBean.FIELD__OID + " = ("
+                  + "   SELECT MIN(isdv." + StructuredDataValueBean.FIELD__OID + ") oid"
+                  + "   FROM {2} isdv"
+                  + "   WHERE isdv." + StructuredDataValueBean.FIELD__XPATH + " IN (" + StringUtils.join(structuredDataRtOids.keySet().iterator(), ",") + ")"
+                  + "     AND {0}.{1} = isdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
+                  + "   GROUP BY isdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE + ")"
+                  + " AND  {0}.{1} = sdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
+                  ,
+                  new Object[] {
+                        clusterTable, // 0
+                        dCluster.getProcessInstanceColumn(), // 1
+                        structDvTable // 2
+                  });
+            slotSubSelects.add(new SubSelectDescriptor(subSelectSql, "sdv"));
+         }
+
+         final boolean mixedSlots = slotSubSelects.size() > 1;
+         for (SubSelectDescriptor subSelect : slotSubSelects)
+         {
+            StringBuilder updBuffer = new StringBuilder(1000);
+            updBuffer.append("UPDATE ").append(clusterTable)
+                     .append(" SET ");
+
+            if (dbDescriptor.supportsMultiColumnUpdates())
+            {
+               updBuffer.append("(");
+
+               // which field needs to be updated in the cluster table
+               TransformingIterator<ClusterSlotFieldInfo, String> iter = new TransformingIterator<ClusterSlotFieldInfo, String>(
+                     dataSlotColumnsToSynch.values().iterator(),
+                     new Functor<ClusterSlotFieldInfo, String>()
+                     {
+                        @Override
+                        public String execute(ClusterSlotFieldInfo source)
+                        {
+                           return source.getName();
+                        }
+                     });
+               StringUtils.join(updBuffer, iter, ", ");
+               updBuffer.append(")");
+               updBuffer.append(" = ");
+               updBuffer.append("(");
+               updBuffer.append(DDLManager.getColumnValuesSelect(dataSlotColumnsToSynch.values(),
+                     subSelect.getDataValuePrefix(),
+                     subSelect.getSubSelectSql()));
+               updBuffer.append(")");
+            }
+            else
+            {
+               String delimiter = "";
+               for (ClusterSlotFieldInfo dataSlotColumn : dataSlotColumnsToSynch.values())
+               {
+                  updBuffer.append(delimiter);
+
+                  String updateColumnValueStmt = DDLManager.getColumnValueSelect(
+                        dataSlotColumn,
+                        subSelect.getDataValuePrefix(),
+                        subSelect.getSubSelectSql());
+                  updBuffer.append(updateColumnValueStmt);
+
+                  delimiter = ", ";
+               }
+            }
+
+            if (piOids != null)
+            {
+               updBuffer.append(" WHERE ")
+                        .append(getPiOidInListPredicateSQLFragment(piOids, clusterTable,
+                              dCluster.getProcessInstanceColumn()));
+            }
+
+            // if slot contains primitive and structured data then perform 2nd update
+            // on null columns only. Other values than null would mean that 1st update
+            // already set valid values
+            if (mixedSlots)
+            {
+               updBuffer.append(" AND ");
+
+               ClusterSlotFieldInfo oidField = dataSlotColumnsToSynch.get(SLOT_TYPE.OID);
+               ClusterSlotFieldInfo typeField = dataSlotColumnsToSynch.get(SLOT_TYPE.TYPE);
+
+               updBuffer.append(MessageFormat.format("({0} IS NULL OR {1} = {2})",
+                     new Object[] {
+                           oidField.getName(), // 0
+                           typeField.getName(), // 1,
+                           BigData.NULL // 2
+               }));
+            }
+
+            String syncUpdSql = updBuffer.toString();
+            if (trace.isDebugEnabled())
+            {
+               trace.debug(syncUpdSql);
+            }
+
+            stmt.executeUpdate(syncUpdSql);
          }
       }
    }

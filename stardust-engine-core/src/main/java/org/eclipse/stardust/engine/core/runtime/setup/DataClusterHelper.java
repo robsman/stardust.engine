@@ -303,14 +303,8 @@ public class DataClusterHelper
          }
          slots.add(ds);
 
-         List<ClusterSlotFieldInfo> slotColumnFields = DataClusterMetaInfoRetriever
+         HashMap<SLOT_TYPE, ClusterSlotFieldInfo> typeToFieldMap = DataClusterMetaInfoRetriever
                .getDataSlotFields(ds);
-         HashMap<SLOT_TYPE, ClusterSlotFieldInfo> typeToFieldMap = CollectionUtils.newHashMap(slotColumnFields.size());
-         for (ClusterSlotFieldInfo fieldInfo : DataClusterMetaInfoRetriever
-               .getDataSlotFields(ds))
-         {
-            typeToFieldMap.put(fieldInfo.getSlotType(), fieldInfo);
-         }
          slotToColumnMapping.put(slotKey, typeToFieldMap);
       }
 

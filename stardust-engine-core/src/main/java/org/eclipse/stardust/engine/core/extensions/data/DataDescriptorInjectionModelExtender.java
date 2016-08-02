@@ -32,16 +32,16 @@ import org.eclipse.stardust.engine.core.monitoring.AbstractPartitionMonitor;
 public class DataDescriptorInjectionModelExtender extends AbstractPartitionMonitor
 {
    Logger trace = LogManager.getLogger(DataDescriptorInjectionModelExtender.class);
-   
+
    private String prefix = "BusinessDate";
    private String name = "Business Date";
 
    @Override
    public void modelLoaded(IModel model)
    {
-      ModelElementList<IData> dataList = model.getData();      
+      ModelElementList<IData> dataList = model.getData();
       boolean isSimpleModeler = model.getBooleanAttribute("stardust:model:simpleModel");
-      
+
       if(isSimpleModeler)
       {
          for (IData data : dataList)
@@ -59,20 +59,20 @@ public class DataDescriptorInjectionModelExtender extends AbstractPartitionMonit
    {
       ModelElementList<IProcessDefinition> pds = model.getProcessDefinitions();
       for (IProcessDefinition pd : pds)
-      {         
+      {
          List<Identifiable> list = new ArrayList<Identifiable>();
          boolean match = false;
          for (Iterator i = pd.getAllDescriptors(); i.hasNext();)
          {
             IDataPath descriptor = (IDataPath) i.next();
             list.add(descriptor);
-            
+
             // we have already a descriptor
             if (descriptor.getData() != null && descriptor.getData().equals(data))
             {
                match = true;
                break;
-            }            
+            }
          }
 
          if(match)
@@ -80,13 +80,15 @@ public class DataDescriptorInjectionModelExtender extends AbstractPartitionMonit
             match = false;
             continue;
          }
-         
+
          IdFactory factory = new IdFactory(prefix);
          factory.computeNames(list);
-         
+
          String id = factory.getId();
          IDataPath dataPath = new DataPathBean(id, name, data, null, Direction.IN);
          dataPath.setDescriptor(true);
+         dataPath.setAttribute("stardust:model:dateTimeDescriptor:useServerTime", true);
+         dataPath.setAttribute("stardust:model:dateTimeDescriptor:hideTime", true);
          pd.addToDataPaths(dataPath);
          dataPath.register(0);
       }

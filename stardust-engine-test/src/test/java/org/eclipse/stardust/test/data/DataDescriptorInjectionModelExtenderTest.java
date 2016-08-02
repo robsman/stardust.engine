@@ -4,13 +4,8 @@ import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.*;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.model.DataPath;
@@ -22,6 +17,9 @@ import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.junit.*;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 
 /**
  * <p>
@@ -71,6 +69,7 @@ public class DataDescriptorInjectionModelExtenderTest
       List<ProcessDefinition> allProcessDefinitions = serviceFactory.getQueryService().getAllProcessDefinitions(pi.getModelOID());
       for(ProcessDefinition pd : allProcessDefinitions)
       {
+         @SuppressWarnings("unchecked")
          List<DataPath> paths = pd.getAllDataPaths();
          for (DataPath p : paths)
          {
@@ -88,6 +87,8 @@ public class DataDescriptorInjectionModelExtenderTest
          Assert.assertTrue(path.isDescriptor());
          assertEquals(path.getData(), PredefinedConstants.BUSINESS_DATE);
          assertEquals(path.getName(), "Business Date");
+         assertEquals(path.getAttribute("stardust:model:dateTimeDescriptor:useServerTime"), true);
+         assertEquals(path.getAttribute("stardust:model:dateTimeDescriptor:hideTime"), true);
          assertEquals(value.get(Calendar.YEAR), 2000);
       }
       else
@@ -108,6 +109,7 @@ public class DataDescriptorInjectionModelExtenderTest
       List<ProcessDefinition> allProcessDefinitions = serviceFactory.getQueryService().getAllProcessDefinitions(pi.getModelOID());
       for(ProcessDefinition pd : allProcessDefinitions)
       {
+         @SuppressWarnings("unchecked")
          List<DataPath> paths = pd.getAllDataPaths();
          for (DataPath p : paths)
          {

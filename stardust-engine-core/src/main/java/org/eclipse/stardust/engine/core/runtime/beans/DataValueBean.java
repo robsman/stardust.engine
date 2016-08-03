@@ -14,6 +14,8 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.*;
 
+import javax.xml.namespace.QName;
+
 import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
@@ -686,7 +688,9 @@ public class DataValueBean extends IdentifiablePersistentBean
 
    public static Object toPersistedValue(String dataId, Object value)
    {
-      if (PredefinedConstants.BUSINESS_DATE.equals(dataId))
+      if (dataId != null && dataId.length() > 0
+            && (PredefinedConstants.BUSINESS_DATE.equals(dataId)
+                  || dataId.charAt(0) == '{' && PredefinedConstants.BUSINESS_DATE.equals(QName.valueOf(dataId).getLocalPart())))
       {
          if (value instanceof Calendar)
          {

@@ -2,9 +2,11 @@ package org.eclipse.stardust.engine.core.runtime.scheduling;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -15,6 +17,9 @@ import com.google.gson.JsonObject;
 
 public class SchedulingUtils
 {
+   private static final String INPUT_DATE_TIME_PATTERN = "yyyy-MM-dd hh:mm aa";
+
+
    private static final Logger trace = LogManager.getLogger(SchedulingRecurrence.class);
 
    public enum RecurrencePattern
@@ -117,7 +122,7 @@ public class SchedulingUtils
       return (property == null || property.isJsonNull() || !property.isJsonPrimitive())
             ? null : property.getAsString();
    }
-   
+
    public static DateFormat getServerDateFormat()
    {
       return new SimpleDateFormat("yyyy/MM/dd hh:mm:ss:SSS", Locale.ENGLISH);
@@ -125,12 +130,35 @@ public class SchedulingUtils
 
    public static DateFormat getInputDateFormat()
    {
-      return new SimpleDateFormat("yyyy-MM-dd hh:mm aa", Locale.ENGLISH);
+      return new SimpleDateFormat(INPUT_DATE_TIME_PATTERN, Locale.ENGLISH);
    }
 
+   /**
+    * Same as getInputDateFormat() but will process the time zone as a suffix
+    * consisting of the IATA id of the time zone.
+    *
+    * @return
+    */
    public static DateFormat getInputDateFormatExt()
    {
-      return new SimpleDateFormat("yyyy-MM-dd hh:mm aa Z", Locale.ENGLISH);
+      return new SimpleDateFormat(INPUT_DATE_TIME_PATTERN, Locale.ENGLISH)
+      {
+         private static final long serialVersionUID = 1L;
+
+         @Override
+         public Date parse(String text, ParsePosition pos)
+         {
+            if (text != null && text.length() > INPUT_DATE_TIME_PATTERN.length())
+            {
+               String tzString = text.substring(INPUT_DATE_TIME_PATTERN.length()).trim();
+               if (tzString.length() > 0)
+               {
+                  setTimeZone(TimeZone.getTimeZone(tzString));
+               }
+            }
+            return super.parse(text, pos);
+         }
+      };
    }
 
    public static DateFormat getClientDateFormat()

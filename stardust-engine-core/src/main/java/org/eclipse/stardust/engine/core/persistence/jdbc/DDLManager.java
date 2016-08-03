@@ -2311,152 +2311,158 @@ public class DDLManager
                   }
                }
 
-               // In case of single typed slot data (primitive or structured data) update only once based on corresponding data type.
-               // In case of slots with mixed typed slot data (primitive and structured data) the idea is to update twice:
-               // 1. update based on primitive data.
-               // 2. update based on structured data IF the update before resulted in null
-               List<SubSelectDescriptor> slotSubSelects = CollectionUtils.newArrayList(2);
-
-               if (clusterSlot.hasPrimitiveData())
+               // any inconsistencies counted? Then prepare and execute synch statements
+               if (countInconsistencyGroups != 0)
                {
-                  // primitive data
-                  Map<Long, IData> primitiveDataRtOids = DataClusterHelper
-                        .findAllPrimitiveDataRtOids(clusterSlot);
+                  // In case of single typed slot data (primitive or structured data) update only once based on corresponding data type.
+                  // In case of slots with mixed typed slot data (primitive and structured data) the idea is to update twice:
+                  // 1. update based on primitive data.
+                  // 2. update based on structured data IF the update before resulted in null
+                  List<SubSelectDescriptor> slotSubSelects = CollectionUtils.newArrayList(2);
 
-                  String subSelectSql = MessageFormat.format(
-                        " FROM {2} dv"
-                        + " WHERE dv." + DataValueBean.FIELD__OID + " = ("
-                        + "   SELECT MIN(idv." + DataValueBean.FIELD__OID + ") oid"
-                        + "   FROM {2} idv"
-                        + "   WHERE idv." + DataValueBean.FIELD__DATA + " IN (" + StringUtils.join(primitiveDataRtOids.keySet().iterator(), ",") + ")"
-                        + "     AND {0}.{1} = idv." + DataValueBean.FIELD__PROCESS_INSTANCE
-                        + "   GROUP BY idv." + DataValueBean.FIELD__PROCESS_INSTANCE + ")"
-                        + " AND  {0}.{1} = dv." + DataValueBean.FIELD__PROCESS_INSTANCE
-                        , new Object[] {
-                              clusterTable, // 0
-                              dataCluster.getProcessInstanceColumn(), // 1
-                              dataValueTable // 2
-                              });
-                  slotSubSelects.add(new SubSelectDescriptor(subSelectSql, "dv"));
-               }
-
-               if (clusterSlot.hasStructuredData())
-               {
-                  // structured data
-                  Map<Long, Pair<IData, String>> structuredDataRtOids = DataClusterHelper
-                        .findAllStructuredDataRtOids(clusterSlot);
-
-                  String subSelectSql = MessageFormat.format(
-                        " FROM {2} sdv"
-                        + " WHERE sdv." + StructuredDataValueBean.FIELD__OID + " = ("
-                        + "   SELECT MIN(isdv." + StructuredDataValueBean.FIELD__OID + ") oid"
-                        + "   FROM {2} isdv"
-                        + "   WHERE isdv." + StructuredDataValueBean.FIELD__XPATH + " IN (" + StringUtils.join(structuredDataRtOids.keySet().iterator(), ",") + ")"
-                        + "     AND {0}.{1} = isdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
-                        + "   GROUP BY isdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE + ")"
-                        + " AND  {0}.{1} = sdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
-                      , new Object[] {
-                            clusterTable, // 0
-                            dataCluster.getProcessInstanceColumn(), // 1
-                            structuredDataValueTable // 2
-                            });
-
-                  slotSubSelects.add(new SubSelectDescriptor(subSelectSql, "sdv"));
-               }
-
-               final boolean mixedSlots = slotSubSelects.size() > 1;
-               for (SubSelectDescriptor subSelect : slotSubSelects)
-               {
-                  Map<SLOT_TYPE, ClusterSlotFieldInfo> dataSlotColumnsToSynch = syncInfo
-                        .getDataSlotColumns(clusterSlot);
-                  if(dataSlotColumnsToSynch.size() != 0)
+                  if (clusterSlot.hasPrimitiveData())
                   {
-                     StringBuilder buffer = new StringBuilder(1000);
-                     buffer.append("UPDATE ").append(clusterTable)
-                           .append(" SET ");
+                     // primitive data
+                     Map<Long, IData> primitiveDataRtOids = DataClusterHelper
+                           .findAllPrimitiveDataRtOids(clusterSlot);
 
-                     if (dbDescriptor.supportsMultiColumnUpdates())
+                     if (!primitiveDataRtOids.isEmpty())
                      {
-                        buffer.append("(");
+                        String subSelectSql = MessageFormat.format(
+                              " FROM {2} dv"
+                              + " WHERE dv." + DataValueBean.FIELD__OID + " = ("
+                              + "   SELECT MIN(idv." + DataValueBean.FIELD__OID + ") oid"
+                              + "   FROM {2} idv"
+                              + "   WHERE idv." + DataValueBean.FIELD__DATA + " IN (" + StringUtils.join(primitiveDataRtOids.keySet().iterator(), ",") + ")"
+                              + "     AND {0}.{1} = idv." + DataValueBean.FIELD__PROCESS_INSTANCE
+                              + "   GROUP BY idv." + DataValueBean.FIELD__PROCESS_INSTANCE + ")"
+                              + " AND  {0}.{1} = dv." + DataValueBean.FIELD__PROCESS_INSTANCE
+                              , new Object[] {
+                                    clusterTable, // 0
+                                    dataCluster.getProcessInstanceColumn(), // 1
+                                    dataValueTable // 2
+                                    });
+                        slotSubSelects.add(new SubSelectDescriptor(subSelectSql, "dv"));
+                     }
+                  }
 
-                        // which field needs to be updated in the cluster table
-                        TransformingIterator<ClusterSlotFieldInfo, String> iter = new TransformingIterator<ClusterSlotFieldInfo, String>(
-                              dataSlotColumnsToSynch.values().iterator(),
-                              new Functor<ClusterSlotFieldInfo, String>()
-                              {
-                                 @Override
-                                 public String execute(ClusterSlotFieldInfo source)
+                  if (clusterSlot.hasStructuredData())
+                  {
+                     // structured data
+                     Map<Long, Pair<IData, String>> structuredDataRtOids = DataClusterHelper
+                           .findAllStructuredDataRtOids(clusterSlot);
+
+                     if (!structuredDataRtOids.isEmpty())
+                     {
+                        String subSelectSql = MessageFormat.format(
+                              " FROM {2} sdv"
+                              + " WHERE sdv." + StructuredDataValueBean.FIELD__OID + " = ("
+                              + "   SELECT MIN(isdv." + StructuredDataValueBean.FIELD__OID + ") oid"
+                              + "   FROM {2} isdv"
+                              + "   WHERE isdv." + StructuredDataValueBean.FIELD__XPATH + " IN (" + StringUtils.join(structuredDataRtOids.keySet().iterator(), ",") + ")"
+                              + "     AND {0}.{1} = isdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
+                              + "   GROUP BY isdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE + ")"
+                              + " AND  {0}.{1} = sdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
+                            , new Object[] {
+                                  clusterTable, // 0
+                                  dataCluster.getProcessInstanceColumn(), // 1
+                                  structuredDataValueTable // 2
+                                  });
+
+                        slotSubSelects.add(new SubSelectDescriptor(subSelectSql, "sdv"));
+                     }
+                  }
+
+                  final boolean mixedSlots = slotSubSelects.size() > 1;
+                  for (SubSelectDescriptor subSelect : slotSubSelects)
+                  {
+                     Map<SLOT_TYPE, ClusterSlotFieldInfo> dataSlotColumnsToSynch = syncInfo
+                           .getDataSlotColumns(clusterSlot);
+                     if(dataSlotColumnsToSynch.size() != 0)
+                     {
+                        StringBuilder buffer = new StringBuilder(1000);
+                        buffer.append("UPDATE ").append(clusterTable)
+                              .append(" SET ");
+
+                        if (dbDescriptor.supportsMultiColumnUpdates())
+                        {
+                           buffer.append("(");
+
+                           // which field needs to be updated in the cluster table
+                           TransformingIterator<ClusterSlotFieldInfo, String> iter = new TransformingIterator<ClusterSlotFieldInfo, String>(
+                                 dataSlotColumnsToSynch.values().iterator(),
+                                 new Functor<ClusterSlotFieldInfo, String>()
                                  {
-                                    return source.getName();
-                                 }
-                              });
-                        StringUtils.join(buffer, iter, ", ");
-                        buffer.append(")");
-                        buffer.append(" = ");
-                        buffer.append("(");
-                        buffer.append(
-                              getColumnValuesSelect(dataSlotColumnsToSynch.values(),
+                                    @Override
+                                    public String execute(ClusterSlotFieldInfo source)
+                                    {
+                                       return source.getName();
+                                    }
+                                 });
+                           StringUtils.join(buffer, iter, ", ");
+                           buffer.append(")");
+                           buffer.append(" = ");
+                           buffer.append("(");
+                           buffer.append(
+                                 getColumnValuesSelect(dataSlotColumnsToSynch.values(),
+                                       subSelect.getDataValuePrefix(),
+                                       subSelect.getSubSelectSql()));
+                           buffer.append(")");
+                        }
+                        else
+                        {
+                           String delimiter = "";
+                           for (ClusterSlotFieldInfo dataSlotColumn : dataSlotColumnsToSynch.values())
+                           {
+                              buffer.append(delimiter);
+
+                              String updateColumnValueStmt = getColumnValueSelect(
+                                    dataSlotColumn,
                                     subSelect.getDataValuePrefix(),
-                                    subSelect.getSubSelectSql()));
-                        buffer.append(")");
-                     }
-                     else
-                     {
-                        String delimiter = "";
-                        for (ClusterSlotFieldInfo dataSlotColumn : dataSlotColumnsToSynch.values())
-                        {
-                           buffer.append(delimiter);
+                                    subSelect.getSubSelectSql());
+                              buffer.append(updateColumnValueStmt);
 
-                           String updateColumnValueStmt = getColumnValueSelect(
-                                 dataSlotColumn,
-                                 subSelect.getDataValuePrefix(),
-                                 subSelect.getSubSelectSql());
-                           buffer.append(updateColumnValueStmt);
-
-                           delimiter = ", ";
-                        }
-                     }
-
-                     String delimiter = " WHERE ";
-                     if (syncInfo.getScopePiOid() != 0 || mixedSlots)
-                     {
-                        // if scope PI is specified then reduce DC slot update to that scope PI
-                        if (syncInfo.getScopePiOid() != 0)
-                        {
-                           buffer.append(delimiter);
-
-                           buffer.append(MessageFormat.format("{0}.{1} = {2}",
-                                 new Object[] {
-                                       clusterTable, // 0
-                                       dataCluster.getProcessInstanceColumn(), // 1,
-                                       syncInfo.getScopePiOid() // 2
-                           }));
-
-                           delimiter = " AND ";
+                              delimiter = ", ";
+                           }
                         }
 
-                        // if slot contains primitive and structured data then perform 2nd update
-                        // on null columns only. Other values than null would mean that 1st update
-                        // already set valid values
-                        if (mixedSlots)
+                        String delimiter = " WHERE ";
+                        if (syncInfo.getScopePiOid() != 0 || mixedSlots)
                         {
-                           buffer.append(delimiter);
+                           // if scope PI is specified then reduce DC slot update to that scope PI
+                           if (syncInfo.getScopePiOid() != 0)
+                           {
+                              buffer.append(delimiter);
 
-                           ClusterSlotFieldInfo oidField = dataSlotColumnsToSynch.get(SLOT_TYPE.OID);
-                           ClusterSlotFieldInfo typeField = dataSlotColumnsToSynch.get(SLOT_TYPE.TYPE);
+                              buffer.append(MessageFormat.format("{0}.{1} = {2}",
+                                    new Object[] {
+                                          clusterTable, // 0
+                                          dataCluster.getProcessInstanceColumn(), // 1,
+                                          syncInfo.getScopePiOid() // 2
+                              }));
 
-                           buffer.append(MessageFormat.format("({0} IS NULL OR {1} = {2})",
-                                 new Object[] {
-                                       oidField.getName(), // 0
-                                       typeField.getName(), // 1,
-                                       BigData.NULL // 2
-                           }));
+                              delimiter = " AND ";
+                           }
+
+                           // if slot contains primitive and structured data then perform 2nd update
+                           // on null columns only. Other values than null would mean that 1st update
+                           // already set valid values
+                           if (mixedSlots)
+                           {
+                              buffer.append(delimiter);
+
+                              ClusterSlotFieldInfo oidField = dataSlotColumnsToSynch.get(SLOT_TYPE.OID);
+                              ClusterSlotFieldInfo typeField = dataSlotColumnsToSynch.get(SLOT_TYPE.TYPE);
+
+                              buffer.append(MessageFormat.format("({0} IS NULL OR {1} = {2})",
+                                    new Object[] {
+                                          oidField.getName(), // 0
+                                          typeField.getName(), // 1,
+                                          BigData.NULL // 2
+                              }));
+                           }
                         }
-                     }
 
-                     // any inconsistencies counted? Then execute synch statement
-                     if (countInconsistencyGroups != 0)
-                     {
                         executeOrSpoolStatement(buffer.toString(), connection, spoolFile);
                      }
                   }
@@ -2768,85 +2774,101 @@ public class DDLManager
          throws SQLException
    {
       boolean defectReferenceExists = true;
+      boolean anyReferencedDataDeployed = false;
 
       // check for defect with primitive data
       if (clusterSlot.hasPrimitiveData())
       {
-         Set<Long> modelOids = CollectionUtils.newHashSet();
          Map<Long, IData> primitiveDataRtOids = DataClusterHelper
                .findAllPrimitiveDataRtOids(clusterSlot);
-         for (IData data : primitiveDataRtOids.values())
+         if (!primitiveDataRtOids.isEmpty())
          {
-            modelOids.add((long) data.getModel().getModelOID());
+            anyReferencedDataDeployed = true;
+
+            Set<Long> modelOids = CollectionUtils.newHashSet();
+            for (IData data : primitiveDataRtOids.values())
+            {
+               modelOids.add((long) data.getModel().getModelOID());
+            }
+
+            String syncStringTemplate =
+                  "SELECT 'x' FROM _$DC_TAB$_ dc, _$PI_TAB$_ pi " +
+                  "WHERE " +
+                     "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
+                     "dc._$SLOT_COL_OID$_ IS NOT NULL AND " +
+                     "pi._$PI_MODEL$_ IN (" + StringUtils.join(modelOids.iterator(), ",") + ") AND " +
+                     "NOT EXISTS( " +
+                        "SELECT 'x' " +
+                        "FROM _$DV_TAB$_ dv " +
+                        "WHERE " +
+                           "dv._$DV_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
+                           "dv._$DV_DATA$_ IN (" + StringUtils.join(primitiveDataRtOids.keySet().iterator(), ",") + ") AND " +
+                           "dv._$DV_OID$_ = dc._$SLOT_COL_OID$_ AND " +
+                           "dv._$DV_TYPE_KEY$_ = dc._$SLOT_COL_TYPE_KEY$_ AND " +
+                           "(dv._$DV_VALUE$_ = dc._$SLOT_COL_VALUE$_ OR " +
+                              "(dv._$DV_VALUE$_ IS NULL AND dc._$SLOT_COL_VALUE$_ IS NULL)))";
+
+            syncStringTemplate = replaceSqlFragmentsByCluster(syncStringTemplate, dataCluster,
+                  schemaName);
+            String syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplate, clusterSlot);
+
+            verifyStmt.execute(syncStmtString);
+            defectReferenceExists = verifyStmt.getResultSet().next();
          }
-
-         String syncStringTemplate =
-               "SELECT 'x' FROM _$DC_TAB$_ dc, _$PI_TAB$_ pi " +
-               "WHERE " +
-                  "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
-                  "dc._$SLOT_COL_OID$_ IS NOT NULL AND " +
-                  "pi._$PI_MODEL$_ IN (" + StringUtils.join(modelOids.iterator(), ",") + ") AND " +
-                  "NOT EXISTS( " +
-                     "SELECT 'x' " +
-                     "FROM _$DV_TAB$_ dv " +
-                     "WHERE " +
-                        "dv._$DV_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
-                        "dv._$DV_DATA$_ IN (" + StringUtils.join(primitiveDataRtOids.keySet().iterator(), ",") + ") AND " +
-                        "dv._$DV_OID$_ = dc._$SLOT_COL_OID$_ AND " +
-                        "dv._$DV_TYPE_KEY$_ = dc._$SLOT_COL_TYPE_KEY$_ AND " +
-                        "(dv._$DV_VALUE$_ = dc._$SLOT_COL_VALUE$_ OR " +
-                           "(dv._$DV_VALUE$_ IS NULL AND dc._$SLOT_COL_VALUE$_ IS NULL)))";
-
-         syncStringTemplate = replaceSqlFragmentsByCluster(syncStringTemplate, dataCluster,
-               schemaName);
-         String syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplate, clusterSlot);
-
-         verifyStmt.execute(syncStmtString);
-         defectReferenceExists = verifyStmt.getResultSet().next();
       }
 
       // if defect was found for primitive data it still might be correct for structured data
       if (defectReferenceExists && clusterSlot.hasStructuredData())
       {
-         Set<Long> modelOids = CollectionUtils.newHashSet();
          Map<Long, Pair<IData, String>> structuredDataRtOids = Collections.EMPTY_MAP;
          structuredDataRtOids = DataClusterHelper
                .findAllStructuredDataRtOids(clusterSlot);
-         for (Pair<IData, String> data : structuredDataRtOids.values())
+         if (!structuredDataRtOids.isEmpty())
          {
-            modelOids.add((long) data.getFirst().getModel().getModelOID());
+            anyReferencedDataDeployed = true;
+
+            Set<Long> modelOids = CollectionUtils.newHashSet();
+            for (Pair<IData, String> data : structuredDataRtOids.values())
+            {
+               modelOids.add((long) data.getFirst().getModel().getModelOID());
+            }
+
+            String syncStringTemplateStruct =
+                  "SELECT 'x' FROM _$DC_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m " +
+                  "WHERE " +
+                     "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
+                     "dc._$SLOT_COL_OID$_ IS NOT NULL AND " +
+                     "pi._$PI_MODEL$_ IN (" + StringUtils.join(modelOids.iterator(), ",") + ") AND " +
+                     "NOT EXISTS( " +
+                        "SELECT 'x' " +
+                        "FROM _$SDV_TAB$_ sdv, _$SD_TAB$_ sd, _$DV_TAB$_ dv " +
+                        "WHERE " +
+                           "sdv._$SDV_PROCESSINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
+                           "sdv._$SDV_XPATH$_ IN (" + StringUtils.join(structuredDataRtOids.keySet().iterator(), ",") + ") AND " +
+                           "sd._$SD_OID$_ = sdv._$SDV_XPATH$_ AND " +
+                           "dv._$DV_DATA$_ = sd._$SD_DATA$_ AND " +
+                           "dv._$DV_MODEL$_ = sd._$SD_MODEL$_ AND " +
+                           "sdv._$SDV_PROCESSINSTANCE$_ = dv._$DV_PROCINSTANCE$_ AND " +
+                           "dv._$DV_OID$_ = dc._$SLOT_COL_OID$_ AND " +
+                           "sdv._$DV_TYPE_KEY$_ = dc._$SLOT_COL_TYPE_KEY$_ AND " +
+                           "(sdv._$DV_VALUE$_ = dc._$SLOT_COL_VALUE$_ OR " +
+                              "(sdv._$DV_VALUE$_ IS NULL AND dc._$SLOT_COL_VALUE$_ IS NULL)))";
+
+            syncStringTemplateStruct = replaceSqlFragmentsByCluster(syncStringTemplateStruct,
+                  dataCluster, schemaName);
+            String syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplateStruct, clusterSlot);
+
+            if (trace.isDebugEnabled())
+            {
+               trace.debug("About to execute: " + syncStmtString);
+            }
+
+            verifyStmt.execute(syncStmtString);
+            defectReferenceExists = verifyStmt.getResultSet().next();
          }
-
-         String syncStringTemplateStruct =
-               "SELECT 'x' FROM _$DC_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m " +
-               "WHERE " +
-                  "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
-                  "dc._$SLOT_COL_OID$_ IS NOT NULL AND " +
-                  "pi._$PI_MODEL$_ IN (" + StringUtils.join(modelOids.iterator(), ",") + ") AND " +
-                  "NOT EXISTS( " +
-                     "SELECT 'x' " +
-                     "FROM _$SDV_TAB$_ sdv, _$SD_TAB$_ sd, _$DV_TAB$_ dv " +
-                     "WHERE " +
-                        "sdv._$SDV_PROCESSINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
-                        "sdv._$SDV_XPATH$_ IN (" + StringUtils.join(structuredDataRtOids.keySet().iterator(), ",") + ") AND " +
-                        "sd._$SD_OID$_ = sdv._$SDV_XPATH$_ AND " +
-                        "dv._$DV_DATA$_ = sd._$SD_DATA$_ AND " +
-                        "dv._$DV_MODEL$_ = sd._$SD_MODEL$_ AND " +
-                        "sdv._$SDV_PROCESSINSTANCE$_ = dv._$DV_PROCINSTANCE$_ AND " +
-                        "dv._$DV_OID$_ = dc._$SLOT_COL_OID$_ AND " +
-                        "sdv._$DV_TYPE_KEY$_ = dc._$SLOT_COL_TYPE_KEY$_ AND " +
-                        "(sdv._$DV_VALUE$_ = dc._$SLOT_COL_VALUE$_ OR " +
-                           "(sdv._$DV_VALUE$_ IS NULL AND dc._$SLOT_COL_VALUE$_ IS NULL)))";
-
-         syncStringTemplateStruct = replaceSqlFragmentsByCluster(syncStringTemplateStruct,
-               dataCluster, schemaName);
-         String syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplateStruct, clusterSlot);
-
-         verifyStmt.execute(syncStmtString);
-         defectReferenceExists = verifyStmt.getResultSet().next();
       }
 
-      return defectReferenceExists;
+      return anyReferencedDataDeployed ? defectReferenceExists : false;
    }
 
    /**
@@ -2874,7 +2896,7 @@ public class DDLManager
          }
       }
 
-      if(clusterSlot.hasStructuredData())
+      if (clusterSlot.hasStructuredData())
       {
          Map<Long, Pair<IData, String>> structuredDataRtOids = DataClusterHelper
                .findAllStructuredDataRtOids(clusterSlot);
@@ -2884,22 +2906,28 @@ public class DDLManager
          }
       }
 
-      String syncStringTemplate =
-            "SELECT 'x' FROM _$DC_TAB$_ dc, _$PI_TAB$_ pi " +
-            "WHERE " +
-               "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
-               "dc._$SLOT_COL_OID$_ IS NULL AND " +
-               "pi._$PI_MODEL$_ IN (" + StringUtils.join(modelOids.iterator(), ",") + ") AND " +
-               "(" +
-                  "dc._$SLOT_COL_TYPE_KEY$_ IS NOT NULL OR " +
-                  "dc._$SLOT_COL_VALUE$_ IS NOT NULL" +
-               ")";
+      boolean defectReferenceExists = false;
+      if (!modelOids.isEmpty())
+      {
+         String syncStringTemplate =
+               "SELECT 'x' FROM _$DC_TAB$_ dc, _$PI_TAB$_ pi " +
+               "WHERE " +
+                  "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
+                  "dc._$SLOT_COL_OID$_ IS NULL AND " +
+                  "pi._$PI_MODEL$_ IN (" + StringUtils.join(modelOids.iterator(), ",") + ") AND " +
+                  "(" +
+                     "dc._$SLOT_COL_TYPE_KEY$_ IS NOT NULL OR " +
+                     "dc._$SLOT_COL_VALUE$_ IS NOT NULL" +
+                  ")";
 
-      syncStringTemplate = replaceSqlFragmentsByCluster(syncStringTemplate, dataCluster,
-            schemaName);
-      String syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplate, clusterSlot);
-      verifyStmt.execute(syncStmtString);
-      return verifyStmt.getResultSet().next();
+         syncStringTemplate = replaceSqlFragmentsByCluster(syncStringTemplate, dataCluster,
+               schemaName);
+         String syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplate, clusterSlot);
+         verifyStmt.execute(syncStmtString);
+         defectReferenceExists = verifyStmt.getResultSet().next();
+      }
+
+      return defectReferenceExists;
    }
 
    /**
@@ -2916,93 +2944,106 @@ public class DDLManager
    private boolean existsExistingDvsNotRefByDC(DataCluster dataCluster, String schemaName,
          Statement verifyStmt, AbstractDataClusterSlot clusterSlot) throws SQLException
    {
+      boolean anyReferencedDataDeployed = false;
       boolean defectReferenceExists = true;
 
       // check for defect with primitive data
       if (clusterSlot.hasPrimitiveData())
       {
-         Set<Long> modelOids = CollectionUtils.newHashSet();
          Map<Long, IData> primitiveDataRtOids = DataClusterHelper
                .findAllPrimitiveDataRtOids(clusterSlot);
-         for (IData data : primitiveDataRtOids.values())
+
+         if (!primitiveDataRtOids.isEmpty())
          {
-            modelOids.add((long) data.getModel().getModelOID());
-         }
+            anyReferencedDataDeployed = true;
 
-         StringBuilder verifySqlTemplate = new StringBuilder(
-               "SELECT 'x' FROM _$DC_TAB$_ dc, _$PI_TAB$_ pi " +
-               "WHERE " +
-                  "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
-                  "dc._$SLOT_COL_OID$_ IS NULL AND " +
-                  "dc._$SLOT_COL_TYPE_KEY$_ IS NULL AND " +
-                  "dc._$SLOT_COL_VALUE$_ IS NULL AND " +
-                  "pi._$PI_MODEL$_ IN (" + StringUtils.join(modelOids.iterator(), ",") + ") AND "
-                  );
+            Set<Long> modelOids = CollectionUtils.newHashSet();
+            for (IData data : primitiveDataRtOids.values())
+            {
+               modelOids.add((long) data.getModel().getModelOID());
+            }
 
-         verifySqlTemplate.append(
-               "EXISTS( " +
-                  "SELECT 'x' " +
-                  "FROM _$DV_TAB$_ dv " +
+            StringBuilder verifySqlTemplate = new StringBuilder(
+                  "SELECT 'x' FROM _$DC_TAB$_ dc, _$PI_TAB$_ pi " +
                   "WHERE " +
-                     "dv._$DV_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
-                     "dv._$DV_DATA$_ IN (" + StringUtils.join(primitiveDataRtOids.keySet().iterator(), ",") + ")" +
-                     ")"
+                     "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
+                     "dc._$SLOT_COL_OID$_ IS NULL AND " +
+                     "dc._$SLOT_COL_TYPE_KEY$_ IS NULL AND " +
+                     "dc._$SLOT_COL_VALUE$_ IS NULL AND " +
+                     "pi._$PI_MODEL$_ IN (" + StringUtils.join(modelOids.iterator(), ",") + ") AND "
                      );
 
-         String synchSQL = replaceSqlFragmentsByCluster(verifySqlTemplate.toString(), dataCluster,
-               schemaName);
-         synchSQL = replaceSqlFragmentsBySlot(synchSQL, clusterSlot);
+            verifySqlTemplate.append(
+                  "EXISTS( " +
+                     "SELECT 'x' " +
+                     "FROM _$DV_TAB$_ dv " +
+                     "WHERE " +
+                        "dv._$DV_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
+                        "dv._$DV_DATA$_ IN (" + StringUtils.join(primitiveDataRtOids.keySet().iterator(), ",") + ")" +
+                        ")"
+                        );
 
-         verifyStmt.execute(synchSQL);
-         defectReferenceExists =  verifyStmt.getResultSet().next();
+            String synchSQL = replaceSqlFragmentsByCluster(verifySqlTemplate.toString(), dataCluster,
+                  schemaName);
+            synchSQL = replaceSqlFragmentsBySlot(synchSQL, clusterSlot);
+
+            verifyStmt.execute(synchSQL);
+            defectReferenceExists =  verifyStmt.getResultSet().next();
+         }
       }
 
       // if defect was found for primitive data it still might be correct for structured data
       if (defectReferenceExists && clusterSlot.hasStructuredData())
       {
-         Set<Long> modelOids = CollectionUtils.newHashSet();
          Map<Long, Pair<IData, String>> structuredDataRtOids = Collections.EMPTY_MAP;
          structuredDataRtOids = DataClusterHelper
                .findAllStructuredDataRtOids(clusterSlot);
-         for (Pair<IData, String> data : structuredDataRtOids.values())
-         {
-            modelOids.add((long) data.getFirst().getModel().getModelOID());
-         }
 
-         StringBuilder verifySqlTemplate = new StringBuilder(
-               "SELECT 'x' FROM _$DC_TAB$_ dc, _$PI_TAB$_ pi " +
-               "WHERE " +
-                  "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
-                  "dc._$SLOT_COL_OID$_ IS NULL AND " +
-                  "dc._$SLOT_COL_TYPE_KEY$_ IS NULL AND " +
-                  "dc._$SLOT_COL_VALUE$_ IS NULL AND " +
-                  "pi._$PI_MODEL$_ IN (" + StringUtils.join(modelOids.iterator(), ",") + ") AND "
+         if (!structuredDataRtOids.isEmpty())
+         {
+            anyReferencedDataDeployed = true;
+
+            Set<Long> modelOids = CollectionUtils.newHashSet();
+            for (Pair<IData, String> data : structuredDataRtOids.values())
+            {
+               modelOids.add((long) data.getFirst().getModel().getModelOID());
+            }
+
+            StringBuilder verifySqlTemplate = new StringBuilder(
+                  "SELECT 'x' FROM _$DC_TAB$_ dc, _$PI_TAB$_ pi " +
+                        "WHERE " +
+                        "dc._$DC_PROCINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
+                        "dc._$SLOT_COL_OID$_ IS NULL AND " +
+                        "dc._$SLOT_COL_TYPE_KEY$_ IS NULL AND " +
+                        "dc._$SLOT_COL_VALUE$_ IS NULL AND " +
+                        "pi._$PI_MODEL$_ IN (" + StringUtils.join(modelOids.iterator(), ",") + ") AND "
                   );
 
-         verifySqlTemplate.append(
-               "EXISTS( " +
-                  "SELECT 'x' " +
-                  "FROM _$SDV_TAB$_ sdv, _$SD_TAB$_ sd, _$DV_TAB$_ dv " +
-                  "WHERE " +
-                     "sdv._$SDV_PROCESSINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
-                     "sdv._$SDV_XPATH$_ IN (" + StringUtils.join(structuredDataRtOids.keySet().iterator(), ",") + ") AND " +
-                     "sd._$SD_OID$_ = sdv._$SDV_XPATH$_ AND " +
-                     "dv._$DV_DATA$_ = sd._$SD_DATA$_ AND " +
-                     "dv._$DV_MODEL$_ = sd._$SD_MODEL$_ AND " +
-                     "sdv._$SDV_PROCESSINSTANCE$_ = dv._$DV_PROCINSTANCE$_ AND " +
-                     "dv._$DV_OID$_ = dc._$SLOT_COL_OID$_" +
-                     ")"
-                     );
+            verifySqlTemplate.append(
+                  "EXISTS( " +
+                        "SELECT 'x' " +
+                        "FROM _$SDV_TAB$_ sdv, _$SD_TAB$_ sd, _$DV_TAB$_ dv " +
+                        "WHERE " +
+                        "sdv._$SDV_PROCESSINSTANCE$_ = pi._$PI_SCOPE_PI$_ AND " +
+                        "sdv._$SDV_XPATH$_ IN (" + StringUtils.join(structuredDataRtOids.keySet().iterator(), ",") + ") AND " +
+                        "sd._$SD_OID$_ = sdv._$SDV_XPATH$_ AND " +
+                        "dv._$DV_DATA$_ = sd._$SD_DATA$_ AND " +
+                        "dv._$DV_MODEL$_ = sd._$SD_MODEL$_ AND " +
+                        "sdv._$SDV_PROCESSINSTANCE$_ = dv._$DV_PROCINSTANCE$_ AND " +
+                        "dv._$DV_OID$_ = dc._$SLOT_COL_OID$_" +
+                        ")"
+                  );
 
-         String synchSQL = replaceSqlFragmentsByCluster(verifySqlTemplate.toString(), dataCluster,
-               schemaName);
-         synchSQL = replaceSqlFragmentsBySlot(synchSQL, clusterSlot);
+            String synchSQL = replaceSqlFragmentsByCluster(verifySqlTemplate.toString(), dataCluster,
+                  schemaName);
+            synchSQL = replaceSqlFragmentsBySlot(synchSQL, clusterSlot);
 
-         verifyStmt.execute(synchSQL);
-         defectReferenceExists =  verifyStmt.getResultSet().next();
+            verifyStmt.execute(synchSQL);
+            defectReferenceExists =  verifyStmt.getResultSet().next();
+         }
       }
 
-      return defectReferenceExists;
+      return anyReferencedDataDeployed ? defectReferenceExists : false;
    }
 
    private void printLogMessage(String message, PrintStream consoleLog)

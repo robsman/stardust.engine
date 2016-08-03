@@ -3075,7 +3075,7 @@ public class Archiver
 
    private void backupDataCluster(List piOids)
    {
-      // TODO: partially copied code from DDLManager.synchronizeDataCluster(...). This needs to be refactored in order to prevent code duplication,
+      // TODO: partially copied code from DDLManager.synchronizeDataCluster(...). This needs to be refactored in order to prevent code duplication
 
       DBDescriptor dbDescriptor = session.getDBDescriptor();
       final DataCluster[] dClusters = getDataClusterSetup(true);
@@ -3150,6 +3150,8 @@ public class Archiver
          final String clusterTable, final String dvTable, final String structDvTable,
          List piOids) throws SQLException
    {
+      // TODO: partially copied code from DDLManager.synchronizeDataCluster(...). This needs to be refactored in order to prevent code duplication
+
       DataCluster dCluster = clusterSlot.getParent();
       DBDescriptor dbDescriptor = session.getDBDescriptor();
 
@@ -3169,22 +3171,25 @@ public class Archiver
             Map<Long, IData> primitiveDataRtOids = DataClusterHelper
                   .findAllPrimitiveDataRtOids(clusterSlot);
 
-            String subSelectSql = MessageFormat.format(
-                  " FROM {2} dv"
-                  + " WHERE dv." + DataValueBean.FIELD__OID + " = ("
-                  + "   SELECT MIN(idv." + DataValueBean.FIELD__OID + ") oid"
-                  + "   FROM {2} idv"
-                  + "   WHERE idv." + DataValueBean.FIELD__DATA + " IN (" + StringUtils.join(primitiveDataRtOids.keySet().iterator(), ",") + ")"
-                  + "     AND {0}.{1} = idv." + DataValueBean.FIELD__PROCESS_INSTANCE
-                  + "   GROUP BY idv." + DataValueBean.FIELD__PROCESS_INSTANCE + ")"
-                  + " AND  {0}.{1} = dv." + DataValueBean.FIELD__PROCESS_INSTANCE
-                  ,
-                  new Object[] {
-                        clusterTable, // 0
-                        dCluster.getProcessInstanceColumn(), // 1
-                        dvTable // 2
-                  });
-            slotSubSelects.add(new SubSelectDescriptor(subSelectSql, "dv"));
+            if (!primitiveDataRtOids.isEmpty())
+            {
+               String subSelectSql = MessageFormat.format(
+                     " FROM {2} dv"
+                     + " WHERE dv." + DataValueBean.FIELD__OID + " = ("
+                     + "   SELECT MIN(idv." + DataValueBean.FIELD__OID + ") oid"
+                     + "   FROM {2} idv"
+                     + "   WHERE idv." + DataValueBean.FIELD__DATA + " IN (" + StringUtils.join(primitiveDataRtOids.keySet().iterator(), ",") + ")"
+                     + "     AND {0}.{1} = idv." + DataValueBean.FIELD__PROCESS_INSTANCE
+                     + "   GROUP BY idv." + DataValueBean.FIELD__PROCESS_INSTANCE + ")"
+                     + " AND  {0}.{1} = dv." + DataValueBean.FIELD__PROCESS_INSTANCE
+                     ,
+                     new Object[] {
+                           clusterTable, // 0
+                           dCluster.getProcessInstanceColumn(), // 1
+                           dvTable // 2
+                     });
+               slotSubSelects.add(new SubSelectDescriptor(subSelectSql, "dv"));
+            }
          }
 
          if (clusterSlot.hasStructuredData())
@@ -3193,22 +3198,25 @@ public class Archiver
             Map<Long, Pair<IData, String>> structuredDataRtOids = DataClusterHelper
                   .findAllStructuredDataRtOids(clusterSlot);
 
-            String subSelectSql = MessageFormat.format(
-                  " FROM {2} sdv"
-                  + " WHERE sdv." + StructuredDataValueBean.FIELD__OID + " = ("
-                  + "   SELECT MIN(isdv." + StructuredDataValueBean.FIELD__OID + ") oid"
-                  + "   FROM {2} isdv"
-                  + "   WHERE isdv." + StructuredDataValueBean.FIELD__XPATH + " IN (" + StringUtils.join(structuredDataRtOids.keySet().iterator(), ",") + ")"
-                  + "     AND {0}.{1} = isdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
-                  + "   GROUP BY isdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE + ")"
-                  + " AND  {0}.{1} = sdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
-                  ,
-                  new Object[] {
-                        clusterTable, // 0
-                        dCluster.getProcessInstanceColumn(), // 1
-                        structDvTable // 2
-                  });
-            slotSubSelects.add(new SubSelectDescriptor(subSelectSql, "sdv"));
+            if (!structuredDataRtOids.isEmpty())
+            {
+               String subSelectSql = MessageFormat.format(
+                     " FROM {2} sdv"
+                     + " WHERE sdv." + StructuredDataValueBean.FIELD__OID + " = ("
+                     + "   SELECT MIN(isdv." + StructuredDataValueBean.FIELD__OID + ") oid"
+                     + "   FROM {2} isdv"
+                     + "   WHERE isdv." + StructuredDataValueBean.FIELD__XPATH + " IN (" + StringUtils.join(structuredDataRtOids.keySet().iterator(), ",") + ")"
+                     + "     AND {0}.{1} = isdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
+                     + "   GROUP BY isdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE + ")"
+                     + " AND  {0}.{1} = sdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
+                     ,
+                     new Object[] {
+                           clusterTable, // 0
+                           dCluster.getProcessInstanceColumn(), // 1
+                           structDvTable // 2
+                     });
+               slotSubSelects.add(new SubSelectDescriptor(subSelectSql, "sdv"));
+            }
          }
 
          final boolean mixedSlots = slotSubSelects.size() > 1;

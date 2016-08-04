@@ -1309,6 +1309,9 @@ public class SchemaHelper
    {
       try
       {
+         IClusterChangeObserver changeObserver = null;
+         boolean firstPartition = true;
+
          Set<Pair<Long, String>> partitionInfos = fetchListOfPartitionInfo();
          for (Pair<Long, String> partitionInfo : partitionInfos)
          {
@@ -1318,40 +1321,42 @@ public class SchemaHelper
             try
             {
                Session consoleSession = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-               verifySysopPassword(consoleSession, sysconPassword);
+               if (firstPartition)
+               {
+                  // only for 1st partition the structure cluster for tables need to be updated as these are used for _all_ partitions
+                  verifySysopPassword(consoleSession, sysconPassword);
+
+                  if ( !StringUtils.isEmpty(configFileName))
+                  {
+                     DataCluster[] oldSetup = RuntimeSetup.instance().getDataClusterSetup();
+                     if(oldSetup != null && oldSetup.length > 0 && !upgrade)
+                     {
+                        throw new PublicException(
+                              BpmRuntimeError.ATDB_CLUSTER_CONFIGURATION_ALREADY_EXIST_USE_OPTION_DROP_OR_UPDATEDATACLUSTERS_FIRST
+                              .raise());
+                     }
+
+                     TransientRuntimeSetup transientSetup = getTransientRuntimeSetup(configFileName);
+                     DataCluster[] newSetup = transientSetup.getDataClusterSetup();
+
+                     DataClusterSetupAnalyzer analyzer = new DataClusterSetupAnalyzer();
+                     changeObserver = analyzer.analyzeChanges(oldSetup, newSetup);
+
+                     if (!skipDdl)
+                     {
+                        applyClusterChanges(consoleSession, changeObserver, transientSetup, spoolFile);
+                     }
+                  }
+                  else
+                  {
+                     throw new PublicException(
+                           BpmRuntimeError.ATDB_CLUSTER_CONFIGURATION_DOES_NOT_EXIST_PROVIDE_VALID_CONFIGURATION_FILE
+                           .raise());
+                  }
+               }
 
                DBDescriptor dbDescriptor = consoleSession.getDBDescriptor();
                DDLManager ddlManager = new DDLManager(dbDescriptor);
-               IClusterChangeObserver changeObserver = null;
-               if ( !StringUtils.isEmpty(configFileName))
-               {
-                  DataCluster[] oldSetup = RuntimeSetup.instance().getDataClusterSetup();
-                  if(oldSetup != null && oldSetup.length > 0 && !upgrade)
-                  {
-                     throw new PublicException(
-                           BpmRuntimeError.ATDB_CLUSTER_CONFIGURATION_ALREADY_EXIST_USE_OPTION_DROP_OR_UPDATEDATACLUSTERS_FIRST
-                           .raise());
-                  }
-
-                  TransientRuntimeSetup transientSetup = getTransientRuntimeSetup(configFileName);
-                  DataCluster[] newSetup = transientSetup.getDataClusterSetup();
-
-                  DataClusterSetupAnalyzer analyzer = new DataClusterSetupAnalyzer();
-                  changeObserver = analyzer.analyzeChanges(oldSetup, newSetup);
-
-                  if(!skipDdl)
-                  {
-                     applyClusterChanges(consoleSession, changeObserver, transientSetup, spoolFile);
-                  }
-               }
-               else
-               {
-                  throw new PublicException(
-                        BpmRuntimeError.ATDB_CLUSTER_CONFIGURATION_DOES_NOT_EXIST_PROVIDE_VALID_CONFIGURATION_FILE
-                        .raise());
-               }
-
-
                final String schemaName = Parameters.instance().getString(
                      SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX,
                      Parameters.instance().getString(
@@ -1361,8 +1366,8 @@ public class SchemaHelper
                   if (null != spoolFile)
                   {
                      spoolFile.println();
-                     spoolFile
-                     .println("/* DML-statements for synchronization of cluster tables */");
+                     spoolFile.println(
+                           "/* DML-statements for synchronization of cluster tables */");
                   }
 
                   ddlManager.synchronizeDataCluster(true, changeObserver.getDataClusterSynchronizationInfo(), consoleSession.getConnection(), schemaName, spoolFile, statementDelimiter, null);
@@ -1375,6 +1380,9 @@ public class SchemaHelper
                }
 
                consoleSession.save();
+
+               // first partition done
+               firstPartition = false;
             }
             finally
             {
@@ -1449,39 +1457,39 @@ public class SchemaHelper
          PrintStream consoleLog, PrintStream spoolFile, String statementDelimiter)
          throws SQLException
    {
-      Session session = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
-
-      Map locals = new HashMap();
-      locals.put(SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SESSION_SUFFIX,
-            session);
-
-      try
+      Set<Pair<Long, String>> partitionInfos = fetchListOfPartitionInfo();
+      for (Pair<Long, String> partitionInfo : partitionInfos)
       {
-         ParametersFacade.pushLayer(locals);
+         String partitionId = partitionInfo.getSecond();
+         Utils.initCarnotEngine(partitionId, InitOptions.NO_FLUSH_BEFORE_INIT);
 
-         verifySysopPassword(session, sysconPassword);
-
-         DBDescriptor dbDescriptor = session.getDBDescriptor();
-         DDLManager ddlManager = new DDLManager(dbDescriptor);
-
-         DataCluster[] cluster = RuntimeSetup.instance().getDataClusterSetup();
-
-         final String schemaName = Parameters.instance().getString(
-               SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX,
-               Parameters.instance().getString(
-                     SessionFactory.AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX));
-
-         for (DataCluster dataCluster : cluster)
+         try
          {
-            ddlManager.synchronizeDataCluster(true,
-                  DataClusterHelper.getDataClusterSynchronizationInfo(dataCluster, null),
-                  session.getConnection(), schemaName, spoolFile, statementDelimiter, consoleLog);
-            session.save();
+            Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+
+            verifySysopPassword(session, sysconPassword);
+
+            DBDescriptor dbDescriptor = session.getDBDescriptor();
+            DDLManager ddlManager = new DDLManager(dbDescriptor);
+
+            DataCluster[] cluster = RuntimeSetup.instance().getDataClusterSetup();
+
+            final String schemaName = Parameters.instance().getString(
+                  SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX,
+                  Parameters.instance().getString(
+                        SessionFactory.AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX));
+
+            for (DataCluster dataCluster : cluster)
+            {
+               ddlManager.synchronizeDataCluster(true,
+                     DataClusterHelper.getDataClusterSynchronizationInfo(dataCluster, null),
+                     session.getConnection(), schemaName, spoolFile, statementDelimiter, consoleLog);
+               session.save();
+            }
          }
-      }
-      finally
-      {
-         ParametersFacade.popLayer();
+         finally
+         {
+         }
       }
    }
 

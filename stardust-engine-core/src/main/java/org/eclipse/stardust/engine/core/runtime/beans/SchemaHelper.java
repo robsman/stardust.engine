@@ -1669,6 +1669,7 @@ public class SchemaHelper
     */
    private static Set<Pair<Long, String>> fetchListOfPartitionInfo() throws SQLException
    {
+      DBDescriptor dbDescriptor = DBDescriptor.create(SessionProperties.DS_NAME_AUDIT_TRAIL);
       Set<Pair<Long, String>> partitionInfo = CollectionUtils.newSet();
       PreparedStatement selectRowsStmt = null;
       Session session = null;
@@ -1678,7 +1679,7 @@ public class SchemaHelper
          StringBuffer selectCmd = new StringBuffer()
                .append(SELECT).append(AuditTrailPartitionBean.FIELD__OID)
                .append(COMMA).append(AuditTrailPartitionBean.FIELD__ID)
-               .append(FROM).append(DatabaseHelper.getQualifiedName(AuditTrailPartitionBean.TABLE_NAME));
+               .append(FROM).append(DatabaseHelper.getQualifiedName(dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME)));
          // @formatter:on
 
          session = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);

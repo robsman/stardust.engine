@@ -14,6 +14,7 @@ import org.eclipse.stardust.engine.api.runtime.AdministrationService;
 import org.eclipse.stardust.test.admin.AdministrationOperationTest;
 import org.eclipse.stardust.test.admin.ChangePasswordTest;
 import org.eclipse.stardust.test.admin.ChangeQAProbabilityPercentageTest;
+import org.eclipse.stardust.test.admin.InitialAdministratorTest;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -31,7 +32,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
                AdministrationOperationTest.class,
                ChangePasswordTest.class,
-               ChangeQAProbabilityPercentageTest.class
+               ChangeQAProbabilityPercentageTest.class,
+               InitialAdministratorTest.class
              })
 public class AdministrationOperationTestSuite
 {

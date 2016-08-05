@@ -366,71 +366,133 @@ public class ProcessInstanceUtils
    public static boolean isInHaltingPiHierarchy(IProcessInstance processInstance)
    {
       boolean result = false;
-      final Long piOid = Long.valueOf(processInstance.getOID());
 
-      if (piOid.longValue() == processInstance.getRootProcessInstanceOID())
+      if (processInstance.getOID() == processInstance.getRootProcessInstanceOID())
       {
+         if (processInstance instanceof ProcessInstanceBean)
+         {
+            ProcessInstanceState piState = processInstance.getState();
+            try
+            {
+               if (!processInstance.getPersistenceController().isLocked())
+               {
+                  ((ProcessInstanceBean) processInstance).reloadAttribute(ProcessInstanceBean.FIELD__STATE);
+               }
+               result = processInstance.isHalting() || processInstance.isHalted();
+               if (result && trace.isDebugEnabled()) trace.debug("Found " + processInstance.getState()
+                     + " " + processInstance);
+               return result;
+            }
+            catch (PhantomException e)
+            {
+               // (fh) don't know what else to do
+               throw new InternalException(e);
+            }
+            finally
+            {
+               if (piState != processInstance.getState())
+               {
+                  if (trace.isDebugEnabled()) trace.debug(
+                        "Using current process instance state '" + processInstance.getState()
+                        + "' instead of the cached state '" + piState + "'.");
+                  ((ProcessInstanceBean) processInstance).restoreState(piState);
+               }
+            }
+         }
+         if (trace.isDebugEnabled()) trace.debug("Found " + processInstance.getState()
+               + " non standard " + processInstance);
          return processInstance.isHalting() || processInstance.isHalted();
       }
       else
       {
          IProcessInstance rootPi = processInstance.getRootProcessInstance();
-
-         if (rootPi.isHalting() || rootPi.isHalted())
+         ProcessInstanceState piState = rootPi.getState();
+         try
          {
-            result = true;
-         }
-         else
-         {
-            if ( !rootPi.getPersistenceController().isLocked())
+            if (!rootPi.getPersistenceController().isLocked())
             {
-               try
+               ((ProcessInstanceBean) rootPi).reloadAttribute(ProcessInstanceBean.FIELD__STATE);
+            }
+            if (rootPi.isHalting() || rootPi.isHalted())
+            {
+               if (trace.isDebugEnabled()) trace.debug("Found " + rootPi.getState()
+                     + " *root* " + rootPi);
+               result = true;
+            }
+            else
+            {
+               if (!rootPi.getPersistenceController().isLocked())
                {
-                  rootPi.getPersistenceController().reloadAttribute(
-                        ProcessInstanceBean.FIELD__PROPERTIES_AVAILABLE);
+                  try
+                  {
+                     rootPi.getPersistenceController().reloadAttribute(
+                           ProcessInstanceBean.FIELD__PROPERTIES_AVAILABLE);
+                  }
+                  catch (PhantomException e)
+                  {
+                     throw new InternalException(e);
+                  }
                }
-               catch (PhantomException e)
+               if (rootPi.isPropertyAvailable(ProcessInstanceBean.PI_PROPERTY_FLAG_PI_HALTING))
                {
-                  throw new InternalException(e);
+                  List haltingOids = new ArrayList();
+                  for (Iterator iter = rootPi.getHaltingPiOids().iterator(); iter.hasNext();)
+                  {
+                     Object next = iter.next();
+                     if (next instanceof Long)
+                     {
+                        haltingOids.add(next);
+                     }
+                     else
+                     {
+                        Attribute attribute = (Attribute) iter.next();
+                        haltingOids.add(attribute.getValue());
+                     }
+                  }
+
+                  if (!haltingOids.isEmpty() && trace.isDebugEnabled())
+                  {
+                     trace.debug("Halting oids: " + haltingOids);
+                  }
+
+                  IProcessInstance currentPi = processInstance;
+                  while (null != currentPi)
+                  {
+                     if (haltingOids.contains(Long.valueOf(currentPi.getOID())))
+                     {
+                        if (trace.isDebugEnabled()) trace.debug("Found " + currentPi
+                              + " in halting hierarchy of root " + rootPi);
+                        result = true;
+                        break;
+                     }
+
+                     // get the parent process instance, if any.
+                     IActivityInstance startingActivityInstance = currentPi.getStartingActivityInstance();
+                     if (null == startingActivityInstance)
+                     {
+                        currentPi = null;
+                     }
+                     else
+                     {
+                        currentPi = startingActivityInstance.getProcessInstance();
+                     }
+                  }
                }
             }
-            if (rootPi.isPropertyAvailable(ProcessInstanceBean.PI_PROPERTY_FLAG_PI_HALTING))
+         }
+         catch (PhantomException e)
+         {
+            // (fh) don't know what else to do
+            throw new InternalException(e);
+         }
+         finally
+         {
+            if (piState != rootPi.getState())
             {
-               List haltingOids = new ArrayList();
-               for (Iterator iter = rootPi.getHaltingPiOids().iterator(); iter.hasNext();)
-               {
-                  Object next = iter.next();
-                  if (next instanceof Long)
-                  {
-                     haltingOids.add(next);
-                  }
-                  else
-                  {
-                     Attribute attribute = (Attribute) iter.next();
-                     haltingOids.add(attribute.getValue());
-                  }
-               }
-
-               IProcessInstance currentPi = processInstance;
-               while (null != currentPi)
-               {
-                  if (haltingOids.contains(Long.valueOf(currentPi.getOID())))
-                  {
-                     result = true;
-                     break;
-                  }
-
-                  // get the parent process instance, if any.
-                  IActivityInstance startingActivityInstance = currentPi.getStartingActivityInstance();
-                  if (null == startingActivityInstance)
-                  {
-                     currentPi = null;
-                  }
-                  else
-                  {
-                     currentPi = startingActivityInstance.getProcessInstance();
-                  }
-               }
+               trace.debug(
+                     "Using current root process instance state '" + rootPi.getState()
+                     + "' instead of the cached state '" + piState + "'.");
+               ((ProcessInstanceBean) rootPi).restoreState(piState);
             }
          }
       }
@@ -477,6 +539,22 @@ public class ProcessInstanceUtils
                // should never happen
                throw new InternalException(e);
             }
+         }
+      }
+   }
+   
+   private static void lockAndReloadState(IProcessInstance pi)
+   {
+      if (pi.getPersistenceController() != null && !pi.getPersistenceController().isLocked())
+      {
+         pi.lock();
+         try
+         {
+            ((PersistentBean) pi).reloadAttribute(ProcessInstanceBean.FIELD__STATE);
+         }
+         catch (PhantomException e)
+         {
+            throw new InternalException(e);
          }
       }
    }
@@ -683,21 +761,19 @@ public class ProcessInstanceUtils
             rootProcessInstance.addHaltingPiOid(piOid);
             // Mark this PI itself as halting.
             processInstance.setState(ProcessInstanceState.HALTING);
-            carrier = new HaltJanitorCarrier(piOid, userOid);
+            carrier = new ProcessHaltJanitor.Carrier(piOid, userOid);
          }
 
          BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
          if (rtEnv.getExecutionPlan() != null)
          {
-            Action janitor = carrier.doCreateAction();
-            janitor.execute();
+            carrier.createAction().execute();
          }
          else
          {
             // abort/halt the complete subprocess hierarchy asynchronously.
-            ProcessAbortionJanitor.scheduleJanitor(carrier);
+            ProcessHierarchyStateChangeJanitor.scheduleJanitor(carrier, !StopMode.ABORT.equals(stopMode));
          }
-
       }
    }
 
@@ -1033,6 +1109,7 @@ public class ProcessInstanceUtils
       if (process.getStartingActivityInstance() == null)
       {
          IProcessInstance root = process.getRootProcessInstance();
+         lockAndReloadState(root);
          if (!root.isTerminated() && !root.isAborting() && root.isCaseProcessInstance())
          {
             List<IProcessInstance> members = ProcessInstanceHierarchyBean.findChildren(root);
@@ -1046,6 +1123,11 @@ public class ProcessInstanceUtils
                {
                   if (!member.isTerminated())
                   {
+                     if(trace.isDebugEnabled())
+                     {
+                        trace.debug("Member: " + member 
+                              + " is not terminated, keep default case activities alive");
+                     }
                      return;
                   }
                }

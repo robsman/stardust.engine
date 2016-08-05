@@ -872,6 +872,9 @@ public interface TunnelingLocalUserService extends javax.ejb.EJBLocalObject, org
      * Adds a new deputy user for a given user. This deputy user inherits for the defined
      * time frame all grants from given user. The deputy user has to login again before the
      * inherited grants become active.
+     * 
+     * If <code>fromDate</code> is set to a date in the past then it will be set to <code>new
+     * Date()</code> (now).
      *
      * @param user
      *               the user to which a deputy user shall be added.
@@ -886,6 +889,11 @@ public interface TunnelingLocalUserService extends javax.ejb.EJBLocalObject, org
      * @throws DeputyExistsException
      *                if the requested deputy already exists.
      *     <em>Instances of {@link DeputyExistsException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws InvalidArgumentException
+     *                if options.toDate is in the past
+     *     <em>Instances of {@link InvalidArgumentException
      *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
@@ -908,15 +916,18 @@ public interface TunnelingLocalUserService extends javax.ejb.EJBLocalObject, org
      * Modifies an existing deputy user for a given user. This deputy user inherits for the
      * defined time frame all grants from given user. The deputy user has to login again
      * before changes become active.
+     * 
+     * If <code>fromDate</code> is set to a date in the past then it will be set to <code>new
+     * Date()</code> (now).
      *
      * @param user
      *               the user for which a deputy user shall be modified.
      * @param deputyUser
      *               the deputy user.
-     * @param fromDate
+     * @param options.fromDate
      *               date from when deputy user inherits all grants of user. not allowed to be
      *               null.
-     * @param toDate
+     * @param options.toDate
      *               date when inherited grants are revoked from deputy user. If date is null
      *               then no upper limit exists.
      *
@@ -925,6 +936,11 @@ public interface TunnelingLocalUserService extends javax.ejb.EJBLocalObject, org
      * @throws ObjectNotFoundException
      *                if the requested deputy does not exists.
      *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     * @throws InvalidArgumentException
+     *                if options.toDate is in the past
+     *     <em>Instances of {@link InvalidArgumentException
      *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for

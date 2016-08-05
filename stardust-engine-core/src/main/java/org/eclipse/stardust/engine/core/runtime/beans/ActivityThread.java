@@ -49,6 +49,7 @@ import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessIns
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger.LoggingBehaviour;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.TokenCache;
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.TokenCache.TokenLocation;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
@@ -265,18 +266,25 @@ public class ActivityThread implements Runnable
          }
          else
          {
+            if(trace.isDebugEnabled() && activityInstance.isAborting())
+            {
+               trace.debug("Activity instance " + activityInstance.getOID() +
+                     " from process instance " + processInstance.getOID() +
+                     " cannot proceed because it is in an aborting PI hierarchy");
+            }
             error = BpmRuntimeError.BPMRT_CANNOT_RUN_AI_INVALID_PI_STATE
                   .raise(activityInstance.getOID(), processInstance.getOID());
          }
+         // TODO: (fh) shouldn't be in a separate transaction ?
          ProcessAbortionJanitor.scheduleJanitor(
-               new AbortionJanitorCarrier(this.processInstance.getOID(), oid));
+               new AbortionJanitorCarrier(this.processInstance.getOID(), oid), false);
          throw new IllegalOperationException(error);
       }
 
-      if (isInHaltingPiHierarchyAndHaltable())
+      // TODO: (fh) verify this
+      /*if (isInHaltingPiHierarchyAndHaltable())
       {
-         Long oid = (Long) processInstance
-               .getPropertyValue(ProcessInstanceBean.HALTING_USER_OID);
+         Long oid = (Long) processInstance.getPropertyValue(ProcessInstanceBean.HALTING_USER_OID);
          if (oid == null)
          {
             oid = Long.valueOf(0);
@@ -293,10 +301,10 @@ public class ActivityThread implements Runnable
             error = BpmRuntimeError.BPMRT_CANNOT_RUN_AI_INVALID_PI_STATE
                   .raise(activityInstance.getOID(), processInstance.getOID());
          }
-         ProcessHaltJanitor.scheduleJanitor(
-               new HaltJanitorCarrier(this.processInstance.getOID(), oid), false);
-         throw new IllegalOperationException(error);
-      }
+         ProcessHaltJanitor.schedule(processInstance.getOID(), oid);
+         //throw new IllegalOperationException(error);
+         return;
+      }*/
 
       if (trace.isDebugEnabled())
       {
@@ -407,12 +415,13 @@ public class ActivityThread implements Runnable
                   context.suspendActivityThread(this);
                }
 
+               if (trace.isDebugEnabled()) trace.debug("Executing " + activity);
                runCurrentActivity();
                executedActivities++;
 
-               if (!activityInstance.isTerminated() || activityInstance.isAborting()
-                     || isInAbortingPiHierarchy() || isInHaltingPiHierarchyAndHaltable())
+               if (!activityInstance.isTerminated() || isInAbortingPiHierarchy() || ProcessInstanceUtils.isInHaltingPiHierarchy(processInstance))
                {
+                  if (trace.isDebugEnabled()) trace.debug("Activity thread stopped for " + activityInstance + ", state = " + activityInstance.getState());
                   break;
                }
             }
@@ -446,6 +455,17 @@ public class ActivityThread implements Runnable
          }
 
          throw new InternalException("Unexpected activity thread state.");
+      }
+
+      if (ActivityInstanceUtils.isHaltable(activityInstance)
+            && ProcessInstanceUtils.isInHaltingPiHierarchy(activityInstance.getProcessInstance()))
+      {
+         if (trace.isDebugEnabled()) trace.debug("Halting execution because "
+               + activityInstance.getProcessInstance() + " is " + activityInstance.getProcessInstance().getState());
+
+         //((ActivityInstanceBean) activityInstance).setState(ActivityInstanceState.HALTED);
+         ProcessHaltJanitor.schedule(activityInstance.getProcessInstanceOID(),
+               activityInstance.getActivity().isInteractive() ? SecurityProperties.getUserOID() : 0);
       }
 
       if (checkForEnabledInclusiveORVertexes)
@@ -491,8 +511,8 @@ public class ActivityThread implements Runnable
 
    private boolean isInHaltingPiHierarchyAndHaltable()
    {
-      return ProcessInstanceUtils.isInHaltingPiHierarchy(this.processInstance)
-            && ActivityInstanceUtils.isHaltable(activityInstance);
+      return ActivityInstanceUtils.isHaltable(activityInstance)
+            && ProcessInstanceUtils.isInHaltingPiHierarchy(this.processInstance);
    }
 
    private void createActivityInstance(List<TransitionTokenBean> inTokens)
@@ -661,25 +681,40 @@ public class ActivityThread implements Runnable
       {
          // traverse outgoing transitions
          List<TransitionTokenBean> boundInTokens = tokenCache.getBoundInTokens(activityInstance, activity);
-
+         if (boundInTokens.isEmpty())
+         {
+            if (trace.isDebugEnabled()) trace.debug("No tokens found!");
+            activityInstance = null;
+            return;
+         }
          for (TransitionTokenBean boundToken : boundInTokens)
          {
             if (isMultiInstance())
             {
                // (fh) lock this token and any other token we can get
                TransitionTokenBean token = tokenCache.lockSourceAndOtherToken(boundToken);
+               if (boundToken.isConsumed())
+               {
+                  if (trace.isDebugEnabled()) trace.debug("!!! Bound token already consumed: " + boundToken);
+                  activityInstance = null;
+                  return;
+               }
                if (token != boundToken)
                {
                   // (fh) this thread dies here
                   if (token == null)
                   {
-                     schedule(processInstance, null, activityInstance,
-                           false, null, Collections.EMPTY_MAP, false);
+                     if (trace.isDebugEnabled()) trace.debug("No other token locked, another thread scheduled for " + activityInstance);
+                     schedule(processInstance, null, activityInstance, false, null, Collections.EMPTY_MAP, false);
                      activityInstance = null;
                      return;
                   }
                   else
                   {
+                     if (token.isConsumed())
+                     {
+                        if (trace.isDebugEnabled()) trace.debug("!!! Other token already consumed: " + token);
+                     }
                      tokenCache.consumeToken(boundToken);
                      getCurrentActivityThreadContext().completingTransition(boundToken);
                      if (isSequential())
@@ -692,6 +727,7 @@ public class ActivityThread implements Runnable
                      }
                      else
                      {
+                        if (trace.isDebugEnabled()) trace.debug("Thread stops here for " + activityInstance + " because other unconsumed token found " + token);
                         activityInstance = null;
                      }
                      return;
@@ -1182,6 +1218,14 @@ public class ActivityThread implements Runnable
       {
          try
          {
+            if (activityInstance instanceof ActivityInstanceBean)
+            {
+               ((ActivityInstanceBean) activityInstance).lockAndCheck();
+            }
+            else
+            {
+               activityInstance.lock();
+            }
             activityInstance.start();
          }
          catch (NonInteractiveApplicationException x)
@@ -1228,11 +1272,18 @@ public class ActivityThread implements Runnable
                            activity, x.getCause().getClass().getName(),
                            x.getCause().getMessage()});
 
-               if(!txStatus.isRollbackOnly())
+               if (!txStatus.isRollbackOnly())
                {
-                  processInstance.interrupt();
-
+                  boolean halting = ProcessInstanceUtils.isInHaltingPiHierarchy(processInstance);
+                  if (!halting)
+                  {
+                     processInstance.interrupt();
+                  }
                   activityInstance.interrupt();
+                  if (halting)
+                  {
+                     activityInstance.halt();
+                  }
 
                   AuditTrailLogger auditTrailLogger = AuditTrailLogger.getInstance(
                         LogCode.ENGINE, activityInstance,
@@ -1288,14 +1339,6 @@ public class ActivityThread implements Runnable
                }
                return;
             }
-            else if(ActivityInstanceState.Halting.equals(activityInstance.getState()))
-            {
-               if (trace.isDebugEnabled())
-               {
-                  trace.debug("Leaving " + activityInstance + " in halting state.");
-               }
-               return;
-            }
 
             activityInstance.complete();
          }
@@ -1305,7 +1348,8 @@ public class ActivityThread implements Runnable
       {
          Assert.lineNeverReached();
       }
-      else if (activityInstance.getState() == ActivityInstanceState.Application)
+      else if (activityInstance.getState() == ActivityInstanceState.Application
+            || activityInstance.getState() == ActivityInstanceState.Halted)
       {
          activityInstance.complete();
          activityInstance.accept(receiverData);

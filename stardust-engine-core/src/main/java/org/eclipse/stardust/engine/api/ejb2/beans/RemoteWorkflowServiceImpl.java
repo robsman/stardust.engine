@@ -1441,6 +1441,9 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     <em>Instances of {@link ConcurrencyException
      *     } will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
+     *
+     * @deprecated use {@link #spawnPeerProcessInstance(long, String, SpawnOptions)}
+     *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
      *
@@ -2832,11 +2835,20 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
     }
 
     /**
-     * TODO
+     * Process instances can declare or implement process interfaces. These process
+     * interfaces have
+     * "input" and "output". "input" is represented by IN and INOUT parameters, "output" by
+     * OUT and INOUT parameters.
+     * 
+     * This method allows to retrieve all "output" values for a specific process instance.
+     * This process instance
+     * needs to be a terminated scope process instance which implements a process interface.
      *
      * @param processInstanceOID the OID of the process instance.
      *
-     * @return TODO
+     * @return map containing all "output" parameters defined in process interface of process
+     *     instance. If the process instance does not implement any process interface the map
+     *     will be empty.
      *
      * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process
      *     instance with the specified OID.
@@ -2844,7 +2856,7 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the process instance is
-     *     not completed or
+     *     not completed, is no scope process instance or
      *           the user does not have the permission to access this process.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
@@ -3275,15 +3287,15 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the transition
      *     could not be performed because the specified TransitionTarget
-     *     did not originate from the specified activity instance, or the activity instance was
-     *     nce was already terminated
-     *     or the process instance containing the activity instance has more than one active
-     *      active activity instance.
+     *     did not originate from the specified activity instance, or the process instance
+     *     nstance containing the activity
+     *             instance has more than one active activity instance.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not
-     *     allowed to perform the ad-hoc transition.
+     *     allowed to perform the ad-hoc transition, or the
+     *             activity instance was already terminated.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>
@@ -3338,15 +3350,15 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the transition
      *     could not be performed because the specified TransitionTarget
-     *     did not originate from the specified activity instance, or the activity instance was
-     *     nce was already terminated
-     *     or the process instance containing the activity instance has more than one active
-     *      active activity instance.
+     *     did not originate from the specified activity instance, or the process instance
+     *     nstance containing the activity
+     *             instance has more than one active activity instance.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.common.error.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not
-     *     allowed to perform the ad-hoc transition.
+     *     allowed to perform the ad-hoc transition, or the
+     *             activity instance was already terminated.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.common.error.WorkflowException}.</em>

@@ -17,6 +17,11 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
@@ -54,127 +59,112 @@ public class ConstantsDataMappingsTest
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(sf);
    
-   private long aiOid;
-   private long piOid;
-   
    @Before
    public void setUp()
    {
-      piOid = startProcess();
-      aiOid = findFirstAliveActivityInstanceFor();
+      startProcess();
    }
       
    @Test
    public void testInDataMappingReturnsConstantForCalendarData()
    {
-      testInDataMapping(DEFAULT_CALENDAR_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_CALENDAR);
+      testInDataMapping(DEFAULT_CALENDAR_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_CALENDAR, Calendar.class);
    }
    
    @Test
    public void testInDataMappingReturnsConstantForStringData()
    {
-      testInDataMapping(DEFAULT_STRING_IN_DATA_MAPPING, "Hansdampf");
+      testInDataMapping(DEFAULT_STRING_IN_DATA_MAPPING, "Hansdampf", String.class);
    }
    
    @Test
    public void testInDataMappingReturnsConstantForTimestampData()
    {
-      testInDataMapping(DEFAULT_TIMESTAMP_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_TIMESTAMP);
+      testInDataMapping(DEFAULT_TIMESTAMP_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_TIMESTAMP, Date.class);
    }
    
    @Test
    public void testInDataMappingReturnsConstantForBooleanData()
    {
-      testInDataMapping(DEFAULT_BOOLEAN_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_BOOLEAN);
+      testInDataMapping(DEFAULT_BOOLEAN_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_BOOLEAN, Boolean.class);
    }
    
    @Test
    public void testInDataMappingReturnsConstantForByteData()
    {
-      testInDataMapping(DEFAULT_BYTE_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_BYTE);
+      testInDataMapping(DEFAULT_BYTE_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_BYTE, Byte.class);
    }   
 
    @Test
    public void testInDataMappingReturnsConstantForCharData()
    {
-      testInDataMapping(DEFAULT_CHAR_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_CHAR);
+      testInDataMapping(DEFAULT_CHAR_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_CHAR, Character.class);
    }
    
    @Test
    public void testInDataMappingReturnsConstantForDoubleData()
    {
-      testInDataMapping(DEFAULT_DOUBLE_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_DOUBLE);
+      testInDataMapping(DEFAULT_DOUBLE_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_DOUBLE, Double.class);
    }
    
    @Test
    public void testInDataMappingReturnsConstantForFloatData()
    {
-      testInDataMapping(DEFAULT_FLOAT_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_FLOAT);
+      testInDataMapping(DEFAULT_FLOAT_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_FLOAT, Float.class);
    }
    
    @Test
    public void testInDataMappingReturnsConstantForIntData()
    {
-      testInDataMapping(DEFAULT_INT_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_INT);
+      testInDataMapping(DEFAULT_INT_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_INT, Integer.class);
    }
    
    @Test
    public void testInDataMappingReturnsConstantForLongData()
    {
-      testInDataMapping(DEFAULT_LONG_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_LONG);
+      testInDataMapping(DEFAULT_LONG_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_LONG, Long.class);
    }
    
    @Test
    public void testInDataMappingReturnsConstantForShortData()
    {
-      testInDataMapping(DEFAULT_SHORT_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_SHORT);
+      testInDataMapping(DEFAULT_SHORT_IN_DATA_MAPPING, DEFAULT_VALUE_DEFAULT_SHORT, Short.class);
    }
    
-   private void testInDataMapping(final String inDataMapping, final Object expectedValue)
+   private void testInDataMapping(final String inDataMapping, final Object expectedValue, Class classValue)
    {
       final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findAlive());
       final Object result = sf.getWorkflowService().getInDataValue(ai.getOID(), null, inDataMapping);
       
       assertThat(result, notNullValue());
       assertThat(result, equalTo(expectedValue));
+      
+      testMappedType(ai, inDataMapping, classValue);      
    }
    
-   
-   
-   /**
-    * <p>
-    * Tests whether the correct exception is thrown when the out data mapping does not exist.
-    * </p>
-    */
-   /*
-   public void testOutDataMappingFailDataPathNotFound()
+   private void testMappedType(ActivityInstance ai, String inDataMapping, Class classValue)
    {
-      final String outDataMapping = "Hansdamp";
-      
-      final String inDataMapping = "Hansdamp"; 
-      
-      sf.getWorkflowService().activate(aiOid);
-      //sf.getWorkflowService().suspend(aiOid, data);
-      sf.getWorkflowService().activateNextActivityInstanceForProcessInstance(piOid);
-      
+      Activity activity = ai.getActivity();
+      List allInDataMappings = activity.getApplicationContext("default").getAllInDataMappings();
+            
+      DataMapping dataMapping = null;
+      for(Object object : allInDataMappings)
+      {
+         DataMapping dm = (DataMapping) object;
+         if(inDataMapping.equals(dm.getId()))
+         {
+            dataMapping = dm;
+            break;
+         }         
+      }
 
-      Serializable retrievedValue = sf.getWorkflowService().getInDataValue(aiOid, null, inDataMapping);
-      
-      
-      System.err.println("++++++ " + retrievedValue);
+      assertThat(dataMapping, notNullValue());
+      assertThat(dataMapping.getMappedType(), equalTo(classValue));
    }
-   */
    
    private long startProcess()
    {
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_ID_1, null, true);
       return pi.getOID();
    }
-   
-   private long findFirstAliveActivityInstanceFor()
-   {
-      final ActivityInstanceQuery aiQuery = ActivityInstanceQuery.findAlive(PROCESS_ID_1);
-      final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(aiQuery);
-      return ai.getOID();
-   }  
 }

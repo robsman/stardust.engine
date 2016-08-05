@@ -41,20 +41,20 @@ import org.junit.rules.TestRule;
  * <p>
  * This class tests BO functionality.
  * <p>
- * 
+ *
  * @author Barry.Grotjahn
  * @version $Revision$
  */
 public class BusinessObjectsTest
 {
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
-   
+
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
-   
+
    @ClassRule
    public static final TestClassSetup testClassSetup = new TestClassSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME2, MODEL_NAME3);
-   
+
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(sf);
@@ -74,7 +74,7 @@ public class BusinessObjectsTest
          order.put("date", new Date());
          order.put("customerId", customerId);
          ai = complete(ai, PredefinedConstants.DEFAULT_CONTEXT, Collections.singletonMap("Order", order));
-         
+
          try
          {
             ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
@@ -85,11 +85,11 @@ public class BusinessObjectsTest
          w = getWorklist();
       }
    }
-   
+
    /**
     * Validate if BusinessObjectQuery returns business objects which are defined
     * in the models MODEL_NAME2 and MODEL_NAME3.
-    * Note: 
+    * Note:
     *   If BusinessObjectsList is executed standalone than bos.size() == expected.size().
     *   But if it is executed after CheckFiltering2 then bos.size() > expected.size()
     *   because CheckFiltering2 deployes MODEL_NAME3 as a new version. This means that
@@ -102,7 +102,7 @@ public class BusinessObjectsTest
       query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_DESCRIPTION));
 
       BusinessObjects bos = sf.getQueryService().getAllBusinessObjects(query);
-      
+
       List<String> expected = CollectionUtils.newArrayListFromElements(Arrays.asList(
             new QName(MODEL_NAME2, "Account").toString(),
             new QName(MODEL_NAME2, "Customer").toString(),
@@ -111,9 +111,9 @@ public class BusinessObjectsTest
             new QName(MODEL_NAME2, "FundGroup").toString(),
             new QName(MODEL_NAME3, "Employee").toString(),
             new QName(MODEL_NAME3, "Fund").toString()));
-      
+
       List<String> removedEntries = CollectionUtils.newArrayList(expected.size());
-      
+
       for (BusinessObject bo : bos)
       {
          String qualifiedBOId = new QName(bo.getModelId(), bo.getId()).toString();
@@ -123,15 +123,15 @@ public class BusinessObjectsTest
          }
          else
          {
-            Assert.assertTrue("Not expected entry: " + qualifiedBOId, 
+            Assert.assertTrue("Not expected entry: " + qualifiedBOId,
                   removedEntries.contains(qualifiedBOId));
          }
       }
       Assert.assertTrue("Missing business objects: " + expected, expected.isEmpty());
    }
-   
+
    /**
-    * Test if the business object query returns all business object instances for a 
+    * Test if the business object query returns all business object instances for a
     * given business object id. The BO instances was created by the OrderCreation process
     * resp. EnterOrderData activity in the setup() method.
     */
@@ -150,7 +150,7 @@ public class BusinessObjectsTest
       Assert.assertTrue("Expected at least 5 values: " + values.size(), 5 <= values.size());
       checkValue(values, false, "customerId", 1, 2, 3, 4, 5);
    }
-   
+
    /**
     * Create business object instances via API (not via process instances) and validate
     * if they're created and if a business object query for a given primary key
@@ -183,7 +183,7 @@ public class BusinessObjectsTest
       Assert.assertEquals("Values", 1, values.size());
       checkValue(values, true, "firstName", "Danny2");
    }
-   
+
    /**
     * Validate if BO instances can be created once only with the same primary key and that
     * they can be queried either via findWithPrimaryKey() or with help of data filters.
@@ -225,7 +225,7 @@ public class BusinessObjectsTest
       Assert.assertEquals("Values", 2, values.size());
       checkValue(values, true, "customerId", 2, 4);
    }
-   
+
    /**
     * Test if a field, other than the primary key, of a BO instance can be modified.
     */
@@ -246,7 +246,7 @@ public class BusinessObjectsTest
       Date updatedDate = (Date) updatedOrder.get("date");
       Assert.assertEquals("Time difference", TIME_LAPSE, updatedDate.getTime() - date.getTime());
    }
-   
+
    /**
     * Check if an already created BO instance can be deleted and created again later.
     */
@@ -259,16 +259,16 @@ public class BusinessObjectsTest
       query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
       BusinessObjects bos = sf.getQueryService().getAllBusinessObjects(query);
       Assert.assertEquals("Values", 1, bos.getSize());
-      
+
       sf.getWorkflowService().deleteBusinessObjectInstance(new QName(model.getId(), "Order").toString(), 888);
-      
+
       bos = sf.getQueryService().getAllBusinessObjects(query);
       Assert.assertEquals("Values", 0, bos.getSize());
       createOrder(model, 888);
       bos = sf.getQueryService().getAllBusinessObjects(query);
       Assert.assertEquals("Values", 1, bos.getSize());
    }
-   
+
    /**
     * Create some instances for a given BO and validate if they can be queried:
     * <ul>
@@ -278,7 +278,7 @@ public class BusinessObjectsTest
     *       and the primary key is set as a data filter</li>
     *   <li>the qualified business object id is passed to findForBusinessObject
     *       and an attribute of the BO is set as a data filter</li>
-    * </ul> 
+    * </ul>
     */
    @Test
    public void CheckFiltering() throws Exception
@@ -332,7 +332,7 @@ public class BusinessObjectsTest
       Assert.assertEquals("Values", 1, values.size());
       checkValue(values, true, "AccountName", "Fund7");
    }
-   
+
    /**
     * Create some instances for a given BO and validate if they can be queried where:
     * <ul>
@@ -346,7 +346,7 @@ public class BusinessObjectsTest
     *       across all deployed model versions</li>
     *   <li>the qualified business object id is passed to findForBusinessObject and
     *       the query is restricted to a given modelOid</li>
-    * </ul> 
+    * </ul>
     */
    @Test
    public void CheckFiltering2() throws Exception
@@ -354,7 +354,7 @@ public class BusinessObjectsTest
       DeployedModelDescription model = sf.getQueryService().getModels(DeployedModelQuery.findActiveForId(MODEL_NAME3)).get(0);
 
       String businessObjectQualifiedId = new QName(model.getId(), "Employee").toString();
-      
+
       createEmployee(businessObjectQualifiedId, "1", "Florin");
       createEmployee(businessObjectQualifiedId, "Sid", "2");
 
@@ -403,7 +403,7 @@ public class BusinessObjectsTest
       values = bo.getValues();
       Assert.assertEquals("Values", 1, values.size());
       checkValue(values, true, "EmpName", "Florin");
-      
+
       RtEnvHome.deployModel(sf.getAdministrationService(), null, MODEL_NAME3);
       createEmployee(businessObjectQualifiedId, "3", "Meyer");
       query = BusinessObjectQuery.findForBusinessObject(PredefinedConstants.ACTIVE_MODEL, businessObjectQualifiedId);
@@ -412,13 +412,14 @@ public class BusinessObjectsTest
       Assert.assertEquals("Objects", 1, bos.getSize());
       bo = bos.get(0);
       values = bo.getValues();
-      Assert.assertEquals("Values", 1, values.size());
+      Assert.assertEquals("Values", 3, values.size());
 
       query = BusinessObjectQuery.findForBusinessObject(businessObjectQualifiedId);
       query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
       bos = sf.getQueryService().getAllBusinessObjects(query);
       Assert.assertEquals("Objects", 2, bos.getSize());
-      Assert.assertEquals("Values", 3, getTotalSize(bos));
+      // there are 2 versions, one with 2 values, the second with the first 2 upgraded and a new one added
+      Assert.assertEquals("Values", 5, getTotalSize(bos));
 
       query = BusinessObjectQuery.findForBusinessObject(model.getModelOID(), businessObjectQualifiedId);
       query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
@@ -428,11 +429,136 @@ public class BusinessObjectsTest
       values = bo.getValues();
       Assert.assertEquals("Values", 2, values.size());
    }
-   
+
+   @Test
+   public void checkBOSchemaChange()
+   {
+      DeployedModelDescription model1 = sf.getQueryService().getModels(DeployedModelQuery.findActiveForId(MODEL_NAME2)).get(0);
+
+      String businessObjectQualifiedId1 = new QName(model1.getId(), "Fund").toString();
+      int COUNT = 5;
+      for (int i = 1; i <= COUNT; i++)
+      {
+         final Map<String, Object> fund = CollectionUtils.newMap();
+         fund.put("id", "3xk." + i);
+         fund.put("name", "Fund" + i);
+         fund.put("account", (long) i);
+
+         sf.getWorkflowService().createBusinessObjectInstance(businessObjectQualifiedId1, (Serializable) fund);
+      }
+
+      BusinessObjectQuery query = BusinessObjectQuery.findForBusinessObject(businessObjectQualifiedId1);
+      query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
+      BusinessObjects bos = sf.getQueryService().getAllBusinessObjects(query);
+      Assert.assertEquals("Objects", 1, bos.getSize());
+      BusinessObject bo = bos.get(0);
+      List<BusinessObject.Value> values = bo.getValues();
+      Assert.assertEquals("Values", COUNT, values.size());
+
+      query = BusinessObjectQuery.findWithPrimaryKey(businessObjectQualifiedId1, "3xk.3");
+      query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
+      bos = sf.getQueryService().getAllBusinessObjects(query);
+      Assert.assertEquals("Objects", 1, bos.getSize());
+      bo = bos.get(0);
+      values = bo.getValues();
+      Assert.assertEquals("Values", 1, values.size());
+      checkValue(values, true, "account", 3L);
+
+      String MODEL_VERSION_2 = "BusinessObjectManagement2";
+      RtEnvHome.deployModel(sf.getAdministrationService(), null, MODEL_VERSION_2);
+
+      DeployedModelDescription model2 = sf.getQueryService().getModels(DeployedModelQuery.findActiveForId(MODEL_NAME2)).get(0);
+
+      String businessObjectQualifiedId2 = new QName(model2.getId(), "Fund").toString();
+      for (int i = 1; i <= COUNT + 1; i++)
+      {
+         final Map<String, Object> fund = CollectionUtils.newMap();
+         fund.put("id", "xxk." + i);
+         fund.put("name", "Fund" + i);
+         fund.put("code", (long) (i + 100));
+
+         sf.getWorkflowService().createBusinessObjectInstance(businessObjectQualifiedId2, (Serializable) fund);
+      }
+
+      query = BusinessObjectQuery.findForBusinessObject(businessObjectQualifiedId2);
+      query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
+      bos = sf.getQueryService().getAllBusinessObjects(query);
+      Assert.assertEquals("Objects", 2, bos.getSize());
+      for (int i = 0; i < bos.getSize(); i++)
+      {
+         bo = bos.get(i);
+         values = bo.getValues();
+         Assert.assertEquals("Values", bo.getModelOid() == model1.getModelOID() ? COUNT : 2 * COUNT + 1, values.size());
+         for (Value value : values)
+         {
+            System.err.println(value.getValue());
+         }
+      }
+
+      query = BusinessObjectQuery.findWithPrimaryKey(model1.getModelOID(), businessObjectQualifiedId1, "3xk.3");
+      query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
+      bos = sf.getQueryService().getAllBusinessObjects(query);
+      Assert.assertEquals("Objects", 1, bos.getSize());
+      bo = bos.get(0);
+      values = bo.getValues();
+      Assert.assertEquals("Values", 1, values.size());
+      checkValue(values, true, "account", 3L);
+      checkValue(values, true, "name", "Fund3");
+
+      query = BusinessObjectQuery.findWithPrimaryKey(PredefinedConstants.ACTIVE_MODEL, businessObjectQualifiedId1, "3xk.3");
+      query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
+      bos = sf.getQueryService().getAllBusinessObjects(query);
+      Assert.assertEquals("Objects", 1, bos.getSize());
+      bo = bos.get(0);
+      values = bo.getValues();
+      Assert.assertEquals("Values", 1, values.size());
+      checkValue(values, true, "account", new Object[] {null});
+      checkValue(values, true, "name", "Fund3");
+
+      query = BusinessObjectQuery.findWithPrimaryKey(businessObjectQualifiedId2, "xxk.3");
+      query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
+      bos = sf.getQueryService().getAllBusinessObjects(query);
+      Assert.assertEquals("Objects", 1, bos.getSize());
+      bo = bos.get(0);
+      values = bo.getValues();
+      Assert.assertEquals("Values", 1, values.size());
+      checkValue(values, true, "code", 103L);
+
+      final Map<String, Object> fund = CollectionUtils.newMap();
+      fund.put("id", "3xk.3");
+      fund.put("name", "Fund666");
+      fund.put("code", 666L);
+
+      sf.getWorkflowService().updateBusinessObjectInstance(businessObjectQualifiedId2, (Serializable) fund);
+
+      query = BusinessObjectQuery.findWithPrimaryKey(businessObjectQualifiedId1, "3xk.3");
+      query.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES));
+      bos = sf.getQueryService().getAllBusinessObjects(query);
+      Assert.assertEquals("Objects", 2, bos.getSize());
+      for (int i = 0; i < bos.getSize(); i++)
+      {
+         bo = bos.get(i);
+         values = bo.getValues();
+         Assert.assertEquals("Values", 1, values.size());
+         for (Value value : values)
+         {
+            System.err.println(value.getValue());
+         }
+         if (bo.getModelOid() == model1.getModelOID())
+         {
+            checkValue(values, true, "account", 3L);
+         }
+         else
+         {
+            checkValue(values, true, "code", 666L);
+         }
+      }
+   }
+
    /**
     * The following test case should ensure that
     * <ul>
-    *    <li>Any modifications to an attribute of a BOI via API isn't reflected to 
+    *    <li>Any modifications to an attribute of a BOI via API isn't reflected to
     *        process data which are using the BO</li>
     *    <li>Any modifications to an attribute of a BOI via the process data is only reflected
     *        to the BOI which is attached to the synthetic process instance and that it
@@ -447,7 +573,7 @@ public class BusinessObjectsTest
       final int customerCount = 3;
       for(int customerId = 1; customerId <= customerCount; customerId++)
       {
-         ProcessInstance pi = sf.getWorkflowService().startProcess(new QName(MODEL_NAME2, 
+         ProcessInstance pi = sf.getWorkflowService().startProcess(new QName(MODEL_NAME2,
                "DistributedOrder").toString(), null, true);
          List<ActivityInstance> w = getWorklist(pi);
          Assert.assertEquals("worklist", 1, w.size());
@@ -458,7 +584,7 @@ public class BusinessObjectsTest
          order.put("customerId", customerIdOffset + customerId);
          order.put("items", "item " + customerId);
          ai = complete(ai, PredefinedConstants.DEFAULT_CONTEXT, Collections.singletonMap("Order", order));
-         
+
          try
          {
             ActivityInstanceStateBarrier.instance().await(ai.getOID(), ActivityInstanceState.Completed);
@@ -467,9 +593,9 @@ public class BusinessObjectsTest
          {
          }
       }
-      
+
       // after DistributeCreation activity is completed we have the following state:
-      // * 2 asynchronous subprocesses are started: one which copies the data and the 
+      // * 2 asynchronous subprocesses are started: one which copies the data and the
       //   other one which doesn't
       // * 3 synchronous subprocesses are triggered: one with shared data, one with separate
       //   but copied data and the last one with separate data without copying
@@ -483,9 +609,9 @@ public class BusinessObjectsTest
       businessObjectQuery.setPolicy(new BusinessObjectQuery.Policy(BusinessObjectQuery.Option.WITH_VALUES, BusinessObjectQuery.Option.WITH_DESCRIPTION));
       BusinessObjects bos = sf.getQueryService().getAllBusinessObjects(businessObjectQuery);
       Assert.assertEquals("Only one business object, namely Order, is expected", 1, bos.getSize());
-      Assert.assertEquals("Business object instances count isn't the same as started process ergo the count of the synthetic process instances", 
+      Assert.assertEquals("Business object instances count isn't the same as started process ergo the count of the synthetic process instances",
             customerCount, getTotalSize(bos));
-      
+
       // Wait that all ShowOrder processes are started (unfortunately we cannot use ProcessInstanceStateBarrier here
       // because of the async processes.
       ProcessInstanceQuery piQuery = ProcessInstanceQuery.findAlive("ShowOrder");
@@ -494,7 +620,7 @@ public class BusinessObjectsTest
       {
          long instanceCount = sf.getQueryService().getProcessInstancesCount(piQuery);
          waitForPIs = instanceCount != (customerCount * 5);
-         
+
          if(waitForPIs)
          {
             try
@@ -506,7 +632,7 @@ public class BusinessObjectsTest
             }
          }
       }
-      
+
       BusinessObject bo = bos.get(0);
       BusinessObject.Value customer101 = null;
       for(BusinessObject.Value boValue : bo.getValues())
@@ -519,12 +645,12 @@ public class BusinessObjectsTest
          }
       }
       Assert.assertNotNull("Customer " + customerIdOffset+1 + " not found", customer101);
-      
+
       // Update BOI via API...
       ((Map)customer101.getValue()).put("items", "newitems");
       sf.getWorkflowService().updateBusinessObjectInstance(businessObjectQualifiedId, customer101.getValue());
-      
-      
+
+
       // ...and validate if no process data is modified
       piQuery = ProcessInstanceQuery.findActive();
       FilterTerm filter = piQuery.getFilter().addAndTerm();
@@ -537,12 +663,12 @@ public class BusinessObjectsTest
       // as async processes and which had copied the data
       Assert.assertEquals("Changes in BOIs must not be reflected in process instance data",
             customerCount * 2, rootPIs.getTotalCount());
-      
+
       // Update BOI for a given process via data path...
       long piOid = rootPIs.get(0).getOID();
       ((Map)customer101.getValue()).put("items", "newitems1");
       sf.getWorkflowService().setOutDataPath(piOid, "OrderDataPath", (Map)customer101.getValue());
-      
+
       // ...and validate if the BOI is updated...
       businessObjectQuery = BusinessObjectQuery.findWithPrimaryKey(
             businessObjectQualifiedId, ((Map)customer101.getValue()).get("customerId"));
@@ -552,7 +678,7 @@ public class BusinessObjectsTest
       List<BusinessObject.Value> boValues = bos.get(0).getValues();
       Assert.assertEquals(1, boValues.size());
       Assert.assertEquals("newitems1", ((Map)boValues.get(0).getValue()).get("items"));
-      
+
       // ...but the other process instance data should be untouched
       piQuery = ProcessInstanceQuery.findActive();
       filter = piQuery.getFilter().addAndTerm();
@@ -563,11 +689,11 @@ public class BusinessObjectsTest
       rootPIs = sf.getQueryService().getAllProcessInstances(piQuery);
       Assert.assertEquals("Changes in BOIs must not be reflected in process instance data",
             (customerCount * 2) - 1, rootPIs.getTotalCount());
-      
+
    }
 
    /* helper methods */
-      
+
    private BusinessObject createOrder(DeployedModelDescription model, int customerId)
    {
       final Map<String, Object> order = CollectionUtils.newMap();
@@ -576,7 +702,7 @@ public class BusinessObjectsTest
 
       return sf.getWorkflowService().createBusinessObjectInstance(new QName(model.getId(), "Order").toString(), (Serializable) order);
    }
-   
+
    private void createEmployee(String bo, String id, String name)
    {
       final Map<String, Object> fund = CollectionUtils.newMap();
@@ -584,7 +710,7 @@ public class BusinessObjectsTest
       fund.put("EmpName", name);
       sf.getWorkflowService().createBusinessObjectInstance(bo, (Serializable) fund);
    }
-   
+
    private BusinessObject createCustomer(DeployedModelDescription model, int customerId)
    {
       final Map<String, Object> order = CollectionUtils.newMap();
@@ -594,7 +720,7 @@ public class BusinessObjectsTest
 
       return sf.getWorkflowService().createBusinessObjectInstance(new QName(model.getId(), "Customer").toString(), (Serializable) order);
    }
-      
+
    private void checkValue(List<BusinessObject.Value> boValues, boolean strict, String name, Object... values)
    {
       Set<Object> expected = CollectionUtils.newSetFromIterator(Arrays.asList(values).iterator());
@@ -614,7 +740,7 @@ public class BusinessObjectsTest
          Assert.assertTrue("Missing values: " + expected, expected.isEmpty());
       }
    }
-   
+
    private ActivityInstance complete(ActivityInstance ai, String context, Map<String, ?> data)
    {
       WorkflowService ws = sf.getWorkflowService();
@@ -625,7 +751,7 @@ public class BusinessObjectsTest
       ai = ws.complete(ai.getOID(), context, data);
       return ai;
    }
-   
+
    @SuppressWarnings("unchecked")
    private List<ActivityInstance> getWorklist(EvaluationPolicy... policies)
    {
@@ -641,7 +767,7 @@ public class BusinessObjectsTest
       Worklist worklist = ws.getWorklist(query);
       return worklist.getCumulatedItems();
    }
-   
+
    @SuppressWarnings("unchecked")
    private List<ActivityInstance> getWorklist(ProcessInstance pi, EvaluationPolicy... policies)
    {
@@ -658,7 +784,7 @@ public class BusinessObjectsTest
       Worklist worklist = ws.getWorklist(query);
       return worklist.getCumulatedItems();
    }
-   
+
    private int getTotalSize(BusinessObjects bos)
    {
       int size = 0;

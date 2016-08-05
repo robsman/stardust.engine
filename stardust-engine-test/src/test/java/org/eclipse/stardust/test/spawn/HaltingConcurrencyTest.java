@@ -12,17 +12,13 @@ package org.eclipse.stardust.test.spawn;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isOneOf;
 import static org.junit.Assert.assertThat;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
-
-import org.junit.*;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
-import org.junit.runners.MethodSorters;
 
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
@@ -39,6 +35,10 @@ import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.vfs.impl.utils.CollectionUtils;
+import org.junit.*;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
+import org.junit.runners.MethodSorters;
 
 /**
  * <p>
@@ -103,6 +103,8 @@ public class HaltingConcurrencyTest
             new StartOptions(inputData, true));
       assertThat(pi.getState(), is(ProcessInstanceState.Active));
 
+      ProcessInstanceStateBarrier.instance().cleanUp();
+
       // Spawn process
       SpawnOptions options = new SpawnOptions(null, SpawnMode.HALT, null, null);
       ProcessInstance peer = wfs.spawnPeerProcessInstance(pi.getOID(),
@@ -116,7 +118,6 @@ public class HaltingConcurrencyTest
       assertProcessInstanceLinkExists(peer.getOID(), pi.getOID(),
             PredefinedProcessInstanceLinkTypes.INSERT);
 
-      ProcessInstanceStateBarrier.instance().cleanUp();
       completeActivityInstances(peer.getOID(), 1);
       ProcessInstanceStateBarrier.instance().await(peer.getOID(),
             ProcessInstanceState.Completed);
@@ -275,6 +276,8 @@ public class HaltingConcurrencyTest
 
    private ActivityInstance getAI(long oid, String activityId, ActivityInstanceState expectedState) throws IllegalStateException, TimeoutException, InterruptedException
    {
+      ActivityInstanceStateBarrier.instance().awaitForId(oid, activityId);
+
       QueryService qs = sf.getQueryService();
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(oid);
       query.where(ActivityFilter.forAnyProcess(activityId));
@@ -309,7 +312,8 @@ public class HaltingConcurrencyTest
          }
          catch (IllegalOperationException e)
          {
-            Assert.assertEquals("BPMRT08002", e.getError().getId());
+            assertThat(e.getError().getId(), isOneOf("BPMRT08001", "BPMRT08002"));
+            System.err.println(">> " + ai + ", " + sf.getWorkflowService().getActivityInstance(ai.getOID()).getState());
             ActivityInstanceStateBarrier.instance().await(ai.getOID(), ActivityInstanceState.Halted);
          }
 

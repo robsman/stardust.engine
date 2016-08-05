@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+   <runtime-setup xmlns="http://www.carnot.ag/carnot-runtime-setup">
+      <audit-trail>
+         <data-clusters>
+            <data-cluster
+               tableName="dv_mqt01"
+               processInstanceColumn="processInstance" enabledForProcessInstanceState="HALTING">
+               <data-slots>
+                  <data-slot
+                     modelId="DataClusterModel"
+                     dataId="anInt"
+                     oidColumn="oid_anInt"
+                     typeColumn="tk_anInt"
+                     nValueColumn="nval_anInt" />
+                  <data-slot
+                     modelId="DataClusterModel"
+                     dataId="aString"
+                     oidColumn="oid_aString"
+                     typeColumn="tk_aString"
+                     sValueColumn="sval_aString" />
+                  <data-slot
+                     modelId="DataClusterModel"
+                     dataId="aLong"
+                     oidColumn="oid_aLong"
+                     typeColumn="tk_aLong"
+                     nValueColumn="nval_aLong" />
+               </data-slots>
+               <data-cluster-indexes>
+                 <data-cluster-index indexName="DV_MQT01_IDX1" unique="true">
+                    <column name="processInstance"/>
+                 </data-cluster-index>
+                 <data-cluster-index indexName="DV_MQT01_IDX2" unique="false">
+                    <column name="nval_anInt"/>
+                    <column name="nval_aLong"/>
+                    <column name="sval_aString"/>
+                    <column name="tk_aString"/>
+                    <column name="tk_anInt"/>
+                    <column name="tk_aLong"/>
+                    <column name="processInstance"/>
+                 </data-cluster-index>
+               </data-cluster-indexes>
+            </data-cluster>
+            <data-cluster
+               tableName="dv_mqt02"
+               processInstanceColumn="processInstance" enabledForProcessInstanceState="HALTED">
+               <data-slots>
+                  <data-slot
+                     modelId="DataClusterModel"
+                     dataId="aString2"
+                     oidColumn="oid_aString2"
+                     typeColumn="tk_aString2"
+                     sValueColumn="sval_aString2" />
+               </data-slots>
+               <data-cluster-indexes>
+                 <data-cluster-index indexName="DV_MQT02_IDX1" unique="true">
+                    <column name="processInstance"/>
+                 </data-cluster-index>
+                 <data-cluster-index indexName="DV_MQT02_IDX2" unique="false">
+                    <column name="sval_aString2"/>
+                    <column name="tk_aString2"/>
+                    <column name="processInstance"/>
+                 </data-cluster-index>
+               </data-cluster-indexes>
+            </data-cluster>
+         </data-clusters>
+      </audit-trail>
+   </runtime-setup>

@@ -13,25 +13,13 @@ package org.eclipse.stardust.engine.core.runtime.utils;
 import java.util.List;
 import java.util.Vector;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.engine.api.model.IExternalPackage;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.IParticipant;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
-import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
-import org.eclipse.stardust.engine.core.runtime.beans.IRuntimeOidRegistry;
-import org.eclipse.stardust.engine.core.runtime.beans.IRuntimeOidRegistry.ElementType;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.IUserGroup;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerBean.ModelManagerPartition;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelRefBean;
-import org.eclipse.stardust.engine.core.runtime.beans.RuntimeOidRegistry;
-import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserGroupBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 
 
 /**

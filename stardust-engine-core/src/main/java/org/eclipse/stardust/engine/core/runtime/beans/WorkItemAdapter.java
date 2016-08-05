@@ -238,6 +238,11 @@ public class WorkItemAdapter extends AttributedIdentifiablePersistentBean implem
       throw new UnsupportedOperationException();
    }
 
+   public void halt() throws IllegalStateChangeException
+   {
+      throw new UnsupportedOperationException();
+   }
+
    public void unbind(IEventHandler handler, EventHandlerBinding aspect)
    {
       throw new UnsupportedOperationException();

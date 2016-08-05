@@ -83,6 +83,7 @@ import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables;
 import org.eclipse.stardust.engine.core.preferences.permissions.PermissionUtils;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.BusinessObjectUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerBean.ModelManagerPartition;
 import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonUtils;
@@ -936,16 +937,14 @@ public class AdministrationServiceImpl
             service = factory.get();
 
             // first try is synchronous.
-            service.isolate(new ProcessAbortionJanitor(new AbortionJanitorCarrier(piOid,
-                  userOid)));
+            service.isolate(new ProcessAbortionJanitor(new AbortionJanitorCarrier(piOid, userOid)));
          }
          else if (processInstance.isHalting())
          {
             service = factory.get();
 
             // first try is synchronous.
-            service
-                  .isolate(new ProcessHaltJanitor(new HaltJanitorCarrier(piOid, userOid)));
+            service.isolate(new ProcessHaltJanitor.Carrier(piOid, userOid).createAction());
          }
          else if (!processInstance.isCompleted())
          {
@@ -1160,6 +1159,8 @@ public class AdministrationServiceImpl
 
          PreferenceStoreUtils.cleanupAllPreferencesFromDms(userOID, keepLoginUser, sf);
       }
+
+      restoreDefaultModelAndUsers();
    }
 
    /**
@@ -1215,15 +1216,44 @@ public class AdministrationServiceImpl
 
          SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 
-         // On internal authentication motu has to be preserved
-         // It is just reset to the initial state.
+         restoreDefaultModelAndUsers();
+
+         trace.info("Entire Runtime and Modeling Environment cleaned up.");
+      }
+      finally
+      {
+         flushCaches();
+      }
+   }
+
+   /**
+    * only call if motu does not exist
+    */
+   private void restoreDefaultModelAndUsers()
+   {
+      AuditTrailPartitionBean partition = (AuditTrailPartitionBean) SecurityProperties.getPartition(false);
+
+      // recreate default realm.
+      UserRealmBean carnotRealm = null;
+      try
+      {
+         carnotRealm = UserRealmBean.findById(PredefinedConstants.DEFAULT_REALM_ID,
+               partition.getOID());
+      }
+      catch (ObjectNotFoundException e)
+      {
+         carnotRealm = new UserRealmBean(PredefinedConstants.DEFAULT_REALM_ID,
+               PredefinedConstants.DEFAULT_REALM_NAME, partition);
+      }
+
+      // recreate motu user.
          UserBean motu = null;
-         if (SecurityProperties.isInternalAuthentication())
+      try
+      {
+         motu = UserBean.findByAccount(PredefinedConstants.MOTU, carnotRealm);
+      }
+      catch (ObjectNotFoundException e)
          {
-            UserRealmBean carnotRealm = new UserRealmBean(
-                  PredefinedConstants.DEFAULT_REALM_ID,
-                  PredefinedConstants.DEFAULT_REALM_NAME,
-                  (AuditTrailPartitionBean) SecurityProperties.getPartition(false));
             motu = new UserBean(PredefinedConstants.MOTU,
                   PredefinedConstants.MOTU_FIRST_NAME, PredefinedConstants.MOTU_LAST_NAME,
                   carnotRealm);
@@ -1232,6 +1262,7 @@ public class AdministrationServiceImpl
 
          ModelManagerFactory.setDirty();
 
+      // redeploy predefined model.
          ModelManager modelManager = ModelManagerFactory.getCurrent();
          IModel predefinedModel = modelManager
                .findActiveModel(PredefinedConstants.PREDEFINED_MODEL_ID);
@@ -1259,13 +1290,6 @@ public class AdministrationServiceImpl
                trace.warn("Could not load PredefinedModel.xpdl");
             }
          }
-
-         trace.info("Entire Runtime and Modeling Environment cleaned up.");
-      }
-      finally
-      {
-         flushCaches();
-      }
    }
 
    private void cleanupDeployments(Session session)
@@ -1732,6 +1756,14 @@ public class AdministrationServiceImpl
                {
                   throw new PublicException(BpmRuntimeError.DMS_DOCUMENT_TYPE_DEPLOY_ERROR.raise(), e.getCause());
                }
+               try
+               {
+                  BusinessObjectUtils.updateBusinessObjects(unit.getModel());
+               }
+               catch (InternalException e)
+               {
+                  throw new PublicException(BpmRuntimeError.DMS_DOCUMENT_TYPE_DEPLOY_ERROR.raise(), e.getCause());
+               }
             }
          }
          for (DeploymentInfo info : infos)
@@ -1842,6 +1874,14 @@ public class AdministrationServiceImpl
          catch (Exception e)
          {
             throw new PublicException(e);
+         }
+         try
+         {
+            BusinessObjectUtils.updateBusinessObjects(model);
+         }
+         catch (InternalException e)
+         {
+            throw new PublicException(BpmRuntimeError.DMS_DOCUMENT_TYPE_DEPLOY_ERROR.raise(), e.getCause());
          }
 
          reportDeploymentState(info);

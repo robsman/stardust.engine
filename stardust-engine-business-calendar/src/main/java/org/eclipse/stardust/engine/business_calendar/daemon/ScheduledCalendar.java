@@ -73,8 +73,7 @@ public class ScheduledCalendar extends ScheduledDocument
                Map<String, Object> businessObjectData = getBusinessObjectData();
                if (businessObjectData != null)
                {
-                  JsonObject relationship = SchedulingUtils.getAsJsonObject(details,
-                        "relationship");
+                  JsonObject relationship = SchedulingUtils.getAsJsonObject(details, "relationship");
                   if (relationship.get("otherBusinessObject") != null && !businessObjectData.isEmpty())
                   {
                      String other = SchedulingUtils.getAsString(relationship,
@@ -164,6 +163,10 @@ public class ScheduledCalendar extends ScheduledDocument
                }
                if (value != null)
                {
+                  if (businessObjectId.startsWith("{"))
+                  {
+                     businessObjectId = QName.valueOf(businessObjectId).getLocalPart();
+                  }
                   data.put(businessObjectId, value);
                }
             }

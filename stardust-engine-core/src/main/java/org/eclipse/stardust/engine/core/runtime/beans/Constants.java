@@ -130,15 +130,16 @@ public interface Constants
     */
    public static final Class[] PERSISTENT_MODELING_CLASSES =
          new Class[]{
-            ModelPersistorBean.class,
-            LargeStringHolder.class,
-            AuditTrailActivityBean.class,
-            AuditTrailDataBean.class,
-            AuditTrailEventHandlerBean.class,
-            AuditTrailParticipantBean.class,
-            AuditTrailPartitionBean.class,
-            AuditTrailProcessDefinitionBean.class,
-            AuditTrailTransitionBean.class,
-            AuditTrailTriggerBean.class,
+                     ModelPersistorBean.class,
+                     LargeStringHolder.class,
+                     AuditTrailActivityBean.class,
+                     AuditTrailDataBean.class,
+                     AuditTrailEventHandlerBean.class,
+                     AuditTrailParticipantBean.class,
+                     AuditTrailPartitionBean.class,
+                     AuditTrailProcessDefinitionBean.class,
+                     AuditTrailTransitionBean.class,
+                     AuditTrailTriggerBean.class,
+                     //RuntimeOidBean.class
          };
 }

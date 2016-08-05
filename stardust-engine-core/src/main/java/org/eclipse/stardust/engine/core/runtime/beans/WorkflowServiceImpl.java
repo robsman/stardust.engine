@@ -739,7 +739,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       IModel model = (IModel) originatingProcessDefinition.getModel();
 
       String modelId = qname.getNamespaceURI();
-      if ( !modelId.equals(XMLConstants.NULL_NS_URI))
+      if (!modelId.equals(XMLConstants.NULL_NS_URI))
       {
          ModelManager mm = ModelManagerFactory.getCurrent();
          model = mm.findActiveModel(modelId);
@@ -1085,10 +1085,11 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          Map<String, ? > outData, boolean synchronously) throws ObjectNotFoundException,
          InvalidValueException, AccessForbiddenException
    {
-      ActivityInstanceUtils.assertNotHalted(activityInstance);
       ActivityInstanceUtils.assertNotTerminated(activityInstance);
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
       ActivityInstanceUtils.assertNotDefaultCaseInstance(activityInstance);
+      ActivityInstanceUtils.assertPerformAllowedIfHalted(activityInstance);
+
       // TODO rsauer fix for special scenario from CSS, involving automatic completion
       // of activities after a certain period of time, while the activity sticky to the
       // predecessor activitie's user worklist.
@@ -1099,7 +1100,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          ActivityInstanceUtils.assertNotActivatedByOther(activityInstance, true);
       }
 
-      if (activityInstance.getState() == ActivityInstanceState.Application)
+      if (activityInstance.getState() == ActivityInstanceState.Application
+            || activityInstance.isHalted())
       {
          ActivityInstanceUtils.complete(activityInstance, context, outData, synchronously);
       }
@@ -1131,11 +1133,11 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       IActivityInstance activityInstance = ActivityInstanceUtils.lock(activityInstanceOID);
 
-      ActivityInstanceUtils.assertNotHalted(activityInstance);
       ActivityInstanceUtils.assertNotTerminated(activityInstance);
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
       ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
       ActivityInstanceUtils.assertNotDefaultCaseInstance(activityInstance);
+      ActivityInstanceUtils.assertPerformAllowedIfHalted(activityInstance);
 
       if (data != null)
       {
@@ -1176,6 +1178,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          break;
       }
 
+      boolean halted = activityInstance.isHalted();
       activityInstance.suspend();
 
       if (participant == null)
@@ -1212,6 +1215,10 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                      activityInstance.getActivity().getId()));
       }
 
+      if (halted)
+      {
+         activityInstance.halt();
+      }
       return (ActivityInstance) DetailsFactory.create(activityInstance,
             IActivityInstance.class, ActivityInstanceDetails.class);
    }
@@ -1222,20 +1229,27 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       IActivityInstance activityInstance = ActivityInstanceUtils.lock(activityInstanceOID);
 
-      ActivityInstanceUtils.assertNotHalted(activityInstance);
       ActivityInstanceUtils.assertNotTerminated(activityInstance);
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
       ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
       ActivityInstanceUtils.assertNotDefaultCaseInstance(activityInstance);
       ProcessInstanceGroupUtils.assertNotCasePerformer(participant);
+      ActivityInstanceUtils.assertPerformAllowedIfHalted(activityInstance);
 
       if (data != null)
       {
          ActivityInstanceUtils.setOutDataValues(data.getContext(), data.getData(),
                activityInstance, true);
       }
+      boolean halted = activityInstance.isHalted();
       activityInstance.suspend();
-      return delegateToParticipant(activityInstance.getOID(), participant);
+      delegateToParticipant(activityInstance.getOID(), participant);
+      if (halted)
+      {
+         activityInstance.halt();
+      }
+      return (ActivityInstance) DetailsFactory.create(activityInstance,
+            IActivityInstance.class, ActivityInstanceDetails.class);
    }
 
    public ActivityInstance suspendToUser(long activityInstanceOID)
@@ -1831,8 +1845,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    private IProcessInstance internalStopProcessInstance(long processInstanceOID, AbortScope abortScope, StopMode stopMode)
    {
       // fetch the process.
-      IProcessInstance processInstance = ProcessInstanceBean
-            .findByOID(processInstanceOID);
+      IProcessInstance processInstance = ProcessInstanceBean.findByOID(processInstanceOID);
 
       if (processInstance.isCaseProcessInstance())
       {
@@ -1857,12 +1870,12 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                activityInstance.lock();
             }
          }
+         // TODO: (fh) this is not correct if stopMode is not Abort
          ActivityInstanceUtils.abortActivityInstance(activityInstance, abortScope);
       }
       else
       {
-         // get the process to abort, either this process or the root process depending on
-         // the scope.
+         // find the process to stop, depending on the scope either this process or the root process.
          IProcessInstance pi = processInstance;
          IProcessInstance rootProcessInstance = processInstance.getRootProcessInstance();
          if (rootProcessInstance != processInstance
@@ -2225,6 +2238,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       }
       if (result != null)
       {
+         result.lock();
+         // TODO: (fh) recheck state ?
          result.activate();
       }
       return DetailsFactory.create(result, IActivityInstance.class,

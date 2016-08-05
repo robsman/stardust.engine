@@ -12,22 +12,19 @@ package org.eclipse.stardust.test.deploy;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 
-import java.util.List;
-
-import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
-import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.runtime.DeploymentException;
-import org.eclipse.stardust.engine.api.runtime.DeploymentInfo;
 import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
-import org.eclipse.stardust.test.api.setup.*;
+import org.eclipse.stardust.test.api.setup.RtEnvHome;
+import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
 /**
@@ -56,52 +53,15 @@ public class DeployRuntimeBindingValidationTest
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(sf);
 
-   @Test
+   @Test(expected = DeploymentException.class)
    public void testDeploymentValidation()
    {
-      boolean errorOccured = false;
-      try
-      {
-         deploy("RuntimeBindingDeploy");
-      }
-      catch (DeploymentException e)
-      {
-         assertDeploymentError(e);
-         errorOccured = true;
-      }
-      Assert.assertTrue(errorOccured);
+      deploy("RuntimeBindingDeploy");
    }
 
    private void deploy(String modelId)
    {
       RtEnvHome.deployModel(sf.getAdministrationService(), DeploymentOptions.DEFAULT,
             new String[] {modelId});
-   }
-
-   private void assertDeploymentError(DeploymentException e)
-   {
-      int ACTY01018 = 0;
-      
-      List<DeploymentInfo> infos = e.getInfos();
-      for (DeploymentInfo deploymentInfo : infos)
-      {
-         List<Inconsistency> errors = deploymentInfo.getErrors();
-         for (Inconsistency inconsistency : errors)
-         {
-            String errorID = inconsistency.getErrorID();
-            if(!StringUtils.isEmpty(errorID))
-            {
-               if(errorID.equals("ACTY01018"))
-               {
-                  ACTY01018++;
-               }
-            }
-         }
-      }
-
-      if(ACTY01018 != 7)
-      {
-         Assert.fail("7 ErrorCase 'ACTY01018' expected but not found.");         
-      }
    }
 }

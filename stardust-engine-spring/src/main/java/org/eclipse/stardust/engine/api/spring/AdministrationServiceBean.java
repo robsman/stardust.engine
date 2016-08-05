@@ -167,7 +167,7 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
       ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
             serviceProxy).cleanupRuntime(keepUsers, keepBO);
    }
-      
+
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#cleanupRuntime(boolean keepUsers)
     */

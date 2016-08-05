@@ -539,9 +539,12 @@ public class UserServiceImpl implements UserService, Serializable
 
       try
       {
+         // ignore case for "motu"
+         String account2 = PredefinedConstants.MOTU.equalsIgnoreCase(account) ? PredefinedConstants.MOTU : account;
+
          IUserRealm realmBean = UserRealmBean.findById(realm, partition.getOID());
-         UserBean.findByAccount(account, realmBean);
-         throw new UserExistsException(account, realm);
+         UserBean.findByAccount(account2, realmBean);
+         throw new UserExistsException(account2, realm);
       }
       catch (ObjectNotFoundException e)
       {

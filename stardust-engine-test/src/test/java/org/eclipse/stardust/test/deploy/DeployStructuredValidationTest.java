@@ -12,22 +12,19 @@ package org.eclipse.stardust.test.deploy;
 
 import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
 
-import java.util.List;
-
-import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
-import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.runtime.DeploymentException;
-import org.eclipse.stardust.engine.api.runtime.DeploymentInfo;
 import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
-import org.eclipse.stardust.test.api.setup.*;
+import org.eclipse.stardust.test.api.setup.RtEnvHome;
+import org.eclipse.stardust.test.api.setup.TestClassSetup;
 import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 
 /**
@@ -56,70 +53,15 @@ public class DeployStructuredValidationTest
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup).around(sf);
 
-   @Test
+   @Test(expected = DeploymentException.class)
    public void testDeploymentValidation()
    {
-      boolean errorOccured = false;
-      try
-      {
-         deploy("Structured");
-      }
-      catch (DeploymentException e)
-      {
-         assertDeploymentError(e);
-         errorOccured = true;
-      }
-      Assert.assertTrue(errorOccured);
+      deploy("Structured");
    }
 
    private void deploy(String modelId)
    {
       RtEnvHome.deployModel(sf.getAdministrationService(), DeploymentOptions.DEFAULT,
             new String[] {modelId});
-   }
-
-   private void assertDeploymentError(DeploymentException e)
-   {
-      int DATA01027 = 0;
-      int DATA01017 = 0;
-      int DATA01028 = 0;
-      
-      List<DeploymentInfo> infos = e.getInfos();
-      for (DeploymentInfo deploymentInfo : infos)
-      {
-         List<Inconsistency> errors = deploymentInfo.getErrors();
-         for (Inconsistency inconsistency : errors)
-         {
-            String errorID = inconsistency.getErrorID();
-            if(!StringUtils.isEmpty(errorID))
-            {
-               if(errorID.equals("DATA01027"))
-               {
-                  DATA01027++;
-               }
-               else if(errorID.equals("DATA01017"))
-               {
-                  DATA01017++;
-               }
-               else if(errorID.equals("DATA01028"))
-               {
-                  DATA01028++;
-               }
-            }
-         }
-      }
-
-      if(DATA01027 != 2)
-      {
-         Assert.fail("2 ErrorCase 'DATA01027' expected but not found.");         
-      }
-      if(DATA01017 != 1)
-      {
-         Assert.fail("ErrorCase 'DATA01017' expected but not found.");                  
-      }
-      if(DATA01028 != 1)
-      {
-         Assert.fail("ErrorCase 'DATA01028' expected but not found.");                  
-      }
    }
 }

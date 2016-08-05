@@ -80,6 +80,24 @@ public class Authorization2
             {
                authorizationPredicate = new ActivityInstanceAuthorization2Predicate(context);
             }
+            else if (method.getDeclaringClass().equals(WorkflowService.class)
+                  && method.getName().startsWith("suspend")
+                  && permission.implied().length > 0)
+            {
+               long aiOid = getActivityInstanceOid(args[0]);
+               IActivityInstance activityInstance = ActivityInstanceBean.findByOID(aiOid);
+               context.setActivityInstance(activityInstance);
+               requiredGrant = checkPermission(context);
+
+               // check implied permission since it is not checked before (bug).
+               if (requiredGrant == null)
+               {
+                     AuthorizationContext context2 = AuthorizationContext
+                           .create(ClientPermission.DELEGATE_TO_OTHER);
+                     context2.setActivityInstance(activityInstance);
+                     requiredGrant = checkPermission(context2);
+               }
+            }
             else
             {
                long aiOid = getActivityInstanceOid(args[0]);
@@ -141,7 +159,7 @@ public class Authorization2
             }
             break;
          case model:
-            List<IModel> models = ModelManagerFactory.getCurrent().findActiveModels();
+            List<IModel> models = ModelManagerFactory.getCurrent().findLastDeployedModels();
             if (models.isEmpty())
             {
                if ( !SecurityProperties.isInternalAuthorization()

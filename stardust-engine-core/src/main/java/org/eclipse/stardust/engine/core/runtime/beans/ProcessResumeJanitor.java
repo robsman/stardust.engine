@@ -25,6 +25,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
+import org.eclipse.stardust.engine.core.persistence.PhantomException;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 
 public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
@@ -36,10 +37,11 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
 
    public static final void schedule(long processInstanceOid)
    {
-      scheduleJanitor(new ResumeJanitorCarrier(processInstanceOid));
+      if (trace.isDebugEnabled()) trace.debug("Scheduling resume janitor for pi: " + processInstanceOid);
+      scheduleJanitor(new Carrier(processInstanceOid), true);
    }
 
-   private ProcessResumeJanitor(ResumeJanitorCarrier carrier)
+   private ProcessResumeJanitor(Carrier carrier)
    {
       super(carrier);
    }
@@ -47,7 +49,7 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
    @Override
    protected HierarchyStateChangeJanitorCarrier getNewCarrier()
    {
-      return new ResumeJanitorCarrier(processInstanceOid);
+      return new Carrier(processInstanceOid);
    }
 
    @Override
@@ -63,58 +65,95 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
    }
 
    @Override
+   protected boolean doRollback()
+   {
+      return true;
+   }
+
+   @Override
    protected void processPi(ProcessInstanceBean pi)
    {
       if (pi.isHalting())
       {
-         try
-         {
-            Thread.sleep(getRetryPause());
-         }
-         catch (InterruptedException e)
-         {
-            throw new InternalException(e);
-         }
-         // schedules retry
-         schedule(pi.getOID());
-         if (trace.isDebugEnabled()) trace.debug("Rescheduled ProcessResumeJanitor for pi '" + pi.getOID() + "'.");
+         ensureHalted(pi);
       }
-      if (pi.isHalted() && canResume(pi))
+      else if (canResume(pi))
       {
-         pi.lock();
-
-         /* check if this is needed */
-         IProcessInstance rootProcessInstance = pi.getRootProcessInstance();
-         rootProcessInstance.lock();
-         rootProcessInstance.removeHaltingPiOid(pi.getOID());
-         /* end check block */
-
-         // sets to active and sends resume event.
-         pi.resetInterrupted();
-         if (trace.isDebugEnabled()) trace.debug("Resumed " + pi);
-
-         for (Iterator aiIter = ActivityInstanceBean.getAllForProcessInstance(pi); aiIter.hasNext();)
+         if (pi.getPersistenceController() != null && !pi.getPersistenceController().isLocked())
          {
-            ActivityInstanceBean activityInstance = (ActivityInstanceBean) aiIter.next();
-            if (!activityInstance.isTerminated())
+            pi.lock();
+            try
             {
-               activityInstance.lock();
-               restoreStateFromHistory(activityInstance);
-               if (trace.isDebugEnabled()) trace.debug("Resumed " + activityInstance);
+               pi.reloadAttribute(ProcessInstanceBean.FIELD__STATE);
+            }
+            catch (PhantomException e)
+            {
+               throw new InternalException(e);
             }
          }
 
-         // Run recovery. This also calls recovery on all events.
-         if (trace.isDebugEnabled()) trace.debug("Scheduling recovery for " + pi);
-         new ActivityThreadsRecoveryAction(pi.getOID()).execute();
+         if (pi.isHalting())
+         {
+            ensureHalted(pi);
+         }
+         else if (!pi.isTerminated())
+         {
+            /* check if this is needed */
+            IProcessInstance rootProcessInstance = pi.getRootProcessInstance();
+            rootProcessInstance.lock();
+            Object old = rootProcessInstance.getHaltingPiOids();
+            rootProcessInstance.removeHaltingPiOid(pi.getOID());
+            if (trace.isDebugEnabled()) trace.debug("Removed " + pi
+                  + " from  halting " + rootProcessInstance
+                  + ", old list: " + old
+                  + ", new list: " + rootProcessInstance.getHaltingPiOids());
+            /* end check block */
 
-         AuditTrailLogger.getInstance(LogCode.ENGINE, pi).info("Process instance resumed.");
+            // sets to active and sends resume event.
+            pi.resetInterrupted();
+            if (trace.isDebugEnabled()) trace.debug("Resumed " + pi);
+
+            for (Iterator aiIter = ActivityInstanceBean.getAllForProcessInstance(pi); aiIter.hasNext();)
+            {
+               ActivityInstanceBean activityInstance = (ActivityInstanceBean) aiIter.next();
+               if (activityInstance.isHalted())
+               {
+                  activityInstance.lock();
+                  restoreStateFromHistory(activityInstance);
+                  if (trace.isDebugEnabled()) trace.debug("Resumed " + activityInstance);
+               }
+            }
+
+            // Run recovery. This also calls recovery on all events.
+            if (trace.isDebugEnabled()) trace.debug("Scheduling recovery for " + pi);
+            new ActivityThreadsRecoveryAction(pi.getOID()).execute();
+
+            AuditTrailLogger.getInstance(LogCode.ENGINE, pi).info("Process instance resumed.");
+         }
       }
+   }
+
+   protected void ensureHalted(ProcessInstanceBean pi)
+   {
+      try
+      {
+         Thread.sleep(getRetryPause());
+      }
+      catch (InterruptedException e)
+      {
+         throw new InternalException(e);
+      }
+      // schedules retry
+      if (trace.isDebugEnabled()) trace.debug(pi.toString() + " is still halting, rescheduling.");
+      ProcessStopJanitorMonitor monitor = ProcessStopJanitorMonitor.getInstance();
+      monitor.unregister(pi.getOID());
+      schedule(pi.getOID());
    }
 
    private void restoreStateFromHistory(final ActivityInstanceBean activityInstance)
    {
       ActivityInstanceState targetState = null;
+      long userOid = executingUserOid;
 
       Iterator<ActivityInstanceHistoryBean> historicStates = ActivityInstanceHistoryBean.getAllForActivityInstance(activityInstance, false);
       if (historicStates == null || !historicStates.hasNext())
@@ -127,7 +166,8 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
          boolean haltedFound = false;
          while (historicStates.hasNext())
          {
-            ActivityInstanceState state = ((ActivityInstanceHistoryBean) historicStates.next()).getState();
+            ActivityInstanceHistoryBean history = (ActivityInstanceHistoryBean) historicStates.next();
+            ActivityInstanceState state = history.getState();
             if (haltedFound)
             {
                if (Aborted.equals(state) || Aborting.equals(state) || Completed.equals(state))
@@ -142,6 +182,10 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
                   continue;
                }
                targetState = state;
+               if (history.getUserOid() != 0)
+               {
+                  userOid = history.getUserOid();
+               }
                break;
             }
             else if (ActivityInstanceState.Halted.equals(state))
@@ -157,7 +201,7 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
          }
       }
       // if no previous state found resume to created
-      activityInstance.setState(targetState == null ? ActivityInstanceState.CREATED : targetState.getValue(), executingUserOid);
+      activityInstance.setState(targetState == null ? ActivityInstanceState.CREATED : targetState.getValue(), userOid);
    }
 
    private boolean canResume(ProcessInstanceBean pi)
@@ -199,16 +243,18 @@ public class ProcessResumeJanitor extends ProcessHierarchyStateChangeJanitor
       return "Process resume janitor, pi = " + processInstanceOid;
    }
 
-   public static class ResumeJanitorCarrier extends HierarchyStateChangeJanitorCarrier
+   public static class Carrier extends HierarchyStateChangeJanitorCarrier
    {
       private static final long serialVersionUID = 1L;
 
-      // default constructor needed by reflection
-      public ResumeJanitorCarrier()
+      /**
+       * Default constructor needed by reflection.
+       */
+      public Carrier()
       {
       }
 
-      public ResumeJanitorCarrier(long processInstanceOid)
+      public Carrier(long processInstanceOid)
       {
          super(processInstanceOid, 0, Parameters.instance().getInteger(
                ProcessResumeJanitor.PRP_RETRY_COUNT, 10));

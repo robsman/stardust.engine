@@ -369,6 +369,7 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
          org.eclipse.stardust.engine.api.runtime.UserInfo user,
          org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser,
          org.eclipse.stardust.engine.api.runtime.DeputyOptions options)
+         throws org.eclipse.stardust.common.error.InvalidArgumentException
    {
       return ((org.eclipse.stardust.engine.api.runtime.UserService)
             serviceProxy).addDeputy(user, deputyUser, options);
@@ -382,7 +383,8 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
          org.eclipse.stardust.engine.api.runtime.UserInfo user,
          org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser,
          org.eclipse.stardust.engine.api.runtime.DeputyOptions options)
-         throws org.eclipse.stardust.common.error.ObjectNotFoundException
+         throws org.eclipse.stardust.common.error.ObjectNotFoundException,
+         org.eclipse.stardust.common.error.InvalidArgumentException
    {
       return ((org.eclipse.stardust.engine.api.runtime.UserService)
             serviceProxy).modifyDeputy(user, deputyUser, options);

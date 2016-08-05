@@ -16,6 +16,7 @@ import org.apache.camel.Route;
 import org.apache.camel.model.ModelCamelContext;
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -133,6 +134,13 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
                   // stop running routes to sync up with the deployed model
                   for (Route runningRoute : routesToBeStopped)
                   {
+                     Map<String, org.apache.camel.Endpoint> endpoints=camelContext.getEndpointMap();
+                     if(endpoints!=null && !endpoints.isEmpty()){
+                        for(String uri:endpoints.keySet()){
+                           if(StringUtils.isNotEmpty(uri)&& uri.startsWith("sql://"))
+                              camelContext.removeEndpoints(uri);
+                        }
+                     }
                      stopAndRemoveRunningRoute(camelContext, runningRoute.getId());
                      if (logger.isDebugEnabled())
                      {

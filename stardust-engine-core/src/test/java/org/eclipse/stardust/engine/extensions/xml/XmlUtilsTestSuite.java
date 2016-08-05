@@ -8,15 +8,20 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.stardust.common.config.extensions;
+package org.eclipse.stardust.engine.extensions.xml;
+
+import junit.framework.TestSuite;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import org.eclipse.stardust.engine.extensions.xml.data.XMLAccessPathTest;
+
+
 @RunWith(Suite.class)
-@SuiteClasses( {ApplicationConfigResolverTest.class, ServiceProviderResolverTest.class, ExtensibleExtensionsManagerTest.class} )
-public class ExtensionsTestSuite
+@SuiteClasses( {XMLAccessPathTest.class} )
+public class XmlUtilsTestSuite extends TestSuite
 {
    /* test suite */
 }

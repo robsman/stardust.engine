@@ -351,6 +351,23 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      * database. The tables will still remain in the database.
      *
      * @param keepUsers a flag to specify if the users should be deleted or not.
+     * @param keepBO a flag to specify if the BO should be deleted or not.
+     *
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#cleanupRuntime(
+     *     boolean keepUsers, boolean keepBO)
+     */
+    public void cleanupRuntime(boolean keepUsers, boolean keepBO)
+         throws org.eclipse.stardust.common.error.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * Removes all records from the runtime environment making up the audit trail
+     * database. The tables will still remain in the database.
+     *
+     * @param keepUsers a flag to specify if the users should be deleted or not.
      *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -773,6 +790,13 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      * <li>Activity state after: completed</li>
      * <li>Process state after: State does not change.</li>
      * </ul>
+     * <p> If the process hierarchy is halted: </p>
+     * <ul><li>Activity state before: halted</li>
+     * <li>Process state before: halted</li>
+     * <li>Activity state after: completed</li>
+     * <li>Process state after: State does not change.</li>
+     * <li>Next activity will not be created since process hierarchy is halted.</li>
+     * </ul>
      * </p>
      *
      * @param activityInstanceOID - the OID of the non-interactive activity to be completed.
@@ -832,6 +856,13 @@ public interface RemoteAdministrationService extends javax.ejb.EJBObject
      * <ul><li>Activity state before: application, suspended, hibernated</li>
      * <li>Process state before: active, interrupted</li>
      * <li>Activity state after: suspended</li>
+     * <li>Process state after: State does not change.</li>
+     * </ul>
+     * 
+     * <p> If the process hierarchy is halted: </p>
+     * <ul><li>Activity state before: halted, application</li>
+     * <li>Process state before: halted</li>
+     * <li>Activity state after: halted</li>
      * <li>Process state after: State does not change.</li>
      * </ul>
      * </p>

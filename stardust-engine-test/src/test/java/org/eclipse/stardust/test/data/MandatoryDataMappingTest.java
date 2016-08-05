@@ -150,6 +150,89 @@ public class MandatoryDataMappingTest
       assertThat(retrievedValue2, notNullValue());
       assertEquals(retrievedValue2, 5000);
    }
+
+   /**
+    * <p>
+    * Tests with process started with data values and suspended.
+    * </p>
+    */
+   @Test
+   public void test3()
+   {
+      sf.getWorkflowService().activate(aiOid1);     
+      sf.getWorkflowService().suspend(aiOid1, null);
+      sf.getWorkflowService().activate(aiOid1);
+            
+      Map<String, Serializable> mapValue = sf.getWorkflowService().getInDataValues(aiOid1, null, null);
+      Object retrievedValue1 = mapValue.get(dataMapping1);      
+      Object retrievedValue2 = mapValue.get(dataMapping2);
+      assertThat(retrievedValue1, notNullValue());
+      assertEquals(retrievedValue1, 0);
+      assertThat(retrievedValue2, notNullValue());
+      assertEquals(retrievedValue2,77);
+
+      Map data = new HashMap();
+      data.put(dataMapping2, 5000);      
+      sf.getWorkflowService().complete(aiOid1, null, data);
+      
+      ActivityInstance nextAI = sf.getWorkflowService().activateNextActivityInstance(aiOid1);
+      mapValue = sf.getWorkflowService().getInDataValues(nextAI.getOID(), null, null);
+      retrievedValue1 = mapValue.get(dataMapping1);
+      retrievedValue2 = mapValue.get(dataMapping2);
+      assertThat(retrievedValue1, notNullValue());
+      assertEquals(retrievedValue1, 0);
+      assertThat(retrievedValue2, notNullValue());
+      assertEquals(retrievedValue2, 5000);      
+
+      data = new HashMap();
+      data.put(dataMapping3, 5000);            
+      sf.getWorkflowService().complete(nextAI.getOID(), null, data);
+      
+      nextAI = sf.getWorkflowService().activateNextActivityInstance(aiOid1);
+      mapValue = sf.getWorkflowService().getInDataValues(nextAI.getOID(), null, null);
+      retrievedValue1 = mapValue.get(dataMapping1);
+      retrievedValue2 = mapValue.get(dataMapping2);
+      Object retrievedValue3 = mapValue.get(dataMapping3);      
+      assertThat(retrievedValue1, notNullValue());
+      assertEquals(retrievedValue1, 0);
+      assertThat(retrievedValue2, notNullValue());
+      assertEquals(retrievedValue2, 5000);      
+      assertThat(retrievedValue3, notNullValue());
+      assertEquals(retrievedValue3, 5000);            
+   }
+      
+   /**
+    * <p>
+    * Tests with process started without data values and suspended.
+    * </p>
+    */   
+   @Test
+   public void test4()
+   {
+      sf.getWorkflowService().activate(aiOid2);
+      sf.getWorkflowService().suspend(aiOid2, null);
+      sf.getWorkflowService().activate(aiOid2);
+                  
+      Map<String, Serializable> mapValue = sf.getWorkflowService().getInDataValues(aiOid2, null, null);
+      Object retrievedValue1 = mapValue.get(dataMapping1);
+      Object retrievedValue2 = mapValue.get(dataMapping2);
+      assertThat(retrievedValue1, notNullValue());
+      assertEquals(retrievedValue1, 0);
+      assertThat(retrievedValue2, is(nullValue()));
+
+      Map data = new HashMap();
+      data.put(dataMapping2, 5000);      
+      sf.getWorkflowService().complete(aiOid2, null, data);
+      
+      ActivityInstance nextAI = sf.getWorkflowService().activateNextActivityInstance(aiOid2);
+      mapValue = sf.getWorkflowService().getInDataValues(nextAI.getOID(), null, null);
+      retrievedValue1 = mapValue.get(dataMapping1);
+      retrievedValue2 = mapValue.get(dataMapping2);
+      assertThat(retrievedValue1, notNullValue());
+      assertEquals(retrievedValue1, 0);
+      assertThat(retrievedValue2, notNullValue());
+      assertEquals(retrievedValue2, 5000);
+   }
       
    private long startProcess2()
    {

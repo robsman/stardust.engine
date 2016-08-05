@@ -595,11 +595,11 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
    /**
     * This method is intended to restore the state after a reloadAttribute(FIELD__STATE).
-    * Most not be used in any other way and not be made public.
+    * Most not be used in any other way.
     *
     * @param state the original state.
     */
-   void restoreState(ProcessInstanceState state)
+   public void restoreState(ProcessInstanceState state)
    {
       this.state = state.getValue();
    }
@@ -1463,6 +1463,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       IDataValue dataValue = getDataValue(data);
       if (dataValue instanceof DataValueBean)
       {
+         // TODO (fh) reload data value *only* if it's not already locked
          while (true)
          {
             try
@@ -1765,7 +1766,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          return Collections.singletonList(propertyValue);
       }
       List attributes = (List) propertyValue;
-      if(null == attributes)
+      if (null == attributes)
       {
          return Collections.EMPTY_LIST;
       }
@@ -1988,7 +1989,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       Attribute property = (Attribute) getAllProperties().get(PI_NOTE);
       return propertyExists(property);
    }
-   
+
    private boolean abortingPiExists()
    {
       Attribute property = (Attribute) getAllProperties().get(ABORTING_PI_OID);

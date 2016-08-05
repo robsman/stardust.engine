@@ -13,13 +13,16 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.util.Collections;
 
 import org.eclipse.stardust.common.Action;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.ImplementationType;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.core.persistence.PhantomException;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-
 
 /**
  * @author ubirkemeyer
@@ -27,6 +30,8 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
  */
 public class ActivityThreadsRecoveryAction implements Action
 {
+   public static final Logger trace = LogManager.getLogger(ActivityThreadsRecoveryAction.class);
+
    private long processInstanceOID;
 
    public ActivityThreadsRecoveryAction(long processInstanceOID)
@@ -37,15 +42,31 @@ public class ActivityThreadsRecoveryAction implements Action
    public Object execute()
    {
       boolean spawned = false;
-      ResultIterator tokens = TransitionTokenBean.findForProcessInstance(processInstanceOID);
+      ResultIterator tokens = TransitionTokenBean.findUnconsumedForProcessInstance(processInstanceOID);
 
+      ensureCompletion(tokens);
       while (tokens.hasNext())
       {
          TransitionTokenBean token = (TransitionTokenBean) tokens.next();
+         if (token.getPersistenceController() != null && !token.getPersistenceController().isLocked())
+         {
+            token.lock();
+            if (trace.isDebugEnabled()) trace.debug("token " + this + " locked.");
+            try
+            {
+               token.reload();
+            }
+            catch (PhantomException e)
+            {
+               throw new InternalException(e);
+            }
+         }
          if (token.isConsumed())
          {
+            if (trace.isDebugEnabled()) trace.debug("Token is consumed! " + token);
             continue;
          }
+         if (trace.isDebugEnabled()) trace.debug("Found " + token);
          if (token.isBound())
          {
             IActivityInstance ai = ActivityInstanceBean.findByOID(token.getTarget());
@@ -57,17 +78,22 @@ public class ActivityThreadsRecoveryAction implements Action
                 // cover case that AI is suspended but its subPI (if any) is already terminated
                 || (isSuspendedSubPiActivity(ai) && hasTermintedSubPi(ai))
                 || isAbortingAndReadyForScheduling(ai)
-                // can be the case if activity was completed in halted hierarchy.
-                || aiState == ActivityInstanceState.Completed)
+                // can be the case if activity was completed or aborted in halted hierarchy.
+                || aiState == ActivityInstanceState.Completed
+                || aiState == ActivityInstanceState.Aborted)
             {
                if (isSuspendedSubPiActivity(ai))
                {
                   ai.activate();
                }
 
-               ActivityThread.schedule(pi, null, ai, true, null, Collections.EMPTY_MAP,
-                     false);
+               if (trace.isDebugEnabled()) trace.debug("Activity thread scheduled for " + ai);
+               ActivityThread.schedule(pi, null, ai, true, null, Collections.EMPTY_MAP, false);
                spawned = true;
+            }
+            else
+            {
+               if (trace.isDebugEnabled()) trace.debug("Activity thread NOT scheduled for " + ai);
             }
          }
          else
@@ -76,11 +102,15 @@ public class ActivityThreadsRecoveryAction implements Action
 
             if (token.getTransitionOID() == -1)
             {
+               if (trace.isDebugEnabled()) trace.debug("Activity thread scheduled to start " + pi
+                     + " at " + pi.getProcessDefinition().getRootActivity());
                ActivityThread.schedule(pi, pi.getProcessDefinition().getRootActivity(),
                      null, true, null, Collections.EMPTY_MAP, false);
             }
             else
             {
+               if (trace.isDebugEnabled()) trace.debug("Activity thread scheduled to continue " + pi
+                     + " at " + token.getTransition().getToActivity());
                ActivityThread.schedule(pi, token.getTransition().getToActivity(), null,
                      true, null, Collections.EMPTY_MAP, false);
             }
@@ -90,6 +120,19 @@ public class ActivityThreadsRecoveryAction implements Action
       recoverProcess();
 
       return spawned ? Boolean.TRUE : Boolean.FALSE;
+   }
+
+   private void ensureCompletion(ResultIterator tokens)
+   {
+      if (!tokens.hasNext())
+      {
+         ProcessInstanceBean pi = ProcessInstanceBean.findByOID(processInstanceOID);
+         if (!pi.isTerminated())
+         {
+            ProcessCompletionJanitor processCompletionJanitor = new ProcessCompletionJanitor(new JanitorCarrier(pi.getOID()), false);
+            processCompletionJanitor.execute();
+         }
+      }
    }
 
    private boolean isSuspendedSubPiActivity(IActivityInstance ai)

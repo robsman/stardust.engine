@@ -41,9 +41,9 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 public class ProcessInstanceStateBarrier
 {
    /**
-    * the default timeout: 10 seconds
+    * the default timeout: 20 seconds
     */
-   private static final WaitTimeout DEFAULT_TIMEOUT = new WaitTimeout(10, TimeUnit.SECONDS);
+   private static final WaitTimeout DEFAULT_TIMEOUT = new WaitTimeout(20, TimeUnit.SECONDS);
 
    private static WaitTimeout timeout = DEFAULT_TIMEOUT;
 
@@ -121,7 +121,7 @@ public class ProcessInstanceStateBarrier
          final boolean success = condition.latch().await(timeout.time(), timeout.unit());
          if ( !success)
          {
-            throw new TimeoutException("Process instance is still not in the state '" + piState + "'.");
+            throw new TimeoutException("Process instance " + piOid + " is still not in the state '" + piState + "'.");
          }
       }
       finally

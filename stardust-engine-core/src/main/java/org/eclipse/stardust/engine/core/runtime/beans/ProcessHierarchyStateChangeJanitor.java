@@ -14,28 +14,30 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ConcurrencyException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.MultipleTryInterceptor.NoRetryException;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
 public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContextAwareAction
 {
-
    public static final Logger trace = LogManager.getLogger(ProcessHierarchyStateChangeJanitor.class);
 
    protected long processInstanceOid;
    protected long executingUserOid;
    protected int triesLeft;
+
    private ProcessInstanceLocking piLock = new ProcessInstanceLocking();
 
    protected abstract HierarchyStateChangeJanitorCarrier getNewCarrier();
 
    protected abstract boolean preventFinalState();
+
+   protected abstract boolean doRollback();
 
    protected abstract long getRetryPause();
 
@@ -51,16 +53,16 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
       this.triesLeft = carrier.getTriesLeft();
    }
 
-   public static void scheduleJanitor(HierarchyStateChangeJanitorCarrier carrier)
+   public static void scheduleJanitor(HierarchyStateChangeJanitorCarrier carrier, boolean force)
    {
-      scheduleJanitor(carrier, true);
+      scheduleJanitor(carrier, true, force);
    }
 
-   public static void scheduleJanitor(HierarchyStateChangeJanitorCarrier carrier, boolean transacted)
+   public static void scheduleJanitor(HierarchyStateChangeJanitorCarrier carrier, boolean transacted, boolean force)
    {
       ProcessStopJanitorMonitor monitor = ProcessStopJanitorMonitor.getInstance();
       // only one abortion thread allowed per process instance
-      if (monitor.register(carrier.getProcessInstanceOid()))
+      if (force || monitor.register(carrier.getProcessInstanceOid()))
       {
          ForkingServiceFactory factory = (ForkingServiceFactory) Parameters.instance()
                .get(EngineProperties.FORKING_SERVICE_HOME);
@@ -75,7 +77,10 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
             factory.release(service);
          }
       }
-
+      else
+      {
+         if (trace.isDebugEnabled()) trace.debug("Janitor not scheduled: " + carrier);
+      }
    }
 
    public Object execute()
@@ -95,7 +100,7 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
          }
 
          pi = ProcessInstanceBean.findByOID(processInstanceOid);
-         if ( !pi.isTerminated())
+         if (!pi.isTerminated())
          {
             Collection<IProcessInstance> pis = piLock.lockAllTransitions(pi);
 
@@ -125,24 +130,36 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
          ProcessStopJanitorMonitor monitor = ProcessStopJanitorMonitor.getInstance();
          monitor.unregister(processInstanceOid);
 
-         // if exception is handleable and tries are left - resheduling new abort thread
-         if (canHandleExceptionOnStop(exception) && triesLeft > 0
-               && rtEnv.getExecutionPlan() == null)
+         // if the exception can be handled and tries are left, a new janitor is scheduled
+         if (exception != null && triesLeft > 0 && rtEnv.getExecutionPlan() == null)
          {
-            trace.info(MessageFormat.format("Rescheduling " + this.getClass().getSimpleName()
-                  + " for {0} Tries left: {1}.",
-                  new Object[] {pi, new Integer(triesLeft)}));
 
-            try
+            // reschedule if exception can be handled.
+            if (canHandleExceptionOnStop(exception))
             {
-               Thread.sleep(getRetryPause());
+               trace.info(MessageFormat.format(
+                     "Rescheduling " + this.getClass().getSimpleName()
+                           + " for {0} Tries left: {1}.",
+                     new Object[] {pi, new Integer(triesLeft)}));
+
+               try
+               {
+                  Thread.sleep(getRetryPause());
+               }
+               catch (InterruptedException x)
+               {
+               }
+
+               // schedule out of current TX to not be affected by rollback.
+               scheduleJanitor(getNewCarrier(), false, true);
             }
-            catch (InterruptedException x)
+
+            if (doRollback())
             {
+               // re-throw exception but without retry from MultipleTryInterceptor.
+               throw new NoRetryException(exception);
             }
-            scheduleJanitor(getNewCarrier());
          }
-
       }
 
       return performed ? Boolean.TRUE : Boolean.FALSE;
@@ -163,19 +180,11 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
       }
    }
 
-   public static class ProcessStopJanitorMonitor
+   static class ProcessStopJanitorMonitor
    {
       private static ProcessStopJanitorMonitor instance = null;
 
-      private HashMap<Long, Boolean> repository;
-
-      private final ReentrantLock lock = new ReentrantLock();
-
-      private ProcessStopJanitorMonitor()
-      {
-
-         repository = new HashMap<Long, Boolean>();
-      }
+      private HashMap<Long, Boolean> repository = new HashMap<Long, Boolean>();
 
       public synchronized static ProcessStopJanitorMonitor getInstance()
       {
@@ -183,48 +192,22 @@ public abstract class ProcessHierarchyStateChangeJanitor extends SecurityContext
          {
             instance = new ProcessStopJanitorMonitor();
          }
-
          return instance;
       }
 
-      public boolean register(long processInstanceOid)
+      public synchronized boolean register(long processInstanceOid)
       {
-         lock.lock();
-         try
+         if (repository.containsKey(processInstanceOid))
          {
-            if (repository.containsKey(processInstanceOid))
-            {
-               return false;
-            }
-            else
-            {
-               repository.put(processInstanceOid, true);
-               return true;
-            }
+            return false;
          }
-         finally
-         {
-            lock.unlock();
-         }
+         repository.put(processInstanceOid, true);
+         return true;
       }
 
-      public void unregister(long processInstanceOid)
+      public synchronized void unregister(long processInstanceOid)
       {
-         lock.lock();
-         try
-         {
-            repository.remove(processInstanceOid);
-         }
-         finally
-         {
-            lock.unlock();
-         }
-      }
-
-      public HashMap<Long, Boolean> getRepository()
-      {
-         return repository;
+         repository.remove(processInstanceOid);
       }
    }
-
 }

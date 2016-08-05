@@ -1,11 +1,11 @@
 package org.eclipse.stardust.engine.extensions.camel.core.route.builder;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IApplication;
@@ -13,9 +13,9 @@ import org.eclipse.stardust.engine.core.model.beans.ApplicationBean;
 import org.eclipse.stardust.engine.core.model.beans.ApplicationTypeBean;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
-import org.eclipse.stardust.engine.extensions.camel.core.ProducerRouteContext;
 import org.eclipse.stardust.engine.extensions.camel.core.RouteDefinitionBuilder;
 import org.eclipse.stardust.engine.extensions.camel.core.app.GenericApplicationRouteContext;
+import org.junit.Test;
 
 public class CamelProducerApplicationRouteBuilderTest
 {
@@ -61,11 +61,7 @@ public class CamelProducerApplicationRouteBuilderTest
    @Test
    public void testProducerAppEmptyProvidedConfiguration()
    {
-      String expectedRoute = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><route id=\"Producer1458931696\" autoStartup=\"true\"><description>This route is related to dummyAppId defined in dummyModel. The partition is :dummyPartitionId</description></route></routes>";
-
-      String actual = RouteDefinitionBuilder.createProducerXmlConfiguration(new GenericApplicationRouteContext(createProducerApplication("dummyAppId",null,false,false,null), "dummyPartitionId", "dummyContext"));
-      logger.debug("Actual Execution returned :" + actual);
-      assertEquals(expectedRoute, actual);
+      assertNull(RouteDefinitionBuilder.createProducerXmlConfiguration(new GenericApplicationRouteContext(createProducerApplication("dummyAppId",null,false,false,null), "dummyPartitionId", "dummyContext")));
    }
 
    /**

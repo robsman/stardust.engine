@@ -26,14 +26,16 @@ public interface PersistenceController
 
    void markDeleted(boolean writeThrough);
 
+   boolean isDeleted();
+
    void fetchLink(String linkName);
 
    void fetchVector(String vectorName);
-   
+
    boolean isLocked();
-   
+
    void markLocked();
-   
+
    void markModified();
 
    void markModified(String fieldName);
@@ -45,7 +47,7 @@ public interface PersistenceController
    void reloadAttribute(String attributeName) throws PhantomException;
 
    boolean isModified();
-   
+
    /**
     * @return The names of all modified fields, <code>null</code> if no hint on which
     *         fields were updated is existent.

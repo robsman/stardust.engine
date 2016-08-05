@@ -145,6 +145,8 @@ public interface IActivityInstance extends AttributedIdentifiablePersistent
 
    void suspend() throws IllegalStateChangeException;
 
+   void halt() throws IllegalStateChangeException;
+
    void interrupt() throws IllegalStateChangeException;
 
    void delegateToDefaultPerformer() throws AccessForbiddenException;
@@ -170,7 +172,4 @@ public interface IActivityInstance extends AttributedIdentifiablePersistent
    void doCompleteActivity() throws IllegalStateChangeException;
 
    boolean isHalted();
-
-   boolean isHalting();
-
 }

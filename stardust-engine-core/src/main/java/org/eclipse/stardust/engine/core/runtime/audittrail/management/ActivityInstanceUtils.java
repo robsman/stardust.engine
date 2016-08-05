@@ -26,6 +26,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -101,9 +102,7 @@ public class ActivityInstanceUtils
 
       if (AbortScope.RootHierarchy == abortScope)
       {
-         IProcessInstance processInstance = ai.getProcessInstance();
-         ProcessInstanceUtils.abortProcessInstance(ProcessInstanceUtils.getActualRootPI(processInstance));
-
+         ProcessInstanceUtils.abortProcessInstance(ProcessInstanceUtils.getActualRootPI(pi));
       }
       else if (AbortScope.SubHierarchy == abortScope)
       {
@@ -429,56 +428,62 @@ public class ActivityInstanceUtils
    public static boolean isActiveState(IActivityInstance activityInstance)
    {
       return !activityInstance.isTerminated() && !activityInstance.isAborting()
-            && !activityInstance.isHalting() && !activityInstance.isHalted();
+            && !activityInstance.isHalted();
    }
 
    public static boolean isHaltable(IActivityInstance activityInstance)
    {
-      if (activityInstance == null || activityInstance.isTerminated())
-      {
-         return false;
-      }
+      return activityInstance != null
+            // terminated activities are terminated !!!
+            && (!activityInstance.isTerminated()
+            // already halted, nothing more to do here.
+            && !activityInstance.isHalted()
+            // is in process of aborting, do not halt.
+            && !activityInstance.isAborting()
+            || ActivityInstanceState.Application.equals(activityInstance.getState())
+               && activityInstance.getActivity().isInteractive());
+   }
 
-      IActivity activity = activityInstance.getActivity();
+   public static void assertPerformAllowedIfHalted(IActivityInstance ai)
+   {
+      if (ai.isHalted() && !wasPreviouslyActivated(ai))
+      {
+         throw new IllegalOperationException(
+               BpmRuntimeError.BPMRT_PI_IS_HALTED.raise(ai.getProcessInstanceOID()));
+      }
+   }
 
-      if (activity.getLoopCharacteristics() instanceof IMultiInstanceLoopCharacteristics)
+   private static boolean wasPreviouslyActivated(IActivityInstance activityInstance)
+   {
+      // check last states must be Halted and Application in that order
+      Iterator<ActivityInstanceHistoryBean> historicStates = ActivityInstanceHistoryBean.getAllForActivityInstance(activityInstance, false);
+      if (historicStates != null && historicStates.hasNext()
+            && ActivityInstanceState.Halted == historicStates.next().getState())
       {
-         // do not halt multi instance activities
-         return false;
+         if (historicStates.hasNext()
+               && ActivityInstanceState.Application == historicStates.next().getState())
+         {
+            return true;
+         }
       }
-      else if (ActivityInstanceState.Application.equals(activityInstance.getState()))
-      {
-         // do not halt application state for interactive and non-interactive
-         return false;
-      }
-      else if (ActivityInstanceState.Halted.equals(activityInstance.getState()))
-      {
-         // is already halted
-         return false;
-      }
-      else if (ActivityInstanceState.Aborting.equals(activityInstance.getState()))
-      {
-         // is in process of aborting, do not halt.
-         return false;
-      }
-
-      return true;
+      return false;
    }
 
    public static void assertNotHalted(IActivityInstance ai)
    {
-      if (ai.isHalted() || ai.isHalting())
+      if (ai.isHalted())
       {
          throw new IllegalOperationException(
                BpmRuntimeError.BPMRT_AI_IS_HALTED.raise(ai.getOID()));
       }
+
       if (isHaltable(ai)
             && ProcessInstanceUtils.isInHaltingPiHierarchy(ai.getProcessInstance()))
       {
          // found an AI which is in halted hierarchy but not in halted state.
 
          // reschedule halt janitor.
-         ProcessHaltJanitor.scheduleJanitor(new HaltJanitorCarrier(ai.getProcessInstanceOID(), 0), false);
+         ProcessHaltJanitor.scheduleSeparate(ai.getProcessInstanceOID(), 0);
 
          // cancel current service call.
          throw new IllegalOperationException(
@@ -510,22 +515,48 @@ public class ActivityInstanceUtils
          return false;
       }
 
-      if(dataMapping.getBooleanAttribute(PredefinedConstants.MANDATORY_DATA_MAPPING))
+      IActivityInstance ai = ActivityInstanceBean.findByOID(activityInstanceOID);
+      IActivity activity = ai.getActivity();
+
+      IDataMapping mandatoryDataMapping = null;
+      ModelElementList outDataMappings = activity.getOutDataMappings();
+      for (int i = 0; i < outDataMappings.size(); ++i)
+      {
+         IDataMapping outDataMapping = (IDataMapping) outDataMappings.get(i);
+         if(outDataMapping.getId().equals(dataMapping.getId())
+               && outDataMapping.getData().equals(dataMapping.getData())
+               && outDataMapping.getContext().equals(dataMapping.getContext()))
+         {
+            mandatoryDataMapping = outDataMapping;
+            break;
+         }
+      }
+
+      if(mandatoryDataMapping != null && mandatoryDataMapping.getBooleanAttribute(PredefinedConstants.MANDATORY_DATA_MAPPING))
       {
          if(data.getAttribute(PredefinedConstants.DEFAULT_VALUE_ATT) == null)
          {
-            int cnt = 0;
+            int cntAll = 0;
+            int cntSuspended = 0;
+            int cntApplication = 0;            
+            
             Iterator<ActivityInstanceHistoryBean> history = ActivityInstanceHistoryBean.getAllForActivityInstance(
             ActivityInstanceBean.findByOID(activityInstanceOID));
             while (history.hasNext())
             {
+               cntAll++;
                ActivityInstanceHistoryBean aih = history.next();
                if (ActivityInstanceState.Application == aih.getState())
                {
-                  cnt++;
+                  cntApplication++;
                }
+               if (ActivityInstanceState.Suspended == aih.getState())
+               {
+                  cntSuspended++;
+               }               
             }
-            if(cnt == 1)
+            
+            if(cntAll == (cntApplication + cntSuspended))
             {
                return true;
             }

@@ -132,6 +132,14 @@ public interface AdministrationService extends org.eclipse.stardust.engine.core.
          throws org.eclipse.stardust.common.error.WorkflowException;
          
    /**
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#cleanupRuntime(boolean keepUsers, boolean keepBO)
+    */
+    public void cleanupRuntime(
+         boolean keepUsers, boolean keepBO,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException;
+         
+   /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#cleanupRuntime(boolean keepUsers)
     */
     public void cleanupRuntime(

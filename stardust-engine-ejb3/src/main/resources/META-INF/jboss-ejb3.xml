@@ -18,6 +18,18 @@
         <res-ref-name>jcr/ContentRepository</res-ref-name>
         <jndi-name>java:/jcr/jackrabbit</jndi-name>
       </resource-ref>
+      <resource-ref>
+        <res-ref-name>jms/CarnotXAConnectionFactory</res-ref-name>
+        <jndi-name>java:/CarnotConnectionFactory</jndi-name>
+      </resource-ref>
+      <resource-env-ref>
+        <resource-env-ref-name>jms/CarnotSystemQueue</resource-env-ref-name>
+        <jndi-name>java:/queue/CarnotSystemQueue</jndi-name>
+      </resource-env-ref>
+      <resource-env-ref>
+        <resource-env-ref-name>jms/CarnotApplicationQueue</resource-env-ref-name>
+        <jndi-name>java:/queue/CarnotApplicationQueue</jndi-name>
+      </resource-env-ref>
     </session>
     <session>
       <ejb-name>WorkflowServiceImpl</ejb-name>
@@ -29,6 +41,18 @@
         <res-ref-name>jcr/ContentRepository</res-ref-name>
         <jndi-name>java:/jcr/jackrabbit</jndi-name>
       </resource-ref>
+      <resource-ref>
+        <res-ref-name>jms/CarnotXAConnectionFactory</res-ref-name>
+        <jndi-name>java:/CarnotConnectionFactory</jndi-name>
+      </resource-ref>
+      <resource-env-ref>
+        <resource-env-ref-name>jms/CarnotSystemQueue</resource-env-ref-name>
+        <jndi-name>java:/queue/CarnotSystemQueue</jndi-name>
+      </resource-env-ref>
+      <resource-env-ref>
+        <resource-env-ref-name>jms/CarnotApplicationQueue</resource-env-ref-name>
+        <jndi-name>java:/queue/CarnotApplicationQueue</jndi-name>
+      </resource-env-ref>
     </session>
     <session>
       <ejb-name>AdministrationServiceImpl</ejb-name>
@@ -40,6 +64,22 @@
         <res-ref-name>jcr/ContentRepository</res-ref-name>
         <jndi-name>java:/jcr/jackrabbit</jndi-name>
       </resource-ref>
+      <resource-ref>
+        <res-ref-name>jms/CarnotXAConnectionFactory</res-ref-name>
+        <jndi-name>java:/CarnotConnectionFactory</jndi-name>
+      </resource-ref>
+      <resource-env-ref>
+        <resource-env-ref-name>jms/CarnotSystemQueue</resource-env-ref-name>
+        <jndi-name>java:/queue/CarnotSystemQueue</jndi-name>
+      </resource-env-ref>
+      <resource-env-ref>
+        <resource-env-ref-name>jms/CarnotApplicationQueue</resource-env-ref-name>
+        <jndi-name>java:/queue/CarnotApplicationQueue</jndi-name>
+      </resource-env-ref>
+      <resource-env-ref>
+        <resource-env-ref-name>jms/CarnotApplicationQueue</resource-env-ref-name>
+        <jndi-name>java:/queue/CarnotDaemonQueue</jndi-name>
+      </resource-env-ref>
     </session>
     <session>
       <ejb-name>UserServiceImpl</ejb-name>
@@ -90,5 +130,32 @@
         <jndi-name>java:/queue/CarnotDaemonQueue</jndi-name>
       </resource-env-ref>
     </session>
+    <message-driven>
+      <ejb-name>MessageListener</ejb-name>
+      <activation-config>
+         <activation-config-property>
+            <activation-config-property-name>destination</activation-config-property-name>
+            <activation-config-property-value>java:/queue/CarnotSystemQueue</activation-config-property-value>
+         </activation-config-property>
+      </activation-config>
+    </message-driven>
+    <message-driven>
+      <ejb-name>ResponseListener</ejb-name>
+      <activation-config>
+         <activation-config-property>
+            <activation-config-property-name>destination</activation-config-property-name>
+            <activation-config-property-value>java:/queue/CarnotApplicationQueue</activation-config-property-value>
+         </activation-config-property>
+      </activation-config>
+    </message-driven>
+    <message-driven>
+      <ejb-name>DaemonListener</ejb-name>
+      <activation-config>
+         <activation-config-property>
+            <activation-config-property-name>destination</activation-config-property-name>
+            <activation-config-property-value>java:/queue/CarnotDaemonQueue</activation-config-property-value>
+         </activation-config-property>
+      </activation-config>
+    </message-driven>
   </enterprise-beans>
 </jboss:ejb-jar>

@@ -98,13 +98,13 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::sqlQuery" Value="SELECT * FROM projects"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::connectionType" Value="direct"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::databasetype" Value="others"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:9900/mem:stardust"/>
+                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:${stardust.h2.network.port}/mem:stardust"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::outputType" Value="SelectList"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::useCVforPassowrd" Value="false" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::driverClassName" Value="org.h2.Driver"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;SelectAllQueryInvocationDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:9900/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;SelectAllQueryInvocationDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:${stardust.h2.network.port}/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="SA"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SqlApplicationTestModel:projects"/>
                   </carnot:Attributes>
@@ -166,12 +166,12 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::connectionType" Value="direct"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::databasetype" Value="others"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::sqlQuery" Value="SELECT * FROM projects where license= :#LICENSE"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:9900/mem:stardust"/>
+                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:${stardust.h2.network.port}/mem:stardust"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::useCVforPassowrd" Value="false" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::driverClassName" Value="org.h2.Driver"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;SelectWithSdtParamDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:9900/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;SelectWithSdtParamDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:${stardust.h2.network.port}/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="SA"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::outputType" Value="SelectList"/>
                      <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="SqlApplicationTestModel:project"/>
@@ -233,12 +233,12 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::databasetype" Value="others"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::outputType" Value="SelectList"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::sqlQuery" Value="SELECT * FROM projects where license= :#licenseParam"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:9900/mem:stardust"/>
+                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:${stardust.h2.network.port}/mem:stardust"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::useCVforPassowrd" Value="false" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::driverClassName" Value="org.h2.Driver"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;SelectWithPrimitiveParamDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:9900/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;SelectWithPrimitiveParamDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:${stardust.h2.network.port}/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="SA"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SqlApplicationTestModel:projects"/>
                   </carnot:Attributes>
@@ -296,12 +296,12 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::connectionType" Value="direct"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::databasetype" Value="others"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::outputType" Value="SelectOne"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:9900/mem:stardust"/>
+                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:${stardust.h2.network.port}/mem:stardust"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::useCVforPassowrd" Value="false" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::driverClassName" Value="org.h2.Driver"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;SelectAndReturnPrimitiveDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:9900/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;SelectAndReturnPrimitiveDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:${stardust.h2.network.port}/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="SA"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SqlApplicationTestModel:license"/>
                   </carnot:Attributes>
@@ -370,12 +370,12 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::connectionType" Value="direct"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::databasetype" Value="others"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::outputType" Value="SelectOne"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:9900/mem:stardust"/>
+                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:${stardust.h2.network.port}/mem:stardust"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::useCVforPassowrd" Value="false" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::driverClassName" Value="org.h2.Driver"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;SelectAndReturnSdtDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:9900/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;SelectAndReturnSdtDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:${stardust.h2.network.port}/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="SA"/>
                      <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="SqlApplicationTestModel:project"/>
                   </carnot:Attributes>
@@ -420,12 +420,12 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::connectionType" Value="direct"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::databasetype" Value="others"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::sqlQuery" Value="insert into projects values (4, 'Felix', 'ASF')"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:9900/mem:stardust"/>
+                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:${stardust.h2.network.port}/mem:stardust"/>
                      <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::useCVforPassowrd" Value="false" Type="boolean"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::driverClassName" Value="org.h2.Driver"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;InsertSQLInvocationDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:9900/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;InsertSQLInvocationDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:${stardust.h2.network.port}/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="SA"/>
                   </carnot:Attributes>
                </carnot:Application>
@@ -466,12 +466,12 @@
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::sqlQuery" Value="update projects set license='Ipp' where id='3'"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::connectionType" Value="direct"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::databasetype" Value="others"/>
-                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:9900/mem:stardust"/>
+                     <carnot:Attribute Name="stardust:sqlScriptingOverlay::url" Value="jdbc:h2:tcp://localhost:${stardust.h2.network.port}/mem:stardust"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::useCVforPassowrd" Value="false" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::transactedRoute" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::autoStartup" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::driverClassName" Value="org.h2.Driver"/>
-                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;UpdateSQLInvocationDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:9900/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::additionalSpringBeanDefinitions" Value="&lt;bean id=&quot;UpdateSQLInvocationDs&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;&lt;property name=&quot;url&quot; value=&quot;jdbc:h2:tcp://localhost:${stardust.h2.network.port}/mem:stardust&quot; /&gt;&lt;property name=&quot;driverClassName&quot; value=&quot;org.h2.Driver&quot; /&gt;&lt;property name=&quot;username&quot; value=&quot;SA&quot; /&gt;&lt;property name=&quot;password&quot; value=&quot;&quot; /&gt;&lt;/bean&gt;"/>
                      <carnot:Attribute Name="stardust:sqlScriptingOverlay::username" Value="SA"/>
                   </carnot:Attributes>
                </carnot:Application>

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.audittrail.management;
 
+import static org.eclipse.stardust.engine.api.query.BusinessObjectQuery.Option.UPGRADE;
+import static org.eclipse.stardust.engine.api.query.BusinessObjectQuery.Option.WITH_VALUES;
 import static org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils.closeResultSet;
 
 import java.io.Reader;
@@ -53,6 +55,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
 import org.eclipse.stardust.engine.core.struct.*;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
+import org.eclipse.stardust.engine.core.struct.spi.StructuredDataLoader;
 import org.eclipse.stardust.engine.core.struct.sxml.Document;
 import org.eclipse.stardust.engine.core.struct.sxml.DocumentBuilder;
 
@@ -229,7 +232,7 @@ public class BusinessObjectUtils
          for (Iterator<IData> data = model.getData().iterator(); data.hasNext();)
          {
             IData item = data.next();
-            if (queryEvaluator.accept(item)
+            if (item.getModel() == model && queryEvaluator.accept(item)
                   && (auth == null || auth.accept(item) || BusinessObjectSecurityUtils
                         .isUnscopedPropagatedAccessAllowed(item, auth)))
             {
@@ -706,7 +709,7 @@ public class BusinessObjectUtils
       ModelManager current = ModelManagerFactory.getCurrent();
       QueryService queryService = new QueryServiceImpl();
 
-      if(!StringUtils.isEmpty(managedOrganizations))
+      if (!StringUtils.isEmpty(managedOrganizations))
       {
          String[] managedOrganizationsArray = managedOrganizations.split(",");
          for (String organizationFullId : managedOrganizationsArray)
@@ -726,7 +729,7 @@ public class BusinessObjectUtils
                organizationId = organizationFullId.split(":")[1];
             }
 
-            if(!StringUtils.isEmpty(modelId) && !CompareHelper.areEqual(modelId, model.getId()))
+            if (!StringUtils.isEmpty(modelId) && !CompareHelper.areEqual(modelId, model.getId()))
             {
                activeModel = current.findActiveModel(modelId);
             }
@@ -1040,5 +1043,47 @@ public class BusinessObjectUtils
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("primary key"));
       }
       return primaryKey;
+   }
+
+   public static void updateBusinessObjects(IModel model)
+   {
+      for (IData data : model.getData())
+      {
+         if (hasBusinessObject(data))
+         {
+            updateBusinessObject(data);
+         }
+      }
+   }
+
+   private static void updateBusinessObject(IData data)
+   {
+      String businessObjectId = new QName(data.getModel().getId(), data.getId()).toString();
+
+      BusinessObjectQuery query = BusinessObjectQuery.findForBusinessObject(businessObjectId);
+      query.setPolicy(new BusinessObjectQuery.Policy(WITH_VALUES, UPGRADE));
+      BusinessObjects bos = getBusinessObjects(query);
+
+      // reset any cached xpath oids
+      data.setRuntimeAttribute(StructuredDataLoader.ALL_DATA_XPATHS_ATT, null);
+      Set<String> processedIds = CollectionUtils.newSet();
+      for (BusinessObject bo : bos)
+      {
+         if (!processedIds.contains(bo.getModelId()) && !bo.getValues().isEmpty())
+         {
+            processedIds.add(bo.getModelId());
+            for (Value value : bo.getValues())
+            {
+               try
+               {
+                  updateInstance(businessObjectId, value.getValue());
+               }
+               catch (ObjectNotFoundException ex)
+               {
+                  createInstance(businessObjectId, value.getValue());
+               }
+            }
+         }
+      }
    }
 }

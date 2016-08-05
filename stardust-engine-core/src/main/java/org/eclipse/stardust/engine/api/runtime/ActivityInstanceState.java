@@ -79,11 +79,7 @@ public class ActivityInstanceState extends IntKey
     */
    public static final int ABORTING = 8;
    /**
-    * The activity instance is in progress of being aborted directly by a user.
-    */
-   public static final int HALTING = 9;
-   /**
-    * The activity instance is in progress of being aborted directly by a user.
+    * The activity instance has been halted directly by a user.
     */
    public static final int HALTED = 10;
 
@@ -103,10 +99,8 @@ public class ActivityInstanceState extends IntKey
       new ActivityInstanceState(HIBERNATED, "Hibernated");
    public static final ActivityInstanceState Aborting =
       new ActivityInstanceState(ABORTING, "Aborting");
-   public static final ActivityInstanceState Halting =
-         new ActivityInstanceState(HALTING, "Halting");
-      public static final ActivityInstanceState Halted =
-         new ActivityInstanceState(HALTED, "Halted");
+   public static final ActivityInstanceState Halted =
+      new ActivityInstanceState(HALTED, "Halted");
 
    private static final ActivityInstanceState[] KEYS = new ActivityInstanceState[]
          {
@@ -119,7 +113,6 @@ public class ActivityInstanceState extends IntKey
             Aborted,
             Hibernated,
             Aborting,
-            Halting,
             Halted
          };
 

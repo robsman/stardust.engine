@@ -593,6 +593,45 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * database. The tables will still remain in the database.
      *
      * @param keepUsers a flag to specify if the users should be deleted or not.
+     * @param keepBO a flag to specify if the BO should be deleted or not.
+     *
+     * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#cleanupRuntime(
+     *     boolean keepUsers, boolean keepBO)
+     */
+    public void cleanupRuntime(
+         boolean keepUsers, boolean keepBO,
+         org.eclipse.stardust.engine.core.runtime.ejb.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.common.error.WorkflowException
+    {
+      java.util.Map __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            service).cleanupRuntime(keepUsers, keepBO);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.common.error.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
+    /**
+     * Removes all records from the runtime environment making up the audit trail
+     * database. The tables will still remain in the database.
+     *
+     * @param keepUsers a flag to specify if the users should be deleted or not.
      *
      * @throws org.eclipse.stardust.common.error.WorkflowException as a wrapper for
      *         org.eclipse.stardust.common.error.PublicExceptions and org.eclipse.stardust.common.error.ResourceExceptions
@@ -1342,6 +1381,13 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * <li>Activity state after: completed</li>
      * <li>Process state after: State does not change.</li>
      * </ul>
+     * <p> If the process hierarchy is halted: </p>
+     * <ul><li>Activity state before: halted</li>
+     * <li>Process state before: halted</li>
+     * <li>Activity state after: completed</li>
+     * <li>Process state after: State does not change.</li>
+     * <li>Next activity will not be created since process hierarchy is halted.</li>
+     * </ul>
      * </p>
      *
      * @param activityInstanceOID - the OID of the non-interactive activity to be completed.
@@ -1423,6 +1469,13 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      * <ul><li>Activity state before: application, suspended, hibernated</li>
      * <li>Process state before: active, interrupted</li>
      * <li>Activity state after: suspended</li>
+     * <li>Process state after: State does not change.</li>
+     * </ul>
+     * 
+     * <p> If the process hierarchy is halted: </p>
+     * <ul><li>Activity state before: halted, application</li>
+     * <li>Process state before: halted</li>
+     * <li>Activity state after: halted</li>
      * <li>Process state after: State does not change.</li>
      * </ul>
      * </p>

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+    Copyright (c) 2011, 2016 SunGard CSA LLC and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
     http://www.eclipse.org/legal/epl-v10.html
-   
+
     Contributors:
        SunGard CSA LLC - initial API and implementation and/or initial documentation
  -->
@@ -15,7 +15,7 @@
    <xs:element name="runtime-setup">
       <xs:complexType>
          <xs:sequence>
-            <xs:element ref="crs:audit-trail" minOccurs="0" maxOccurs="1"></xs:element>
+            <xs:element ref="crs:audit-trail" minOccurs="0" maxOccurs="1" />
          </xs:sequence>
       </xs:complexType>
    </xs:element>
@@ -23,7 +23,7 @@
    <xs:element name="audit-trail">
       <xs:complexType>
          <xs:sequence>
-            <xs:element ref="crs:data-clusters" minOccurs="0" maxOccurs="1"></xs:element>
+            <xs:element ref="crs:data-clusters" minOccurs="0" maxOccurs="1" />
          </xs:sequence>
       </xs:complexType>
    </xs:element>
@@ -31,7 +31,7 @@
    <xs:element name="data-clusters">
       <xs:complexType>
          <xs:sequence>
-            <xs:element ref="crs:data-cluster" maxOccurs="unbounded" minOccurs="0"></xs:element>
+            <xs:element ref="crs:data-cluster" maxOccurs="unbounded" minOccurs="0" />
          </xs:sequence>
       </xs:complexType>
    </xs:element>
@@ -39,8 +39,9 @@
    <xs:element name="data-cluster">
       <xs:complexType>
          <xs:sequence>
-            <xs:element ref="crs:data-slots" minOccurs="0" maxOccurs="1"></xs:element>
-            <xs:element ref="crs:data-cluster-indexes" minOccurs="0" maxOccurs="1"></xs:element>
+            <xs:element ref="crs:data-slots" minOccurs="0" maxOccurs="1" />
+            <xs:element ref="crs:descriptor-slots" minOccurs="0" maxOccurs="1" />
+            <xs:element ref="crs:data-cluster-indexes" minOccurs="0" maxOccurs="1" />
          </xs:sequence>
          <xs:attribute name="tableName" type="xs:string" use="required"></xs:attribute>
          <xs:attribute name="processInstanceColumn" type="xs:string" use="required"></xs:attribute>
@@ -51,7 +52,7 @@
    <xs:element name="data-slots">
       <xs:complexType>
          <xs:sequence>
-            <xs:element ref="crs:data-slot" minOccurs="0" maxOccurs="unbounded"></xs:element>
+            <xs:element ref="crs:data-slot" minOccurs="0" maxOccurs="unbounded" />
          </xs:sequence>
       </xs:complexType>
    </xs:element>
@@ -66,16 +67,53 @@
          <xs:attribute name="nValueColumn" type="xs:string" use="optional" />
          <xs:attribute name="sValueColumn" type="xs:string" use="optional" />
          <xs:attribute name="dValueColumn" type="xs:string" use="optional" />
-         <xs:attribute name="ignorePreparedStatements" type="xs:boolean" use="optional" />         
+         <xs:attribute name="ignorePreparedStatements" type="xs:boolean" use="optional" />
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="descriptor-slots">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="crs:descriptor-slot" minOccurs="0" maxOccurs="unbounded" />
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="descriptor-slot">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="crs:datas" minOccurs="1" maxOccurs="1" />
+         </xs:sequence>
+         <xs:attribute name="descriptorId" type="xs:string" use="required" />
+         <xs:attribute name="oidColumn" type="xs:string" use="required" />
+         <xs:attribute name="typeColumn" type="xs:string" use="required" />
+         <xs:attribute name="nValueColumn" type="xs:string" use="optional" />
+         <xs:attribute name="sValueColumn" type="xs:string" use="optional" />
+         <xs:attribute name="dValueColumn" type="xs:string" use="optional" />
+         <xs:attribute name="ignorePreparedStatements" type="xs:boolean" use="optional" />
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="datas">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="crs:data" minOccurs="0" maxOccurs="unbounded" />
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="data">
+      <xs:complexType>
+         <xs:attribute name="modelId" type="xs:string" use="required" />
+         <xs:attribute name="dataId" type="xs:string" use="required" />
+         <xs:attribute name="attributeName" type="xs:string" use="optional" />
       </xs:complexType>
    </xs:element>
 
    <xs:element name="data-cluster-indexes">
       <xs:complexType>
          <xs:sequence>
-            <xs:element ref="crs:data-cluster-index" minOccurs="0"
-               maxOccurs="unbounded">
-            </xs:element>
+            <xs:element ref="crs:data-cluster-index" minOccurs="0" maxOccurs="unbounded" />
          </xs:sequence>
       </xs:complexType>
    </xs:element>

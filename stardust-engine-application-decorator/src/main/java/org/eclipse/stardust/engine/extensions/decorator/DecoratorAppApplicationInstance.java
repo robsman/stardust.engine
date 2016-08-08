@@ -213,8 +213,14 @@ public class DecoratorAppApplicationInstance implements SynchronousApplicationIn
       {
          String runtimeBinding=processElementId(this.eltId);
          IProcessDefinition processDefinition = ModelUtils.getProcessDefinition(runtimeBinding);
-         ProcessInstance pi=workflowService.startProcess(runtimeBinding, Collections.EMPTY_MAP, true);
+         ProcessInstance pi;
+         if (decoratedApplicationInstance!=null){
+        	 pi=workflowService.startProcess(runtimeBinding, Collections.EMPTY_MAP, true);
+         } else{
+             pi=workflowService.startProcess(runtimeBinding, inAccessPointValues, true);
+         }
          ProcessInstanceBean instance = ProcessInstanceBean.findByOID(pi.getOID());
+
          for (String key:inAccessPointValues.keySet())
          {
             Object bridgeObject=inAccessPointValues.get(key);

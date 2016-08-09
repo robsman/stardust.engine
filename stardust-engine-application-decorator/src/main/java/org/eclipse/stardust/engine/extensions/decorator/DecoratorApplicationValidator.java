@@ -9,19 +9,22 @@ import org.eclipse.stardust.engine.api.model.IApplication;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidatorEx;
 
-public class DecoratorApplicationValidator implements ApplicationValidator,
-ApplicationValidatorEx{
-
-	public List validate(Map attributes, Map typeAttributes,
-			Iterator accessPoints) {
-
-	   List inconsistencies = CollectionUtils.newList();
-		return inconsistencies;
-	}
-
-	public List validate(IApplication application) {
-	   List inconsistencies = CollectionUtils.newList();
+public class DecoratorApplicationValidator
+      implements ApplicationValidator, ApplicationValidatorEx
+{
+   @SuppressWarnings("rawtypes")
+   public List validate(Map attributes, Map typeAttributes, Iterator accessPoints)
+   {
+      // TODO: implement
+      List inconsistencies = CollectionUtils.newList();
       return inconsistencies;
-	}
+   }
 
+   @SuppressWarnings("rawtypes")
+   public List validate(IApplication application)
+   {
+      // TODO: implement
+      List inconsistencies = CollectionUtils.newList();
+      return inconsistencies;
+   }
 }

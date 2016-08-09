@@ -25,5 +25,4 @@ public class ActivityInstanceWrapper extends ActivityInstanceDetails
    {
       return aiWrapper;
    }
-
 }

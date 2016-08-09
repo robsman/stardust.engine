@@ -19,6 +19,7 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.Operator.Binary;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
@@ -163,28 +164,56 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
          throw new InternalException(
                "Inlined data filter evaluation is not supported for big data values.");
       }
-      
+
       String descriptorID = filter.getDescriptorID();
       OrTerm orTerm = new OrTerm();
       List<AbstractDataFilter> dataFilters = CollectionUtils.newList();
-      Map<String, String> dataAccessPath = SqlBuilderBase.getDescriptorDataAccessPathMap(descriptorID,
-            context.getEvaluationContext().getModelManager());
-      for (Map.Entry<String, String> entry : dataAccessPath.entrySet())
+      if (filter.isCaseDescriptor())
       {
-         String dataID = entry.getKey();
-         String attributeName = entry.getValue();
-         if (filter.getOperator() instanceof Binary)
+         if (PredefinedConstants.CASE_NAME_ELEMENT.equals(descriptorID))
          {
-            dataFilters.add(new DataFilter(dataID, attributeName,
-                  (Operator.Binary) filter.getOperator(), filter.getOperand(), filter
-                        .getFilterMode()));
+            dataFilters.add(new DataFilter(PredefinedConstants.QUALIFIED_CASE_DATA_ID,
+                  PredefinedConstants.CASE_NAME_ELEMENT, (Binary) filter.getOperator(),
+                  filter.getOperand(), filter.getFilterMode()));
+
+         }
+         else if (PredefinedConstants.CASE_DESCRIPTION_ELEMENT.equals(descriptorID))
+         {
+            dataFilters.add(new DataFilter(PredefinedConstants.QUALIFIED_CASE_DATA_ID,
+                  PredefinedConstants.CASE_DESCRIPTION_ELEMENT, (Binary) filter
+                        .getOperator(), filter.getOperand(), filter.getFilterMode()));
          }
          else
          {
-            dataFilters.add(new DataFilter(dataID, attributeName,
-                  (Operator.Ternary) filter.getOperator(), (Serializable) ((Pair) filter
-                        .getOperand()).getFirst(), (Serializable) ((Pair) filter
-                        .getOperand()).getSecond(), filter.getFilterMode()));
+            dataFilters.add(new DataFilter(PredefinedConstants.QUALIFIED_CASE_DATA_ID,
+                  PredefinedConstants.CASE_DESCRIPTOR_VALUE_XPATH, (Binary) filter
+                        .getOperator(), '{' + descriptorID + '}' + filter.getOperand(),
+                  filter.getFilterMode()));
+         }
+      }
+      else
+      {
+         Map<String, String> dataAccessPath = SqlBuilderBase
+               .getDescriptorDataAccessPathMap(descriptorID, context
+                     .getEvaluationContext().getModelManager());
+         for (Map.Entry<String, String> entry : dataAccessPath.entrySet())
+         {
+            String dataID = entry.getKey();
+            String attributeName = entry.getValue();
+            if (filter.getOperator() instanceof Binary)
+            {
+               dataFilters.add(new DataFilter(dataID, attributeName,
+                     (Operator.Binary) filter.getOperator(), filter.getOperand(), filter
+                           .getFilterMode()));
+            }
+            else
+            {
+               dataFilters.add(new DataFilter(dataID, attributeName,
+                     (Operator.Ternary) filter.getOperator(),
+                     (Serializable) ((Pair) filter.getOperand()).getFirst(),
+                     (Serializable) ((Pair) filter.getOperand()).getSecond(), filter
+                           .getFilterMode()));
+            }
          }
       }
       DataFilterExtensionContext ctx = new DataFilterExtensionContext(dataFilters);

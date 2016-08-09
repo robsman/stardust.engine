@@ -11,13 +11,20 @@
 package org.eclipse.stardust.engine.api.query;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.EvaluationOption;
+import org.eclipse.stardust.engine.core.persistence.IEvaluationOptionProvider;
+import org.eclipse.stardust.engine.core.persistence.Operator;
 import org.eclipse.stardust.engine.core.persistence.Operator.Binary;
 import org.eclipse.stardust.engine.core.persistence.Operator.Ternary;
 
@@ -41,6 +48,8 @@ public class DescriptorFilter implements FilterCriterion, IEvaluationOptionProvi
 
    private Map options;
 
+   private final boolean caseDescriptor;
+
    private DescriptorFilter(String descriptorID, Ternary operator, Serializable value1,
          Serializable value2, int filterMode)
    {
@@ -48,6 +57,7 @@ public class DescriptorFilter implements FilterCriterion, IEvaluationOptionProvi
       this.filterMode = filterMode;
       this.operand = new Pair(value1, value2);
       this.descriptorID = descriptorID;
+      this.caseDescriptor = false;
    }
 
    private DescriptorFilter(String descriptorID, Binary operator, Serializable value,
@@ -57,6 +67,17 @@ public class DescriptorFilter implements FilterCriterion, IEvaluationOptionProvi
       this.filterMode = filterMode;
       this.operand = value;
       this.descriptorID = descriptorID;
+      this.caseDescriptor = false;
+   }
+
+   private DescriptorFilter(String descriptorID, Binary operator, boolean caseDescriptor, Serializable value,
+         int filterMode)
+   {
+      this.operator = operator;
+      this.filterMode = filterMode;
+      this.operand = value;
+      this.descriptorID = descriptorID;
+      this.caseDescriptor = caseDescriptor;
    }
 
    /**
@@ -304,6 +325,39 @@ public class DescriptorFilter implements FilterCriterion, IEvaluationOptionProvi
       return new DescriptorFilter(descriptorID, Operator.NOT_IN, new ArrayList(values),
             MODE_ALL_FROM_SCOPE);
    }
+   
+   /**
+    * Creates a filter matching case descriptor being equal with the given value.
+    *
+    * @param id
+    *           descriptor id.
+    * @param value
+    *           the required descriptor value.
+    * @return The configured descriptor filter.
+    */
+   public static DescriptorFilter equalsCaseDescriptor(String descriptorID,
+         Serializable value)
+   {
+      return new DescriptorFilter(descriptorID, Operator.IS_EQUAL, true, value,
+            MODE_ALL_FROM_SCOPE);
+   }
+   
+   /**
+    * Creates a filter matching case descriptor using the like function with the given
+    * value.
+    *
+    * @param id
+    *           descriptor id.
+    * @param value
+    *           the required descriptor value.
+    * @return The configured descriptor filter.
+    */
+   public static DescriptorFilter likeCaseDescriptor(String descriptorID,
+         Serializable value)
+   {
+      return new DescriptorFilter(descriptorID, Operator.LIKE, true, value,
+            MODE_ALL_FROM_SCOPE);
+   }
 
    public String getDescriptorID()
    {
@@ -338,6 +392,11 @@ public class DescriptorFilter implements FilterCriterion, IEvaluationOptionProvi
       }
 
       return (Serializable) options.put(option, value);
+   }
+   
+   public boolean isCaseDescriptor()
+   {
+      return caseDescriptor;
    }
 
    protected static void checkCollectionValues(Collection values, Operator operator)

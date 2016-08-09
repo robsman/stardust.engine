@@ -2774,7 +2774,7 @@ public class DDLManager
          throws SQLException
    {
       boolean defectReferenceExists = true;
-      boolean anyReferencedDataDeployed = false;
+      boolean anyReferencedDataFound = false;
 
       // check for defect with primitive data
       if (clusterSlot.hasPrimitiveData())
@@ -2783,7 +2783,7 @@ public class DDLManager
                .findAllPrimitiveDataRtOids(clusterSlot);
          if (!primitiveDataRtOids.isEmpty())
          {
-            anyReferencedDataDeployed = true;
+            anyReferencedDataFound = true;
 
             Set<Long> modelOids = CollectionUtils.newHashSet();
             for (IData data : primitiveDataRtOids.values())
@@ -2825,7 +2825,7 @@ public class DDLManager
                .findAllStructuredDataRtOids(clusterSlot);
          if (!structuredDataRtOids.isEmpty())
          {
-            anyReferencedDataDeployed = true;
+            anyReferencedDataFound = true;
 
             Set<Long> modelOids = CollectionUtils.newHashSet();
             for (Pair<IData, String> data : structuredDataRtOids.values())
@@ -2868,7 +2868,7 @@ public class DDLManager
          }
       }
 
-      return anyReferencedDataDeployed ? defectReferenceExists : false;
+      return anyReferencedDataFound ? defectReferenceExists : false;
    }
 
    /**
@@ -2944,7 +2944,7 @@ public class DDLManager
    private boolean existsExistingDvsNotRefByDC(DataCluster dataCluster, String schemaName,
          Statement verifyStmt, AbstractDataClusterSlot clusterSlot) throws SQLException
    {
-      boolean anyReferencedDataDeployed = false;
+      boolean anyReferencedDataFound = false;
       boolean defectReferenceExists = true;
 
       // check for defect with primitive data
@@ -2955,7 +2955,7 @@ public class DDLManager
 
          if (!primitiveDataRtOids.isEmpty())
          {
-            anyReferencedDataDeployed = true;
+            anyReferencedDataFound = true;
 
             Set<Long> modelOids = CollectionUtils.newHashSet();
             for (IData data : primitiveDataRtOids.values())
@@ -3001,7 +3001,7 @@ public class DDLManager
 
          if (!structuredDataRtOids.isEmpty())
          {
-            anyReferencedDataDeployed = true;
+            anyReferencedDataFound = true;
 
             Set<Long> modelOids = CollectionUtils.newHashSet();
             for (Pair<IData, String> data : structuredDataRtOids.values())
@@ -3029,8 +3029,7 @@ public class DDLManager
                         "sd._$SD_OID$_ = sdv._$SDV_XPATH$_ AND " +
                         "dv._$DV_DATA$_ = sd._$SD_DATA$_ AND " +
                         "dv._$DV_MODEL$_ = sd._$SD_MODEL$_ AND " +
-                        "sdv._$SDV_PROCESSINSTANCE$_ = dv._$DV_PROCINSTANCE$_ AND " +
-                        "dv._$DV_OID$_ = dc._$SLOT_COL_OID$_" +
+                        "sdv._$SDV_PROCESSINSTANCE$_ = dv._$DV_PROCINSTANCE$_" +
                         ")"
                   );
 
@@ -3043,7 +3042,7 @@ public class DDLManager
          }
       }
 
-      return anyReferencedDataDeployed ? defectReferenceExists : false;
+      return anyReferencedDataFound ? defectReferenceExists : false;
    }
 
    private void printLogMessage(String message, PrintStream consoleLog)

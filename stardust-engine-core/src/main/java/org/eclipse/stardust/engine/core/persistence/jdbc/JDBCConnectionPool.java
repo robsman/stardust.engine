@@ -67,6 +67,8 @@ public class JDBCConnectionPool
 
    private ReleaseConnectionsHook shutdownHook;
 
+   private boolean autoCommit = false;
+
    /**
     *
     */
@@ -89,7 +91,14 @@ public class JDBCConnectionPool
    public JDBCConnectionPool(String driverClazz, String databaseURL, String user,
          String password, int startTotal, int maxConnections, int returnConnections)
    {
+      this(driverClazz, databaseURL, user, password, startTotal, maxConnections, returnConnections, false);
+   }
+
+   public JDBCConnectionPool(String driverClazz, String databaseURL, String user,
+         String password, int startTotal, int maxConnections, int returnConnections, boolean autoCommit)
+   {
       this(databaseURL, user, password, maxConnections, returnConnections);
+      this.autoCommit = autoCommit;
 
       if (trace.isDebugEnabled())
       {
@@ -117,7 +126,14 @@ public class JDBCConnectionPool
    public JDBCConnectionPool(Driver driver, String databaseURL, String user,
          String password, int startTotal, int maxConnections, int returnConnections)
    {
+      this(driver, databaseURL,user, password, startTotal,maxConnections,returnConnections, false);
+   }
+
+   public JDBCConnectionPool(Driver driver, String databaseURL, String user,
+         String password, int startTotal, int maxConnections, int returnConnections, boolean autoCommit)
+   {
       this(databaseURL, user, password, maxConnections, returnConnections);
+      this.autoCommit = autoCommit;
 
       this.driver = driver;
 
@@ -142,6 +158,16 @@ public class JDBCConnectionPool
 
       this.returnConnections = returnConnections;
       this.maxConnections = maxConnections;
+   }
+
+   public void setAutoCommit(Boolean autoCommit)
+   {
+      this.autoCommit = autoCommit;
+   }
+
+   public Boolean getAutoCommit()
+   {
+      return autoCommit;
    }
 
    private void initPool(int startTotal)
@@ -268,7 +294,7 @@ public class JDBCConnectionPool
 
          LocalJDBCConnection connection = new LocalJDBCConnection(jdbcConnection, this);
 
-         connection.setAutoCommit(false);
+         connection.setAutoCommit(autoCommit);
 
          connections.add(connection);
 

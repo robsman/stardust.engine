@@ -30,17 +30,22 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 public class SessionFactory implements SessionProperties
 {
    private static final Logger trace = LogManager.getLogger(SessionFactory.class);
-   
+
    private static final String KEY_DS_AUDIT_TRAIL_SESSION = DS_NAME_AUDIT_TRAIL
          + DS_SESSION_SUFFIX;
-   
+
    private static final String JNDI_NAME_AUDIT_TRAIL_SESSION = "jdbc/"
          + DS_NAME_AUDIT_TRAIL + DS_DATA_SOURCE_SUFFIX;
-   
+
    public static final String AUDIT_TRAIL = DS_NAME_AUDIT_TRAIL;
    public static final String PWH = DS_NAME_PWH;
 
    public static DataSource obtainDataSource(String name)
+   {
+      return obtainDataSource(name, false);
+   }
+
+   public static DataSource obtainDataSource(String name, boolean autoCommit)
    {
       final Parameters params = Parameters.instance();
 
@@ -53,7 +58,7 @@ public class SessionFactory implements SessionProperties
          String user = params.getString(name + DS_USER_SUFFIX);
          String password = params.getString(name + DS_PASSWORD_SUFFIX);
 
-         result = new LocalDataSource(driver, url, user, password);
+         result = new LocalDataSource(driver, url, user, password, autoCommit);
          params.set("jdbc/" + name + DS_DATA_SOURCE_SUFFIX, result);
       }
       return result;
@@ -95,7 +100,7 @@ public class SessionFactory implements SessionProperties
    /**
     * Creates a new session and binds it locally to this thread. Pushes a new thread local
     * property layer.
-    * 
+    *
     * @deprecated Directly use {@link #createSession(String)} and bind yourself.
     */
    public static Session bindSession(String sessionName)
@@ -115,25 +120,25 @@ public class SessionFactory implements SessionProperties
       if (DS_NAME_AUDIT_TRAIL.equals(name))
       {
          BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-         
+
          if ((null != rtEnv) && (null != rtEnv.getAuditTrailSession()))
          {
             return rtEnv.getAuditTrailSession();
          }
       }
-      
+
       final Parameters parameters = Parameters.instance();
       if(trace.isDebugEnabled())
       {
          trace.debug("Parameters: " + parameters);
       }
-      
+
       final String sessionKey = DS_NAME_AUDIT_TRAIL.equals(name)
             ? KEY_DS_AUDIT_TRAIL_SESSION
             : (name + DS_SESSION_SUFFIX);
       return (org.eclipse.stardust.engine.core.persistence.Session) parameters.get(sessionKey);
    }
-   
+
    public static boolean isDebugSession()
    {
       return getSession(AUDIT_TRAIL) instanceof Session.NotJoinEnabled;

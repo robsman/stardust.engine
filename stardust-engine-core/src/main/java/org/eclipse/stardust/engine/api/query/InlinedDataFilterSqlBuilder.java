@@ -170,26 +170,7 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
       List<AbstractDataFilter> dataFilters = CollectionUtils.newList();
       if (filter.isCaseDescriptor())
       {
-         if (PredefinedConstants.CASE_NAME_ELEMENT.equals(descriptorID))
-         {
-            dataFilters.add(new DataFilter(PredefinedConstants.QUALIFIED_CASE_DATA_ID,
-                  PredefinedConstants.CASE_NAME_ELEMENT, (Binary) filter.getOperator(),
-                  filter.getOperand(), filter.getFilterMode()));
-
-         }
-         else if (PredefinedConstants.CASE_DESCRIPTION_ELEMENT.equals(descriptorID))
-         {
-            dataFilters.add(new DataFilter(PredefinedConstants.QUALIFIED_CASE_DATA_ID,
-                  PredefinedConstants.CASE_DESCRIPTION_ELEMENT, (Binary) filter
-                        .getOperator(), filter.getOperand(), filter.getFilterMode()));
-         }
-         else
-         {
-            dataFilters.add(new DataFilter(PredefinedConstants.QUALIFIED_CASE_DATA_ID,
-                  PredefinedConstants.CASE_DESCRIPTOR_VALUE_XPATH, (Binary) filter
-                        .getOperator(), '{' + descriptorID + '}' + filter.getOperand(),
-                  filter.getFilterMode()));
-         }
+         dataFilters.add(createCaseDescriptorDataFilter(filter, descriptorID));
       }
       else
       {
@@ -228,16 +209,41 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
          dataFilterExtensionContext.getDataFiltersByDataId().put(entry.getKey(),
                entry.getValue());
       }
+      context.pushFilterKind(FilterTerm.OR);
       for (AbstractDataFilter dataFilter : dataFilters)
       {
-         if (context != null)
-         {
-            context.pushFilterKind(FilterTerm.OR);
-         }
          PredicateTerm predicate = (PredicateTerm) visit(dataFilter, rawContext);
          orTerm.add(predicate);
       }
+      context.popFilterKind();
       return orTerm;
+   }
+
+   protected DataFilter createCaseDescriptorDataFilter(DescriptorFilter filter,
+         String descriptorID)
+   {
+      DataFilter caseDescDataFilter = null;
+      if (PredefinedConstants.CASE_NAME_ELEMENT.equals(descriptorID))
+      {
+         caseDescDataFilter = new DataFilter(PredefinedConstants.QUALIFIED_CASE_DATA_ID,
+               PredefinedConstants.CASE_NAME_ELEMENT, (Binary) filter.getOperator(),
+               filter.getOperand(), filter.getFilterMode());
+
+      }
+      else if (PredefinedConstants.CASE_DESCRIPTION_ELEMENT.equals(descriptorID))
+      {
+         caseDescDataFilter = new DataFilter(PredefinedConstants.QUALIFIED_CASE_DATA_ID,
+               PredefinedConstants.CASE_DESCRIPTION_ELEMENT,
+               (Binary) filter.getOperator(), filter.getOperand(), filter.getFilterMode());
+      }
+      else
+      {
+         caseDescDataFilter = new DataFilter(PredefinedConstants.QUALIFIED_CASE_DATA_ID,
+               PredefinedConstants.CASE_DESCRIPTOR_VALUE_XPATH,
+               (Binary) filter.getOperator(), '{' + descriptorID + '}'
+                     + filter.getOperand(), filter.getFilterMode());
+      }
+      return caseDescDataFilter;
    }
 
    protected class JoinFactory implements IJoinFactory

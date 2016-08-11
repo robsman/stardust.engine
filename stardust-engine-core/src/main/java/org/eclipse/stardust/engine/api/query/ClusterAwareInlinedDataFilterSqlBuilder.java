@@ -10,26 +10,57 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.query;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Assert;
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Functor;
+import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.TransformingIterator;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IDataPath;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.AndTerm;
+import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
+import org.eclipse.stardust.engine.core.persistence.EvaluationOptions;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.Functions;
+import org.eclipse.stardust.engine.core.persistence.IEvaluationOptionProvider;
+import org.eclipse.stardust.engine.core.persistence.Join;
+import org.eclipse.stardust.engine.core.persistence.MultiPartPredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Operator;
+import org.eclipse.stardust.engine.core.persistence.OrTerm;
+import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.setup.*;
+import org.eclipse.stardust.engine.core.runtime.setup.AbstractDataClusterSlot;
+import org.eclipse.stardust.engine.core.runtime.setup.ClusterSlotData;
+import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
+import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
+import org.eclipse.stardust.engine.core.runtime.setup.DescriptorSlot;
+import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensionContext;
 import org.eclipse.stardust.engine.core.struct.DataXPathMap;
 import org.eclipse.stardust.engine.core.struct.IXPathMap;
@@ -261,57 +292,81 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
       PredicateTerm resultTerm = null;
       final Integer dataFilterMode = Integer.valueOf(filter.getFilterMode());
 
-      Set<DataCluster> boundClusters = context.getClusterBindings().get(
-            new DataAttributeKey(descriptorID, null));
-      if (null != boundClusters
-      // Clusters can only be used for this data scope mode (default mode).
-            && DescriptorFilter.MODE_ALL_FROM_SCOPE == dataFilterMode.intValue())
+      if (filter.isCaseDescriptor())
       {
-         resultTerm = new AndTerm();
-
-         JoinFactory joinFactory = new JoinFactory(context);
-
-         for (DataCluster cluster : boundClusters)
+         DataFilter dataFilter = createCaseDescriptorDataFilter(filter, descriptorID);
+         List<AbstractDataFilter> dataFilters = CollectionUtils.newList();
+         dataFilters.add(dataFilter);
+         DataFilterExtensionContext ctx = new DataFilterExtensionContext(dataFilters);
+         DataFilterExtensionContext dataFilterExtensionContext = context
+               .getDataFilterExtensionContext();
+         dataFilterExtensionContext.setContent(null);
+         Map<String, List<AbstractDataFilter>> dataFiltersByDataId = ctx
+               .getDataFiltersByDataId();
+         for (Map.Entry<String, List<AbstractDataFilter>> entry : dataFiltersByDataId
+               .entrySet())
          {
-            DescriptorSlot slot = cluster.getDescriptorSlot(descriptorID);
-            if (null == slot)
-            {
-               throw new InternalException("Invalid cluster binding for descriptor ID "
-                     + descriptorID + " and cluster " + cluster.getTableName());
-            }
-
-            boolean ignorePreparedStatements = slot.isIgnorePreparedStatements();
-            Pair joinKey = new Pair(dataFilterMode, cluster);
-            Join clusterJoin = (Join) context.clusterJoins.get(joinKey);
-            if (null == clusterJoin)
-            {
-               // first use of this specific cluster, setup join
-               final int idx = context.clusterJoins.size() + 1;
-               final String clusterAlias = "PR_DESCCL" + idx;
-
-               clusterJoin = new Join(cluster, clusterAlias) //
-                     .on(joinFactory.getScopePiFieldRef(),
-                           cluster.getProcessInstanceColumn());
-
-               Join scopePiGlueJoin = joinFactory.getGlueJoin();
-               if (null != scopePiGlueJoin)
-               {
-                  clusterJoin.setDependency(scopePiGlueJoin);
-               }
-
-               context.clusterJoins.put(joinKey, clusterJoin);
-            }
-
-            IEvaluationOptionProvider evalProvider = filter;
-            ((AndTerm) resultTerm).add(matchDataInstancesPredicate(
-                  ignorePreparedStatements, filter.getOperator(), filter.getOperand(),
-                  clusterJoin, slot.getTypeColumn(), slot.getNValueColumn(),
-                  slot.getSValueColumn(), evalProvider));
+            dataFilterExtensionContext.getDataFiltersByDataId().put(entry.getKey(),
+                  entry.getValue());
          }
+         resultTerm = (PredicateTerm) visit(dataFilter, rawContext);
       }
       else
       {
-         resultTerm = (PredicateTerm) super.visit(filter, rawContext);
+         Set<DataCluster> boundClusters = context.getClusterBindings().get(
+               new DataAttributeKey(descriptorID, null));
+
+         if (null != boundClusters
+         // Clusters can only be used for this data scope mode (default mode).
+               && DescriptorFilter.MODE_ALL_FROM_SCOPE == dataFilterMode.intValue())
+         {
+            resultTerm = new AndTerm();
+
+            JoinFactory joinFactory = new JoinFactory(context);
+
+            for (DataCluster cluster : boundClusters)
+            {
+               DescriptorSlot slot = cluster.getDescriptorSlot(descriptorID);
+               if (null == slot)
+               {
+                  throw new InternalException(
+                        "Invalid cluster binding for descriptor ID " + descriptorID
+                              + " and cluster " + cluster.getTableName());
+               }
+
+               boolean ignorePreparedStatements = slot.isIgnorePreparedStatements();
+               Pair joinKey = new Pair(dataFilterMode, cluster);
+               Join clusterJoin = (Join) context.clusterJoins.get(joinKey);
+               if (null == clusterJoin)
+               {
+                  // first use of this specific cluster, setup join
+                  final int idx = context.clusterJoins.size() + 1;
+                  final String clusterAlias = "PR_DESCCL" + idx;
+
+                  clusterJoin = new Join(cluster, clusterAlias) //
+                        .on(joinFactory.getScopePiFieldRef(),
+                              cluster.getProcessInstanceColumn());
+
+                  Join scopePiGlueJoin = joinFactory.getGlueJoin();
+                  if (null != scopePiGlueJoin)
+                  {
+                     clusterJoin.setDependency(scopePiGlueJoin);
+                  }
+
+                  context.clusterJoins.put(joinKey, clusterJoin);
+               }
+
+               IEvaluationOptionProvider evalProvider = filter;
+               ((AndTerm) resultTerm).add(matchDataInstancesPredicate(
+                     ignorePreparedStatements, filter.getOperator(), filter.getOperand(),
+                     clusterJoin, slot.getTypeColumn(), slot.getNValueColumn(),
+                     slot.getSValueColumn(), evalProvider));
+            }
+         }
+         else
+         {
+            resultTerm = (PredicateTerm) super.visit(filter, rawContext);
+         }
       }
       return resultTerm;
    }
@@ -1206,8 +1261,22 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
                   .get(cluster);
             for (DataAttributeKey slotCandidate : context.slotCandidates)
             {
-               DescriptorSlot slot = (DescriptorSlot) cluster
-                     .getDescriptorSlot(slotCandidate.getDataId());
+               AbstractDataClusterSlot slot = null;
+               if (filter.isCaseDescriptor())
+               {
+                  String descriptorID = filter.getDescriptorID();
+                  if (descriptorID.equals(PredefinedConstants.CASE_NAME_ELEMENT)
+                        || descriptorID
+                              .equals(PredefinedConstants.CASE_DESCRIPTION_ELEMENT))
+                  {
+                     slot = cluster.getDataSlot(PredefinedConstants.CASE_DATA_ID,
+                           descriptorID);
+                  }
+               }
+               else
+               {
+                  slot = cluster.getDescriptorSlot(slotCandidate.getDataId());
+               }
 
                if (null != slot)
                {

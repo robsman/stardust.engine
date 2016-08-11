@@ -20,6 +20,24 @@
                      oidColumn="oid_bString"
                      typeColumn="tk_bString"
                      sValueColumn="sval_bString" />
+                  <data-slot modelId="PredefinedModel"
+                     dataId="CaseInfo"
+                     attributeName="CaseName"
+                     oidColumn="oid_caseName"
+                     typeColumn="tk_caseName"
+                     sValueColumn="sval_caseName" />
+                  <data-slot modelId="PredefinedModel"
+                     dataId="CaseInfo"
+                     attributeName="CaseDescription"
+                     oidColumn="oid_caseDescription"
+                     typeColumn="tk_caseDescription"
+                     sValueColumn="sval_caseDescription" />
+                  <!--  data-slot modelId="PredefinedModel"
+                     dataId="CaseInfo"
+                     attributeName="Descriptors/value"
+                     oidColumn="oid_descVal"
+                     typeColumn="tk_descVal"
+                     sValueColumn="sval_descVal" />-->
                </data-slots>
                <descriptor-slots>
                   <!-- Do we need  modelId and/or processDefinitionId? I do not think so as the descriptorId should be the only selector -->
@@ -46,6 +64,12 @@
                     <column name="tk_aString"/>
                     <column name="sval_bString"/>
                     <column name="tk_bString"/>
+                    <column name="sval_caseName"/>
+                    <column name="tk_caseName"/>
+                    <column name="sval_caseDescription"/>
+                    <column name="tk_caseDescription"/>
+                    <!--  column name="sval_descVal"/>
+                    <column name="tk_descVal"/> -->
                     <column name="processInstance"/>
                  </data-cluster-index>
                </data-cluster-indexes>

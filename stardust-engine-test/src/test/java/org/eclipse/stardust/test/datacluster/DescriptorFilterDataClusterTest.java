@@ -21,6 +21,7 @@ import org.junit.rules.TestRule;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.GlobalParameters;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
@@ -630,6 +631,58 @@ public class DescriptorFilterDataClusterTest
       addOrTerm.add(DescriptorFilter.notEqual("B", "TestA123"));
       processInstances = queryService.getAllProcessInstances(query);
       assertEquals(4, processInstances.getSize());
+   }
+
+   @Test
+   public void testPiCaseDescriptorLikeFilter()
+   {
+      ProcessInstance processA1 = wfService.startProcess("CaseProcessDefinitionA", null,
+            true);
+      ProcessInstance processB1 = wfService.startProcess("CaseProcessDefinitionB", null,
+            true);
+
+      long[] members1 = {processA1.getOID()};
+      ProcessInstance casePi1 = wfService.createCase("Case1", null, members1);
+      wfService.setOutDataPath(casePi1.getOID(), PredefinedConstants.CASE_NAME_ELEMENT,
+            "Test10-1");
+
+      long[] members2 = {processB1.getOID()};
+      ProcessInstance casePi2 = wfService.createCase("Case2", null, members2);
+      wfService.setOutDataPath(casePi2.getOID(), PredefinedConstants.CASE_NAME_ELEMENT,
+            "Test10-2");
+
+      ProcessInstanceQuery query = ProcessInstanceQuery.findAll();
+      query.setPolicy(DescriptorPolicy.WITH_DESCRIPTORS);
+      query.where(DescriptorFilter.likeCaseDescriptor(
+            PredefinedConstants.CASE_NAME_ELEMENT, "Test10%"));
+      ProcessInstances processInstances = queryService.getAllProcessInstances(query);
+      assertEquals(2, processInstances.getSize());
+   }
+
+   @Test
+   public void testPiCaseDescriptorEqualFilter()
+   {
+      ProcessInstance processA1 = wfService.startProcess("CaseProcessDefinitionA", null,
+            true);
+      ProcessInstance processB1 = wfService.startProcess("CaseProcessDefinitionB", null,
+            true);
+
+      long[] members1 = {processA1.getOID()};
+      ProcessInstance casePi1 = wfService.createCase("Case1", null, members1);
+      wfService.setOutDataPath(casePi1.getOID(),
+            PredefinedConstants.CASE_DESCRIPTION_ELEMENT, "Test10");
+
+      long[] members2 = {processB1.getOID()};
+      ProcessInstance casePi2 = wfService.createCase("Case2", null, members2);
+      wfService.setOutDataPath(casePi2.getOID(),
+            PredefinedConstants.CASE_DESCRIPTION_ELEMENT, "Test10");
+
+      ProcessInstanceQuery query = ProcessInstanceQuery.findAll();
+      query.setPolicy(DescriptorPolicy.WITH_DESCRIPTORS);
+      query.where(DescriptorFilter.equalsCaseDescriptor(
+            PredefinedConstants.CASE_DESCRIPTION_ELEMENT, "Test10"));
+      ProcessInstances processInstances = queryService.getAllProcessInstances(query);
+      assertEquals(2, processInstances.getSize());
    }
 
    @Test
@@ -1246,7 +1299,6 @@ public class DescriptorFilterDataClusterTest
       Worklist activityInstances = wfService.getWorklist(query);
       assertEquals(2, activityInstances.getCumulatedSize());
    }
-
 
    @Test
    public void testWlDescriptorLikeFilterCaseSensitive()

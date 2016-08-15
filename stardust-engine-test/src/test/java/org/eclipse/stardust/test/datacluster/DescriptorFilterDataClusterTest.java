@@ -684,10 +684,31 @@ public class DescriptorFilterDataClusterTest
       ProcessInstances processInstances = queryService.getAllProcessInstances(query);
       assertEquals(2, processInstances.getSize());
    }
+   
+   @Test
+   public void testAiDescriptorEqualFilterBoolean()
+   {
+      ProcessInstance processA1 = wfService.startProcess("ProcessDefinitionABoolean",
+            null, true);
+      wfService.setOutDataPath(processA1.getOID(), "OutA", true);
+
+      ProcessInstance processB1 = wfService.startProcess("ProcessDefinitionBBoolean",
+            null, true);
+      wfService.setOutDataPath(processB1.getOID(), "OutA", true);
+
+      ActivityInstanceQuery query = ActivityInstanceQuery.findAlive();
+      query.setPolicy(DescriptorPolicy.WITH_DESCRIPTORS);
+      query.where(DescriptorFilter.isEqual("ABoolean", true));
+      ActivityInstances activityInstances = queryService.getAllActivityInstances(query);
+      assertEquals(2, activityInstances.getSize());
+   }
 
    @Test
    public void testAiDescriptorLikeFilter()
    {
+//      GlobalParameters.globals().set("Infinity.Engine.Tuning.Query.DescriptorPrefetchUseDataCluster",
+//            true);
+      
       ProcessInstance processA1 = wfService
             .startProcess("ProcessDefinitionA", null, true);
       wfService.setOutDataPath(processA1.getOID(), "OutA", "Test10-1");

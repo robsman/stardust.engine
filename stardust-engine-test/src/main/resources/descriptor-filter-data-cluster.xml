@@ -53,6 +53,12 @@
                         <data modelId="DescriptorFilterModel" dataId="StructuredDataBNumber" attributeName="A" />
                      </datas>
                   </descriptor-slot>
+                   <descriptor-slot descriptorId="ABoolean" oidColumn="oid_desc3" typeColumn="tk_desc3" nValueColumn="nv_desc3">
+                     <datas>
+                        <data modelId="DescriptorFilterModel" dataId="StructuredDataABoolean" attributeName="A" />
+                        <data modelId="DescriptorFilterModel" dataId="StructuredDataBBoolean" attributeName="A" />
+                     </datas>
+                  </descriptor-slot>
                </descriptor-slots>
                
                <data-cluster-indexes>

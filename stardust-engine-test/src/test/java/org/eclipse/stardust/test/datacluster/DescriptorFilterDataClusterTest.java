@@ -397,6 +397,24 @@ public class DescriptorFilterDataClusterTest
       processInstances = queryService.getAllProcessInstances(query);
       assertEquals(3, processInstances.getSize());
    }
+   
+   @Test
+   public void testPiDescriptorDecimalGreaterThanFilter()
+   {
+      ProcessInstance processA1 = wfService.startProcess("ProcessDefinitionADouble",
+            null, true);
+      wfService.setOutDataPath(processA1.getOID(), "OutA", 4.5);
+
+      ProcessInstance processB1 = wfService.startProcess("ProcessDefinitionBDouble",
+            null, true);
+      wfService.setOutDataPath(processB1.getOID(), "OutA", 3.7);
+
+      ProcessInstanceQuery query = ProcessInstanceQuery.findAlive();
+      query.setPolicy(DescriptorPolicy.WITH_DESCRIPTORS);
+      query.where(DescriptorFilter.greaterThan("ADecimal", 2.8));
+      ProcessInstances processInstances = queryService.getAllProcessInstances(query);
+      assertEquals(2, processInstances.getSize());
+   }
 
    @Test
    public void testPiDescriptorInFilter()

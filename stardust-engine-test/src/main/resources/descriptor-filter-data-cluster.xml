@@ -53,10 +53,16 @@
                         <data modelId="DescriptorFilterModel" dataId="StructuredDataBNumber" attributeName="A" />
                      </datas>
                   </descriptor-slot>
-                   <descriptor-slot descriptorId="ABoolean" oidColumn="oid_desc3" typeColumn="tk_desc3" nValueColumn="nv_desc3">
+                  <descriptor-slot descriptorId="ABoolean" oidColumn="oid_desc3" typeColumn="tk_desc3" nValueColumn="nv_desc3">
                      <datas>
                         <data modelId="DescriptorFilterModel" dataId="StructuredDataABoolean" attributeName="A" />
                         <data modelId="DescriptorFilterModel" dataId="StructuredDataBBoolean" attributeName="A" />
+                     </datas>
+                  </descriptor-slot>
+                  <descriptor-slot descriptorId="ADouble" oidColumn="oid_desc4" typeColumn="tk_desc4" sValueColumn="sv_desc4" dValueColumn="dv_desc4">
+                     <datas>
+                        <data modelId="DescriptorFilterModel" dataId="StructuredDataADouble" attributeName="A" />
+                        <data modelId="DescriptorFilterModel" dataId="StructuredDataBDouble" attributeName="A" />
                      </datas>
                   </descriptor-slot>
                </descriptor-slots>

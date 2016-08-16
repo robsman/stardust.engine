@@ -490,7 +490,10 @@ public class DataClusterHelper
                      Representation representation = getRepresentationForDataValue(
                            dataValue, dataSlot.getAttributeName(), evaluationContext);
 
-                     sValue = (String) representation.getRepresentation();
+                     Object representationVal = representation.getRepresentation();
+                     sValue = ((representationVal instanceof Double)
+                           ? ((Double) representationVal).toString()
+                           : (String) representationVal);
                      int attributeType = DataXPathMap.getXPathMap(dataValue.getData())
                            .getXPath(dataSlot.getAttributeName()).getType();
                      bindValueList

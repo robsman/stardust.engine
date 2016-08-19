@@ -42,17 +42,19 @@ public class CaseProcessActivity
       EmbeddedServiceFactory esf = EmbeddedServiceFactory.CURRENT_TX();
       WorkflowService ws = esf.getWorkflowService();
       
-      ProcessInstanceQuery query = ProcessInstanceQuery.findCaseByName(caseName);
-      
+      ProcessInstanceQuery query = ProcessInstanceQuery.findCaseByName(caseName);      
       ProcessInstances allProcessInstances = esf.getQueryService().getAllProcessInstances(query);
-
-      ProcessInstance caseProcessInstance = allProcessInstances.get(0);
+      ProcessInstance caseProcessInstance = null;
+      if(allProcessInstances != null && allProcessInstances.size() != 0)
+      {
+         caseProcessInstance = allProcessInstances.get(0);
+      }
       if (caseProcessInstance == null
     		  || caseProcessInstance.getState() == ProcessInstanceState.Completed
     		  || caseProcessInstance.getState() == ProcessInstanceState.Aborted) 
       {
          long[] members2 = {processOid};         
-         caseProcessInstance = ws.createCase("Case_TestCase", null, members2);         
+         caseProcessInstance = ws.createCase(caseName, null, members2);         
       }
       else
       {

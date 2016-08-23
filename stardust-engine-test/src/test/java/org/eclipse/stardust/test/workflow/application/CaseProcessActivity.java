@@ -20,21 +20,22 @@ import org.eclipse.stardust.engine.core.runtime.beans.EmbeddedServiceFactory;
 
 public class CaseProcessActivity 
 {
-	private long processOid;
-	private String caseName;
+	private static long processOid;
+	private static String caseName;
+	private static ProcessInstance caseProcessInstance;
 
 	public CaseProcessActivity() 
 	{
 	}
 		
-	public void setProcessOid(long processOid) 
+	public static void setProcessOid(long processOid) 
 	{
-		this.processOid = processOid;
+		CaseProcessActivity.processOid = processOid;
 	}
 
-	public void setCaseName(String caseName) 
+	public static void setCaseName(String caseName) 
 	{
-		this.caseName = caseName;
+		CaseProcessActivity.caseName = caseName;
 	}
 	
 	public void createCase()
@@ -44,7 +45,6 @@ public class CaseProcessActivity
       
       ProcessInstanceQuery query = ProcessInstanceQuery.findCaseByName(caseName);      
       ProcessInstances allProcessInstances = esf.getQueryService().getAllProcessInstances(query);
-      ProcessInstance caseProcessInstance = null;
       if(allProcessInstances != null && allProcessInstances.size() != 0)
       {
          caseProcessInstance = allProcessInstances.get(0);
@@ -54,7 +54,7 @@ public class CaseProcessActivity
     		  || caseProcessInstance.getState() == ProcessInstanceState.Aborted) 
       {
          long[] members2 = {processOid};         
-         caseProcessInstance = ws.createCase(caseName, null, members2);         
+         caseProcessInstance = ws.createCase(caseName, null, members2);    
       }
       else
       {
@@ -62,4 +62,18 @@ public class CaseProcessActivity
          caseProcessInstance = ws.joinCase(caseProcessInstance.getOID(), members2);
       }
 	}
+	
+   public void leaveCase()
+   {
+      EmbeddedServiceFactory esf = EmbeddedServiceFactory.CURRENT_TX();
+      WorkflowService ws = esf.getWorkflowService();
+      
+      if (caseProcessInstance != null
+           && caseProcessInstance.getState() != ProcessInstanceState.Completed
+           && caseProcessInstance.getState() != ProcessInstanceState.Aborted) 
+      {
+         long[] members2 = {processOid};         
+         ws.leaveCase(caseProcessInstance.getOID(), members2);         
+      }
+   }	
 }

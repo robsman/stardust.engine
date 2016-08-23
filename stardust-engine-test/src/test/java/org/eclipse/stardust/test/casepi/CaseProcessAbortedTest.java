@@ -17,10 +17,7 @@ import static org.junit.Assert.assertNotNull;
 
 import javax.xml.namespace.QName;
 
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
@@ -48,6 +45,7 @@ public class CaseProcessAbortedTest
    public static final String MODEL_NAME = "CaseModelAborted";
    private static final String CASE_PROCESS1 = new QName(MODEL_NAME, "CaseProcess1").toString();
    private static final String CASE_PROCESS2 = new QName(MODEL_NAME, "CaseProcess2").toString();
+   private static final String CASE_PROCESS3 = new QName(MODEL_NAME, "CaseProcess3").toString();   
    private static final String CASE_PROCESS4 = new QName(MODEL_NAME, "CaseProcess4").toString();
 
    private static final UsernamePasswordPair USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
@@ -294,7 +292,46 @@ public class CaseProcessAbortedTest
       ProcessInstanceStateBarrier.instance().await(caseProcess1.getOID(), ProcessInstanceState.Completed);
       ProcessInstanceStateBarrier.instance().await(caseProcessInstance.getOID(), ProcessInstanceState.Completed);
    }   
+
+   /**
+    * Tests case is created by application, and will be removed after from root case PI
+    */
+   @Test
+   @Ignore
+   public void testCaseActive11() throws Exception
+   {
+      ProcessInstance caseProcess1 = wfService.startProcess(CASE_PROCESS3, null, true);
+      completeNext(caseProcess1);
+      
+      ProcessInstance caseProcessInstance = null;      
+      ProcessInstanceQuery query = ProcessInstanceQuery.findCaseByName("CaseProcess");      
+      ProcessInstances allProcessInstances = sf.getQueryService().getAllProcessInstances(query);
+      if(allProcessInstances != null && allProcessInstances.size() != 0)
+      {
+         caseProcessInstance = allProcessInstances.get(0);
+      }
+      assertNotNull(caseProcessInstance);
+            
+      ProcessInstanceStateBarrier.instance().await(caseProcessInstance.getOID(), ProcessInstanceState.Aborted);
+   }   
    
+   /**
+    * Tests 1, and detach -> aborted state
+    */
+   @Test
+   public void testCaseActive12() throws Exception
+   {
+      ProcessInstance caseProcess1 = wfService.startProcess(CASE_PROCESS1, null, true);
+
+      long[] members = {caseProcess1.getOID()};
+      ProcessInstance rootCaseProcess = wfService.createCase("Case1", null, members);
+      assertNotNull(rootCaseProcess);
+
+      wfService.leaveCase(rootCaseProcess.getOID(), members);
+      
+      ProcessInstanceStateBarrier.instance().await(rootCaseProcess.getOID(), ProcessInstanceState.Aborted);
+   }
+      
    private ActivityInstance findFirstActivityInstance(long processInstanceOID)
    {
       final ActivityInstanceQuery aiQuery = ActivityInstanceQuery.findForProcessInstance(processInstanceOID);

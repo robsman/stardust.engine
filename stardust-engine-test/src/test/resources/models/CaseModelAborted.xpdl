@@ -9,8 +9,26 @@
       <Version>1</Version>
    </RedefinableHeader>
    <ConformanceClass GraphConformance="NON_BLOCKED"/>
-   <xpdl:Script xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" Type="text/ecmascript"/>
-   <TypeDeclarations/>
+   <xpdl:Script xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns="http://www.carnot.ag/workflowmodel/3.1" xmlns:ext="http://www.carnot.ag/workflowmodel/3.1/xpdl/extensions" Type="text/ecmascript"/>
+   <TypeDeclarations>
+      <xpdl:TypeDeclaration xmlns:xpdl="http://www.wfmc.org/2008/XPDL2.1" xmlns:ext="http://www.carnot.ag/workflowmodel/3.1/xpdl/extensions" Id="Composite1" Name="Composite 1">
+         <xpdl:ExtendedAttributes>
+            <xpdl:ExtendedAttribute Name="carnot:engine:visibility" Value="Public"/>
+         </xpdl:ExtendedAttributes>
+         <xpdl:SchemaType>
+            <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:com11="http://www.infinity.com/bpm/model/CaseModelAborted/Composite1" targetNamespace="http://www.infinity.com/bpm/model/CaseModelAborted/Composite1">
+               <xsd:complexType name="Composite1">
+                  <xsd:sequence>
+                     <xsd:element name="mail" type="xsd:string"/>
+                     <xsd:element name="subject" type="xsd:string"/>
+                     <xsd:element name="body" type="xsd:string"/>
+                  </xsd:sequence>
+               </xsd:complexType>
+               <xsd:element name="Composite1" type="com11:Composite1"/>
+            </xsd:schema>
+         </xpdl:SchemaType>
+      </xpdl:TypeDeclaration>
+   </TypeDeclarations>
    <Participants>
       <Participant Id="Administrator" Name="Administrator">
          <ParticipantType Type="ROLE"/>
@@ -23,18 +41,36 @@
       </Participant>
    </Participants>
    <Applications>
-      <Application Id="PlainJavaApplication1" Name="Plain Java Application 1">
+      <Application Id="PlainJavaApplication2" Name="Plain Java Application 2">
          <ExternalReference location="org.eclipse.stardust.test.workflow.application.CaseProcessActivity" xref="createCase:"/>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
-               <carnot:Application Oid="99" Type="plainJava">
+               <carnot:Application Oid="141" Type="plainJava">
                   <carnot:ApplicationContexts/>
                   <carnot:AccessPoints/>
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
                      <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.workflow.application.CaseProcessActivity"/>
-                     <carnot:Attribute Name="carnot:engine:constructorName" Value="CaseProcessActivity()"/>
                      <carnot:Attribute Name="carnot:engine:methodName" Value="createCase()"/>
+                     <carnot:Attribute Name="carnot:engine:constructorName" Value="CaseProcessActivity()"/>
+                     <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
+                  </carnot:Attributes>
+               </carnot:Application>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Application>
+      <Application Id="PlainJavaApplication3" Name="Plain Java Application 3">
+         <ExternalReference location="org.eclipse.stardust.test.workflow.application.CaseProcessActivity" xref="leaveCase:"/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Application Oid="179" Type="plainJava">
+                  <carnot:ApplicationContexts/>
+                  <carnot:AccessPoints/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.workflow.application.CaseProcessActivity"/>
+                     <carnot:Attribute Name="carnot:engine:methodName" Value="leaveCase()"/>
+                     <carnot:Attribute Name="carnot:engine:constructorName" Value="CaseProcessActivity()"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
                   </carnot:Attributes>
                </carnot:Application>
@@ -217,16 +253,16 @@
          <DataType>
             <BasicType Type="STRING"/>
          </DataType>
-         <InitialValue>CaseName</InitialValue>
+         <InitialValue>CaseProcess</InitialValue>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
                <carnot:DataField Oid="104" Type="primitive">
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
-                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                      <carnot:Attribute Name="carnot:engine:defaultValue" Value="CaseProcess"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
                      <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="org.eclipse.stardust.engine.core.pojo.data.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -424,7 +460,7 @@
                </FinishMode>
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Activity Oid="70" Implementation="Manual" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
+                     <carnot:Activity Oid="162" Implementation="Manual" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
                         <carnot:EventHandlers/>
                         <carnot:QualityCodes/>
                         <carnot:DataFlows/>
@@ -446,36 +482,89 @@
                   </ExtendedAttribute>
                </ExtendedAttributes>
             </Activity>
-            <Activity Id="ManualActivity2" Name="Manual Activity 2">
+            <Activity Id="ApplicationActivity1" Name="Application Activity 1">
                <Implementation>
-                  <No/>
+                  <Task>
+                     <TaskApplication Id="PlainJavaApplication2">
+                        <ActualParameters>
+                           <ActualParameter>ROOT_PROCESS_ID</ActualParameter>
+                           <ActualParameter>CaseName</ActualParameter>
+                        </ActualParameters>
+                     </TaskApplication>
+                  </Task>
                </Implementation>
-               <Performer>Administrator</Performer>
                <StartMode>
                   <Automatic/>
                </StartMode>
                <FinishMode>
-                  <Manual/>
+                  <Automatic/>
                </FinishMode>
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Activity Oid="72" Implementation="Manual" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
+                     <carnot:Activity Oid="165" Implementation="Application" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
                         <carnot:EventHandlers/>
                         <carnot:QualityCodes/>
-                        <carnot:DataFlows/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="163" Id="InDataMapping1" Name="InDataMapping1" Direction="IN" Context="application">
+                              <carnot:DataRef Id="ROOT_PROCESS_ID"/>
+                              <carnot:AccessPointRef Id="setProcessOid(long)"/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="164" Id="InDataMapping2" Name="InDataMapping2" Direction="IN" Context="application">
+                              <carnot:DataRef Id="CaseName"/>
+                              <carnot:AccessPointRef Id="setCaseName(java.lang.String)"/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
                         <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
                            <carnot:Attribute Name="carnot:engine:relocate:source" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
                            <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
                            <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
                            <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
                            <carnot:Attribute Name="authorization:activity.modifyAttributes" Value="__carnot_internal_all_permissions__"/>
                            <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
                            <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="ApplicationActivity2" Name="Application Activity 2">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="PlainJavaApplication3">
+                        <ActualParameters/>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="175" Implementation="Application" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:relocate:source" Value="false" Type="boolean"/>
                            <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
                            <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
                            <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
                            <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.modifyAttributes" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
                         </carnot:Attributes>
                      </carnot:Activity>
                   </ExtendedAttribute>
@@ -483,11 +572,19 @@
             </Activity>
          </Activities>
          <Transitions>
-            <Transition Id="Transition1" Name="Transition 1" From="ManualActivity1" To="ManualActivity2">
+            <Transition Id="Transition1" Name="Transition 1" From="ManualActivity1" To="ApplicationActivity1">
                <Condition Type="CONDITION">true</Condition>
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Transition Oid="77"/>
+                     <carnot:Transition Oid="167"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="Transition2" Name="Transition 2" From="ApplicationActivity1" To="ApplicationActivity2">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="177"/>
                   </ExtendedAttribute>
                </ExtendedAttributes>
             </Transition>
@@ -496,7 +593,7 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:WorkflowProcess Oid="69">
                   <carnot:Triggers>
-                     <carnot:Trigger Oid="74" Id="ManualTrigger1" Name="Manual Trigger 1" Type="manual">
+                     <carnot:Trigger Oid="166" Id="ManualTrigger1" Name="Manual Trigger 1" Type="manual">
                         <carnot:AccessPoints/>
                         <carnot:DataFlows/>
                         <carnot:Attributes>
@@ -524,13 +621,17 @@
                         <carnot:Symbols>
                            <carnot:Symbol Kind="POOL" Oid="67" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
                               <carnot:Symbols>
-                                 <carnot:Symbol Kind="ACTIVITY" Oid="71" X="235" Y="160" Width="180" Height="50" ModelElement="ManualActivity1"/>
-                                 <carnot:Symbol Kind="ACTIVITY" Oid="73" X="235" Y="275" Width="180" Height="50" ModelElement="ManualActivity2"/>
-                                 <carnot:Symbol Kind="STARTEVENT" Oid="75" X="270" Y="55" Width="110" Height="50" ModelElement="ManualTrigger1"/>
+                                 <carnot:Symbol Kind="STARTEVENT" Oid="168" X="294" Y="-115" Width="110" Height="50" ModelElement="ManualTrigger1"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="169" X="259" Y="-10" Width="180" Height="50" ModelElement="ManualActivity1"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="170" X="259" Y="66" Width="180" Height="50" ModelElement="ApplicationActivity1"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="176" X="260" Y="140" Width="180" Height="50" ModelElement="ApplicationActivity2"/>
+                                 <carnot:Symbol Kind="APPLICATION" Oid="180" X="525" Y="145" Width="140" Height="40" ModelElement="PlainJavaApplication3"/>
                               </carnot:Symbols>
                               <carnot:Connections>
-                                 <carnot:Connection Kind="TRANSITION" Oid="76" SourceSymbol="75" TargetSymbol="71" SourceAnchor="center" TargetAnchor="top"/>
-                                 <carnot:Connection Kind="TRANSITION" Oid="78" ModelElement="Transition1" SourceSymbol="71" TargetSymbol="73" SourceAnchor="bottom" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="171" SourceSymbol="168" TargetSymbol="169" SourceAnchor="center" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="172" ModelElement="Transition1" SourceSymbol="169" TargetSymbol="170" SourceAnchor="center" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="178" ModelElement="Transition2" SourceSymbol="170" TargetSymbol="176" SourceAnchor="bottom" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="EXECUTED_BY" Oid="181" SourceSymbol="180" TargetSymbol="176"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>
@@ -617,7 +718,7 @@
             <Activity Id="ApplicationActivity1" Name="Application Activity 1">
                <Implementation>
                   <Task>
-                     <TaskApplication Id="PlainJavaApplication1">
+                     <TaskApplication Id="PlainJavaApplication2">
                         <ActualParameters>
                            <ActualParameter>ROOT_PROCESS_ID</ActualParameter>
                            <ActualParameter>CaseName</ActualParameter>
@@ -719,13 +820,11 @@
                                  <carnot:Symbol Kind="STARTEVENT" Oid="87" X="225" Y="49" Width="110" Height="50" ModelElement="ManualTrigger1"/>
                                  <carnot:Symbol Kind="ACTIVITY" Oid="88" X="190" Y="310" Width="180" Height="50" ModelElement="ManualActivity2"/>
                                  <carnot:Symbol Kind="ACTIVITY" Oid="94" X="190" Y="230" Width="180" Height="50" ModelElement="ApplicationActivity1"/>
-                                 <carnot:Symbol Kind="APPLICATION" Oid="100" X="485" Y="235" Width="140" Height="40" ModelElement="PlainJavaApplication1"/>
                               </carnot:Symbols>
                               <carnot:Connections>
                                  <carnot:Connection Kind="TRANSITION" Oid="89" SourceSymbol="87" TargetSymbol="86" SourceAnchor="center" TargetAnchor="top"/>
                                  <carnot:Connection Kind="TRANSITION" Oid="96" ModelElement="Transition1" SourceSymbol="86" TargetSymbol="94" SourceAnchor="center" TargetAnchor="top"/>
                                  <carnot:Connection Kind="TRANSITION" Oid="98" ModelElement="Transition2" SourceSymbol="94" TargetSymbol="88" SourceAnchor="bottom" TargetAnchor="top"/>
-                                 <carnot:Connection Kind="EXECUTED_BY" Oid="101" SourceSymbol="100" TargetSymbol="94"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>
@@ -852,6 +951,70 @@
                         <carnot:Attribute Name="carnot:defdesk:panel" Value="org.eclipse.stardust.engine.extensions.jaxws.app.gui.WebserviceApplicationPanel"/>
                         <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.jaxws.app.WebserviceApplicationInstance"/>
                         <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.jaxws.app.WebserviceApplicationValidator"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
+                  <carnot:ApplicationType Oid="120" Id="camelConsumerApplication" Name="Camel Consumer Application" IsPredefined="true" IsSynchronous="false">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.camel.app.CamelProducerSpringBeanApplicationInstance"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.camel.app.CamelProducerSpringBeanValidator"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
+                  <carnot:ApplicationType Oid="121" Id="camelSpringProducerApplication" Name="Camel Producer Application" IsPredefined="true" IsSynchronous="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.camel.app.CamelProducerSpringBeanApplicationInstance"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.camel.app.CamelProducerSpringBeanValidator"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
+                  <carnot:ApplicationType Oid="122" Id="dmsOperation" Name="DMS Operation" IsPredefined="true" IsSynchronous="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.dms.data.VfsOperationApplicationInstance"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.dms.data.VfsOperationValidator"/>
+                        <carnot:Attribute Name="carnot:engine:accessPointProvider" Value="org.eclipse.stardust.engine.extensions.dms.data.VfsOperationAccessPointProvider"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
+                  <carnot:ApplicationType Oid="123" Id="mailBean" Name="Mail Application" IsPredefined="true" IsSynchronous="false">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:defdesk:icon" Value=""/>
+                        <carnot:Attribute Name="carnot:engine:accessPointProvider" Value="org.eclipse.stardust.engine.extensions.mail.app.MailAccessPointProvider"/>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.mail.app.MailApplicationInstance"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.mail.app.MailValidator"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
+                  <carnot:ApplicationType Oid="124" Id="messageParsingBean" Name="Message Parsing Application" IsPredefined="true" IsSynchronous="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:defdesk:icon" Value=""/>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.transformation.runtime.parsing.MessageParsingApplicationInstance"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.transformation.runtime.parsing.MessageParsingValidator"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
+                  <carnot:ApplicationType Oid="125" Id="messageSerializationBean" Name="Message Serialization Application" IsPredefined="true" IsSynchronous="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:defdesk:icon" Value=""/>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.transformation.runtime.serialization.MessageSerializationApplicationInstance"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.transformation.runtime.serialization.MessageSerializationValidator"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
+                  <carnot:ApplicationType Oid="126" Id="messageTransformationBean" Name="Message Transformation Application" IsPredefined="true" IsSynchronous="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:defdesk:icon" Value=""/>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.transformation.runtime.transformation.MessageTransformationApplicationInstance"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.transformation.runtime.transformation.MessageProcessingValidator"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
+                  <carnot:ApplicationType Oid="127" Id="springBean" Name="Spring Bean Application" IsPredefined="true" IsSynchronous="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/applications/plainjava/icon.gif"/>
+                        <carnot:Attribute Name="carnot:engine:accessPointProvider" Value="org.eclipse.stardust.engine.spring.extensions.app.SpringBeanAccessPointProvider"/>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.spring.extensions.app.SpringBeanApplicationInstance"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.spring.extensions.app.SpringBeanValidator"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationType>
+                  <carnot:ApplicationType Oid="128" Id="xslMessageTransformationBean" Name="XSL Message Transformation Application" IsPredefined="true" IsSynchronous="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:defdesk:icon" Value=""/>
+                        <carnot:Attribute Name="carnot:engine:accessPointProvider" Value="org.eclipse.stardust.engine.extensions.transformation.runtime.transformation.xsl.XSLMessageTransformationAccessPointProvider"/>
+                        <carnot:Attribute Name="carnot:engine:applicationInstance" Value="org.eclipse.stardust.engine.extensions.transformation.runtime.transformation.xsl.XSLMessageTransformationApplicationInstance"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.transformation.runtime.transformation.xsl.XSLMessageTransformationValidator"/>
                      </carnot:Attributes>
                   </carnot:ApplicationType>
                </carnot:ApplicationTypes>

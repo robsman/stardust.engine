@@ -1181,6 +1181,67 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
       public Object visit(DescriptorOrder order, Object rawContext)
       {
          Context context = (Context) rawContext;
+         final DataAttributeKey slotCandidate = new DataAttributeKey(
+               order.getDescriptorId(), null);
+         context.slotCandidates.add(slotCandidate);
+         
+      // try to select for each a suitable cluster
+
+         for (int i = 0; i < clusters.length; i++)
+         {
+            final DataCluster cluster = clusters[i];
+            if (!cluster.isEnabledFor(piFilterStates))
+            {
+               continue;
+            }
+            DescriptorSlot descriptorSlot = cluster.getDescriptorSlot(order.getDescriptorId());
+            Set<ClusterSlotData> clusterSlotDatas = descriptorSlot.getClusterSlotDatas();
+            String attributeName = null;
+            IData data = null;
+            for (Iterator iterator = clusterSlotDatas.iterator(); iterator.hasNext();)
+            {
+               ClusterSlotData clusterSlotData = (ClusterSlotData) iterator.next();
+               String dataId = clusterSlotData.getQualifiedDataId();
+               attributeName = clusterSlotData.getAttributeName();
+               data = ClusterAwareInlinedDataFilterSqlBuilder.findCorrespondingData(
+                     dataId, context.modelManager);
+               break;
+            }
+
+            Set<DataAttributeKey> referencedSlots = context.clusterCandidates
+                  .get(cluster);
+            for (DataAttributeKey key : context.slotCandidates)
+            {
+               DescriptorSlot slot = null;
+               slot = cluster.getDescriptorSlot(key.getDataId());
+
+               if (null != slot)
+               {
+                  // prefetch hints can only be strings (solve workaround line 217 if
+                  // number values should be prefetched too)
+                  final int classificationKey = LargeStringHolderBigDataHandler
+                        .classifyType(data, attributeName);
+                  boolean dataIsNumericValue = /* !isPrefetchHint && */
+                  classificationKey == BigData.NUMERIC_VALUE;
+                  boolean slotIsNumericValue = !StringUtils.isEmpty(slot
+                        .getNValueColumn());
+                  boolean valuesAreEqualTyped = classificationKey == BigData.NULL_VALUE
+                        || (dataIsNumericValue == true && slotIsNumericValue == true)
+                        || (dataIsNumericValue == false && slotIsNumericValue == false);
+
+                  if (valuesAreEqualTyped)
+                  {
+                     if (null == referencedSlots)
+                     {
+                        referencedSlots = CollectionUtils.newHashSet();
+                        context.clusterCandidates.put(cluster, referencedSlots);
+                     }
+                     referencedSlots.add(key);
+                  }
+               }
+            }
+         }
+         
          org.eclipse.stardust.engine.core.persistence.OrderCriteria orderCriteria = new org.eclipse.stardust.engine.core.persistence.OrderCriteria();
          List<IDataPath> descriptors = getAllDescriptors(order.getDescriptorId(),
                context.modelManager);

@@ -720,6 +720,10 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
          case BigData.STRING_VALUE:
             valueColumn = sValueColumn;
             break;
+            
+         case BigData.DOUBLE_VALUE:
+            valueColumn = sValueColumn;
+            break;
 
          default:
             throw new InternalException("Unsupported BigData type classification: "

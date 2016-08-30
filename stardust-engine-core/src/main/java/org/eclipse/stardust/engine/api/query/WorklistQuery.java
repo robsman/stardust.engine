@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
 
 /**
  * Query for retrieving (parts of) a user's worklist.
- * 
+ *
  * <p>
  * The retrieved worklist possibly includes contributions from:
  * <ul>
@@ -42,7 +42,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
  * {@link #setParticipantContribution(PerformingParticipantFilter, SubsetPolicy)})</li>
  * </ul>
  * </p>
- * 
+ *
  * <p>
  * Valid filter criteria, applying to items from all contributing worklists, are:
  * <ul>
@@ -65,10 +65,10 @@ import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
  * complete hierarchy of process instances containing specific workflow data.</li>
  * </ul>
  * </p>
- * 
+ *
  * @author rsauer
  * @version $Revision$
- * 
+ *
  * @see ActivityInstanceQuery
  */
 public class WorklistQuery extends Query
@@ -118,7 +118,7 @@ public class WorklistQuery extends Query
 
    /**
     * The priority of the process instance the activity instance belongs to.
-    * 
+    *
     * @see org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean#getPriority()
     */
    public static final FilterableAttribute PROCESS_INSTANCE_PRIORITY = new ReferenceAttribute(
@@ -145,10 +145,10 @@ public class WorklistQuery extends Query
                ActivityStateFilter.class, PerformingUserFilter.class,
                PerformingParticipantFilter.class, PerformingOnBehalfOfFilter.class,
                DataFilter.class, SubProcessDataFilter.class, HierarchyDataFilter.class,
-               DataPrefetchHint.class, CurrentPartitionFilter.class, RootProcessInstanceFilter.class});
+               DataPrefetchHint.class, CurrentPartitionFilter.class, RootProcessInstanceFilter.class, DescriptorFilter.class});
 
    /**
-    * Verifyer for preventing users from applying unsupported filter criteria.
+    * Verifier for preventing users from applying unsupported filter criteria.
     */
    private static final FilterVerifier USER_FILTER_VERIFYER = new FilterScopeVerifier(
          new BlacklistFilterVerifyer(WORKLIST_FILTER_VERIFYER, new Class[] {
@@ -163,9 +163,9 @@ public class WorklistQuery extends Query
 
    /**
     * Prepares a query for retrieving all items from the user's private worklist.
-    * 
+    *
     * @return The readily configured query.
-    * 
+    *
     * @see #findPrivateWorklist(int)
     * @see #findCompleteWorklist
     */
@@ -177,11 +177,11 @@ public class WorklistQuery extends Query
    /**
     * Creates a query for retrieving up to <code>maxSize</code> items from the user's
     * private worklist.
-    * 
+    *
     * @param maxSize
     *           The maximum number of items to retrieve.
     * @return The readily configured query.
-    * 
+    *
     * @see #findPrivateWorklist()
     * @see #findCompleteWorklist()
     */
@@ -197,9 +197,9 @@ public class WorklistQuery extends Query
     * Creates a query for retrieving all items from the user's private worklist plus all
     * items from role and organization worklists the user belongs to directly or
     * indirectly via the participant hierarchy.
-    * 
+    *
     * @return The readily configured worklist.
-    * 
+    *
     * @see #findPrivateWorklist()
     * @see PerformingParticipantFilter#ANY_FOR_USER
     */
@@ -239,9 +239,9 @@ public class WorklistQuery extends Query
    /**
     * Gets the currently configured contribution of the user's private worklist to the
     * retrieved result.
-    * 
+    *
     * @return The current settings for the user's private worklist contribution.
-    * 
+    *
     * @see #setUserContribution(boolean)
     */
    public UserContribution getUserContribution()
@@ -252,16 +252,16 @@ public class WorklistQuery extends Query
    /**
     * Configures the user's private worklist to be either included or ommitted from the
     * result.
-    * 
+    *
     * <p>
     * The size of the private worklist contribution will be restricted by the
     * {@link SubsetPolicy} set via {@link Query#setPolicy(EvaluationPolicy)}, if existing.
     * </p>
-    * 
+    *
     * @param included
     *           Flag indicating if the user's private worklist will be included in the
     *           result.
-    * 
+    *
     * @see #setUserContribution(SubsetPolicy)
     * @see #setParticipantContribution(PerformingParticipantFilter)
     */
@@ -272,11 +272,11 @@ public class WorklistQuery extends Query
 
    /**
     * Configures the user's private worklist to be partially included in the result.
-    * 
+    *
     * @param subset
     *           The specification of the subset of the user's private worklist to be
     *           included in the result.
-    * 
+    *
     * @see #setUserContribution(boolean)
     * @see #setParticipantContribution(PerformingParticipantFilter, SubsetPolicy)
     */
@@ -298,12 +298,12 @@ public class WorklistQuery extends Query
    /**
     * Configures the worklist(s) resulting from the given participant filter to be
     * included in the result.
-    * 
+    *
     * <p>
     * The size of all these worklist contributions will be restricted by the
     * {@link SubsetPolicy} set via {@link Query#setPolicy(EvaluationPolicy)}, if existing.
     * </p>
-    * 
+    *
     * @param filter
     *           The filter used to specify the participants contributing their worklists
     *           to the result.
@@ -321,7 +321,7 @@ public class WorklistQuery extends Query
     * subset
     * </p>
     * .
-    * 
+    *
     * @param filter
     *           The filter used to determine the participants contributing their worklists
     *           to the result.
@@ -380,7 +380,7 @@ public class WorklistQuery extends Query
     * Evaluates a semantically equivalent query including any implicit worklist
     * contributions in an explicit form. Such an explicit clone is specifically useful for
     * returning as source of an evaluated query.
-    * 
+    *
     * @param context
     *           The context to use for query evaluation.
     * @return The evaluated query clone.
@@ -447,7 +447,7 @@ public class WorklistQuery extends Query
 
       /**
        * Gets the specification of the subset contributed to the result.
-       * 
+       *
        * @return The subset specification, or <code>null</code> if no such exists.
        */
       public SubsetPolicy getSubset()
@@ -458,7 +458,7 @@ public class WorklistQuery extends Query
 
    /**
     * Class describing the user's private worklist contribution.
-    * 
+    *
     * @see WorklistQuery#getUserContribution
     * @see WorklistQuery#setUserContribution(boolean)
     * @see WorklistQuery#setUserContribution(SubsetPolicy)
@@ -485,7 +485,7 @@ public class WorklistQuery extends Query
 
       /**
        * Gets the flag if the user's private worklist contributes to the result.
-       * 
+       *
        * @return Flag indicating if the user's private worklist contributes.
        */
       public boolean isIncluded()
@@ -496,7 +496,7 @@ public class WorklistQuery extends Query
 
    /**
     * Class describing participant worklist contributions.
-    * 
+    *
     * @see WorklistQuery#setParticipantContribution(PerformingParticipantFilter)
     * @see WorklistQuery#setParticipantContribution(PerformingParticipantFilter,
     *      SubsetPolicy)
@@ -518,7 +518,7 @@ public class WorklistQuery extends Query
       /**
        * Gets the filter used to determine the participants contributing their worklists
        * to the result.
-       * 
+       *
        * @return The participant filter.
        */
       public PerformingParticipantFilter getFilter()
@@ -531,7 +531,7 @@ public class WorklistQuery extends Query
     * Worklist item attribute supporting filter operations.
     * <p />
     * Not for direct use.
-    * 
+    *
     */
    public static final class Attribute extends FilterableAttributeImpl
    {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,37 +10,72 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.query;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Assert;
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Functor;
+import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.TransformingIterator;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IDataPath;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.AndTerm;
+import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
+import org.eclipse.stardust.engine.core.persistence.EvaluationOptions;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.Functions;
+import org.eclipse.stardust.engine.core.persistence.IEvaluationOptionProvider;
+import org.eclipse.stardust.engine.core.persistence.Join;
+import org.eclipse.stardust.engine.core.persistence.MultiPartPredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Operator;
+import org.eclipse.stardust.engine.core.persistence.OrTerm;
+import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.BigData;
+import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
+import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
+import org.eclipse.stardust.engine.core.runtime.setup.AbstractDataClusterSlot;
+import org.eclipse.stardust.engine.core.runtime.setup.ClusterSlotData;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
 import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
+import org.eclipse.stardust.engine.core.runtime.setup.DescriptorSlot;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensionContext;
-
+import org.eclipse.stardust.engine.core.struct.DataXPathMap;
+import org.eclipse.stardust.engine.core.struct.IXPathMap;
+import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
 
 public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSqlBuilder
 {
-   private static final Set<DataAttributeKey> NO_DATA_ATTIBUTE_KEYS = CollectionUtils.newHashSet();
+   private static final Set<DataAttributeKey> NO_DATA_ATTIBUTE_KEYS = CollectionUtils
+         .newHashSet();
 
    private final DataCluster[] clusterSetup;
 
    /**
-    * The set of {@link ProcessInstanceState} the DataCluster must support
-    * for fetching data values - see {@link DataCluster#getEnableStates()}
+    * The set of {@link ProcessInstanceState} the DataCluster must support for fetching
+    * data values - see {@link DataCluster#getEnableStates()}
     */
    private final Set<ProcessInstanceState> requiredClusterPiStates;
 
@@ -56,8 +91,10 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
          EvaluationContext evaluationContext)
    {
       // advise data cluster candidates
-      final Map<DataCluster, Set<DataAttributeKey>> clusterCandidates = CollectionUtils.newHashMap();
-      final ClusterAdvisor clusterAdvisor = new ClusterAdvisor(clusterSetup, requiredClusterPiStates);
+      final Map<DataCluster, Set<DataAttributeKey>> clusterCandidates = CollectionUtils
+            .newHashMap();
+      final ClusterAdvisor clusterAdvisor = new ClusterAdvisor(clusterSetup,
+            requiredClusterPiStates);
       final ClusterAdvisor.Context clusterAdvisorContext = new ClusterAdvisor.Context(
             clusterCandidates, NO_DATA_ATTIBUTE_KEYS, evaluationContext.getModelManager());
       query.evaluateFilter(clusterAdvisor, clusterAdvisorContext);
@@ -73,11 +110,13 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
          final Set<DataAttributeKey> referencedSlots = entry.getValue();
 
          boolean eraseCluster = false;
-         for (Entry<DataCluster, Set<DataAttributeKey>> superEntry : clusterCandidates.entrySet())
+         for (Entry<DataCluster, Set<DataAttributeKey>> superEntry : clusterCandidates
+               .entrySet())
          {
             if (superEntry.getKey() != cluster)
             {
-               Set<DataAttributeKey> slotDifference = new HashSet<DataAttributeKey>(referencedSlots);
+               Set<DataAttributeKey> slotDifference = new HashSet<DataAttributeKey>(
+                     referencedSlots);
                slotDifference.removeAll(superEntry.getValue());
                eraseCluster |= slotDifference.isEmpty();
             }
@@ -110,7 +149,8 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
          }
       }
 
-      DataFilterExtensionContext dataFilterExtensionContext = new DataFilterExtensionContext(query.getFilter());
+      DataFilterExtensionContext dataFilterExtensionContext = new DataFilterExtensionContext(
+            query.getFilter());
       dataFilterExtensionContext.setClusteredFilter(clusteredFilters);
 
       return super.buildSql(new ClusteredDataVisitationContext(query, type,
@@ -126,8 +166,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
       final List joins;
       if (!cntxt.clusterJoins.isEmpty())
       {
-         joins = new ArrayList(predicateJoins.size()
-               + cntxt.clusterJoins.size());
+         joins = new ArrayList(predicateJoins.size() + cntxt.clusterJoins.size());
          joins.addAll(predicateJoins);
          joins.addAll(cntxt.clusterJoins.values());
       }
@@ -155,8 +194,9 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
       final Integer dataFilterMode = Integer.valueOf(filter.getFilterMode());
 
       final DataAttributeKey filterKey;
-      IData data = findCorrespondingData(filter.getDataID(), cntxt.getEvaluationContext().getModelManager());
-      if(data != null)
+      IData data = findCorrespondingData(filter.getDataID(), cntxt.getEvaluationContext()
+            .getModelManager());
+      if (data != null)
       {
          filterKey = new DataAttributeKey(data, filter.getAttributeName());
       }
@@ -167,7 +207,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
 
       Set<DataCluster> boundClusters = cntxt.getClusterBindings().get(filterKey);
       if (null != boundClusters
-            // Clusters can only be used for this data scope mode (default mode).
+      // Clusters can only be used for this data scope mode (default mode).
             && AbstractDataFilter.MODE_ALL_FROM_SCOPE == dataFilterMode.intValue())
       {
          resultTerm = new AndTerm();
@@ -176,7 +216,8 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
 
          for (DataCluster cluster : boundClusters)
          {
-            DataSlot slot = cluster.getSlot(filterKey.getDataId(), filterKey.getAttributeName());
+            DataSlot slot = cluster.getDataSlot(filterKey.getDataId(),
+                  filterKey.getAttributeName());
             if (null == slot)
             {
                throw new InternalException("Invalid cluster binding for data ID "
@@ -193,7 +234,8 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
                final String clusterAlias = "PR_DVCL" + idx;
 
                clusterJoin = new Join(cluster, clusterAlias) //
-                     .on(joinFactory.getScopePiFieldRef(), cluster.getProcessInstanceColumn());
+                     .on(joinFactory.getScopePiFieldRef(),
+                           cluster.getProcessInstanceColumn());
 
                Join scopePiGlueJoin = joinFactory.getGlueJoin();
                if (null != scopePiGlueJoin)
@@ -208,21 +250,24 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
             {
                final List<FieldRef> selectExtension = cntxt.getSelectExtension();
 
-               selectExtension.add(clusterJoin.fieldRef(slot.getTypeColumn(), ignorePreparedStatements));
-               selectExtension.add(clusterJoin.fieldRef(slot.getSValueColumn(), ignorePreparedStatements));
+               selectExtension.add(clusterJoin.fieldRef(slot.getTypeColumn(),
+                     ignorePreparedStatements));
+               selectExtension.add(clusterJoin.fieldRef(slot.getSValueColumn(),
+                     ignorePreparedStatements));
                // Workaround: cluster column count needs to be dividable by 3,
                // third column can be any number as nValueColumns are never prefetched
-               selectExtension.add(clusterJoin.fieldRef(slot.getTypeColumn(), ignorePreparedStatements));
+               selectExtension.add(clusterJoin.fieldRef(slot.getTypeColumn(),
+                     ignorePreparedStatements));
 
                return NOTHING;
             }
             else
             {
                IEvaluationOptionProvider evalProvider = filter;
-               ((AndTerm) resultTerm).add(matchDataInstancesPredicate(ignorePreparedStatements, filter
-                     .getOperator(), filter.getOperand(), clusterJoin, slot
-                     .getTypeColumn(), slot.getNValueColumn(), slot.getSValueColumn(),
-                     evalProvider));
+               ((AndTerm) resultTerm).add(matchDataInstancesPredicate(
+                     ignorePreparedStatements, filter.getOperator(), filter.getOperand(),
+                     clusterJoin, slot.getTypeColumn(), slot.getNValueColumn(),
+                     slot.getSValueColumn(), evalProvider));
             }
          }
       }
@@ -234,32 +279,126 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
       return resultTerm;
    }
 
+   public Object visit(DescriptorFilter filter, Object rawContext)
+   {
+      ClusteredDataVisitationContext context = (ClusteredDataVisitationContext) rawContext;
+      if (DataValueBean.isLargeValue(filter.getOperand()))
+      {
+         throw new InternalException(
+               "Inlined data filter evaluation is not supported for big data values.");
+      }
+
+      String descriptorID = filter.getDescriptorID();
+      PredicateTerm resultTerm = null;
+      final Integer dataFilterMode = Integer.valueOf(filter.getFilterMode());
+
+      if (filter.isCaseDescriptor())
+      {
+         DataFilter dataFilter = createCaseDescriptorDataFilter(filter, descriptorID);
+         List<AbstractDataFilter> dataFilters = CollectionUtils.newList();
+         dataFilters.add(dataFilter);
+         DataFilterExtensionContext ctx = new DataFilterExtensionContext(dataFilters);
+         DataFilterExtensionContext dataFilterExtensionContext = context
+               .getDataFilterExtensionContext();
+         dataFilterExtensionContext.setContent(null);
+         Map<String, List<AbstractDataFilter>> dataFiltersByDataId = ctx
+               .getDataFiltersByDataId();
+         for (Map.Entry<String, List<AbstractDataFilter>> entry : dataFiltersByDataId
+               .entrySet())
+         {
+            dataFilterExtensionContext.getDataFiltersByDataId().put(entry.getKey(),
+                  entry.getValue());
+         }
+         resultTerm = (PredicateTerm) visit(dataFilter, rawContext);
+      }
+      else
+      {
+         Set<DataCluster> boundClusters = context.getClusterBindings().get(
+               new DataAttributeKey(descriptorID, null));
+
+         if (null != boundClusters
+         // Clusters can only be used for this data scope mode (default mode).
+               && DescriptorFilter.MODE_ALL_FROM_SCOPE == dataFilterMode.intValue())
+         {
+            resultTerm = new AndTerm();
+
+            JoinFactory joinFactory = new JoinFactory(context);
+
+            for (DataCluster cluster : boundClusters)
+            {
+               DescriptorSlot slot = cluster.getDescriptorSlot(descriptorID);
+               if (null == slot)
+               {
+                  throw new InternalException(
+                        "Invalid cluster binding for descriptor ID " + descriptorID
+                              + " and cluster " + cluster.getTableName());
+               }
+
+               boolean ignorePreparedStatements = slot.isIgnorePreparedStatements();
+               Pair joinKey = new Pair(dataFilterMode, cluster);
+               Join clusterJoin = (Join) context.clusterJoins.get(joinKey);
+               if (null == clusterJoin)
+               {
+                  // first use of this specific cluster, setup join
+                  final int idx = context.clusterJoins.size() + 1;
+                  final String clusterAlias = "PR_DESCCL" + idx;
+
+                  clusterJoin = new Join(cluster, clusterAlias) //
+                        .on(joinFactory.getScopePiFieldRef(),
+                              cluster.getProcessInstanceColumn());
+
+                  Join scopePiGlueJoin = joinFactory.getGlueJoin();
+                  if (null != scopePiGlueJoin)
+                  {
+                     clusterJoin.setDependency(scopePiGlueJoin);
+                  }
+
+                  context.clusterJoins.put(joinKey, clusterJoin);
+               }
+
+               IEvaluationOptionProvider evalProvider = filter;
+               ((AndTerm) resultTerm).add(matchDataInstancesPredicate(
+                     ignorePreparedStatements, filter.getOperator(), filter.getOperand(),
+                     clusterJoin, slot.getTypeColumn(), slot.getNValueColumn(),
+                     slot.getSValueColumn(), evalProvider));
+            }
+         }
+         else
+         {
+            resultTerm = (PredicateTerm) super.visit(filter, rawContext);
+         }
+      }
+      return resultTerm;
+   }
+
    public Object visit(DataOrder order, Object rawContext)
    {
       final ClusteredDataVisitationContext cntxt = (ClusteredDataVisitationContext) rawContext;
 
       // Check for existing cluster joins. If no match exists then create new join.
-      Map clusterJoins = new UnionMap(cntxt.clusterJoins, cntxt.clusterOrderByJoins, false);
+      Map clusterJoins = new UnionMap(cntxt.clusterJoins, cntxt.clusterOrderByJoins,
+            false);
 
-      IData data = findCorrespondingData(order.getDataID(), cntxt.getEvaluationContext().getModelManager());
+      IData data = findCorrespondingData(order.getDataID(), cntxt.getEvaluationContext()
+            .getModelManager());
 
       DataAttributeKey orderKey = new DataAttributeKey(data, order.getAttributeName());
       Set<DataCluster> boundClusters = cntxt.getClusterBindings().get(orderKey);
-      if(null != boundClusters)
+      if (null != boundClusters)
       {
          JoinFactory joinFactory = new JoinFactory(cntxt);
          for (DataCluster cluster : boundClusters)
          {
-            DataSlot slot = (DataSlot) cluster.getSlot(orderKey.getDataId(), orderKey.getAttributeName());
+            DataSlot slot = (DataSlot) cluster.getDataSlot(orderKey.getDataId(),
+                  orderKey.getAttributeName());
             if (null == slot)
             {
                throw new InternalException("Invalid cluster binding for data ID "
                      + orderKey.getDataId() + " and cluster " + cluster.getTableName());
             }
 
-
-            Pair joinKey = new Pair(Integer.valueOf(AbstractDataFilter.MODE_ALL_FROM_SCOPE),
-                  cluster);
+            Pair joinKey = new Pair(
+                  Integer.valueOf(AbstractDataFilter.MODE_ALL_FROM_SCOPE), cluster);
             Join clusterJoin = (Join) clusterJoins.get(joinKey);
             if (null == clusterJoin)
             {
@@ -268,7 +407,8 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
                final String clusterAlias = "PR_DVCL" + idx;
 
                clusterJoin = new Join(cluster, clusterAlias) //
-                     .on(joinFactory.getScopePiFieldRef(), cluster.getProcessInstanceColumn());
+                     .on(joinFactory.getScopePiFieldRef(),
+                           cluster.getProcessInstanceColumn());
 
                Join scopePiGlueJoin = joinFactory.getGlueJoin();
                if (null != scopePiGlueJoin)
@@ -289,8 +429,8 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
 
       if (null != data)
       {
-         final int typeClassification = LargeStringHolderBigDataHandler.classifyTypeForSorting(
-               data, order.getAttributeName());
+         final int typeClassification = LargeStringHolderBigDataHandler
+               .classifyTypeForSorting(data, order.getAttributeName());
          useNumericColumn |= (BigData.NUMERIC_VALUE == typeClassification);
          useStringColumn |= (BigData.STRING_VALUE == typeClassification);
          useDoubleColumn |= (BigData.DOUBLE_VALUE == typeClassification);
@@ -311,8 +451,8 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
             DataCluster cluster = (DataCluster) joinKey.getSecond();
             Join join = (Join) entry.getValue();
 
-            DataSlot slot = (DataSlot) cluster.getSlot(orderKey.getDataId(), orderKey.getAttributeName());
-
+            DataSlot slot = (DataSlot) cluster.getDataSlot(orderKey.getDataId(),
+                  orderKey.getAttributeName());
             if ((null != join)
                   && (null != slot)
                   && !(useNumericColumn && StringUtils.isEmpty(slot.getNValueColumn()))
@@ -332,9 +472,10 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
                if (useDoubleColumn)
                {
                   String orderByCol = slot.getDValueColumn();
-                  if ( !useStringColumn && StringUtils.isEmpty(orderByCol))
+                  if (!useStringColumn && StringUtils.isEmpty(orderByCol))
                   {
-                     // Fall back to order by on string column if order by double is requested
+                     // Fall back to order by on string column if order by double is
+                     // requested
                      // but slot does not define this column.
                      orderByCol = slot.getSValueColumn();
                   }
@@ -349,9 +490,148 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
       // fall back to standard strategy
       if (result.isEmpty())
       {
-         result.add((org.eclipse.stardust.engine.core.persistence.OrderCriteria) super.visit(order, cntxt));
+         result.add((org.eclipse.stardust.engine.core.persistence.OrderCriteria) super
+               .visit(order, cntxt));
       }
 
+      return result;
+   }
+
+   public Object visit(DescriptorOrder order, Object rawContext)
+   {
+      final ClusteredDataVisitationContext cntxt = (ClusteredDataVisitationContext) rawContext;
+
+      // Check for existing cluster joins. If no match exists then create new join.
+      Map clusterJoins = new UnionMap(cntxt.clusterJoins, cntxt.clusterOrderByJoins,
+            false);
+
+      IData data = null;
+
+      // DataAttributeKey orderKey = new DataAttributeKey(data, order.getAttributeName());
+      String descriptorId = order.getDescriptorId();
+      String attributeName = null;
+      Set<DataCluster> boundClusters = cntxt.getClusterBindings().get(
+            new DataAttributeKey(order.getDescriptorId(), null));
+      if (null != boundClusters)
+      {
+         JoinFactory joinFactory = new JoinFactory(cntxt);
+         for (DataCluster cluster : boundClusters)
+         {
+            DescriptorSlot slot = (DescriptorSlot) cluster
+                  .getDescriptorSlot(descriptorId);
+            if (null == slot)
+            {
+               throw new InternalException("Invalid cluster binding for data ID "
+                     + descriptorId + " and cluster " + cluster.getTableName());
+            }
+
+            for (ClusterSlotData clusterSlotData : slot.getClusterSlotDatas())
+            {
+               String dataId = clusterSlotData.getDataId();
+               attributeName = clusterSlotData.getAttributeName();
+               data = findCorrespondingData(dataId, cntxt.getEvaluationContext()
+                     .getModelManager());
+               if (data != null)
+               {
+                  break;
+               }
+            }
+
+            Pair joinKey = new Pair(
+                  Integer.valueOf(AbstractDataFilter.MODE_ALL_FROM_SCOPE), cluster);
+            Join clusterJoin = (Join) clusterJoins.get(joinKey);
+            if (null == clusterJoin)
+            {
+               // first use of this specific cluster, setup join
+               final int idx = clusterJoins.size() + 1;
+               final String clusterAlias = "PR_DESCCL" + idx;
+
+               clusterJoin = new Join(cluster, clusterAlias) //
+                     .on(joinFactory.getScopePiFieldRef(),
+                           cluster.getProcessInstanceColumn());
+
+               Join scopePiGlueJoin = joinFactory.getGlueJoin();
+               if (null != scopePiGlueJoin)
+               {
+                  clusterJoin.setDependency(scopePiGlueJoin);
+               }
+
+               clusterJoin.setRequired(false);
+
+               cntxt.clusterOrderByJoins.put(joinKey, clusterJoin);
+            }
+         }
+      }
+
+      boolean useNumericColumn = false;
+      boolean useStringColumn = false;
+      boolean useDoubleColumn = false;
+
+      if (null != data)
+      {
+         final int typeClassification = LargeStringHolderBigDataHandler
+               .classifyTypeForSorting(data, attributeName);
+         useNumericColumn |= (BigData.NUMERIC_VALUE == typeClassification);
+         useStringColumn |= (BigData.STRING_VALUE == typeClassification);
+         useDoubleColumn |= (BigData.DOUBLE_VALUE == typeClassification);
+      }
+
+      final org.eclipse.stardust.engine.core.persistence.OrderCriteria result = new org.eclipse.stardust.engine.core.persistence.OrderCriteria();
+
+      if ((null != clusterJoins) && !clusterJoins.isEmpty())
+      {
+         // reuse join of data cluster
+
+         // TODO (sb): if multiple clusters are joined, use the one covering most
+         // order-by-data criteria
+         for (Iterator i = clusterJoins.entrySet().iterator(); i.hasNext();)
+         {
+            Map.Entry entry = (Map.Entry) i.next();
+            Pair joinKey = (Pair) entry.getKey();
+            DataCluster cluster = (DataCluster) joinKey.getSecond();
+            Join join = (Join) entry.getValue();
+
+            DescriptorSlot slot = (DescriptorSlot) cluster.getDescriptorSlot(descriptorId);
+            if ((null != join)
+                  && (null != slot)
+                  && !(useNumericColumn && StringUtils.isEmpty(slot.getNValueColumn()))
+                  && !((useStringColumn | useDoubleColumn) && StringUtils.isEmpty(slot
+                        .getSValueColumn())))
+            {
+               if (useNumericColumn)
+               {
+                  result.add(join.fieldRef(slot.getNValueColumn()), order.isAscending());
+               }
+
+               if (useStringColumn)
+               {
+                  result.add(join.fieldRef(slot.getSValueColumn()), order.isAscending());
+               }
+
+               if (useDoubleColumn)
+               {
+                  String orderByCol = slot.getDValueColumn();
+                  if (!useStringColumn && StringUtils.isEmpty(orderByCol))
+                  {
+                     // Fall back to order by on string column if order by double is
+                     // requested
+                     // but slot does not define this column.
+                     orderByCol = slot.getSValueColumn();
+                  }
+                  result.add(join.fieldRef(orderByCol), order.isAscending());
+               }
+
+               break;
+            }
+         }
+      }
+
+      // fall back to standard strategy
+      if (result.isEmpty())
+      {
+         result.add((org.eclipse.stardust.engine.core.persistence.OrderCriteria) super
+               .visit(order, cntxt));
+      }
       return result;
    }
 
@@ -393,34 +673,36 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
 
    private static int getClassificationKey(Object value)
    {
-      final LargeStringHolderBigDataHandler.Representation canonicalValue =
-            LargeStringHolderBigDataHandler.canonicalizeDataValue(
-                  DataValueBean.getStringValueMaxLength(), value);
+      final LargeStringHolderBigDataHandler.Representation canonicalValue = LargeStringHolderBigDataHandler
+            .canonicalizeDataValue(DataValueBean.getStringValueMaxLength(), value);
 
       return canonicalValue.getClassificationKey();
    }
 
    /**
     * Builds a predicate fragment for matching data instances having the given value.
-    * Depending on the data type this predicate may result in an exact match (if the
-    * value can be represented inline in the <code>data_value</code> table) or just match
-    * a set of candidate instances (if the value's representations has to be sliced for
+    * Depending on the data type this predicate may result in an exact match (if the value
+    * can be represented inline in the <code>data_value</code> table) or just match a set
+    * of candidate instances (if the value's representations has to be sliced for
     * storage).
-    * @param value The generic representation of the data value to match with.
-    * @param evaluationOptions TODO
+    *
+    * @param value
+    *           The generic representation of the data value to match with.
+    * @param evaluationOptions
+    *           TODO
     *
     * @return A SQL-compatible predicate for matching data instances possibly having the
     *         given value.
     *
     * @see #isLargeValue
     */
-   private static PredicateTerm matchDataInstancesPredicate(boolean ignorePreparedStatements, Operator operator, Object value,
+   private static PredicateTerm matchDataInstancesPredicate(
+         boolean ignorePreparedStatements, Operator operator, Object value,
          ITableDescriptor clusterTable, String typeColumn, String nValueColumn,
          String sValueColumn, final IEvaluationOptionProvider evaluationOptions)
    {
-      final LargeStringHolderBigDataHandler.Representation canonicalValue =
-            LargeStringHolderBigDataHandler.canonicalizeDataValue(
-                  DataValueBean.getStringValueMaxLength(), value);
+      final LargeStringHolderBigDataHandler.Representation canonicalValue = LargeStringHolderBigDataHandler
+            .canonicalizeDataValue(DataValueBean.getStringValueMaxLength(), value);
 
       String valueColumn;
       Object matchValue = canonicalValue.getRepresentation();
@@ -438,6 +720,10 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
          case BigData.STRING_VALUE:
             valueColumn = sValueColumn;
             break;
+            
+         case BigData.DOUBLE_VALUE:
+            valueColumn = sValueColumn;
+            break;
 
          default:
             throw new InternalException("Unsupported BigData type classification: "
@@ -448,8 +734,8 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
 
       if (operator.isUnary())
       {
-         resultTerm.add(new ComparisonTerm(clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
-               (Operator.Unary) operator));
+         resultTerm.add(new ComparisonTerm(clusterTable.fieldRef(typeColumn,
+               ignorePreparedStatements), (Operator.Unary) operator));
       }
       else
       {
@@ -460,11 +746,12 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
                OrTerm orTerm = new OrTerm();
                if (Operator.IS_EQUAL.equals(operator))
                {
-                  orTerm.add(new ComparisonTerm(clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
-                        Operator.IS_NULL));
+                  orTerm.add(new ComparisonTerm(clusterTable.fieldRef(typeColumn,
+                        ignorePreparedStatements), Operator.IS_NULL));
                }
-               orTerm.add(new ComparisonTerm(clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
-                     (Operator.Binary) operator, new Integer(BigData.NULL)));
+               orTerm.add(new ComparisonTerm(clusterTable.fieldRef(typeColumn,
+                     ignorePreparedStatements), (Operator.Binary) operator, new Integer(
+                     BigData.NULL)));
                resultTerm.add(orTerm);
             }
             else
@@ -476,7 +763,8 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
          }
          else
          {
-            FieldRef lhsOperand = clusterTable.fieldRef(valueColumn, ignorePreparedStatements);
+            FieldRef lhsOperand = clusterTable.fieldRef(valueColumn,
+                  ignorePreparedStatements);
 
             if (!EvaluationOptions.isCaseSensitive(evaluationOptions))
             {
@@ -491,12 +779,14 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
                if (operator.equals(Operator.LIKE)
                      && canonicalValue.getTypeKey() == BigData.STRING)
                {
-               resultTerm.add(Predicates.inList(clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
+                  resultTerm.add(Predicates.inList(
+                        clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
                         new int[] {BigData.STRING, BigData.BIG_STRING}));
                }
                else
                {
-                  resultTerm.add(Predicates.isEqual(clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
+                  resultTerm.add(Predicates.isEqual(
+                        clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
                         canonicalValue.getTypeKey()));
                }
 
@@ -548,11 +838,12 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
                }
 
                Pair pair = (Pair) matchValue;
-               Pair valuePair = new Pair(
-                     getDataPredicateArgumentValue(pair.getFirst(), evaluationOptions),
-                     getDataPredicateArgumentValue(pair.getSecond(), evaluationOptions));
+               Pair valuePair = new Pair(getDataPredicateArgumentValue(pair.getFirst(),
+                     evaluationOptions), getDataPredicateArgumentValue(pair.getSecond(),
+                     evaluationOptions));
 
-               resultTerm.add(Predicates.isEqual(clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
+               resultTerm.add(Predicates.isEqual(
+                     clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
                      canonicalValue.getTypeKey()));
                resultTerm.add(new ComparisonTerm(lhsOperand, (Operator.Ternary) operator,
                      valuePair));
@@ -586,7 +877,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
          argumentValue = value;
       }
 
-      if ( !EvaluationOptions.isCaseSensitive(options)
+      if (!EvaluationOptions.isCaseSensitive(options)
             && (argumentValue instanceof String))
       {
          argumentValue = ((String) argumentValue).toLowerCase();
@@ -599,8 +890,9 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
    {
       private final Map<DataAttributeKey, Set<DataCluster>> clusterBindings;
 
-      private final Map /*<Pair<Integer, DataCluster>, Join>*/clusterJoins = new HashMap();
-      private final Map /*<Pair<Integer, DataCluster>, Join>*/clusterOrderByJoins = new HashMap();
+      private final Map /* <Pair<Integer, DataCluster>, Join> */clusterJoins = new HashMap();
+
+      private final Map /* <Pair<Integer, DataCluster>, Join> */clusterOrderByJoins = new HashMap();
 
       public ClusteredDataVisitationContext(Query query, Class type,
             EvaluationContext evaluationContext,
@@ -623,13 +915,15 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
       }
    }
 
-   private static class ClusterAdvisor implements FilterEvaluationVisitor,
-         OrderEvaluationVisitor
+   private static class ClusterAdvisor
+         implements FilterEvaluationVisitor, OrderEvaluationVisitor
    {
       private final DataCluster[] clusters;
+
       private final Set<ProcessInstanceState> piFilterStates;
 
-      public ClusterAdvisor(DataCluster[] clusters, Set<ProcessInstanceState> piFilterStates)
+      public ClusterAdvisor(DataCluster[] clusters,
+            Set<ProcessInstanceState> piFilterStates)
       {
          this.clusters = clusters;
          this.piFilterStates = piFilterStates;
@@ -639,22 +933,30 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
       {
          Context context = (Context) rawContext;
 
-         context = new Context(context.clusterCandidates,
-               new HashSet<DataAttributeKey>(context.slotCandidates),
-               context.modelManager);
-         for (Iterator<?> i = filter.getParts().iterator(); i.hasNext();)
+         context = new Context(context.clusterCandidates, new HashSet<DataAttributeKey>(
+               context.slotCandidates), context.modelManager);
+         for (Iterator< ? > i = filter.getParts().iterator(); i.hasNext();)
          {
             FilterCriterion part = (FilterCriterion) i.next();
             if (part instanceof AbstractDataFilter)
             {
                final AbstractDataFilter dataFilter = (AbstractDataFilter) part;
-               IData data = ClusterAwareInlinedDataFilterSqlBuilder.findCorrespondingData(dataFilter.getDataID(), context.modelManager);
-               DataAttributeKey slotCandidate = new DataAttributeKey(data, dataFilter.getAttributeName());
+               IData data = ClusterAwareInlinedDataFilterSqlBuilder
+                     .findCorrespondingData(dataFilter.getDataID(), context.modelManager);
+               DataAttributeKey slotCandidate = new DataAttributeKey(data,
+                     dataFilter.getAttributeName());
+               context.slotCandidates.add(slotCandidate);
+            }
+            else if (part instanceof DescriptorFilter)
+            {
+               DescriptorFilter descFilter = (DescriptorFilter) part;
+               DataAttributeKey slotCandidate = new DataAttributeKey(
+                     descFilter.getDescriptorID(), null);
                context.slotCandidates.add(slotCandidate);
             }
          }
 
-         for (Iterator<?> i = filter.getParts().iterator(); i.hasNext();)
+         for (Iterator< ? > i = filter.getParts().iterator(); i.hasNext();)
          {
             ((FilterCriterion) i.next()).accept(this, context);
          }
@@ -681,7 +983,6 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
       {
          return null;
       }
-            
       public Object visit(ProcessDefinitionFilter filter, Object context)
       {
          return null;
@@ -744,31 +1045,33 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
 
          // try to select for each a suitable cluster
 
-         for (int i = 0; i < clusters.length; i++ )
+         for (int i = 0; i < clusters.length; i++)
          {
             final DataCluster cluster = clusters[i];
-            if(!cluster.isEnabledFor(piFilterStates))
+            if (!cluster.isEnabledFor(piFilterStates))
             {
                continue;
             }
 
-            Set<DataAttributeKey> referencedSlots = context.clusterCandidates.get(cluster);
+            Set<DataAttributeKey> referencedSlots = context.clusterCandidates
+                  .get(cluster);
             for (DataAttributeKey slotCandidate : context.slotCandidates)
             {
-               DataSlot slot = (DataSlot) cluster.getSlot(slotCandidate.getDataId(),
+               DataSlot slot = (DataSlot) cluster.getDataSlot(slotCandidate.getDataId(),
                      slotCandidate.getAttributeName());
 
                if (null != slot)
                {
-                  // prefetch hints can only be strings (solve workaround line 217 if number values should be prefetched too)
+                  // prefetch hints can only be strings (solve workaround line 217 if
+                  // number values should be prefetched too)
                   final int classificationKey = getClassificationKey(filter.getOperand());
-                  boolean dataIsNumericValue = !isPrefetchHint &&
-                     classificationKey == BigData.NUMERIC_VALUE;
-                  boolean slotIsNumericValue = !StringUtils.isEmpty(slot.getNValueColumn());
-                  boolean valuesAreEqualTyped =
-                     classificationKey == BigData.NULL_VALUE ||
-                     (dataIsNumericValue == true && slotIsNumericValue == true) ||
-                     (dataIsNumericValue == false && slotIsNumericValue == false);
+                  boolean dataIsNumericValue = !isPrefetchHint
+                        && classificationKey == BigData.NUMERIC_VALUE;
+                  boolean slotIsNumericValue = !StringUtils.isEmpty(slot
+                        .getNValueColumn());
+                  boolean valuesAreEqualTyped = classificationKey == BigData.NULL_VALUE
+                        || (dataIsNumericValue == true && slotIsNumericValue == true)
+                        || (dataIsNumericValue == false && slotIsNumericValue == false);
 
                   if (valuesAreEqualTyped)
                   {
@@ -824,24 +1127,28 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
          Context context = (Context) rawContext;
 
          // add data order to list of cluster slot candidates
-         IData data = ClusterAwareInlinedDataFilterSqlBuilder.findCorrespondingData(order.getDataID(), context.modelManager);
-         final DataAttributeKey slotCandidate = new DataAttributeKey(data, order.getAttributeName());
+         IData data = ClusterAwareInlinedDataFilterSqlBuilder.findCorrespondingData(
+               order.getDataID(), context.modelManager);
+         final DataAttributeKey slotCandidate = new DataAttributeKey(data,
+               order.getAttributeName());
          context.slotCandidates.add(slotCandidate);
 
          // try to select for each a suitable cluster
 
-         for (int i = 0; i < clusters.length; i++ )
+         for (int i = 0; i < clusters.length; i++)
          {
             final DataCluster cluster = clusters[i];
-            if(!cluster.isEnabledFor(piFilterStates))
+            if (!cluster.isEnabledFor(piFilterStates))
             {
                continue;
             }
 
-            Set<DataAttributeKey> referencedSlots = context.clusterCandidates.get(cluster);
+            Set<DataAttributeKey> referencedSlots = context.clusterCandidates
+                  .get(cluster);
             for (DataAttributeKey key : context.slotCandidates)
             {
-               DataSlot slot = cluster.getSlot(key.getDataId(), key.getAttributeName());
+               DataSlot slot = cluster.getDataSlot(key.getDataId(),
+                     key.getAttributeName());
 
                if (null != slot)
                {
@@ -850,17 +1157,18 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
 
                   if (null != data)
                   {
-                     // type classification in this case still decides between string and numeric
+                     // type classification in this case still decides between string and
+                     // numeric
                      final int typeClassification = LargeStringHolderBigDataHandler
                            .classifyType(data, order.getAttributeName());
                      useNumericColumn |= (BigData.NUMERIC_VALUE == typeClassification);
                      useStringColumn |= (BigData.STRING_VALUE == typeClassification);
                   }
 
-                  boolean slotIsNumericValue = !StringUtils.isEmpty(slot.getNValueColumn());
-                  boolean valuesAreEqualTyped =
-                     (useNumericColumn == true && slotIsNumericValue == true) ||
-                     (useStringColumn == true && slotIsNumericValue == false);
+                  boolean slotIsNumericValue = !StringUtils.isEmpty(slot
+                        .getNValueColumn());
+                  boolean valuesAreEqualTyped = (useNumericColumn == true && slotIsNumericValue == true)
+                        || (useStringColumn == true && slotIsNumericValue == false);
 
                   if (valuesAreEqualTyped)
                   {
@@ -875,6 +1183,89 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
             }
          }
 
+         return null;
+      }
+
+      public Object visit(DescriptorOrder order, Object rawContext)
+      {
+         Context context = (Context) rawContext;
+         final DataAttributeKey slotCandidate = new DataAttributeKey(
+               order.getDescriptorId(), null);
+         context.slotCandidates.add(slotCandidate);
+         
+      // try to select for each a suitable cluster
+
+         for (int i = 0; i < clusters.length; i++)
+         {
+            final DataCluster cluster = clusters[i];
+            if (!cluster.isEnabledFor(piFilterStates))
+            {
+               continue;
+            }
+            DescriptorSlot descriptorSlot = cluster.getDescriptorSlot(order.getDescriptorId());
+            Set<ClusterSlotData> clusterSlotDatas = descriptorSlot.getClusterSlotDatas();
+            String attributeName = null;
+            IData data = null;
+            for (Iterator iterator = clusterSlotDatas.iterator(); iterator.hasNext();)
+            {
+               ClusterSlotData clusterSlotData = (ClusterSlotData) iterator.next();
+               String dataId = clusterSlotData.getQualifiedDataId();
+               attributeName = clusterSlotData.getAttributeName();
+               data = ClusterAwareInlinedDataFilterSqlBuilder.findCorrespondingData(
+                     dataId, context.modelManager);
+               break;
+            }
+
+            Set<DataAttributeKey> referencedSlots = context.clusterCandidates
+                  .get(cluster);
+            for (DataAttributeKey key : context.slotCandidates)
+            {
+               DescriptorSlot slot = null;
+               slot = cluster.getDescriptorSlot(key.getDataId());
+
+               if (null != slot)
+               {
+                  // prefetch hints can only be strings (solve workaround line 217 if
+                  // number values should be prefetched too)
+                  final int classificationKey = LargeStringHolderBigDataHandler
+                        .classifyType(data, attributeName);
+                  boolean dataIsNumericValue = /* !isPrefetchHint && */
+                  classificationKey == BigData.NUMERIC_VALUE;
+                  boolean slotIsNumericValue = !StringUtils.isEmpty(slot
+                        .getNValueColumn());
+                  boolean valuesAreEqualTyped = classificationKey == BigData.NULL_VALUE
+                        || (dataIsNumericValue == true && slotIsNumericValue == true)
+                        || (dataIsNumericValue == false && slotIsNumericValue == false);
+
+                  if (valuesAreEqualTyped)
+                  {
+                     if (null == referencedSlots)
+                     {
+                        referencedSlots = CollectionUtils.newHashSet();
+                        context.clusterCandidates.put(cluster, referencedSlots);
+                     }
+                     referencedSlots.add(key);
+                  }
+               }
+            }
+         }
+         
+         org.eclipse.stardust.engine.core.persistence.OrderCriteria orderCriteria = new org.eclipse.stardust.engine.core.persistence.OrderCriteria();
+         List<IDataPath> descriptors = getAllDescriptors(order.getDescriptorId(),
+               context.modelManager);
+         for (IDataPath dataPath : descriptors)
+         {
+            IData data = dataPath.getData();
+            IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
+            String xpath = dataPath.getAccessPath();
+            if (!StructuredDataXPathUtils.canReturnList(xpath, xPathMap))
+            {
+               orderCriteria
+                     .add((org.eclipse.stardust.engine.core.persistence.OrderCriteria) visit(
+                           new DataOrder(data.getId(), xpath, order.isAscending()),
+                           rawContext));
+            }
+         }
          return null;
       }
 
@@ -901,7 +1292,9 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
       private static class Context
       {
          private final Map<DataCluster, Set<DataAttributeKey>> clusterCandidates;
+
          private final Set<DataAttributeKey> slotCandidates;
+
          private final ModelManager modelManager;
 
          public Context(Map<DataCluster, Set<DataAttributeKey>> clusterCandidates,
@@ -922,6 +1315,71 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
       {
          return null;
       }
+
+      public Object visit(DescriptorFilter filter, Object rawContext)
+      {
+         Context context = (Context) rawContext;
+         // final boolean isPrefetchHint = filter instanceof DataPrefetchHint;
+
+         // try to select for each a suitable cluster
+
+         for (int i = 0; i < clusters.length; i++)
+         {
+            final DataCluster cluster = clusters[i];
+            if (!cluster.isEnabledFor(piFilterStates))
+            {
+               continue;
+            }
+
+            Set<DataAttributeKey> referencedSlots = context.clusterCandidates
+                  .get(cluster);
+            for (DataAttributeKey slotCandidate : context.slotCandidates)
+            {
+               AbstractDataClusterSlot slot = null;
+               if (filter.isCaseDescriptor())
+               {
+                  String descriptorID = filter.getDescriptorID();
+                  if (descriptorID.equals(PredefinedConstants.CASE_NAME_ELEMENT)
+                        || descriptorID
+                              .equals(PredefinedConstants.CASE_DESCRIPTION_ELEMENT))
+                  {
+                     slot = cluster.getDataSlot(PredefinedConstants.CASE_DATA_ID,
+                           descriptorID);
+                  }
+               }
+               else
+               {
+                  slot = cluster.getDescriptorSlot(slotCandidate.getDataId());
+               }
+
+               if (null != slot)
+               {
+                  // prefetch hints can only be strings (solve workaround line 217 if
+                  // number values should be prefetched too)
+                  final int classificationKey = getClassificationKey(filter.getOperand());
+                  boolean dataIsNumericValue = /* !isPrefetchHint && */
+                  classificationKey == BigData.NUMERIC_VALUE;
+                  boolean slotIsNumericValue = !StringUtils.isEmpty(slot
+                        .getNValueColumn());
+                  boolean valuesAreEqualTyped = classificationKey == BigData.NULL_VALUE
+                        || (dataIsNumericValue == true && slotIsNumericValue == true)
+                        || (dataIsNumericValue == false && slotIsNumericValue == false);
+
+                  if (valuesAreEqualTyped)
+                  {
+                     if (null == referencedSlots)
+                     {
+                        referencedSlots = CollectionUtils.newHashSet();
+                        context.clusterCandidates.put(cluster, referencedSlots);
+                     }
+                     referencedSlots.add(slotCandidate);
+                  }
+               }
+            }
+         }
+
+         return null;
+      }
    }
 
    /**
@@ -937,14 +1395,17 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
    private static class UnionMap implements Map
    {
       private Map first;
+
       private Map second;
+
       private final boolean modifyFirst;
 
       /**
        * @param first
        * @param second
-       * @param modifyFirst   true when the first child map shall be modified on calls like {@link #clear()}.
-       *                      Otherwise the second child map will be modified.
+       * @param modifyFirst
+       *           true when the first child map shall be modified on calls like
+       *           {@link #clear()}. Otherwise the second child map will be modified.
        */
       public UnionMap(Map first, Map second, boolean modifyFirst)
       {
@@ -967,7 +1428,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
 
       public boolean containsKey(Object key)
       {
-         if ( !first.containsKey(key) && !second.containsKey(key))
+         if (!first.containsKey(key) && !second.containsKey(key))
          {
             return false;
          }
@@ -977,7 +1438,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
 
       public boolean containsValue(Object value)
       {
-         if ( !first.containsValue(value) && !second.containsValue(value))
+         if (!first.containsValue(value) && !second.containsValue(value))
          {
             return false;
          }
@@ -994,12 +1455,12 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
 
       public Object get(Object key)
       {
-         if(first.containsKey(key))
+         if (first.containsKey(key))
          {
             return first.get(key);
          }
 
-         if(second.containsKey(key))
+         if (second.containsKey(key))
          {
             return second.get(key);
          }
@@ -1026,7 +1487,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
 
       public Object put(Object key, Object value)
       {
-         if(modifyFirst)
+         if (modifyFirst)
          {
             return first.put(key, value);
          }
@@ -1038,7 +1499,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
 
       public void putAll(Map t)
       {
-         if(modifyFirst)
+         if (modifyFirst)
          {
             first.putAll(t);
          }
@@ -1050,7 +1511,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
 
       public Object remove(Object key)
       {
-         if(modifyFirst)
+         if (modifyFirst)
          {
             return first.remove(key);
          }

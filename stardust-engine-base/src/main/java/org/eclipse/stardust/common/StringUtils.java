@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ public class StringUtils
    {
       return (null == string) || (0 == string.length());
    }
-   
+
    /**
     * Test the given {@link String} for not being empty. Not empty means not being
     * <code>null</code> and having a length greater than zero.
@@ -104,7 +104,7 @@ public class StringUtils
       {
          buffer.append(lhs);
       }
-      
+
       if (!isEmpty(rhs))
       {
          if (0 < buffer.length())
@@ -113,7 +113,7 @@ public class StringUtils
          }
          buffer.append(rhs);
       }
-      
+
       return buffer.toString();
    }
 
@@ -138,6 +138,19 @@ public class StringUtils
       }
    }
 
+   public static void join(StringBuilder builder, Iterator<?> parts, String joinToken)
+   {
+      if (parts.hasNext())
+      {
+         String token = "";
+         while (parts.hasNext())
+         {
+            builder.append(token).append(parts.next());
+            token = joinToken;
+         }
+      }
+   }
+
    public static final Iterator<String> split(String source, char splitToken)
    {
       return split(source, splitToken, false);
@@ -149,7 +162,7 @@ public class StringUtils
       if ( !isEmpty(source))
       {
          StringTokenizer token = new StringTokenizer(source,
-               Character.valueOf(splitToken).toString(), includeSplitToken); 
+               Character.valueOf(splitToken).toString(), includeSplitToken);
          return new EnumerationIteratorWrapper<String>(new StringEnumeration(token));
       }
       else
@@ -198,7 +211,7 @@ public class StringUtils
       {
          tokens = emptyList();
       }
-      
+
       return tokens.iterator();
    }
 
@@ -234,7 +247,7 @@ public class StringUtils
       }
       return true;
    }
-   
+
    public static boolean getBoolean(String name, boolean defaultValue)
    {
       final String[] trueWords = {"true", "enabled", "on"};
@@ -266,16 +279,16 @@ public class StringUtils
       throw new PublicException("The string '" + name
             + "' can neither be mapped to 'true' nor to 'false'.");
    }
-   
+
    private static class StringEnumeration implements Enumeration<String>
    {
       private StringTokenizer tokenizer;
-      
+
       public StringEnumeration(StringTokenizer tokenizer)
       {
          this.tokenizer = tokenizer;
       }
-      
+
       public boolean hasMoreElements()
       {
          return tokenizer.hasMoreElements();
@@ -285,6 +298,6 @@ public class StringUtils
       {
          return tokenizer.nextToken();
       }
-      
+
    }
 }

@@ -1583,7 +1583,7 @@ public class ProcessQueryPostprocessor
                IData data = entry.getValue();
                Long dataRtOid = entry.getKey();
 
-               DataSlot slot = cluster.getSlot(getFullQualifiedId(data), "");
+               DataSlot slot = cluster.getDataSlot(getFullQualifiedId(data), "");
                if (slot != null)
                {
                   ITableDescriptor typeDescr = addDataClusterSlot(cluster, slot, slotCount,

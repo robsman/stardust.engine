@@ -742,8 +742,22 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
             IApplication app = getApplication();
             if (app == null)
             {
-               BpmValidationError error = BpmValidationError.ACTY_NO_APPLICATION_SET_FOR_APPLICATION_ACTIVITY.raise(getId());
-               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+               if (externalReference != null) 
+               {
+                  String refPath = externalReference.getId();
+                  if (externalReference.getExternalPackage() != null)
+                  {
+                     refPath = externalReference.getExternalPackage().getName() + "/"
+                           + refPath;
+                  }
+                  BpmValidationError error = BpmValidationError.ACTY_REFERENCED_APPLICATION_NOT_RESOLVED.raise(refPath, getId());
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+               } 
+               else 
+               {
+                  BpmValidationError error = BpmValidationError.ACTY_NO_APPLICATION_SET_FOR_APPLICATION_ACTIVITY.raise(getId());
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+               }
             }
             else
             {

@@ -10,18 +10,14 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.suites;
 
-import static org.eclipse.stardust.test.api.util.TestConstants.MOTU;
-
-import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import org.eclipse.stardust.test.api.setup.DataClusterTestClassSetup;
-import org.eclipse.stardust.test.api.setup.TestClassSetup.ForkingServiceMode;
-import org.eclipse.stardust.test.api.setup.TestSuiteSetup;
-import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.test.datacluster.DataClusterTest;
+import org.eclipse.stardust.test.datacluster.DescriptorDataClusterTest;
+import org.eclipse.stardust.test.datacluster.DescriptorFilterDataClusterTest;
+import org.eclipse.stardust.test.datacluster.DescriptorOrderDataClusterTest;
 
 /**
  * <p>
@@ -31,13 +27,15 @@ import org.eclipse.stardust.test.datacluster.DataClusterTest;
  * @author Antje.Fuhrmann
  */
 @RunWith(Suite.class)
-@SuiteClasses({DataClusterTest.class})
+@SuiteClasses({
+      DataClusterTest.class, DescriptorDataClusterTest.class,
+      DescriptorFilterDataClusterTest.class, DescriptorOrderDataClusterTest.class})
 public class DataClusterTestSuite
 {
 
-   @ClassRule
-   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(
-         new DataClusterTestClassSetup(new UsernamePasswordPair(MOTU, MOTU),
-               ForkingServiceMode.NATIVE_THREADING, DataClusterTest.MODEL_NAME));
+//   @ClassRule
+//   public static final TestSuiteSetup testSuiteSetup = new TestSuiteSetup(
+//         new DataClusterTestClassSetup(new UsernamePasswordPair(MOTU, MOTU),
+//               ForkingServiceMode.NATIVE_THREADING, DataClusterTest.MODEL_NAME));
 
 }

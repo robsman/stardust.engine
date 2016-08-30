@@ -14,6 +14,7 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 
 import javax.sql.DataSource;
 
@@ -32,12 +33,30 @@ public class LocalDataSource  implements DataSource, IDisposable
     * the pool is handled as a singleton, the DataSource acts as factory.
     */
    private JDBCConnectionPool jdbcConnectionPool = null;
-   
+
    private final String driverClazz;
    private final Driver driver;
    private final String url;
    private final String user;
    private final String password;
+   private final Boolean autoCommit;
+
+   /**
+    * binds the local/pseudo datasource to its "enviroment" to support different databases.
+    * @param driverClass
+    * @param url
+    * @param user
+    * @param password
+    */
+   public LocalDataSource(String driverClazz, String url, String user, String password, Boolean autoCommit)
+   {
+      this.driverClazz = driverClazz;
+      this.driver = null;
+      this.url = url;
+      this.user = user;
+      this.password = password;
+      this.autoCommit = autoCommit;
+   }
 
    /**
     * binds the local/pseudo datasource to its "enviroment" to support different databases.
@@ -53,6 +72,7 @@ public class LocalDataSource  implements DataSource, IDisposable
       this.url = url;
       this.user = user;
       this.password = password;
+      this.autoCommit = false;
    }
 
    /**
@@ -69,6 +89,7 @@ public class LocalDataSource  implements DataSource, IDisposable
       this.url = url;
       this.user = user;
       this.password = password;
+      this.autoCommit = false;
    }
 
    /**
@@ -109,14 +130,15 @@ public class LocalDataSource  implements DataSource, IDisposable
             this.jdbcConnectionPool = new JDBCConnectionPool(driver, //
                   url, //
                   user, password, //
-                  1, 1000, 10);
+                  1, 1000, 10, autoCommit);
+            jdbcConnectionPool.setAutoCommit(autoCommit);
          }
          else
          {
             this.jdbcConnectionPool = new JDBCConnectionPool(driverClazz, //
                   url, //
                   user, password, //
-                  1, 1000, 10);
+                  1, 1000, 10, autoCommit);
          }
       }
       return jdbcConnectionPool.getConnection();
@@ -188,5 +210,5 @@ public class LocalDataSource  implements DataSource, IDisposable
       // TODO Auto-generated method stub
       return null;
    }
-   
+
 }

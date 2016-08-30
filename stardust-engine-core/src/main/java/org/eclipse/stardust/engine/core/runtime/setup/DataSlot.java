@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,97 +10,74 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.setup;
 
-import javax.xml.namespace.QName;
-
 /**
- * 
+ *
  * @author rsauer
- * @version $Revision$
  */
-public class DataSlot
+public class DataSlot extends AbstractDataClusterSlot
 {
-   private DataCluster parent;
-   private final QName fqDataId;
-   private final String attributeName; 
-   
-   private final String oidColumn;
-   private final String typeColumn;
-   private final String nValueColumn;
-   private final String sValueColumn;
-   private final String dValueColumn;
-   private final boolean ignorePreparedStatements;
+   private final ClusterSlotData clusterSlotData;
 
-   public DataSlot(String modelId, String dataId, String attributeName, String oidColumn,
-         String typeColumn, String nValueColumn, String sValueColumn,
-         String dValueColumn, boolean ignorePreparedStatements)
+   public DataSlot(ClusterSlotData clusterSlotData, String oidColumn,
+         String typeColumn, String nValueColumn, String sValueColumn, String dValueColumn,
+         boolean ignorePreparedStatements)
    {
-      this.fqDataId = new QName(modelId, dataId);
-      this.attributeName = attributeName;
-      this.oidColumn = oidColumn;
-      this.typeColumn = typeColumn;
-      this.nValueColumn = nValueColumn;
-      this.sValueColumn = sValueColumn;
-      this.dValueColumn = dValueColumn;
-      this.ignorePreparedStatements = ignorePreparedStatements;
+      super(oidColumn, typeColumn, nValueColumn, sValueColumn, dValueColumn,
+            ignorePreparedStatements);
+      this.clusterSlotData = clusterSlotData;
+      clusterSlotData.setParent(this);
    }
-   
+
+   public ClusterSlotData getClusterSlotData()
+   {
+      return clusterSlotData;
+   }
+
+   @Deprecated
    public String getModelId()
    {
-      return fqDataId.getNamespaceURI();
+      return clusterSlotData.getModelId();
    }
 
+   @Deprecated
    public String getDataId()
    {
-      return fqDataId.getLocalPart();
+      return clusterSlotData.getFqDataId().getLocalPart();
    }
-   
+
+   @Deprecated
    public String getQualifiedDataId()
    {
-      return fqDataId.toString();
+      return clusterSlotData.getFqDataId().toString();
    }
 
+   @Deprecated
    public String getAttributeName()
    {
-      return this.attributeName;
+      return clusterSlotData.getAttributeName();
    }
 
-   public String getOidColumn()
+   @Override
+   public boolean hasPrimitiveData()
    {
-      return oidColumn;
+      return clusterSlotData.isPrimitiveData();
    }
 
-   public String getTypeColumn()
+   @Override
+   public boolean hasStructuredData()
    {
-      return typeColumn;
+      return !clusterSlotData.isPrimitiveData();
    }
 
-   public String getNValueColumn()
+   @Override
+   public boolean isSingleDataSlot()
    {
-      return nValueColumn;
-   }
-   
-   public String getSValueColumn()
-   {
-      return sValueColumn;
-   }
-   
-   public String getDValueColumn()
-   {
-      return dValueColumn;
+      return true;
    }
 
-   public boolean isIgnorePreparedStatements()
+   @Override
+   public String qualifiedDataToString()
    {
-      return ignorePreparedStatements;
-   }
-
-   public DataCluster getParent()
-   {
-      return parent;
-   }
-
-   public void setParent(DataCluster parent)
-   {
-      this.parent = parent;
+      return clusterSlotData.qualifiedDataToString();
    }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,7 +27,7 @@ public class MySqlDbDescriptor extends IdentityColumnDbDriver
 {
    private static final String[] keywords = {
       // keyword since version 5.0
-      "CONDITION", 
+      "CONDITION",
       // Keyword since 5.6
       "PARTITION"
    };
@@ -74,14 +74,14 @@ public class MySqlDbDescriptor extends IdentityColumnDbDriver
    public String getDropIndexStatement(String schemaName, String tableName, String indexName)
    {
       StringBuffer buffer = new StringBuffer(200);
-      
+
       buffer.append("DROP INDEX ").append(indexName).append(" ON ");
       if (!StringUtils.isEmpty(schemaName))
       {
          buffer.append(schemaName).append(".");
       }
-      buffer.append(tableName);
-      
+      buffer.append(quoteIdentifier(tableName));
+
       return buffer.toString();
    }
 
@@ -183,7 +183,7 @@ public class MySqlDbDescriptor extends IdentityColumnDbDriver
    {
       return false;
    }
-   
+
    public String quoteIdentifier(String identifier)
    {
       if (identifier != null && keywordSet.contains(identifier.toUpperCase()))

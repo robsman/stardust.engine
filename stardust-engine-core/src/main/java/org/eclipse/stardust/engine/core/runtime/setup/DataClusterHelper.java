@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,12 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
@@ -55,6 +50,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.PropertyPersistor;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler.Representation;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.setup.ClusterSlotFieldInfo.SLOT_TYPE;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterMetaInfoRetriever;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterSynchronizationInfo;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
@@ -68,14 +64,14 @@ import org.eclipse.stardust.engine.core.struct.spi.StructuredDataXPathEvaluator;
 public class DataClusterHelper
 {
    private static final Logger trace = LogManager.getLogger(DataClusterHelper.class);
- 
+
    private static Set<ProcessInstanceState> getRequiredPiStates(ProcessStateFilter stateFilter)
    {
       Set<ProcessInstanceState> restrictedStates = new HashSet<ProcessInstanceState>();
       Set<ProcessInstanceState> allStates = ProcessInstanceState.getAllStates();
       Set<ProcessInstanceState> filterStates = new HashSet<ProcessInstanceState>(
-            Arrays.asList(stateFilter.getStates())); 
-      
+            Arrays.asList(stateFilter.getStates()));
+
       if(stateFilter.isInclusive())
       {
          restrictedStates.addAll(filterStates);
@@ -85,18 +81,18 @@ public class DataClusterHelper
          restrictedStates.addAll(allStates);
          restrictedStates.removeAll(filterStates);
       }
-      
+
       if(restrictedStates.isEmpty())
       {
          restrictedStates.addAll(ProcessInstanceState.getAllStates());
       }
-      
+
       return restrictedStates;
    }
-   
+
    private static Set<ProcessInstanceState> getRequiredPiStates(ActivityInstanceState state)
    {
-      Set<ProcessInstanceState> restrictedStates 
+      Set<ProcessInstanceState> restrictedStates
          = new HashSet<ProcessInstanceState>();
       switch (state.getValue())
       {
@@ -113,10 +109,10 @@ public class DataClusterHelper
             restrictedStates.addAll(ProcessInstanceState.getAllStates());
             break;
       }
-       
+
       return restrictedStates;
    }
-   
+
    private static void collectRequiredClusterPiStates(FilterTerm filterTerm, Set<ProcessInstanceState> restrictions)
    {
       for(Object part: filterTerm.getParts())
@@ -127,13 +123,13 @@ public class DataClusterHelper
             FilterTerm tmpFilterTerm = (FilterTerm) criterion;
             collectRequiredClusterPiStates(tmpFilterTerm, restrictions);
          }
-         
+
          if(criterion instanceof ProcessStateFilter)
          {
-            ProcessStateFilter stateFilter = (ProcessStateFilter) criterion;    
+            ProcessStateFilter stateFilter = (ProcessStateFilter) criterion;
             restrictions.addAll(getRequiredPiStates(stateFilter));
          }
-         
+
          if(criterion instanceof ActivityStateFilter)
          {
             ActivityStateFilter stateFilter = (ActivityStateFilter) criterion;
@@ -142,16 +138,16 @@ public class DataClusterHelper
                restrictions.addAll(getRequiredPiStates(aiState));
             }
          }
-      } 
+      }
    }
-   
+
    private static Set<ProcessInstanceState> getRequiredClusterPiStates(Query query)
    {
       Set<ProcessInstanceState> requiredPiStates = new HashSet<ProcessInstanceState>();
-      collectRequiredClusterPiStates(query.getFilter(), requiredPiStates);   
+      collectRequiredClusterPiStates(query.getFilter(), requiredPiStates);
       return requiredPiStates;
    }
-   
+
    public static void setRequiredClusterPiStates(Query query)
    {
       DataClusterRuntimeInfo clusterRuntimeInfo = DataClusterHelper.getDataClusterRuntimeInfo();
@@ -161,11 +157,11 @@ public class DataClusterHelper
          clusterRuntimeInfo.setRequiredClusterPiStates(requiredPiStates);
       }
    }
-   
+
    /**
     * Returns a Set of {@link ProcessInstanceState} which needs to be supported by a {@link DataCluster}
     * to be able to fetch data value from it
-    * 
+    *
     * @param query - the query to be analyized
     * @return a Set of {@link ProcessInstanceState} which needs to be supported by a {@link DataCluster}
     * to be able to fetch data value from it
@@ -173,19 +169,19 @@ public class DataClusterHelper
    public static Set<ProcessInstanceState> getRequiredClusterPiStates()
    {
       Set<ProcessInstanceState> requiredClusterPiStates = null;
-      DataClusterRuntimeInfo clusterRuntimeInfo = DataClusterHelper.getDataClusterRuntimeInfo(); 
+      DataClusterRuntimeInfo clusterRuntimeInfo = DataClusterHelper.getDataClusterRuntimeInfo();
       if(clusterRuntimeInfo != null)
       {
-         requiredClusterPiStates = clusterRuntimeInfo.getRequiredClusterPiStates(); 
+         requiredClusterPiStates = clusterRuntimeInfo.getRequiredClusterPiStates();
       }
       else
       {
          requiredClusterPiStates = ProcessInstanceState.getAllStates();
       }
-      
-      return requiredClusterPiStates; 
+
+      return requiredClusterPiStates;
    }
-   
+
    public static DataClusterRuntimeInfo getDataClusterRuntimeInfo()
    {
       if(DataClusterHelper.isDataClusterPresent())
@@ -197,13 +193,13 @@ public class DataClusterHelper
             rtEnvClusterInfo = new DataClusterRuntimeInfo();
             rtEnv.setDataClusterRuntimeInfo(rtEnvClusterInfo);
          }
-         
+
          return rtEnvClusterInfo;
       }
-      
+
       return null;
    }
-   
+
    public static boolean isDataClusterPresent()
    {
       RuntimeSetup setup = RuntimeSetup.instance();
@@ -211,32 +207,32 @@ public class DataClusterHelper
       {
          return true;
       }
-      
+
       return false;
    }
-   
+
    public static void deleteDataClusterSetup()
    {
       try
       {
-         org.eclipse.stardust.engine.core.persistence.Session session 
+         org.eclipse.stardust.engine.core.persistence.Session session
             = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-         
-         PropertyPersistor setupPersistor 
+
+         PropertyPersistor setupPersistor
             = getDataClusterPersistor();
          if(setupPersistor != null)
          {
             LargeStringHolder.deleteAllForOID(setupPersistor.getOID(), PropertyPersistor.class);
             setupPersistor.delete(true);
             session.save();
-         }   
+         }
       }
       finally
       {
          Parameters.instance().set(RuntimeSetup.RUNTIME_SETUP_PROPERTY, null);
       }
    }
-   
+
    private static PropertyPersistor getDataClusterPersistor()
    {
       PropertyPersistor prop = PropertyPersistor
@@ -249,7 +245,7 @@ public class DataClusterHelper
 
       return prop;
    }
-   
+
    public static void synchronizeDataCluster(IProcessInstance scopeProcessInstance)
    {
       RuntimeSetup setup = RuntimeSetup.instance();
@@ -274,6 +270,8 @@ public class DataClusterHelper
                      // update that entry with the data values
                      DataClusterSynchronizationInfo syncInfo = getDataClusterSynchronizationInfo(
                            dc, scopeProcessInstance);
+                     syncInfo.setPerformClusterVerification(false);
+                     syncInfo.setScopePiOid(scopePiOid);
                      synchronizeDataCluster(syncInfo, jdbcSession);
                   }
                }
@@ -285,41 +283,41 @@ public class DataClusterHelper
          }
       }
    }
-   
+
    public static DataClusterSynchronizationInfo getDataClusterSynchronizationInfo(
-         DataCluster clusterToSynchronize, 
+         DataCluster clusterToSynchronize,
          IProcessInstance scopeProcessInstance)
    {
-      Map<DataClusterKey, Set<DataSlot>> clusterToSlotMapping = new HashMap<DataClusterKey, Set<DataSlot>>();
-      Map<DataSlotKey, Set<DataSlotFieldInfo>> slotToColumnMapping = new HashMap<DataSlotKey, Set<DataSlotFieldInfo>>();
+      Map<DataClusterKey, Set<AbstractDataClusterSlot>> clusterToSlotMapping = CollectionUtils.newHashMap();
+      Map<DataSlotKey, Map<ClusterSlotFieldInfo.SLOT_TYPE, ClusterSlotFieldInfo>> slotToColumnMapping = CollectionUtils.newHashMap();
 
       DataClusterKey clusterKey = new DataClusterKey(clusterToSynchronize);
-      for (DataSlot ds : clusterToSynchronize.getAllSlots())
+      for (AbstractDataClusterSlot ds : clusterToSynchronize.getAllSlots())
       {
          DataSlotKey slotKey = new DataSlotKey(ds);
-         Set<DataSlot> slots = clusterToSlotMapping.get(clusterKey);
+         Set<AbstractDataClusterSlot> slots = clusterToSlotMapping.get(clusterKey);
          if (slots == null)
          {
-            slots = new HashSet<DataSlot>();
+            slots = CollectionUtils.<AbstractDataClusterSlot>newHashSet();
             clusterToSlotMapping.put(clusterKey, slots);
          }
          slots.add(ds);
 
-         List<DataSlotFieldInfo> slotColumnFields = DataClusterMetaInfoRetriever
+         HashMap<SLOT_TYPE, ClusterSlotFieldInfo> typeToFieldMap = DataClusterMetaInfoRetriever
                .getDataSlotFields(ds);
-         slotToColumnMapping.put(slotKey, new HashSet<DataSlotFieldInfo>(slotColumnFields));
+         slotToColumnMapping.put(slotKey, typeToFieldMap);
       }
 
       DataClusterSynchronizationInfo syncInfo = new DataClusterSynchronizationInfo(
             clusterToSlotMapping, slotToColumnMapping, null);
       return syncInfo;
    }
-   
+
    private static void synchronizeDataCluster(DataClusterSynchronizationInfo synchronizationInfo, org.eclipse.stardust.engine.core.persistence.jdbc.Session session)
    {
       DBDescriptor dbDescriptor = session.getDBDescriptor();
       DDLManager ddlManager = new DDLManager(dbDescriptor);
-      String schemaName = session.getSchemaName();  
+      String schemaName = session.getSchemaName();
       try
       {
          ddlManager.synchronizeDataCluster(false, synchronizationInfo, session.getConnection(), schemaName, null, null, null);
@@ -331,7 +329,7 @@ public class DataClusterHelper
          throw new InternalException(errorMsg, e);
       }
    }
-    
+
    private static boolean clusterHasProcessInstance(DataCluster dc, long piOid)
    {
       org.eclipse.stardust.engine.core.persistence.Session session = SessionFactory
@@ -355,8 +353,8 @@ public class DataClusterHelper
          try
          {
             stmt = sessionImpl.getConnection().createStatement();
-            final TimeMeasure timer = new TimeMeasure(); 
-            
+            final TimeMeasure timer = new TimeMeasure();
+
             ResultSet rs = stmt.executeQuery(sqlString);
             rs.next();
             int count = rs.getInt(1);
@@ -364,7 +362,7 @@ public class DataClusterHelper
             {
                return true;
             }
-            
+
             sessionImpl.monitorSqlExecution(sqlString, timer.stop());
          }
          catch (SQLException x)
@@ -378,10 +376,10 @@ public class DataClusterHelper
             QueryUtils.closeStatement(stmt);
          }
       }
-      
+
       return false;
    }
-   
+
    public static void deleteFromCluster(DataCluster dc, long piOid)
    {
       org.eclipse.stardust.engine.core.persistence.Session session = SessionFactory
@@ -418,15 +416,15 @@ public class DataClusterHelper
          }
       }
    }
-   
+
    private static void completeDataValueModification(
-         Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, DataSlot>>> piToDv,
+         Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, ClusterSlotData>>> piToDv,
          Session jdbcSession, boolean isDeleteModification)
    {
       for (Pair<Long, DataCluster> key : piToDv.keySet())
       {
-         List<Pair<PersistenceController, DataSlot>> slotValues = piToDv.get(key);
-         
+         List<Pair<PersistenceController, ClusterSlotData>> slotValues = piToDv.get(key);
+
          if (null != slotValues && slotValues.size() != 0)
          {
             long piOid = key.getFirst().longValue();
@@ -434,22 +432,22 @@ public class DataClusterHelper
                   (IProcessInstance) jdbcSession.findByOID(ProcessInstanceBean.class,
                         piOid), null);
             DataCluster dataCluster = key.getSecond();
-            
+
             StringBuffer buffer = new StringBuffer(100);
-            
+
             buffer.append("UPDATE ").append(dataCluster.getQualifiedTableName());
             buffer.append(" SET ");
-   
+
             List<Pair<Class, ? >> bindValueList = CollectionUtils.newArrayList(slotValues.size() * 3 + 1);
             String appendToken = "";
-            for (Pair<PersistenceController, DataSlot> compoundValue : slotValues)
+            for (Pair<PersistenceController, ClusterSlotData> compoundValue : slotValues)
             {
                PersistenceController dpc = compoundValue.getFirst();
                DataValueBean dataValue = (DataValueBean) dpc.getPersistent();
-               DataSlot dataSlot = compoundValue.getSecond();
-               
+               ClusterSlotData dataSlot = compoundValue.getSecond();
+
                String dataTypeId = dataValue.getData().getType().getId();
-               if (!StringUtils.isEmpty(dataSlot.getSValueColumn())
+               if (!StringUtils.isEmpty(dataSlot.getParent().getSValueColumn())
                      && (StructuredTypeRtUtils.isDmsType(dataTypeId) || StructuredTypeRtUtils
                            .isStructuredType(dataTypeId)))
                {
@@ -459,55 +457,58 @@ public class DataClusterHelper
                      continue;
                   }
                }
-               
+
                buffer.append(appendToken);
                appendToken = ",";
-               
-               buffer.append(dataSlot.getOidColumn()).append("=?,");
-               buffer.append(dataSlot.getTypeColumn()).append("=?");
-               
-               if (StringUtils.isNotEmpty(dataSlot.getSValueColumn()))
+
+               buffer.append(dataSlot.getParent().getOidColumn()).append("=?,");
+               buffer.append(dataSlot.getParent().getTypeColumn()).append("=?");
+
+               if (StringUtils.isNotEmpty(dataSlot.getParent().getSValueColumn()))
                {
-                  buffer.append(',').append(dataSlot.getSValueColumn()).append("=?");
+                  buffer.append(',').append(dataSlot.getParent().getSValueColumn()).append("=?");
                }
-               if (StringUtils.isNotEmpty(dataSlot.getNValueColumn()))
+               if (StringUtils.isNotEmpty(dataSlot.getParent().getNValueColumn()))
                {
-                  buffer.append(',').append(dataSlot.getNValueColumn()).append("=?");
+                  buffer.append(',').append(dataSlot.getParent().getNValueColumn()).append("=?");
                }
-               
+
                bindValueList.add(new Pair(Long.class, Long.valueOf(dataValue.getOID())));
-               
-              
-               if ( !StringUtils.isEmpty(dataSlot.getSValueColumn()))
+
+
+               if ( !StringUtils.isEmpty(dataSlot.getParent().getSValueColumn()))
                {
                   String sValue;
-                  
+
                   boolean upadteDValue = false;
                   Double dValue = null;
-                  
+
                   // TODO (ab) SPI?
                   if (StructuredTypeRtUtils.isDmsType(dataTypeId)
                         || StructuredTypeRtUtils.isStructuredType(dataTypeId))
                   {
                      Representation representation = getRepresentationForDataValue(
                            dataValue, dataSlot.getAttributeName(), evaluationContext);
-                     
-                     sValue = (String) representation.getRepresentation();
+
+                     Object representationVal = representation.getRepresentation();
+                     sValue = ((representationVal instanceof Double)
+                           ? ((Double) representationVal).toString()
+                           : (String) representationVal);
                      int attributeType = DataXPathMap.getXPathMap(dataValue.getData())
                            .getXPath(dataSlot.getAttributeName()).getType();
                      bindValueList
                            .add(new Pair(Integer.class, new Integer(attributeType)));
-                     
-                     // update dValue column is requested 
-                     if (StringUtils.isNotEmpty(dataSlot.getDValueColumn()))
+
+                     // update dValue column is requested
+                     if (StringUtils.isNotEmpty(dataSlot.getParent().getDValueColumn()))
                      {
                         IProcessInstance rawPi = dataValue.getProcessInstance();
-                        
+
                         // should always be a PIBean
                         if (rawPi instanceof ProcessInstanceBean)
                         {
                            ProcessInstanceBean pi = (ProcessInstanceBean) rawPi;
-                           
+
                            Long xPathOID = DataXPathMap.getXPathMap(dataValue.getData())
                                  .getXPathOID(dataSlot.getAttributeName());
                            IStructuredDataValue cachedSdv = pi
@@ -520,7 +521,7 @@ public class DataClusterHelper
                               upadteDValue = true;
                            }
                         }
-                        
+
                      }
                   }
                   else
@@ -528,19 +529,19 @@ public class DataClusterHelper
                      sValue = dataValue.getShortStringValue();
                      bindValueList.add(new Pair(Integer.class, new Integer(dataValue
                            .getType())));
-                     
-                     // update dValue column is requested 
-                     if (StringUtils.isNotEmpty(dataSlot.getDValueColumn()))
+
+                     // update dValue column is requested
+                     if (StringUtils.isNotEmpty(dataSlot.getParent().getDValueColumn()))
                      {
                         dValue = dataValue.getDoubleValue();
                         upadteDValue = true;
                      }
                   }
                   bindValueList.add(new Pair(String.class, sValue));
-                  
+
                   if (upadteDValue)
                   {
-                     buffer.append(',').append(dataSlot.getDValueColumn()).append("=?");
+                     buffer.append(',').append(dataSlot.getParent().getDValueColumn()).append("=?");
                      bindValueList.add(new Pair(Double.class, dValue));
                   }
                }
@@ -569,18 +570,18 @@ public class DataClusterHelper
                   bindValueList.add(new Pair(Long.class, value));
                }
             }
-            
+
             buffer.append(" WHERE ").append(dataCluster.getProcessInstanceColumn())
                   .append(" = ?");
-            
+
             PreparedStatement stmt = null;
             String stmtString = null;
-            
+
             try
             {
                stmtString = buffer.toString();
                stmt = jdbcSession.getConnection().prepareStatement(stmtString);
-               
+
                int pos = 1;
                for (Pair<Class, ? > compoundBindValue : bindValueList)
                {
@@ -595,9 +596,9 @@ public class DataClusterHelper
                   DmlManager.setSQLValue(stmt, pos, type, bindValue, jdbcSession.getDBDescriptor());
                   ++pos;
                }
-               
+
                stmt.setLong(pos, piOid);
-               
+
                final TimeMeasure timer = new TimeMeasure();
                stmt.executeUpdate();
                jdbcSession.monitorSqlExecution(stmtString, timer.stop());
@@ -618,22 +619,22 @@ public class DataClusterHelper
 
    public static void prepareDataValueUpdate(
          PersistenceController dpc,
-         Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, DataSlot>>> piToDv,
+         Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, ClusterSlotData>>> piToDv,
          Set dpcDelayedCloseSet)
    {
       prepareDataValueUpdate(dpc, piToDv, dpcDelayedCloseSet, false);
    }
-   
+
    public static void prepareDataValueUpdate(
          PersistenceController dpc,
-         Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, DataSlot>>> piToDv,
+         Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, ClusterSlotData>>> piToDv,
          Set dpcDelayedCloseSet, boolean force)
    {
       if (force || dpc.isCreated() || dpc.isModified())
       {
          DataValueBean dataValue = (DataValueBean) dpc.getPersistent();
          IData dataDefinition = dataValue.getData();
-         ProcessInstanceState scopePiState 
+         ProcessInstanceState scopePiState
             = dataValue.getProcessInstance().getScopeProcessInstance().getState();
          DataCluster[] clusterSetup = RuntimeSetup.instance().getDataClusterSetup();
 
@@ -643,33 +644,66 @@ public class DataClusterHelper
             {
                continue;
             }
-            
-            // there can be several data slots for one data (e.g. in case of structured data)
+
+            Pair<Long, DataCluster> key = new Pair(
+                  new Long(dataValue.getProcessInstance().getOID()), dataCluster);
             String qualifiedDataId = ModelUtils.getQualifiedId(dataDefinition);
-            for (DataSlot slot : dataCluster.getSlots(qualifiedDataId).values())
+
+            // there can be several data slots for one data (e.g. in case of structured data)
+            for (DataSlot slot : dataCluster.getDataSlots(qualifiedDataId).values())
             {
-               Pair<Long, DataCluster> key = new Pair(new Long(dataValue
-                     .getProcessInstance().getOID()), dataCluster);
-               List<Pair<PersistenceController, DataSlot>> dvList = piToDv.get(key);
-               if (null == dvList)
-               {
-                  dvList = CollectionUtils.newArrayList();
-                  piToDv.put(key, dvList);
-               }
+               addClusterSlotData(dpc, piToDv, dpcDelayedCloseSet, key, slot.getClusterSlotData());
+            }
 
-               dvList.add(new Pair(dpc, slot));
-
-               if (null != dpcDelayedCloseSet)
+            // search for descriptor slots based on data ID
+            for (DescriptorSlot slot : dataCluster.getDescriptorSlotsByDataId(qualifiedDataId).values())
+            {
+               for (ClusterSlotData slotData : slot.getClusterSlotDatas())
                {
-                  dpcDelayedCloseSet.add(dpc);
+                  if (qualifiedDataId.equals(slotData.getQualifiedDataId()))
+                  {
+                     addClusterSlotData(dpc, piToDv, dpcDelayedCloseSet, key, slotData);
+                     continue;
+                  }
                }
             }
          }
       }
    }
-   
+
+   private static void addClusterSlotData(PersistenceController dpc,
+         Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, ClusterSlotData>>> piToDv,
+         Set dpcDelayedCloseSet, Pair<Long, DataCluster> key,
+         final ClusterSlotData slotData)
+   {
+      List<Pair<PersistenceController, ClusterSlotData>> dvList = piToDv.get(key);
+      if (null == dvList)
+      {
+         dvList = CollectionUtils.<Pair<PersistenceController, ClusterSlotData>>newArrayList();
+         piToDv.put(key, dvList);
+      }
+
+      // put only one slot data per slot!!!!
+      // TODO: do it by using a map with slot as key?
+      for (Pair<PersistenceController, ClusterSlotData> pair : dvList)
+      {
+         AbstractDataClusterSlot clusterSlot = pair.getSecond().getParent();
+         if(clusterSlot.equals(slotData.getParent()))
+         {
+            // the slot already exists - leave
+            return;
+         }
+      }
+      dvList.add(new Pair<PersistenceController, ClusterSlotData>(dpc, slotData));
+
+      if (null != dpcDelayedCloseSet)
+      {
+         dpcDelayedCloseSet.add(dpc);
+      }
+   }
+
    public static void completeDataValueUpdate(
-         Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, DataSlot>>> piToDv,
+         Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, ClusterSlotData>>> piToDv,
          Session jdbcSession)
    {
       completeDataValueModification(piToDv, jdbcSession, false);
@@ -682,10 +716,52 @@ public class DataClusterHelper
    }
 
    public static void completeDataValueDelete(
-         Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, DataSlot>>> piToDv,
+         Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, ClusterSlotData>>> piToDv,
          Session jdbcSession)
    {
       completeDataValueModification(piToDv, jdbcSession, true);
+   }
+
+   public static Map<Long, IData> findAllPrimitiveDataRtOids(AbstractDataClusterSlot slot)
+   {
+      if (slot instanceof DataSlot)
+      {
+         DataSlot dataSlot = (DataSlot) slot;
+         return dataSlot.getClusterSlotData().findAllPrimitiveDataRtOids();
+      }
+      else if (slot instanceof DescriptorSlot)
+      {
+         Map<Long, IData> result = CollectionUtils.newHashMap();
+         DescriptorSlot descriptorSlot = (DescriptorSlot) slot;
+         for (ClusterSlotData slotData : descriptorSlot.getClusterSlotDatas())
+         {
+            result.putAll(slotData.findAllPrimitiveDataRtOids());
+         }
+         return result;
+      }
+
+      return Collections.emptyMap();
+   }
+
+   public static Map<Long, Pair<IData, String>> findAllStructuredDataRtOids(AbstractDataClusterSlot slot)
+   {
+      if (slot instanceof DataSlot)
+      {
+         DataSlot dataSlot = (DataSlot) slot;
+         return dataSlot.getClusterSlotData().findAllStructuredDataRtOids();
+      }
+      else if (slot instanceof DescriptorSlot)
+      {
+         Map<Long, Pair<IData, String>> result = CollectionUtils.newHashMap();
+         DescriptorSlot descriptorSlot = (DescriptorSlot) slot;
+         for (ClusterSlotData slotData : descriptorSlot.getClusterSlotDatas())
+         {
+            result.putAll(slotData.findAllStructuredDataRtOids());
+         }
+         return result;
+      }
+
+      return Collections.emptyMap();
    }
 
    private static Representation getRepresentationForDataValue(DataValueBean dataValue,
@@ -702,6 +778,6 @@ public class DataClusterHelper
 
    private DataClusterHelper()
    {
-      
+
    }
 }

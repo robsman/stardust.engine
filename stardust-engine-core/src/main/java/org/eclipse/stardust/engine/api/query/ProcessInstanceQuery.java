@@ -141,7 +141,8 @@ public class ProcessInstanceQuery extends Query
             ProcessInstanceLinkFilter.class,
             ProcessInstanceHierarchyFilter.class,
             DocumentFilter.class,
-            RootProcessInstanceFilter.class            
+            RootProcessInstanceFilter.class,
+            DescriptorFilter.class
          }),
          ProcessInstanceQuery.class
    );

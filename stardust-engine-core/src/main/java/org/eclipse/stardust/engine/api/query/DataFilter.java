@@ -25,13 +25,13 @@ public class DataFilter extends AbstractDataFilter
 {
    private static final long serialVersionUID = -489237070443309695L;
 
-   private DataFilter(String dataID, String attributeName, Operator.Binary operator, Serializable value,
+   public DataFilter(String dataID, String attributeName, Operator.Binary operator, Serializable value,
          int filterMode)
    {
       super(dataID, attributeName, operator, value, filterMode);
    }
-
-   private DataFilter(String dataID, String attributeName, Operator.Ternary operator,
+    
+   public DataFilter(String dataID, String attributeName, Operator.Ternary operator,
          Serializable value1, Serializable value2, int filterMode)
    {
       super(dataID, attributeName, operator, value1, value2, filterMode);

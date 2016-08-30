@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2016 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,20 +13,11 @@ package org.eclipse.stardust.engine.core.runtime.setup;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
@@ -38,6 +29,11 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
 import org.eclipse.stardust.engine.core.runtime.beans.PropertyPersistor;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster.DataClusterEnableState;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 
 public class RuntimeSetup implements XMLConstants
@@ -99,6 +95,36 @@ public class RuntimeSetup implements XMLConstants
       }
    }
 
+   private static Element getFirstElement(Document doc, String tagName)
+   {
+      NodeList nodeList = doc.getElementsByTagName(tagName);
+      if (0 < nodeList.getLength())
+      {
+         if (1 < nodeList.getLength())
+         {
+            trace.warn("Ignoring all but first <" + tagName + "> elements");
+         }
+         return (Element) nodeList.item(0);
+      }
+
+      return null;
+   }
+
+   private static Element getFirstElement(Element element, String tagName)
+   {
+      NodeList nodeList = element.getElementsByTagName(tagName);
+      if (0 < nodeList.getLength())
+      {
+         if (1 < nodeList.getLength())
+         {
+            trace.warn("Ignoring all but first <" + tagName + "> elements");
+         }
+         return (Element) nodeList.item(0);
+      }
+
+      return null;
+   }
+
    protected void parse(String xml)
    {
       if(StringUtils.isEmpty(xml))
@@ -115,158 +141,35 @@ public class RuntimeSetup implements XMLConstants
          DocumentBuilder domBuilder = new RuntimeSetupDocumentBuilder();
          Document setup = domBuilder.parse(new InputSource(new StringReader(xml)));
 
-         NodeList rsNodes = setup.getElementsByTagName(RUNTIME_SETUP);
-         if (0 < rsNodes.getLength())
+         Element runtimeSetup = getFirstElement(setup, RUNTIME_SETUP);
+         if(runtimeSetup != null)
          {
-            if (1 < rsNodes.getLength())
+            Element auditTrail = getFirstElement(runtimeSetup, AUDIT_TRAIL);
+            if(auditTrail != null)
             {
-               trace.warn("Ignoring all but first <" + RUNTIME_SETUP + "> elements");
-            }
-            final NodeList atNodes = ((Element) rsNodes.item(0))
-                  .getElementsByTagName(AUDIT_TRAIL);
-            if (0 < atNodes.getLength())
-            {
-               if (1 < atNodes.getLength())
+               Element dataClusters = getFirstElement(auditTrail, DATA_CLUSTERS);
+               if(dataClusters != null)
                {
-                  trace.warn("Ignoring all but first <" + AUDIT_TRAIL + "> elements");
-               }
-               final NodeList dccNodes = ((Element) atNodes.item(0))
-                     .getElementsByTagName(DATA_CLUSTERS);
-               if (0 < dccNodes.getLength())
-               {
-                  if (1 < dccNodes.getLength())
-                  {
-                     trace.warn("Ignoring all but first <" + DATA_CLUSTERS + "> elements");
-                  }
-                  final NodeList dcNodes = ((Element) dccNodes.item(0))
-                        .getElementsByTagName(DATA_CLUSTER);
+                  final NodeList dcNodes = dataClusters.getElementsByTagName(DATA_CLUSTER);
                   for (int dcIdx = 0; dcIdx < dcNodes.getLength(); ++dcIdx)
                   {
                      final Element dcNode = (Element) dcNodes.item(dcIdx);
 
                      String dcTableName = dcNode.getAttribute(DATA_CLUSTER_TABNAME_ATT);
 
-                     List slots = new ArrayList();
-                     List indexes = new ArrayList();
-
-                     NodeList dscNodes = dcNode.getElementsByTagName(DATA_SLOTS);
-                     if (0 < dscNodes.getLength())
-                     {
-                        if (1 < dscNodes.getLength())
-                        {
-                           trace.warn("Ignoring all but first <" + DATA_SLOTS
-                                 + "> elements");
-                        }
-                        NodeList dsNodes = ((Element) dscNodes.item(0))
-                              .getElementsByTagName(DATA_SLOT);
-                        for (int dsIdx = 0; dsIdx < dsNodes.getLength(); ++dsIdx)
-                        {
-                           Element dsNode = (Element) dsNodes.item(dsIdx);
-
-                           String modelId = dsNode.getAttribute(DATA_SLOT_MODELID_ATT);
-                           String dataId = dsNode.getAttribute(DATA_SLOT_DATAID_ATT);
-                           String attribute = dsNode
-                                 .getAttribute(DATA_SLOT_ATTRIBUTENAME_ATT);
-
-                           if (StringUtils.isNotEmpty(modelId)
-                                 && StringUtils.isNotEmpty(dataId))
-                           {
-                              String ignorePreparedStatementsAttr = dsNode
-                                    .getAttribute(DATA_SLOT_IGNORE_PREPARED_STATEMENTS_ATT);
-                              boolean ignorePreparedStatements = Boolean
-                                    .valueOf(ignorePreparedStatementsAttr);
-                              String nValueColumn = dsNode
-                                    .getAttribute(DATA_SLOT_NVALCOLUMN_ATT);
-                              String sValueColumn = dsNode
-                                    .getAttribute(DATA_SLOT_SVALCOLUMN_ATT);
-                              String dValueColumn = dsNode
-                                    .getAttribute(DATA_SLOT_DVALCOLUMN_ATT);
-                              if (StringUtils.isNotEmpty(nValueColumn)
-                                    && StringUtils.isNotEmpty(sValueColumn))
-                              {
-                                 throw new PublicException(
-                                       BpmRuntimeError.BPMRT_A_SINGLE_DATA_SLOT_MUST_NOT_CONTAIN_BOTH_STORAGES_TYPES_SVALUECOLUMN_AND_NVALUECOLUMN
-                                             .raise());
-                              }
-                              if (StringUtils.isNotEmpty(nValueColumn)
-                                    && StringUtils.isNotEmpty(dValueColumn))
-                              {
-                                 throw new PublicException(
-                                       BpmRuntimeError.BPMRT_A_NUMERIC_DATA_SLOT_MUST_NOT_CONTAIN_BOTH_STORAGES_TYPES_NVALUECOLUMN_AND_DVALUECOLUMN
-                                             .raise());
-                              }
-                              if (StringUtils.isEmpty(sValueColumn)
-                                    && StringUtils.isNotEmpty(dValueColumn))
-                              {
-                                 throw new PublicException(
-                                       BpmRuntimeError.BPMRT_A_DATA_SLOT_MUST_NOT_CONTAIN_STORAGE_TYPE_DVALUECOLUMN_WITHOUT_STORAGE_TYPE_SVALUECOLUMN
-                                             .raise());
-                              }
-                              if (StringUtils.isNotEmpty(sValueColumn)
-                                    && StringUtils.isEmpty(dValueColumn))
-                              {
-                                 trace.info(MessageFormat
-                                       .format(
-                                             "Data slot for modelId: {0}, dataId: {1}, attribute: {2} "
-                                                   + "does define a string value column but no double value column. "
-                                                   + "Sorting for these data might be performed lexically even if it contains numeric values",
-                                             new Object[] {modelId, dataId, attribute}));
-                              }
-                              slots.add(new DataSlot(modelId, dataId, attribute, dsNode
-                                    .getAttribute(DATA_SLOT_OIDCOLUMN_ATT), dsNode
-                                    .getAttribute(DATA_SLOT_TYPECOLUMN_ATT),
-                                    nValueColumn, sValueColumn, dValueColumn,
-                                    ignorePreparedStatements));
-                           }
-                           else
-                           {
-                              trace.warn("Will ignore data slot for cluster table: "
-                                    + dcTableName
-                                    + ". ModelId or dataId is not set: modelId: "
-                                    + modelId + ", dataId: " + dataId + ", attribute: "
-                                    + attribute);
-                           }
-                        }
-                     }
-
-                     NodeList dcicNodes = dcNode
-                           .getElementsByTagName(DATA_CLUSTER_INDEXES);
-                     if (0 < dcicNodes.getLength())
-                     {
-                        if (1 < dcicNodes.getLength())
-                        {
-                           trace.warn("Ignoring all but first <" + DATA_CLUSTER_INDEXES
-                                 + "> elements");
-                        }
-                        NodeList dciNodes = ((Element) dcicNodes.item(0))
-                              .getElementsByTagName(DATA_CLUSTER_INDEX);
-                        for (int dciIdx = 0; dciIdx < dciNodes.getLength(); ++dciIdx)
-                        {
-                           Element dciNode = (Element) dciNodes.item(dciIdx);
-
-                           NodeList cnNodes = dciNode
-                                 .getElementsByTagName(DATA_CLUSTER_INDEX_COLUMN);
-                           List<String> columnNames = new ArrayList(cnNodes.getLength());
-                           for (int cnIdx = 0; cnIdx < cnNodes.getLength(); ++cnIdx)
-                           {
-                              Element cnNode = (Element) cnNodes.item(cnIdx);
-                              columnNames.add(cnNode.getAttribute(INDEX_COLUMN_NAME_ATT));
-                           }
-
-                           indexes.add(new DataClusterIndex(dcTableName, dciNode
-                                 .getAttribute(INDEX_NAME_ATT), StringUtils.getBoolean(
-                                 dciNode.getAttribute(INDEX_UNIQUE_ATT), false),
-                                 columnNames));
-                        }
-                     }
+                     List<DataSlot> dataSlots = getDataSlots(dcNode, dcTableName);
+                     List<DescriptorSlot> descriptorSlots = getDescriptorSlots(dcNode, dcTableName);
+                     List<DataClusterIndex> indexes = getClusterIndexes(dcNode, dcTableName);
 
                      Parameters params = Parameters.instance();
                      String schemaName = params.getString(Session.KEY_AUDIT_TRAIL_SCHEMA);
 
-                     parsedClusters.add(new DataCluster(schemaName, dcTableName, dcNode
-                           .getAttribute(DATA_CLUSTER_PICOLUMN_ATT), (DataSlot[]) slots
-                           .toArray(new DataSlot[0]), (DataClusterIndex[]) indexes
-                           .toArray(new DataClusterIndex[0]), getEnableStates(dcNode)));
+                     parsedClusters.add(new DataCluster(schemaName, dcTableName,
+                           dcNode.getAttribute(DATA_CLUSTER_PICOLUMN_ATT),
+                           dataSlots.toArray(new DataSlot[0]),
+                           descriptorSlots.toArray(new DescriptorSlot[0]),
+                           indexes.toArray(new DataClusterIndex[0]),
+                           getEnableStates(dcNode)));
                   }
                }
             }
@@ -284,6 +187,234 @@ public class RuntimeSetup implements XMLConstants
          throw new InternalException(
                "Cannot read runtime setup configuration from String.", e);
       }
+   }
+
+   private List<DataClusterIndex> getClusterIndexes(final Element dcNode, String dcTableName)
+   {
+      List<DataClusterIndex> indexes = CollectionUtils.newArrayList();
+
+      Element dataClusterIndexes = getFirstElement(dcNode, DATA_CLUSTER_INDEXES);
+      if(dataClusterIndexes != null)
+      {
+         NodeList dciNodes = dataClusterIndexes.getElementsByTagName(DATA_CLUSTER_INDEX);
+         for (int dciIdx = 0; dciIdx < dciNodes.getLength(); ++dciIdx)
+         {
+            Element dciNode = (Element) dciNodes.item(dciIdx);
+
+            NodeList cnNodes = dciNode
+                  .getElementsByTagName(DATA_CLUSTER_INDEX_COLUMN);
+            List<String> columnNames = new ArrayList(cnNodes.getLength());
+            for (int cnIdx = 0; cnIdx < cnNodes.getLength(); ++cnIdx)
+            {
+               Element cnNode = (Element) cnNodes.item(cnIdx);
+               columnNames.add(cnNode.getAttribute(INDEX_COLUMN_NAME_ATT));
+            }
+
+            indexes.add(new DataClusterIndex(dcTableName, dciNode
+                  .getAttribute(INDEX_NAME_ATT), StringUtils.getBoolean(
+                  dciNode.getAttribute(INDEX_UNIQUE_ATT), false),
+                  columnNames));
+         }
+      }
+
+      return indexes;
+   }
+
+   private List<DataSlot> getDataSlots(final Element dcNode, String dcTableName)
+   {
+      List<DataSlot> dataSlots = CollectionUtils.newArrayList();
+
+      Element dataSlotsElemet = getFirstElement(dcNode, DATA_SLOTS);
+      if(dataSlotsElemet != null)
+      {
+         NodeList dsNodes = dataSlotsElemet.getElementsByTagName(DATA_SLOT);
+         for (int dsIdx = 0; dsIdx < dsNodes.getLength(); ++dsIdx)
+         {
+            Element dsNode = (Element) dsNodes.item(dsIdx);
+
+            try
+            {
+               ClusterSlotData csd = getClusterSlotData(dsNode);
+
+               String ignorePreparedStatementsAttr = dsNode
+                     .getAttribute(DATA_SLOT_IGNORE_PREPARED_STATEMENTS_ATT);
+               boolean ignorePreparedStatements = Boolean
+                     .valueOf(ignorePreparedStatementsAttr);
+               String nValueColumn = dsNode
+                     .getAttribute(DATA_SLOT_NVALCOLUMN_ATT);
+               String sValueColumn = dsNode
+                     .getAttribute(DATA_SLOT_SVALCOLUMN_ATT);
+               String dValueColumn = dsNode
+                     .getAttribute(DATA_SLOT_DVALCOLUMN_ATT);
+               if (StringUtils.isNotEmpty(nValueColumn)
+                     && StringUtils.isNotEmpty(sValueColumn))
+               {
+                  throw new PublicException(
+                        BpmRuntimeError.BPMRT_A_SINGLE_DATA_SLOT_MUST_NOT_CONTAIN_BOTH_STORAGES_TYPES_SVALUECOLUMN_AND_NVALUECOLUMN
+                              .raise());
+               }
+               if (StringUtils.isNotEmpty(nValueColumn)
+                     && StringUtils.isNotEmpty(dValueColumn))
+               {
+                  throw new PublicException(
+                        BpmRuntimeError.BPMRT_A_NUMERIC_DATA_SLOT_MUST_NOT_CONTAIN_BOTH_STORAGES_TYPES_NVALUECOLUMN_AND_DVALUECOLUMN
+                              .raise());
+               }
+               if (StringUtils.isEmpty(sValueColumn)
+                     && StringUtils.isNotEmpty(dValueColumn))
+               {
+                  throw new PublicException(
+                        BpmRuntimeError.BPMRT_A_DATA_SLOT_MUST_NOT_CONTAIN_STORAGE_TYPE_DVALUECOLUMN_WITHOUT_STORAGE_TYPE_SVALUECOLUMN
+                              .raise());
+               }
+               if (StringUtils.isNotEmpty(sValueColumn)
+                     && StringUtils.isEmpty(dValueColumn))
+               {
+                  trace.info(MessageFormat
+                        .format(
+                              "Data slot for modelId: {0}, dataId: {1}, attribute: {2} "
+                                    + "does define a string value column but no double value column. "
+                                    + "Sorting for these data might be performed lexically even if it contains numeric values",
+                              new Object[] {csd.getModelId(), csd.getDataId(), csd.getAttributeName()}));
+               }
+               dataSlots.add(new DataSlot(csd, dsNode
+                     .getAttribute(DATA_SLOT_OIDCOLUMN_ATT), dsNode
+                     .getAttribute(DATA_SLOT_TYPECOLUMN_ATT),
+                     nValueColumn, sValueColumn, dValueColumn,
+                     ignorePreparedStatements));
+
+            }
+            catch (InvalidClusterSlotDataException x)
+            {
+               trace.warn("Will ignore data slot for cluster table: "
+                     + dcTableName + ". " + x.getMessage());
+
+            }
+         }
+      }
+
+      return dataSlots;
+   }
+
+   private List<DescriptorSlot> getDescriptorSlots(final Element dcNode, String dcTableName)
+   {
+      List<DescriptorSlot> descriptorSlots = CollectionUtils.newArrayList();
+
+      Element descrSlotsElement = getFirstElement(dcNode, DESCRIPTOR_SLOTS);
+      if(descrSlotsElement != null)
+      {
+         NodeList dsNodes = descrSlotsElement.getElementsByTagName(DESCRIPTOR_SLOT);
+         for (int dsIdx = 0; dsIdx < dsNodes.getLength(); ++dsIdx)
+         {
+            Element dsNode = (Element) dsNodes.item(dsIdx);
+
+            try
+            {
+               Set<ClusterSlotData> csd = getClusterSlotDatas(dsNode);
+
+               String descriptorId = dsNode
+                     .getAttribute(DESCRIPTOR_SLOT_DESCR_ID_ATT);
+               String ignorePreparedStatementsAttr = dsNode
+                     .getAttribute(DATA_SLOT_IGNORE_PREPARED_STATEMENTS_ATT);
+               boolean ignorePreparedStatements = Boolean
+                     .valueOf(ignorePreparedStatementsAttr);
+               String nValueColumn = dsNode
+                     .getAttribute(DATA_SLOT_NVALCOLUMN_ATT);
+               String sValueColumn = dsNode
+                     .getAttribute(DATA_SLOT_SVALCOLUMN_ATT);
+               String dValueColumn = dsNode
+                     .getAttribute(DATA_SLOT_DVALCOLUMN_ATT);
+               if (StringUtils.isNotEmpty(nValueColumn)
+                     && StringUtils.isNotEmpty(sValueColumn))
+               {
+                  throw new PublicException(
+                        BpmRuntimeError.BPMRT_A_SINGLE_DATA_SLOT_MUST_NOT_CONTAIN_BOTH_STORAGES_TYPES_SVALUECOLUMN_AND_NVALUECOLUMN
+                              .raise());
+               }
+               if (StringUtils.isNotEmpty(nValueColumn)
+                     && StringUtils.isNotEmpty(dValueColumn))
+               {
+                  throw new PublicException(
+                        BpmRuntimeError.BPMRT_A_NUMERIC_DATA_SLOT_MUST_NOT_CONTAIN_BOTH_STORAGES_TYPES_NVALUECOLUMN_AND_DVALUECOLUMN
+                              .raise());
+               }
+               if (StringUtils.isEmpty(sValueColumn)
+                     && StringUtils.isNotEmpty(dValueColumn))
+               {
+                  throw new PublicException(
+                        BpmRuntimeError.BPMRT_A_DATA_SLOT_MUST_NOT_CONTAIN_STORAGE_TYPE_DVALUECOLUMN_WITHOUT_STORAGE_TYPE_SVALUECOLUMN
+                              .raise());
+               }
+               if (StringUtils.isNotEmpty(sValueColumn)
+                     && StringUtils.isEmpty(dValueColumn))
+               {
+                  trace.info(MessageFormat
+                        .format(
+                              "Descriptor slot with descriptorId: {0} "
+                                    + "does define a string value column but no double value column. "
+                                    + "Sorting for these data might be performed lexically even if it contains numeric values",
+                              new Object[] {descriptorId}));
+               }
+               descriptorSlots.add(new DescriptorSlot(descriptorId, csd, dsNode
+                     .getAttribute(DATA_SLOT_OIDCOLUMN_ATT), dsNode
+                     .getAttribute(DATA_SLOT_TYPECOLUMN_ATT),
+                     nValueColumn, sValueColumn, dValueColumn,
+                     ignorePreparedStatements));
+
+            }
+            catch (InvalidClusterSlotDataException x)
+            {
+               trace.warn("Will ignore data slot for cluster table: "
+                     + dcTableName + ". " + x.getMessage());
+
+            }
+         }
+      }
+
+      return descriptorSlots;
+   }
+
+   /**
+    * @param dataNode a node of <data-slot> or <data>
+    * @return
+    */
+   private static ClusterSlotData getClusterSlotData(Element dataNode)
+   {
+      String modelId = dataNode.getAttribute(DATA_SLOT_MODELID_ATT);
+      String dataId = dataNode.getAttribute(DATA_SLOT_DATAID_ATT);
+      String attributeName = dataNode.getAttribute(DATA_SLOT_ATTRIBUTENAME_ATT);
+
+      if (StringUtils.isNotEmpty(modelId) && StringUtils.isNotEmpty(dataId))
+      {
+         return new ClusterSlotData(modelId, dataId, attributeName);
+      }
+      else
+      {
+         throw new InvalidClusterSlotDataException(modelId, dataId, attributeName);
+      }
+   }
+
+   /**
+    * @param dataNode a node of <descriptor-slot>
+    * @return
+    */
+   private static Set<ClusterSlotData> getClusterSlotDatas(Element descrSlotNode)
+   {
+      Set<ClusterSlotData> csds = CollectionUtils.newSet();
+
+      Element datasElement = getFirstElement(descrSlotNode, DATAS);
+      if(datasElement != null)
+      {
+         NodeList dataNodes = datasElement.getElementsByTagName(DATA);
+         for (int dsIdx = 0; dsIdx < dataNodes.getLength(); ++dsIdx)
+         {
+            Element dataNode = (Element) dataNodes.item(dsIdx);
+            ClusterSlotData csd = getClusterSlotData(dataNode);
+            csds.add(csd);
+         }
+      }
+
+      return csds;
    }
 
    private Set<DataClusterEnableState> getEnableStates(Element dcNode)
@@ -325,5 +456,17 @@ public class RuntimeSetup implements XMLConstants
       {}
 
       return null;
+   }
+
+   private static class InvalidClusterSlotDataException extends InternalException
+   {
+      private static final long serialVersionUID = 1L;
+
+      public InvalidClusterSlotDataException(String modelId, String dataId,
+            String attributeName)
+      {
+         super("ModelId or dataId is not set: modelId: " + modelId + ", dataId: " + dataId
+               + ", attributeName: " + attributeName);
+      }
    }
 }

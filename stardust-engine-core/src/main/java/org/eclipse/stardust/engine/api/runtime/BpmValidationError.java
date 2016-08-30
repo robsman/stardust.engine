@@ -113,6 +113,7 @@ public class BpmValidationError extends ErrorCase
    public static final Args ACTY_NO_LOOP_INPUT_DATA = new Args("ACTY01016");
    public static final Args ACTY_SUBPROCESSMODE_RUNTIMEBINDING_NO_DATA_SET = new Args("ACTY01017");
    public static final Args ACTY_SUBPROCESSMODE_RUNTIMEBINDING_DATA_NOT_STRING = new Args("ACTY01018");
+   public static final Args ACTY_REFERENCED_APPLICATION_NOT_RESOLVED = new Args("ACTY01019");
 
    //Conditions related
    public static final Args COND_NOT_AN_EXCEPTION_CLASS = new Args("COND01001");

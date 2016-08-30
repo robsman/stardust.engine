@@ -51,6 +51,11 @@ public final class OrderCopier implements OrderEvaluationVisitor
       return order;
    }
    
+   public Object visit(DescriptorOrder order, Object context)
+   {
+      return order;
+   }
+   
    public Object visit(CustomOrderCriterion order, Object context)
    {
       return order;

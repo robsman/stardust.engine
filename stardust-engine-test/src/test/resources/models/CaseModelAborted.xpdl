@@ -570,21 +570,64 @@
                   </ExtendedAttribute>
                </ExtendedAttributes>
             </Activity>
+            <Activity Id="ManualActivity2" Name="Manual Activity 2">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer>Administrator</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="182" Implementation="Manual" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:relocate:source" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.modifyAttributes" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                           <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
          </Activities>
          <Transitions>
             <Transition Id="Transition1" Name="Transition 1" From="ManualActivity1" To="ApplicationActivity1">
                <Condition Type="CONDITION">true</Condition>
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Transition Oid="167"/>
+                     <carnot:Transition Oid="186"/>
                   </ExtendedAttribute>
                </ExtendedAttributes>
             </Transition>
-            <Transition Id="Transition2" Name="Transition 2" From="ApplicationActivity1" To="ApplicationActivity2">
+            <Transition Id="Transition2" Name="Transition 2" From="ApplicationActivity1" To="ManualActivity2">
                <Condition Type="CONDITION">true</Condition>
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Transition Oid="177"/>
+                     <carnot:Transition Oid="188"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="Transition3" Name="Transition 3" From="ManualActivity2" To="ApplicationActivity2">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="190"/>
                   </ExtendedAttribute>
                </ExtendedAttributes>
             </Transition>
@@ -623,15 +666,17 @@
                               <carnot:Symbols>
                                  <carnot:Symbol Kind="STARTEVENT" Oid="168" X="294" Y="-115" Width="110" Height="50" ModelElement="ManualTrigger1"/>
                                  <carnot:Symbol Kind="ACTIVITY" Oid="169" X="259" Y="-10" Width="180" Height="50" ModelElement="ManualActivity1"/>
-                                 <carnot:Symbol Kind="ACTIVITY" Oid="170" X="259" Y="66" Width="180" Height="50" ModelElement="ApplicationActivity1"/>
-                                 <carnot:Symbol Kind="ACTIVITY" Oid="176" X="260" Y="140" Width="180" Height="50" ModelElement="ApplicationActivity2"/>
-                                 <carnot:Symbol Kind="APPLICATION" Oid="180" X="525" Y="145" Width="140" Height="40" ModelElement="PlainJavaApplication3"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="170" X="260" Y="65" Width="180" Height="50" ModelElement="ApplicationActivity1"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="176" X="260" Y="210" Width="180" Height="50" ModelElement="ApplicationActivity2"/>
+                                 <carnot:Symbol Kind="APPLICATION" Oid="180" X="520" Y="230" Width="140" Height="40" ModelElement="PlainJavaApplication3"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="183" X="260" Y="140" Width="180" Height="50" ModelElement="ManualActivity2"/>
                               </carnot:Symbols>
                               <carnot:Connections>
                                  <carnot:Connection Kind="TRANSITION" Oid="171" SourceSymbol="168" TargetSymbol="169" SourceAnchor="center" TargetAnchor="top"/>
-                                 <carnot:Connection Kind="TRANSITION" Oid="172" ModelElement="Transition1" SourceSymbol="169" TargetSymbol="170" SourceAnchor="center" TargetAnchor="top"/>
-                                 <carnot:Connection Kind="TRANSITION" Oid="178" ModelElement="Transition2" SourceSymbol="170" TargetSymbol="176" SourceAnchor="bottom" TargetAnchor="center"/>
                                  <carnot:Connection Kind="EXECUTED_BY" Oid="181" SourceSymbol="180" TargetSymbol="176"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="187" ModelElement="Transition1" SourceSymbol="169" TargetSymbol="170" SourceAnchor="bottom" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="189" ModelElement="Transition2" SourceSymbol="170" TargetSymbol="183" SourceAnchor="center" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="191" ModelElement="Transition3" SourceSymbol="183" TargetSymbol="176" SourceAnchor="center" TargetAnchor="center"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>

@@ -297,10 +297,10 @@ public class CaseProcessAbortedTest
     * Tests case is created by application, and will be removed after from root case PI
     */
    @Test
-   @Ignore
    public void testCaseActive11() throws Exception
    {
       ProcessInstance caseProcess1 = wfService.startProcess(CASE_PROCESS3, null, true);
+      completeNext(caseProcess1);
       completeNext(caseProcess1);
       
       ProcessInstance caseProcessInstance = null;      

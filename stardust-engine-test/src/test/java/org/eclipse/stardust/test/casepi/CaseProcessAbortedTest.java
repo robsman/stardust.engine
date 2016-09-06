@@ -332,6 +332,21 @@ public class CaseProcessAbortedTest
       ProcessInstanceStateBarrier.instance().await(rootCaseProcess.getOID(), ProcessInstanceState.Aborted);
    }
       
+   /**
+    * Tests 1, no complete, no abort -> aborted state
+    */
+   @Test
+   public void testCaseActive13() throws Exception
+   {
+      ProcessInstance caseProcess1 = wfService.startProcess(CASE_PROCESS1, null, true);
+
+      long[] members = {caseProcess1.getOID()};
+      ProcessInstance rootCaseProcess = wfService.createCase("Case1", null, members);
+      assertNotNull(rootCaseProcess);
+
+      ProcessInstanceStateBarrier.instance().await(rootCaseProcess.getOID(), ProcessInstanceState.Active);
+   }
+      
    private ActivityInstance findFirstActivityInstance(long processInstanceOID)
    {
       final ActivityInstanceQuery aiQuery = ActivityInstanceQuery.findForProcessInstance(processInstanceOID);

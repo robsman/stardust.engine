@@ -294,7 +294,7 @@ public class CaseProcessAbortedTest
    }   
 
    /**
-    * Tests case is created by application, and will be removed after from root case PI
+    * Tests case is created by application, and will be removed after from root case PI -> aborted
     */
    @Test
    public void testCaseActive11() throws Exception
@@ -333,7 +333,7 @@ public class CaseProcessAbortedTest
    }
       
    /**
-    * Tests 1, no complete, no abort -> aborted state
+    * Tests 1, no complete, no abort -> active state
     */
    @Test
    public void testCaseActive13() throws Exception

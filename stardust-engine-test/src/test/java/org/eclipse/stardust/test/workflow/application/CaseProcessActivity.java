@@ -45,10 +45,16 @@ public class CaseProcessActivity
       
       ProcessInstanceQuery query = ProcessInstanceQuery.findCaseByName(caseName);      
       ProcessInstances allProcessInstances = esf.getQueryService().getAllProcessInstances(query);
+            
       if(allProcessInstances != null && allProcessInstances.size() != 0)
       {
          caseProcessInstance = allProcessInstances.get(0);
       }
+      else
+      {
+         caseProcessInstance = null;         
+      }
+      
       if (caseProcessInstance == null
     		  || caseProcessInstance.getState() == ProcessInstanceState.Completed
     		  || caseProcessInstance.getState() == ProcessInstanceState.Aborted) 

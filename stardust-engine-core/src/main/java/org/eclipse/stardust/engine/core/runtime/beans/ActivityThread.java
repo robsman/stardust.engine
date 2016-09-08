@@ -38,6 +38,7 @@ import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable.SymbolTableFactory;
+import org.eclipse.stardust.engine.core.javascript.CalendarWrapper;
 import org.eclipse.stardust.engine.core.model.beans.TransitionBean;
 import org.eclipse.stardust.engine.core.model.utils.ExclusionComputer;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
@@ -53,6 +54,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.TokenCache;
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.TokenCache.TokenLocation;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
+import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 
 /**
  * A (logical) thread for the execution of a workflow process.
@@ -791,7 +793,7 @@ public class ActivityThread implements Runnable
             {
                // find traversable transitions and separate between enabled and otherwise ones
                ModelElementList outTransitions = activity.getOutTransitions();
-               SymbolTable symbolTable = SymbolTableFactory.create(activityInstance, activity);
+               SymbolTable symbolTable = wrap(processInstance, SymbolTableFactory.create(activityInstance, activity));
                for (int i = 0; i < outTransitions.size(); ++i)
                {
                   ITransition transition = (ITransition) outTransitions.get(i);
@@ -951,6 +953,23 @@ public class ActivityThread implements Runnable
             }
          }
       }
+   }
+
+   private SymbolTable wrap(final IProcessInstance pi, final SymbolTable st)
+   {
+      return new SymbolTable()
+      {
+         public AccessPoint lookupSymbolType(String name)
+         {
+            return st.lookupSymbolType(name);
+         }
+
+         public Object lookupSymbol(String name)
+         {
+            Object value = st.lookupSymbol(name);
+            return value instanceof Calendar ? new CalendarWrapper(pi, (Calendar) value) : value;
+         }
+      };
    }
 
    private Set<ITransition> getExclusionList(ITransition transition)

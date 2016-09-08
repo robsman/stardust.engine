@@ -14,24 +14,31 @@ package org.eclipse.stardust.engine.api.runtime;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.eclipse.stardust.common.CollectionUtils;
+
 /**
  * Container class for options that control how a process instance is started
- * 
+ *
  * @author Thomas.Wolfram
  *
  */
 public class StartOptions implements Serializable
 {
+   private static final long serialVersionUID = 2L;
 
-   private static final long serialVersionUID = 1L;
+   public static final String TRIGGER = "trigger";
 
-   private Map<String, ? > data;
+   public static final String BUSINESS_CALENDAR = "businessCalendar";
+
+   private Map<String, ?> data;
 
    private boolean synchronously;
 
    private String benchmarkId;
 
-   public Map<String, ? > getData()
+   private Map<String, Serializable> properties;
+
+   public Map<String, ?> getData()
    {
       return data;
    }
@@ -46,11 +53,25 @@ public class StartOptions implements Serializable
       return benchmarkId;
    }
 
+   public Serializable getProperty(String name)
+   {
+      return properties == null ? null : properties.get(name);
+   }
+
+   public void setProperty(String name, Serializable value)
+   {
+      if (properties == null)
+      {
+         properties = CollectionUtils.newMap();
+      }
+      properties.put(name, value);
+   }
+
    public StartOptions(Map<String, ? > data, boolean synchronously)
    {
       this(data, synchronously, null);
-   }   
-   
+   }
+
    public StartOptions(Map<String, ? > data, boolean synchronously,
          String benchmarkId)
    {
@@ -58,5 +79,4 @@ public class StartOptions implements Serializable
       this.synchronously = synchronously;
       this.benchmarkId = benchmarkId;
    }
-
 }

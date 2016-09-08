@@ -140,19 +140,19 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
          now.set(Calendar.HOUR_OF_DAY, 0);
          sc.setDate(now.getTime());
 
-         // Get schedule for current day by searching next schedule from last day.
-         Date timeOffSchedule = sc.processSchedule(scheduleJson, true, -1);
-
+         Date timeOffSchedule = sc.processSchedule(scheduleJson, true/*, -1*/);
+         if (timeOffSchedule == null && sc instanceof SchedulingRecurrenceNone)
+         {
+            // use today
+            timeOffSchedule = new Date();
+         }
          if (timeOffSchedule != null)
          {
             Date startDate = getTime(scheduleJson, "startTimeStamp", timeOffSchedule);
             Date endDate = getTime(scheduleJson, "endTimeStamp", timeOffSchedule);
             if (startDate == null)
             {
-               if (endDate != null)
-               {
-                  isBlocking = !executionDate.after(endDate);
-               }
+               isBlocking = endDate == null || !executionDate.after(endDate);
             }
             else
             {
@@ -165,18 +165,6 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
                   isBlocking = !executionDate.before(startDate)
                         && !executionDate.after(endDate);
                }
-            }
-            isBlocking = executionTimeMatches(timeOffSchedule);
-         }
-         else if (sc instanceof SchedulingRecurrenceNone)
-         {
-            // check if current day is blocked, no recurrence.
-            Date startDate = getTime2(scheduleJson, "startTimeStamp");
-            Date endDate = getTime2(scheduleJson, "endTimeStamp");
-            if (startDate != null && endDate != null && startDate.before(executionDate)
-                  && endDate.after(executionDate))
-            {
-               isBlocking = true;
             }
          }
       }
@@ -207,32 +195,6 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
       return allDay;
    }
 
-   @Override
-   protected boolean executionTimeMatches(Date processSchedule)
-   {
-      Calendar targetCalendar = getCalendar(executionDate);
-      Calendar scheduleCalendar = getCalendar(processSchedule);
-      Calendar nextDayCalendar = getCalendar(executionDate);
-      nextDayCalendar.add(Calendar.DAY_OF_YEAR, 1);
-      nextDayCalendar.set(Calendar.HOUR, 0);
-      nextDayCalendar.set(Calendar.MINUTE, 0);
-      nextDayCalendar.set(Calendar.SECOND, 0);
-
-      // only accept found schedule of same day.
-      if (scheduleCalendar.getTimeInMillis() >= nextDayCalendar.getTimeInMillis())
-      {
-         return false;
-      }
-
-      if (startingDate == null)
-      {
-         return targetCalendar.getTimeInMillis() >= scheduleCalendar.getTimeInMillis();
-      }
-      Calendar startingCalendar = getCalendar(startingDate);
-      return targetCalendar.getTimeInMillis() >= scheduleCalendar.getTimeInMillis()
-            && scheduleCalendar.getTimeInMillis() > startingCalendar.getTimeInMillis();
-   }
-
    private Date getTime(JsonObject scheduleJson, String name, Date when)
    {
       String value = SchedulingUtils.getAsString(scheduleJson, name);
@@ -244,18 +206,6 @@ public class TimeOffCalendarFinder extends ScheduledDocumentFinder<ScheduledDocu
          now.set(Calendar.HOUR_OF_DAY, ref.get(Calendar.HOUR_OF_DAY));
          now.set(Calendar.MINUTE, ref.get(Calendar.MINUTE));
          return now.getTime();
-      }
-      return null;
-   }
-
-
-   private Date getTime2(JsonObject scheduleJson, String name)
-   {
-      String value = SchedulingUtils.getAsString(scheduleJson, name);
-      if (value != null)
-      {
-         Date time = new Date(Long.parseLong(value));
-         return time;
       }
       return null;
    }

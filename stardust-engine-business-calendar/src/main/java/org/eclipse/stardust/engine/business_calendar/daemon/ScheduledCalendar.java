@@ -74,7 +74,7 @@ public class ScheduledCalendar extends ScheduledDocument
                if (businessObjectData != null)
                {
                   JsonObject relationship = SchedulingUtils.getAsJsonObject(details, "relationship");
-                  if (relationship.get("otherBusinessObject") != null && !businessObjectData.isEmpty())
+                  if (relationship != null && relationship.get("otherBusinessObject") != null && !businessObjectData.isEmpty())
                   {
                      String other = SchedulingUtils.getAsString(relationship,
                            "otherBusinessObject");
@@ -130,7 +130,7 @@ public class ScheduledCalendar extends ScheduledDocument
       try
       {
          StartOptions options = new StartOptions(businessObjectData, false, benchmarkId);
-
+         options.setProperty(StartOptions.BUSINESS_CALENDAR, documentPath);
          getWorkflowService().startProcess(processId, options);
       }
       catch (Exception ex)

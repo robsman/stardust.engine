@@ -18,11 +18,7 @@ import java.util.*;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.Action;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.CompareHelper;
-import org.eclipse.stardust.common.Direction;
-import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
@@ -111,6 +107,11 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       IProcessInstance processInstance = ProcessInstanceBean.createInstance(
             processDefinition, SecurityProperties.getUser(), values);
+      Serializable calendar = options.getProperty(StartOptions.BUSINESS_CALENDAR);
+      if (calendar != null)
+      {
+         processInstance.setPropertyValue(StartOptions.BUSINESS_CALENDAR, calendar);
+      }
 
       if ( !AuditTrailPersistence.isTransientExecution(processInstance.getAuditTrailPersistence()))
       {
@@ -190,9 +191,9 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          trace.info("Starting process '" + processDefinition.getId() + "', oid = "
                + processInstance.getOID() + ", synchronous = " + synchronously);
       }
-      IActivity rootActivity = processDefinition.getRootActivity();
+      IActivity startActivity = getStartActivity(processDefinition, options.getProperty(StartOptions.TRIGGER));
 
-      ActivityThread.schedule(processInstance, rootActivity, null, synchronously, null,
+      ActivityThread.schedule(processInstance, startActivity, null, synchronously, null,
             Collections.EMPTY_MAP, false);
 
       final ProcessInstance pi = DetailsFactory.create(processInstance);
@@ -203,6 +204,21 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       }
 
       return pi;
+   }
+
+   public IActivity getStartActivity(IProcessDefinition processDefinition, Serializable triggerId)
+   {
+      /*if (triggerId != null)
+      {
+         ITrigger trigger = processDefinition.findTrigger(triggerId.toString());
+         Iterator<Diagram> diagrams = processDefinition.getAllDiagrams();
+         while (diagrams.hasNext())
+         {
+            Diagram diagram = diagrams.next();
+            Symbol symbol = diagram.findSymbolForUserObject(trigger);
+         }
+      }*/
+      return processDefinition.getRootActivity();
    }
 
    public ProcessInstance spawnSubprocessInstance(long rootProcessInstanceOid,
@@ -367,7 +383,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       ProcessInstanceBean group = ProcessInstanceBean.createInstance(process, user, null);
 
-      IActivity rootActivity = process.getRootActivity();
+      IActivity rootActivity = getStartActivity(process, null);
 
       ActivityThread.schedule(group, rootActivity, null, true, null,
             Collections.EMPTY_MAP, false);

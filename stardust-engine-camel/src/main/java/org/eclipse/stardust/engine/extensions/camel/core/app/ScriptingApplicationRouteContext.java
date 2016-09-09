@@ -259,7 +259,7 @@ public class ScriptingApplicationRouteContext extends ProducerRouteContext
                         || type.getId().equalsIgnoreCase(Type.Double.getId()) || type
                         .getId().equalsIgnoreCase(Type.Long.getId())))
             {
-               script.append(ap.getId() + " = new Number( request.headers.get('"
+               script.append(ap.getId() + " = Number( request.headers.get('"
                      + ap.getId() + "'));\n");
             }
             else if (type != null

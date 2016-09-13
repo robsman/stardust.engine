@@ -84,7 +84,12 @@ public class CriticalityDaemon implements IDaemon
          for (Iterator i = updateList.iterator(); i.hasNext();)
          {
             long oid = (Long) i.next();
-            criticalityMap.put(oid, CriticalityEvaluator.recalculateCriticality(oid));
+            double criticalityValue = CriticalityEvaluator.recalculateCriticality(oid);
+            if (criticalityValue != CriticalityEvaluator.CRITICALITY_SKIP_VALUE)
+            {
+               criticalityMap.put(oid, criticalityValue);
+            }
+
             lastAiOid = oid;
          }
 
@@ -160,7 +165,7 @@ public class CriticalityDaemon implements IDaemon
                               notEqual(ActivityInstanceBean.FR__STATE,
                                     ActivityInstanceState.ABORTED),
                               notEqual(ActivityInstanceBean.FR__STATE,
-                                    ActivityInstanceState.ABORTED),
+                                    ActivityInstanceState.ABORTING),
                               notEqual(ActivityInstanceBean.FR__STATE,
                                     ActivityInstanceState.COMPLETED)),
                         greaterThan(ActivityInstanceBean.FR__OID, this.currentAiOid)))

@@ -32,6 +32,8 @@ public class CriticalityEvaluator implements ICriticalityEvaluator
    private static final double CRITICALITY_LOWER_LIMIT = 0d;
 
    private static final double CRITICALITY_FAULT_VALUE = -1d;
+   
+   public static final double CRITICALITY_SKIP_VALUE = -2d;
 
    private static final Logger trace = LogManager.getLogger(CriticalityEvaluator.class);
 
@@ -80,6 +82,10 @@ public class CriticalityEvaluator implements ICriticalityEvaluator
          if ( !resultDouble.isNaN())
          {
             return validateBoundaries(resultDouble, aiBean);
+         }
+         else if ( resultDouble.equals(aiBean.getCriticality()))
+         {
+            return CRITICALITY_SKIP_VALUE;
          }
       }
       else

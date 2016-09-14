@@ -13,8 +13,6 @@ import org.eclipse.stardust.engine.core.persistence.ForeignKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.runtime.utils.DataUtils;
-import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 public class DataValueHistoryBean extends IdentifiablePersistentBean
@@ -44,11 +42,11 @@ public class DataValueHistoryBean extends IdentifiablePersistentBean
 
    public static final String FIELD__DOUBLE_VALUE = "double_value";
 
-   public static final String FIELD__MOD_TIMESTAMP = "modification_timestamp";
+   public static final String FIELD__MOD_TIMESTAMP = "mod_timestamp";
 
-   public static final String FIELD__MOD_USER = "modification_user";
+   public static final String FIELD__MOD_USER = "mod_user";
 
-   public static final String FIELD__MOD_ACTIVITY_INSTANCE = "modificating_ai_instance";
+   public static final String FIELD__MOD_ACTIVITY_INSTANCE = "mod_ai_instance";
 
    public static final FieldRef FR__OID = new FieldRef(DataValueHistoryBean.class,
          FIELD__OID);

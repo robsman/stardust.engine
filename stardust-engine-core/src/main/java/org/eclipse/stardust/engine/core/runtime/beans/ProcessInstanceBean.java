@@ -413,13 +413,20 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       {
          dataMap = CollectionUtils.newMap();
       }
-
+      
       if (iModel.findData(PredefinedConstants.BUSINESS_DATE) != null
             && !dataMap.containsKey(PredefinedConstants.BUSINESS_DATE))
       {
-         Calendar businessDate = Calendar.getInstance();
-         businessDate.setTime(processInstance.getRootProcessInstance().getStartTime());
-         dataMap.put(PredefinedConstants.BUSINESS_DATE, businessDate);
+         IData iData = iModel.findData(PredefinedConstants.BUSINESS_DATE);
+         IDataValue dataValue = processInstance.getRootProcessInstance().getDataValue(iData);         
+         Calendar calendarValue = (Calendar) dataValue.getValue();
+         if(calendarValue == null)
+         {
+            calendarValue = Calendar.getInstance();
+            calendarValue.setTime(processInstance.getRootProcessInstance().getStartTime());            
+         }
+         
+         dataMap.put(PredefinedConstants.BUSINESS_DATE, calendarValue);
       }
       if (iModel.findData(PredefinedConstants.DUE_DATE) != null
             && !dataMap.containsKey(PredefinedConstants.DUE_DATE))

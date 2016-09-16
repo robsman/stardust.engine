@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import org.eclipse.stardust.test.bo.BusinessDateTest;
 import org.eclipse.stardust.test.bo.BusinessObjectsModelExtenderTest;
 import org.eclipse.stardust.test.businessobject.BusinessObjectDepartmentTest;
 import org.eclipse.stardust.test.businessobject.BusinessObjectsTest;
@@ -21,7 +22,7 @@ import org.eclipse.stardust.test.businessobject.CreateBusinessObjectTest;
 
 /**
  * <p>
- * This test suite bundles BO related tests.
+ * This test suite bundles BO BD related tests.
  * </p>
  *
  * @author Barry.Grotjahn
@@ -31,7 +32,8 @@ import org.eclipse.stardust.test.businessobject.CreateBusinessObjectTest;
    BusinessObjectsModelExtenderTest.class,
    BusinessObjectsTest.class,
    CreateBusinessObjectTest.class,
-   BusinessObjectDepartmentTest.class
+   BusinessObjectDepartmentTest.class,
+   BusinessDateTest.class
              })
 public class BOTestSuite
 {
